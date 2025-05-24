@@ -1,7 +1,7 @@
 package request
 
 import (
-	"farentalapp/core/data/api"
+	"farental/core/data/api"
 	"fmt"
 
 	"github.com/go-resty/resty/v2"
@@ -22,6 +22,6 @@ func TaskClaim() *resty.Request {
 	r.Method = resty.MethodPost
 	r.URL = fmt.Sprintf("%s/task/claim", ctx.Config.BaseURL)
 	r.SetError(api.ErrorResponse{})
-	
+
 	return r
 }

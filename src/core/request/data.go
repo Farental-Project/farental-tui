@@ -1,7 +1,7 @@
 package request
 
 import (
-	api "farentalapp/core/data/api"
+	api "farental/core/data/api"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 )

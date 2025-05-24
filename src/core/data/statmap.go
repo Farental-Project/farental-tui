@@ -1,7 +1,7 @@
 package data
 
 import (
-	"farentalapp/core/data/api"
+	"farental/core/data/api"
 )
 
 type StatCode string

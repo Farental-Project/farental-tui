@@ -1,7 +1,7 @@
 package request
 
 import (
-	"farentalapp/data"
+	"farental/data"
 	"log"
 )
 
