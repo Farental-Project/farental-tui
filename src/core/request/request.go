@@ -1,13 +1,13 @@
 package request
 
 import (
-	"farental/data"
+	"farental/internal"
 	"log"
 )
 
-var ctx *data.AppCtx
+var ctx *internal.AppCtx
 
-func Init(appCtx *data.AppCtx) {
+func Init(appCtx *internal.AppCtx) {
 	ctx = appCtx
 
 	log.Println("Request package successfully initialized")
