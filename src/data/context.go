@@ -13,5 +13,6 @@ type AppCtx struct {
 func NewAppCtx() *AppCtx {
 	return &AppCtx{
 		Config: config.NewConfig(),
+		Client: resty.New(),
 	}
 }

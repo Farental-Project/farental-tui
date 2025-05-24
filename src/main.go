@@ -20,7 +20,7 @@ func main() {
 	}
 	defer f.Close()
 
-	p := tea.NewProgram(model.AppModel(), tea.WithAltScreen())
+	p := tea.NewProgram(model.AppModel(appCtx), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
