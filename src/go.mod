@@ -7,6 +7,8 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/go-resty/resty/v2 v2.16.5
+	github.com/jeandeaual/go-locale v0.0.0-20250421151639-a9d6ed1b3d45
+	github.com/nicksnyder/go-i18n/v2 v2.6.0
 )
 
 require (
@@ -29,5 +31,5 @@ require (
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 )

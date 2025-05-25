@@ -6,6 +6,7 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal"
+	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -27,12 +28,12 @@ type Model struct {
 
 func New(ctx *internal.AppCtx) Model {
 	tiUserEmail := textinput.New()
-	tiUserEmail.Placeholder = "E-mail"
+	tiUserEmail.Placeholder = lang.L("E-mail")
 	tiUserEmail.Focus()
 	tiUserEmail.Width = 30
 
 	tiPassword := textinput.New()
-	tiPassword.Placeholder = "Password"
+	tiPassword.Placeholder = lang.L("Password")
 	tiPassword.EchoMode = textinput.EchoPassword
 	tiPassword.EchoCharacter = '*'
 	tiPassword.Width = 30

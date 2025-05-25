@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	"farental/core/request"
 	"farental/internal"
+	"farental/internal/lang"
 	"farental/model"
 	"farental/model/characterselection"
 	"farental/model/login"
@@ -10,10 +12,20 @@ import (
 	"log"
 )
 
+//go:embed translations
+var translations embed.FS
+
 func main() {
 	appCtx := internal.NewAppCtx()
 
 	request.Init(appCtx)
+
+	lang.Init()
+	err := lang.AddTranslationFS(translations, "translations")
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	f, err := tea.LogToFile("debug.log", "debug")
 
