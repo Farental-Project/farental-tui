@@ -1,5 +1,8 @@
 {
   "Welcome to Farental": "Welcome to Farental",
   "E-mail": "E-mail",
-  "Password": "Password"
+  "Password": "Password",
+  "please input e-mail and password": "please input e-mail and password",
+  "cannot connect to Farental's server": "cannot connect to Farental's server",
+  "invalid e-mail / password combination": "invalid e-mail / password combination"
 }

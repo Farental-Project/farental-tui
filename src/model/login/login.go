@@ -65,9 +65,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			var model tea.Model
 
-			model = m
-
 			ret := m.submit()
+
+			model = m
 
 			if ret {
 				model = m.ctx.ContentManager.GetCurrentModel()
@@ -157,7 +157,7 @@ func (m *Model) submit() bool {
 	password := m.Inputs[1].Value()
 
 	if len(email) == 0 || len(password) == 0 {
-		m.Err = errors.New("please input e-mail and password")
+		m.Err = errors.New(lang.L("please input e-mail and password"))
 		return false
 	}
 
@@ -170,16 +170,18 @@ func (m *Model) submit() bool {
 		}).Send()
 
 	if err != nil {
-		m.Err = err
+		m.Err = errors.New(lang.L("cannot connect to Farental's server"))
 		return false
 	}
 
 	if resp.StatusCode() != 200 {
-		m.Err = errors.New("invalid e-mail / password combination")
+		m.Err = errors.New(lang.L("invalid e-mail / password combination"))
 		return false
 	}
 
 	m.ctx.Client.SetCookie(resp.Cookies()[0])
+
+	// TODO: Manage the currently selected character to go directly to the gamedashboard.
 
 	m.ctx.ContentManager.SwitchContent(model.ContentCharacterSelection)
 
