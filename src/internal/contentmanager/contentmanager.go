@@ -8,6 +8,8 @@ type Manager struct {
 	Contents     map[string]tea.Model
 	CurrentCode  string
 	PreviousCode string
+
+	ScreenWidth, ScreenHeight int
 }
 
 func New() *Manager {
@@ -20,9 +22,13 @@ func (m *Manager) RegisterContent(code string, content tea.Model) {
 	m.Contents[code] = content
 }
 
-func (m *Manager) SwitchContent(code string) {
+func (m *Manager) SwitchContent(code string) (tea.Model, tea.Cmd) {
 	m.PreviousCode = m.CurrentCode
 	m.CurrentCode = code
+
+	cmd := m.Contents[code].Init()
+
+	return m.Contents[m.CurrentCode], cmd
 }
 
 func (m *Manager) GetCurrentModel() tea.Model {
@@ -34,15 +40,14 @@ func (m *Manager) Back() {
 }
 
 func (m *Manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
-	if m.CurrentCode == "" {
-		return nil, nil
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.ScreenWidth = msg.Width
+		m.ScreenHeight = msg.Height
+		return m.Contents[m.CurrentCode], nil
 	}
 
-	m.Contents[m.CurrentCode], cmd = m.Contents[m.CurrentCode].Update(msg)
-
-	return m.Contents[m.CurrentCode], cmd
+	return m.Contents[m.CurrentCode], nil
 }
 
 func (m Manager) View() string {

@@ -4,5 +4,6 @@
   "Password": "Password",
   "please input e-mail and password": "please input e-mail and password",
   "cannot connect to Farental's server": "cannot connect to Farental's server",
-  "invalid e-mail / password combination": "invalid e-mail / password combination"
+  "invalid e-mail / password combination": "invalid e-mail / password combination",
+  "Character selection" : "Character selection"
 }

@@ -30,4 +30,8 @@ var (
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#dd7302")).
 			Bold(true)
+
+	HighlightStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#75f902")).
+			Bold(true)
 )

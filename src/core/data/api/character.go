@@ -1,10 +1,11 @@
 package api
 
 type CharacterBasicInfoResponse struct {
-	ID        uint
-	RaceName  string
-	FirstName string
-	LastName  string
+	ID           uint
+	RaceName     string
+	FirstName    string
+	LastName     string
+	LocationName string
 }
 
 type CharacterStatResponse struct {

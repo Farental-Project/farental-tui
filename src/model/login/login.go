@@ -21,8 +21,6 @@ type Model struct {
 	Focus  int
 	Title  string
 
-	width, height int
-
 	ctx *internal.AppCtx
 }
 
@@ -54,26 +52,18 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "enter":
-			var model tea.Model
-
 			ret := m.submit()
 
-			model = m
-
 			if ret {
-				model = m.ctx.ContentManager.GetCurrentModel()
+				return m.ctx.ContentManager.SwitchContent(model.ContentCharacterSelection)
 			}
 
-			return model, nil
+			return m, nil
 		case "tab", "shift+tab":
 			key := msg.String()
 
@@ -104,6 +94,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	}
+
+	m.ctx.ContentManager.Update(msg)
 
 	cmd := m.updateInputs(msg)
 	return m, cmd
@@ -147,7 +139,7 @@ func (m Model) View() string {
 	}
 
 	return lipgloss.Place(
-		m.width, m.height,
+		m.ctx.ContentManager.ScreenWidth, m.ctx.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
 		tui)
 }
