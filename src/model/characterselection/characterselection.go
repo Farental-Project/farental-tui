@@ -87,7 +87,7 @@ func (m Model) View() string {
 	helpText := m.Help.View(context.Config.KeyMap)
 
 	b.WriteString(style.ContainerStyle.Render(m.List.View()))
-	b.WriteString("\n")
+	b.WriteString("\n\n")
 	b.WriteString(helpText)
 
 	return lipgloss.Place(

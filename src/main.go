@@ -9,8 +9,9 @@ import (
 	"farental/model/characterselection"
 	"farental/model/gamedashboard"
 	"farental/model/login"
-	tea "github.com/charmbracelet/bubbletea"
 	"log"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 //go:embed translations
@@ -37,7 +38,7 @@ func main() {
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
 
-	context.ContentManager.SwitchContent(model.ContentLogin)
+	context.ContentManager.SwitchContent(model.ContentGameDashboard) // ContentLogin
 
 	p := tea.NewProgram(context.ContentManager.GetCurrentModel(), tea.WithAltScreen())
 
