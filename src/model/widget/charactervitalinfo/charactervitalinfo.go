@@ -81,10 +81,10 @@ func (m Model) View() string {
 	right.WriteString("\n")
 	right.WriteString(m.MpBar.ViewAs(m.MpPercent))
 
-	return styleBorder.Render(lipgloss.JoinHorizontal(lipgloss.Center,
+	return lipgloss.JoinHorizontal(lipgloss.Center,
 		styleParagraph.Render(left.String()),
 		styleParagraph.Render(center.String()),
-		styleParagraph.Render(right.String())))
+		styleParagraph.Render(right.String()))
 }
 
 func (m *Model) UpdateData(characterInfo *api.CharacterInfoResponse) {

@@ -5,6 +5,7 @@ import (
 	"farental/internal/context"
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
+	"farental/model/widget/locationinfo"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -15,11 +16,13 @@ var (
 
 type Model struct {
 	CharacterVitalInfo charactervitalinfo.Model
+	LocationInfo       locationinfo.Model
 }
 
 func New() Model {
 	return Model{
 		CharacterVitalInfo: charactervitalinfo.New(),
+		LocationInfo:       locationinfo.New(),
 	}
 }
 
@@ -56,6 +59,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			},
 			Location: api.LocationResponse{},
 		})
+
+		m.LocationInfo.UpdateData(&api.LocationResponse{
+			ID:   2,
+			Name: "Horten'taar",
+			Description: `This is an amazing place to raise warriors, and to let them kill everybody.
+That's the greatest city in the whole of Farental believe me it's very amazing.
+There is in the center a very big tower that can be seen from very loin apart. Oh yes oh yes.
+Very beautiful and amazing.
+OH and I'm forgetting that you are the best !`,
+			Biome: api.LocationInfoResponse{
+				Code:        "Test",
+				Name:        "Hills",
+				Description: "Les colinnes sont vertes.",
+			},
+			Type: api.LocationInfoResponse{
+				Code:        "Capi",
+				Name:        "Capital",
+				Description: "CAPITAL LETTERS",
+			},
+			Continent: api.LocationInfoResponse{
+				Code:        "Midra",
+				Name:        "Midra'gaar",
+				Description: "dewifmnwpeofwmefpwoefm",
+			},
+			Features: nil,
+		})
 	}
 
 	context.ContentManager.Update(msg)
@@ -64,5 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.CharacterVitalInfo.View()
+	return lipgloss.JoinVertical(lipgloss.Center,
+		m.CharacterVitalInfo.View(),
+		m.LocationInfo.View())
 }
