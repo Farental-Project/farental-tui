@@ -1,14 +1,15 @@
 package request
 
 import (
-	"farental/internal"
+	"github.com/go-resty/resty/v2"
 	"log"
 )
 
-var ctx *internal.AppCtx
+var client *resty.Client
 
-func Init(appCtx *internal.AppCtx) {
-	ctx = appCtx
+// Init takes a resty.Client
+func Init(c *resty.Client) {
+	client = c
 
 	log.Println("Request package successfully initialized")
 }

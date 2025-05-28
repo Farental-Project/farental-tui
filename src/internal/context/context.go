@@ -1,4 +1,4 @@
-package internal
+package context
 
 import (
 	"farental/core/config"
@@ -6,16 +6,15 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type AppCtx struct {
+var (
 	Client         *resty.Client
 	Config         *config.Config
 	ContentManager *contentmanager.Manager
-}
+)
 
-func NewAppCtx() *AppCtx {
-	return &AppCtx{
-		Config:         config.NewConfig(),
-		Client:         resty.New(),
-		ContentManager: contentmanager.New(),
-	}
+func Init() {
+	Config = config.NewConfig()
+	Client = resty.New()
+	Client.SetBaseURL(Config.BaseURL)
+	ContentManager = contentmanager.New()
 }

@@ -2,14 +2,13 @@ package request
 
 import (
 	"farental/core/data/api"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 )
 
 func CraftGetAvailable() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/craft/getAvailable", ctx.Config.BaseURL)
+	r.URL = "/craft/getAvailable"
 	r.SetResult([]api.RecipeResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -17,9 +16,9 @@ func CraftGetAvailable() *resty.Request {
 }
 
 func CraftStart(craftID, amount uint) *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodPost
-	r.URL = fmt.Sprintf("%s/craft/start", ctx.Config.BaseURL)
+	r.URL = "/craft/start"
 	r.SetBody(api.CraftStartBody{
 		RecipeID: craftID,
 		Amount:   amount,

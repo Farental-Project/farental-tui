@@ -3,7 +3,7 @@ package characterselection
 import (
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal"
+	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
@@ -15,14 +15,12 @@ import (
 )
 
 type Model struct {
-	ctx *internal.AppCtx
-
 	List  list.Model
 	Items []list.Item
 }
 
-func New(ctx *internal.AppCtx) Model {
-	m := Model{ctx: ctx}
+func New() Model {
+	m := Model{}
 
 	m.Items = make([]list.Item, 0)
 
@@ -60,7 +58,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.ctx.ContentManager.Update(msg)
+	context.ContentManager.Update(msg)
 
 	m.List, cmd = m.List.Update(msg)
 	return m, cmd
@@ -74,7 +72,7 @@ func (m Model) View() string {
 	tui := style.ContainerStyle.Render(b.String())
 
 	return lipgloss.Place(
-		m.ctx.ContentManager.ScreenWidth, m.ctx.ContentManager.ScreenHeight,
+		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
 		tui)
 }

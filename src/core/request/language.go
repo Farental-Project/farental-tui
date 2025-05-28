@@ -2,14 +2,13 @@ package request
 
 import (
 	api "farental/core/data/api"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 )
 
 func LangGetAll() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/languages", ctx.Config.BaseURL)
+	r.URL = "/languages"
 	r.SetResult([]api.LanguageResponse{})
 	r.SetError(api.ErrorResponse{})
 

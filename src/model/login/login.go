@@ -5,7 +5,7 @@ import (
 	"farental/art"
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal"
+	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
@@ -20,11 +20,9 @@ type Model struct {
 	Inputs [2]textinput.Model
 	Focus  int
 	Title  string
-
-	ctx *internal.AppCtx
 }
 
-func New(ctx *internal.AppCtx) Model {
+func New() Model {
 	tiUserEmail := textinput.New()
 	tiUserEmail.Placeholder = lang.L("E-mail")
 	tiUserEmail.Focus()
@@ -38,7 +36,7 @@ func New(ctx *internal.AppCtx) Model {
 
 	title := art.CreateASCIIArtTitle("FARENTAL")
 
-	l := Model{ctx: ctx}
+	l := Model{}
 	l.Inputs[0] = tiUserEmail
 	l.Inputs[1] = tiPassword
 	l.Title = title
@@ -60,7 +58,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ret := m.submit()
 
 			if ret {
-				return m.ctx.ContentManager.SwitchContent(model.ContentCharacterSelection)
+				return context.ContentManager.SwitchContent(model.ContentCharacterSelection)
 			}
 
 			return m, nil
@@ -95,7 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	}
 
-	m.ctx.ContentManager.Update(msg)
+	context.ContentManager.Update(msg)
 
 	cmd := m.updateInputs(msg)
 	return m, cmd
@@ -139,7 +137,7 @@ func (m Model) View() string {
 	}
 
 	return lipgloss.Place(
-		m.ctx.ContentManager.ScreenWidth, m.ctx.ContentManager.ScreenHeight,
+		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
 		tui)
 }
@@ -171,11 +169,9 @@ func (m *Model) submit() bool {
 		return false
 	}
 
-	m.ctx.Client.SetCookie(resp.Cookies()[0])
+	context.Client.SetCookie(resp.Cookies()[0])
 
 	// TODO: Manage the currently selected character to go directly to the gamedashboard.
-
-	m.ctx.ContentManager.SwitchContent(model.ContentCharacterSelection)
 
 	return true
 }

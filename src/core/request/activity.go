@@ -2,15 +2,13 @@ package request
 
 import (
 	"farental/core/data/api"
-	"fmt"
-
 	"github.com/go-resty/resty/v2"
 )
 
 func ActivityGetAvailable() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/activity/getAvailable", ctx.Config.BaseURL)
+	r.URL = "/activity/getAvailable"
 	r.SetResult([]api.ActivityResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -18,9 +16,9 @@ func ActivityGetAvailable() *resty.Request {
 }
 
 func ActivityStart(activityID, durationID uint) *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodPost
-	r.URL = fmt.Sprintf("%s/activity/start", ctx.Config.BaseURL)
+	r.URL = "/activity/start"
 	r.SetBody(api.ActivityStartBody{ActivityID: activityID, DurationID: durationID})
 	r.SetError(api.ErrorResponse{})
 

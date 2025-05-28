@@ -2,14 +2,13 @@ package request
 
 import (
 	api "farental/core/data/api"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 )
 
 func Login() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodPost
-	r.URL = fmt.Sprintf("%s/auth/login", ctx.Config.BaseURL)
+	r.URL = "/auth/login"
 	r.SetResult(api.AuthSuccessResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -17,9 +16,9 @@ func Login() *resty.Request {
 }
 
 func AuthInfo() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/auth/info", ctx.Config.BaseURL)
+	r.URL = "/auth/info"
 	r.SetResult(api.DataResponse[api.UserResponse]{})
 
 	return r

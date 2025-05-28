@@ -8,9 +8,9 @@ import (
 )
 
 func CharacterGetAll() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/character/all", ctx.Config.BaseURL)
+	r.URL = "/character/all"
 	r.SetResult([]api.CharacterBasicInfoResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -18,18 +18,18 @@ func CharacterGetAll() *resty.Request {
 }
 
 func CharacterCreate() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodPost
-	r.URL = fmt.Sprintf("%s/character/create", ctx.Config.BaseURL)
+	r.URL = "/character/create"
 	r.SetError(api.ErrorResponse{})
 
 	return r
 }
 
 func CharacterGetInfo() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/character/info", ctx.Config.BaseURL)
+	r.URL = "/character/info"
 	r.SetResult(api.CharacterInfoResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -37,9 +37,9 @@ func CharacterGetInfo() *resty.Request {
 }
 
 func CharacterSetActive(id uint) *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodPut
-	r.URL = fmt.Sprintf("%s/character/setActive", ctx.Config.BaseURL)
+	r.URL = "/character/setActive"
 	r.SetQueryParam("characterID", fmt.Sprint(id))
 	r.SetError(api.ErrorResponse{})
 
@@ -47,9 +47,9 @@ func CharacterSetActive(id uint) *resty.Request {
 }
 
 func CharacterGetActive() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/character/getActive", ctx.Config.BaseURL)
+	r.URL = "/character/getActive"
 	r.SetResult(api.CharacterBasicInfoResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -57,9 +57,9 @@ func CharacterGetActive() *resty.Request {
 }
 
 func CharacterGetEventLog() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/character/eventLog", ctx.Config.BaseURL)
+	r.URL = "/character/eventLog"
 	r.SetResult(api.EventLogResponse{})
 	r.SetError(api.ErrorResponse{})
 

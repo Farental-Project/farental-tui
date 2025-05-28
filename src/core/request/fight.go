@@ -2,14 +2,13 @@ package request
 
 import (
 	"farental/core/data/api"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 )
 
 func FightGetFinished() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/fight/getFinished", ctx.Config.BaseURL)
+	r.URL = "/fight/getFinished"
 	r.SetResult([]api.FightResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -17,9 +16,9 @@ func FightGetFinished() *resty.Request {
 }
 
 func FightGetAvailable() *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = fmt.Sprintf("%s/fight/getAvailable", ctx.Config.BaseURL)
+	r.URL = "/fight/getAvailable"
 	r.SetResult([]api.FightCompositionResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -27,9 +26,9 @@ func FightGetAvailable() *resty.Request {
 }
 
 func FightStart(fightCompoID uint) *resty.Request {
-	r := ctx.Client.R()
+	r := client.R()
 	r.Method = resty.MethodPost
-	r.URL = fmt.Sprintf("%s/fight/start", ctx.Config.BaseURL)
+	r.URL = "/fight/start"
 	r.SetBody(api.IDBody{ID: fightCompoID})
 	r.SetError(api.ErrorResponse{})
 

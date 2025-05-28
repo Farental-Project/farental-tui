@@ -3,7 +3,7 @@ package main
 import (
 	"embed"
 	"farental/core/request"
-	"farental/internal"
+	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/characterselection"
@@ -16,17 +16,6 @@ import (
 var translations embed.FS
 
 func main() {
-	appCtx := internal.NewAppCtx()
-
-	request.Init(appCtx)
-
-	lang.Init()
-	err := lang.AddTranslationFS(translations, "translations")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	f, err := tea.LogToFile("debug.log", "debug")
 
 	if err != nil {
@@ -34,12 +23,21 @@ func main() {
 	}
 	defer f.Close()
 
-	appCtx.ContentManager.RegisterContent(model.ContentLogin, login.New(appCtx))
-	appCtx.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New(appCtx))
+	context.Init()
+	request.Init(context.Client)
+	lang.Init()
+	err = lang.AddTranslationFS(translations, "translations")
 
-	appCtx.ContentManager.SwitchContent(model.ContentLogin)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	p := tea.NewProgram(appCtx.ContentManager.GetCurrentModel(), tea.WithAltScreen())
+	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
+	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
+
+	context.ContentManager.SwitchContent(model.ContentLogin)
+
+	p := tea.NewProgram(context.ContentManager.GetCurrentModel(), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
