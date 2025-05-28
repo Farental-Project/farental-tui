@@ -2,6 +2,7 @@ package contentmanager
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"log"
 )
 
 type Manager struct {
@@ -25,6 +26,13 @@ func (m *Manager) RegisterContent(code string, content tea.Model) {
 func (m *Manager) SwitchContent(code string) (tea.Model, tea.Cmd) {
 	m.PreviousCode = m.CurrentCode
 	m.CurrentCode = code
+
+	_, ok := m.Contents[code]
+
+	if !ok {
+		log.Fatal("No such content : ", code)
+		return nil, nil
+	}
 
 	cmd := m.Contents[code].Init()
 

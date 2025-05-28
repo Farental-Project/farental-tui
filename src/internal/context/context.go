@@ -1,7 +1,7 @@
 package context
 
 import (
-	"farental/core/config"
+	"farental/internal/config"
 	"farental/internal/contentmanager"
 	"github.com/go-resty/resty/v2"
 )
@@ -10,6 +10,8 @@ var (
 	Client         *resty.Client
 	Config         *config.Config
 	ContentManager *contentmanager.Manager
+
+	CharacterID uint
 )
 
 func Init() {

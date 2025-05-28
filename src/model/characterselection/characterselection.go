@@ -7,6 +7,8 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -17,10 +19,13 @@ import (
 type Model struct {
 	List  list.Model
 	Items []list.Item
+	Help  help.Model
 }
 
 func New() Model {
 	m := Model{}
+
+	m.Help = help.New()
 
 	m.Items = make([]list.Item, 0)
 
@@ -51,10 +56,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
-		s := msg.String()
-		switch s {
-		case "ctrl+c":
+		switch {
+		case key.Matches(msg, context.Config.KeyMap.Quit):
 			return m, tea.Quit
+
+		case key.Matches(msg, context.Config.KeyMap.Submit):
+			ok := m.submit()
+
+			if ok {
+				return context.ContentManager.SwitchContent(model.ContentGameDashboard)
+			}
+
+			return m, nil
+		case key.Matches(msg, context.Config.KeyMap.Help):
+			m.Help.ShowAll = !m.Help.ShowAll
+
+			return m, nil
 		}
 	}
 
@@ -67,14 +84,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var b strings.Builder
 
-	b.WriteString(m.List.View())
+	helpText := m.Help.View(context.Config.KeyMap)
 
-	tui := style.ContainerStyle.Render(b.String())
+	b.WriteString(style.ContainerStyle.Render(m.List.View()))
+	b.WriteString("\n")
+	b.WriteString(helpText)
 
 	return lipgloss.Place(
-		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,
+		context.ContentManager.ScreenWidth,
+		context.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
-		tui)
+		b.String())
 }
 
 func (m *Model) initData() {
@@ -114,4 +134,36 @@ func (m *Model) loadCharacters() {
 
 		m.Items = append(m.Items, item)
 	}
+}
+
+func (m *Model) submit() bool {
+	selectedItem, ok := m.List.SelectedItem().(ListItem)
+
+	if !ok {
+		log.Println("Invalid item selected")
+		return false
+	}
+
+	if selectedItem.CharacterID == 0 {
+		log.Println("Selected character ID is 0")
+		return false
+	}
+
+	req := request.CharacterSetActive(selectedItem.CharacterID)
+
+	resp, err := req.Send()
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	if resp.StatusCode() != 200 {
+		log.Println(resp.Error())
+		return false
+	}
+
+	context.CharacterID = selectedItem.CharacterID
+
+	return true
 }

@@ -7,6 +7,7 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/characterselection"
+	"farental/model/gamedashboard"
 	"farental/model/login"
 	tea "github.com/charmbracelet/bubbletea"
 	"log"
@@ -34,6 +35,7 @@ func main() {
 
 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
+	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
 
 	context.ContentManager.SwitchContent(model.ContentLogin)
 

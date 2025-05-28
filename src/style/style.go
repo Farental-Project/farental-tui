@@ -21,6 +21,10 @@ var (
 			Foreground(lipgloss.Color("#39d800")).
 			Bold(true)
 
+	HelpStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#1c490c")).
+			Italic(true)
+
 	ContainerStyle = lipgloss.NewStyle().
 			Border(lipgloss.DoubleBorder()).
 			BorderForeground(lipgloss.Color("#39d800")).
