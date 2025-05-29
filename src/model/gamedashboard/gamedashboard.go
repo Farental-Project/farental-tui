@@ -9,6 +9,7 @@ import (
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
 	"farental/model/widget/locationinfo"
+	"farental/model/widget/runningtask"
 	"farental/model/widget/simplelogviewer"
 	"farental/style"
 	"fmt"
@@ -21,6 +22,7 @@ import (
 )
 
 type Model struct {
+	RunningTask        runningtask.Model
 	CharacterVitalInfo charactervitalinfo.Model
 	LocationInfo       locationinfo.Model
 	EventLogViewer     simplelogviewer.Model
@@ -34,6 +36,7 @@ type Model struct {
 
 func New() Model {
 	m := Model{
+		RunningTask:        runningtask.New(75),
 		CharacterVitalInfo: charactervitalinfo.New(75),
 		LocationInfo:       locationinfo.New(75),
 		EventLogViewer: simplelogviewer.New(
@@ -235,4 +238,25 @@ func (m *Model) updateCharactersConnected() {
 	}
 
 	m.CharactersVisible.SetContent(str)
+}
+
+func (m *Model) updateRunningTask() {
+	var req *resty.Request
+
+	req = request.TaskGetRunning()
+
+	resp, err := req.Send()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if resp.StatusCode() == 404 {
+		context.RunningTask = nil
+	}
+
+	task := resp.Result().(*api.TaskResponse)
+
+	context.RunningTask = task
 }

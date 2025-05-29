@@ -1,6 +1,7 @@
 package context
 
 import (
+	"farental/core/data/api"
 	"farental/internal/config"
 	"farental/internal/contentmanager"
 	"github.com/go-resty/resty/v2"
@@ -12,6 +13,7 @@ var (
 	ContentManager *contentmanager.Manager
 
 	CharacterID uint
+	RunningTask *api.TaskResponse
 )
 
 func Init() {
@@ -19,4 +21,7 @@ func Init() {
 	Client = resty.New()
 	Client.SetBaseURL(Config.BaseURL)
 	ContentManager = contentmanager.New()
+
+	CharacterID = 0
+	RunningTask = nil
 }
