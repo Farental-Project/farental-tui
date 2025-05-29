@@ -3,6 +3,7 @@ package characterselection
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model"
@@ -17,9 +18,10 @@ import (
 )
 
 type Model struct {
-	List  list.Model
-	Items []list.Item
-	Help  help.Model
+	List   list.Model
+	Items  []list.Item
+	Help   help.Model
+	Keymap config.ModularKeyMap
 
 	Title string
 }
@@ -42,6 +44,26 @@ func New() Model {
 
 	m.Title = lang.L("Character selection")
 
+	m.Keymap = config.ModularKeyMap{}
+
+	m.Keymap.SetBindings([][]key.Binding{
+		{
+			config.Up,
+			config.Down,
+			config.Submit,
+		},
+		{
+			config.Help,
+			config.Back,
+			config.Quit,
+		},
+	})
+	m.Keymap.SetEssentialBindings([]key.Binding{
+		config.Help,
+		config.Back,
+		config.Quit,
+	})
+
 	return m
 }
 
@@ -60,21 +82,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, context.Config.KeyMap.Quit):
+		case key.Matches(msg, config.Quit):
 			return m, tea.Quit
 
-		case key.Matches(msg, context.Config.KeyMap.Submit):
+		case key.Matches(msg, config.Submit):
 			ok := m.submit()
 
 			if ok {
-				return context.ContentManager.SwitchContent(model.ContentGameDashboard)
+				return context.ContentManager.SwitchContent(
+					model.ContentGameDashboard)
 			}
 
 			return m, nil
-		case key.Matches(msg, context.Config.KeyMap.Help):
+		case key.Matches(msg, config.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
 
 			return m, nil
+
+		case key.Matches(msg, config.Back):
+			return context.ContentManager.SwitchContent(
+				model.ContentLogin)
 		}
 	}
 
@@ -87,7 +114,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var tui strings.Builder
 
-	helpText := m.Help.View(context.Config.KeyMap)
+	helpText := m.Help.View(m.Keymap)
 
 	title := style.TitleStyle.Render(m.Title)
 

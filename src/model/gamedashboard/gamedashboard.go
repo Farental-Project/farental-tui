@@ -3,6 +3,7 @@ package gamedashboard
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model"
@@ -11,16 +12,12 @@ import (
 	"farental/model/widget/simplelogviewer"
 	"farental/style"
 	"fmt"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/go-resty/resty/v2"
 	"log"
 	"time"
-)
-
-var (
-	styleDashboard = lipgloss.NewStyle().Width(75).AlignHorizontal(lipgloss.Center)
-	styleWidget    = style.ContainerStyle
 )
 
 type Model struct {
@@ -38,9 +35,12 @@ func New() Model {
 	m := Model{
 		CharacterVitalInfo: charactervitalinfo.New(75),
 		LocationInfo:       locationinfo.New(75),
-		EventLogViewer:     simplelogviewer.New(lang.L("Event log"), 75, 12),
-		ChatViewer:         simplelogviewer.New(lang.L("Chat"), 48, 12),
-		CharactersVisible:  simplelogviewer.New(lang.L("Characters in location"), 25, 12),
+		EventLogViewer: simplelogviewer.New(
+			lang.L("Event log"), 75, 12),
+		ChatViewer: simplelogviewer.New(
+			lang.L("Chat"), 48, 12),
+		CharactersVisible: simplelogviewer.New(
+			lang.L("Characters in location"), 25, 12),
 	}
 
 	return m
@@ -61,9 +61,12 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
+		switch {
+		case key.Matches(msg, config.Quit):
 			return m, tea.Quit
+		case key.Matches(msg, config.Back):
+			return context.ContentManager.SwitchContent(
+				model.ContentCharacterSelection)
 		}
 	case tickMsg:
 		m.UpdateData()
@@ -82,12 +85,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	tui := lipgloss.JoinVertical(lipgloss.Center,
-		styleWidget.Render(m.CharacterVitalInfo.View()),
-		styleWidget.Render(m.LocationInfo.View()),
-		styleWidget.Render(m.EventLogViewer.View()),
+		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
+		style.ContainerStyle.Render(m.LocationInfo.View()),
+		style.ContainerStyle.Render(m.EventLogViewer.View()),
 		lipgloss.JoinHorizontal(lipgloss.Center,
-			styleWidget.Render(m.ChatViewer.View()),
-			styleWidget.Render(m.CharactersVisible.View())))
+			style.ContainerStyle.Render(m.ChatViewer.View()),
+			style.ContainerStyle.Render(m.CharactersVisible.View())))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,

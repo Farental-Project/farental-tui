@@ -13,9 +13,9 @@ import (
 var (
 	styleCenterContent = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 	styleBottomBorder  = lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
-		BorderTop(false).BorderRight(false).BorderLeft(false)
+				Border(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
+				BorderTop(false).BorderRight(false).BorderLeft(false)
 )
 
 type Model struct {

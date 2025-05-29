@@ -4,23 +4,23 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
-type KeyMap struct {
-	Up     key.Binding
-	Down   key.Binding
-	Left   key.Binding
-	Right  key.Binding
-	Help   key.Binding
-	Quit   key.Binding
-	Submit key.Binding
+type ModularKeyMap struct {
+	bindings          [][]key.Binding
+	essentialBindings []key.Binding
 }
 
-func (k KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Help, k.Quit}
+func (k ModularKeyMap) ShortHelp() []key.Binding {
+	return k.essentialBindings
 }
 
-func (k KeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.Up, k.Down, k.Left, k.Right},
-		{k.Submit, k.Help, k.Quit},
-	}
+func (k ModularKeyMap) FullHelp() [][]key.Binding {
+	return k.bindings
+}
+
+func (k *ModularKeyMap) SetBindings(b [][]key.Binding) {
+	k.bindings = b
+}
+
+func (k *ModularKeyMap) SetEssentialBindings(b []key.Binding) {
+	k.essentialBindings = b
 }

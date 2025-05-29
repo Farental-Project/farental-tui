@@ -43,8 +43,8 @@ func (m *Manager) GetCurrentModel() tea.Model {
 	return m.Contents[m.CurrentCode]
 }
 
-func (m *Manager) Back() {
-	m.CurrentCode = m.PreviousCode
+func (m *Manager) Back() (tea.Model, tea.Cmd) {
+	return m.SwitchContent(m.PreviousCode)
 }
 
 func (m *Manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
