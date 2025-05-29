@@ -100,6 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	tui := lipgloss.JoinVertical(lipgloss.Center,
+		style.ContainerStyle.Render(m.RunningTask.View()),
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		style.ContainerStyle.Render(m.LocationInfo.View()),
 		style.ContainerStyle.Render(m.EventLogViewer.View()),
@@ -134,7 +135,7 @@ func (m *Model) UpdateData() {
 	m.updateEventLog()
 	m.updateChat()
 	m.updateCharactersConnected()
-	m.updateCharactersConnected()
+	m.updateRunningTask()
 }
 
 func (m *Model) updateEventLog() {
@@ -254,6 +255,7 @@ func (m *Model) updateRunningTask() {
 
 	if resp.StatusCode() == 404 {
 		context.RunningTask = nil
+		return
 	}
 
 	task := resp.Result().(*api.TaskResponse)

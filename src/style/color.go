@@ -8,6 +8,7 @@ var (
 	ColorHighlight        = "#39d800"
 	ColorHighlightDim     = "#1b6800"
 	ColorDim              = "#1c490c"
+	ColorNeutralDim       = "#828282"
 	ColorError            = "#dd7302"
 	ColorSpecialHighlight = "#75f902"
 )

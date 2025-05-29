@@ -13,9 +13,9 @@ import (
 var (
 	styleCenterContent = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 	styleBottomBorder  = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
-				BorderTop(false).BorderRight(false).BorderLeft(false)
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
 )
 
 type Model struct {
@@ -56,11 +56,11 @@ func (m Model) View() string {
 		Render(style.BoldTextStyle.Render(m.LocationName)))
 	top.WriteString("\n")
 	top.WriteString(styleCenterContent.
-		Render(style.DimTextStyle.Render(m.ContinentName)))
+		Render(style.NeutralDimTextStyle.Render(m.ContinentName)))
 	top.WriteString("\n")
 	top.WriteString(styleCenterContent.
 		Render(fmt.Sprintf("%s | %s",
-			style.DimTextStyle.Render(m.LocationType),
+			style.NeutralDimTextStyle.Render(m.LocationType),
 			m.BiomeStyle.Italic(true).Render(m.LocationBiome))))
 
 	tui.WriteString(styleBottomBorder.Render(top.String()))
