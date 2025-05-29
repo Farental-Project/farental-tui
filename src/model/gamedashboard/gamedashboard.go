@@ -74,6 +74,9 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var mod tea.Model
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -90,12 +93,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case model.InitMsg:
 		m.UpdateData()
 
-		return m, nil
+		cmd = m.RunningTask.Init()
+
+		return m, cmd
 	}
 
 	context.ContentManager.Update(msg)
 
-	return m, nil
+	// Spinner need update
+	mod, cmd = m.RunningTask.Update(msg)
+	m.RunningTask = mod.(runningtask.Model)
+
+	return m, cmd
 }
 
 func (m Model) View() string {
