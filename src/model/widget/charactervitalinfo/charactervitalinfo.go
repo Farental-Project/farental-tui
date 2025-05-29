@@ -2,6 +2,7 @@ package charactervitalinfo
 
 import (
 	"farental/core/data/api"
+	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,6 +24,8 @@ type Model struct {
 	MpMaxValue     int
 	MpCurrentValue int
 	MpPercent      float64
+
+	RaceStyle lipgloss.Style
 
 	HpBar progress.Model
 	MpBar progress.Model
@@ -68,13 +71,11 @@ func (m Model) View() string {
 
 	center.WriteString(m.FullName)
 	center.WriteString("\n")
-	center.WriteString(m.RaceName)
-	// center.WriteString(lipgloss.PlaceHorizontal(
-	//	width, lipgloss.Center, m.RaceName))
+	center.WriteString(m.RaceStyle.Render(m.RaceName))
 	center.WriteString("\n")
-	center.WriteString(fmt.Sprintf("%d", m.Power))
-	// center.WriteString(lipgloss.PlaceHorizontal(
-	//	width, lipgloss.Center, fmt.Sprintf("%d", m.Power)))
+	center.WriteString(style.TextStyle.Foreground(
+		lipgloss.Color(style.ColorSpecialHighlight)).
+		Render(fmt.Sprintf("%d", m.Power)))
 
 	right.WriteString(fmt.Sprintf("MP (%d/%d)",
 		m.MpCurrentValue, m.MpMaxValue))
@@ -92,6 +93,7 @@ func (m Model) View() string {
 func (m *Model) UpdateData(characterInfo *api.CharacterInfoResponse) {
 	m.FullName = fmt.Sprintf("%s %s", characterInfo.FirstName, characterInfo.LastName)
 	m.RaceName = characterInfo.RaceName
+	m.RaceStyle = style.RaceStyle(m.RaceName)
 	m.Power = characterInfo.Power
 
 	for _, stat := range characterInfo.Stats {

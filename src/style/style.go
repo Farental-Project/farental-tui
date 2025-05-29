@@ -21,9 +21,13 @@ var (
 			Foreground(lipgloss.Color(ColorHighlight)).
 			Bold(true)
 
-	HelpStyle = lipgloss.NewStyle().
+	DimTextStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorDim)).
 			Italic(true)
+
+	BoldTextStyle = lipgloss.NewStyle().Bold(true)
+
+	ItalicTextStyle = lipgloss.NewStyle().Italic(true)
 
 	ContainerStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).
@@ -32,6 +36,8 @@ var (
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorError)).
 			Bold(true)
+
+	TextStyle = lipgloss.NewStyle()
 
 	HighlightStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorSpecialHighlight)).

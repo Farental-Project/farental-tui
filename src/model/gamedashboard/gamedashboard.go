@@ -26,6 +26,7 @@ type Model struct {
 	EventLogViewer     simplelogviewer.Model
 	ChatViewer         simplelogviewer.Model
 	CharactersVisible  simplelogviewer.Model
+	Keymap             config.ModularKeyMap
 
 	lastEventLogTimestamp time.Time
 	lastChatTimestamp     time.Time
@@ -42,6 +43,17 @@ func New() Model {
 		CharactersVisible: simplelogviewer.New(
 			lang.L("Characters in location"), 25, 12),
 	}
+
+	m.Keymap = config.ModularKeyMap{}
+
+	m.Keymap.SetBindings([][]key.Binding{
+		{},
+		{
+			config.Back,
+			config.Help,
+			config.Quit,
+		},
+	})
 
 	return m
 }
@@ -212,10 +224,6 @@ func (m *Model) updateCharactersConnected() {
 	}
 
 	characters := *resp.Result().(*[]api.CharacterBasicWithActivityResponse)
-
-	if len(characters) == 0 {
-		return
-	}
 
 	str = make([]string, 0)
 

@@ -13,9 +13,9 @@ import (
 var (
 	styleCenterContent = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 	styleBottomBorder  = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
-				BorderTop(false).BorderRight(false).BorderLeft(false)
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
 )
 
 type Model struct {
@@ -24,6 +24,8 @@ type Model struct {
 	LocationType        string
 	LocationBiome       string
 	LocationDescription string
+
+	BiomeStyle lipgloss.Style
 
 	VPDescription viewport.Model
 }
@@ -51,14 +53,15 @@ func (m Model) View() string {
 	var tui strings.Builder
 
 	top.WriteString(styleCenterContent.
-		Render(m.LocationName))
+		Render(style.BoldTextStyle.Render(m.LocationName)))
 	top.WriteString("\n")
 	top.WriteString(styleCenterContent.
-		Render(m.ContinentName))
+		Render(style.DimTextStyle.Render(m.ContinentName)))
 	top.WriteString("\n")
 	top.WriteString(styleCenterContent.
 		Render(fmt.Sprintf("%s | %s",
-			m.LocationType, m.LocationBiome)))
+			style.DimTextStyle.Render(m.LocationType),
+			m.BiomeStyle.Italic(true).Render(m.LocationBiome))))
 
 	tui.WriteString(styleBottomBorder.Render(top.String()))
 	tui.WriteString("\n")
@@ -77,6 +80,7 @@ func (m *Model) UpdateData(locationInfo *api.LocationResponse) {
 	m.ContinentName = locationInfo.Continent.Name
 	m.LocationType = locationInfo.Type.Name
 	m.LocationBiome = locationInfo.Biome.Name
+	m.BiomeStyle = style.LocationBiomeStyle(locationInfo.Biome.Code)
 	m.LocationDescription = locationInfo.Description
 	// Set the Width before the render to wrap text
 	m.VPDescription.SetContent(styleCenterContent.

@@ -12,7 +12,8 @@ var (
 	styleTitle = lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
-		Foreground(lipgloss.Color(style.ColorHighlightDim)).
+		Foreground(lipgloss.Color(style.ColorDim)).
+		Italic(true).
 		BorderTop(false).BorderRight(false).BorderLeft(false)
 )
 
