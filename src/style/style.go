@@ -26,10 +26,8 @@ var (
 			Italic(true)
 
 	ContainerStyle = lipgloss.NewStyle().
-			Border(lipgloss.DoubleBorder()).
-			BorderForeground(lipgloss.Color(ColorHighlight)).
-			Padding(2, 4).
-			Margin(1, 2)
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color(ColorHighlight))
 
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorError)).

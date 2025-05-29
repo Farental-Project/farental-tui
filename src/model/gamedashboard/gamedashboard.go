@@ -4,6 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/context"
+	"farental/internal/lang"
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
 	"farental/model/widget/locationinfo"
@@ -18,8 +19,8 @@ import (
 )
 
 var (
-	styleDashboard = lipgloss.NewStyle().Width(100).AlignHorizontal(lipgloss.Center)
-	styleWidget    = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
+	styleDashboard = lipgloss.NewStyle().Width(75).AlignHorizontal(lipgloss.Center)
+	styleWidget    = style.ContainerStyle
 )
 
 type Model struct {
@@ -35,11 +36,11 @@ type Model struct {
 
 func New() Model {
 	m := Model{
-		CharacterVitalInfo: charactervitalinfo.New(105),
-		LocationInfo:       locationinfo.New(105),
-		EventLogViewer:     simplelogviewer.New(38, 12),
-		ChatViewer:         simplelogviewer.New(38, 12),
-		CharactersVisible:  simplelogviewer.New(25, 12),
+		CharacterVitalInfo: charactervitalinfo.New(75),
+		LocationInfo:       locationinfo.New(75),
+		EventLogViewer:     simplelogviewer.New(lang.L("Event log"), 75, 12),
+		ChatViewer:         simplelogviewer.New(lang.L("Chat"), 48, 12),
+		CharactersVisible:  simplelogviewer.New(lang.L("Characters in location"), 25, 12),
 	}
 
 	return m
@@ -80,13 +81,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(lipgloss.Center,
+	tui := lipgloss.JoinVertical(lipgloss.Center,
 		styleWidget.Render(m.CharacterVitalInfo.View()),
 		styleWidget.Render(m.LocationInfo.View()),
+		styleWidget.Render(m.EventLogViewer.View()),
 		lipgloss.JoinHorizontal(lipgloss.Center,
-			styleWidget.Render(m.EventLogViewer.View()),
 			styleWidget.Render(m.ChatViewer.View()),
 			styleWidget.Render(m.CharactersVisible.View())))
+
+	return lipgloss.Place(
+		context.ContentManager.ScreenWidth,
+		context.ContentManager.ScreenHeight,
+		lipgloss.Center,
+		lipgloss.Center,
+		tui)
 }
 
 func (m *Model) UpdateData() {

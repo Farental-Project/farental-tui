@@ -20,6 +20,8 @@ type Model struct {
 	List  list.Model
 	Items []list.Item
 	Help  help.Model
+
+	Title string
 }
 
 func New() Model {
@@ -29,15 +31,16 @@ func New() Model {
 
 	m.Items = make([]list.Item, 0)
 
-	m.List = list.New(m.Items, ListItemDelegate{}, 30, 20)
+	m.List = list.New(m.Items, ListItemDelegate{}, 40, 20)
 	m.List.SetShowHelp(false)
 	m.List.SetShowStatusBar(false)
 	m.List.SetShowFilter(false)
 	m.List.SetShowPagination(false)
-	m.List.Title = lang.L("Character selection")
-	m.List.Styles.Title = style.TitleStyle
+	m.List.SetShowTitle(false)
 	m.List.DisableQuitKeybindings()
 	m.List.InfiniteScrolling = true
+
+	m.Title = lang.L("Character selection")
 
 	return m
 }
@@ -82,19 +85,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var b strings.Builder
+	var tui strings.Builder
 
 	helpText := m.Help.View(context.Config.KeyMap)
 
-	b.WriteString(style.ContainerStyle.Render(m.List.View()))
-	b.WriteString("\n\n")
-	b.WriteString(helpText)
+	title := style.TitleStyle.Render(m.Title)
+
+	tui.WriteString(title)
+	tui.WriteString("\n\n")
+	tui.WriteString(style.ContainerStyle.Render(m.List.View()))
+	tui.WriteString("\n\n")
+	tui.WriteString(helpText)
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,
 		context.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
-		b.String())
+		tui.String())
 }
 
 func (m *Model) initData() {

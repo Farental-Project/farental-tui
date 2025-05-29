@@ -11,9 +11,6 @@ import (
 
 var (
 	styleParagraph = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
-	styleBorder    = lipgloss.NewStyle().
-			Border(lipgloss.DoubleBorder()).
-			BorderForeground(lipgloss.Color("#39d800"))
 )
 
 type Model struct {
@@ -37,10 +34,12 @@ func New(width int) Model {
 		MpBar: progress.New(progress.WithSolidFill("#272de8")),
 	}
 
+	barWidth := (width / 3) - 2
+
 	m.HpBar.ShowPercentage = false
-	m.HpBar.Width = width / 3
+	m.HpBar.Width = barWidth
 	m.MpBar.ShowPercentage = false
-	m.MpBar.Width = width / 3
+	m.MpBar.Width = barWidth
 
 	styleParagraph = styleParagraph.Width(width / 3)
 

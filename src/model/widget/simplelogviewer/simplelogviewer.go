@@ -1,21 +1,35 @@
 package simplelogviewer
 
 import (
+	"farental/style"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"strings"
 )
 
+var (
+	styleTitle = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
+		Foreground(lipgloss.Color(style.ColorHighlightDim)).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
+)
+
 type Model struct {
 	Content []string
+	Title   string
 
 	Viewport viewport.Model
+
+	width int
 }
 
-func New(width, heigh int) Model {
+func New(title string, width, height int) Model {
 	m := Model{
-		Viewport: viewport.New(width, heigh),
+		Title:    title,
+		width:    width,
+		Viewport: viewport.New(width, height),
 	}
 
 	return m
@@ -30,7 +44,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.Viewport.View()
+	var b strings.Builder
+
+	b.WriteString(styleTitle.Width(m.width).Render(m.Title))
+	b.WriteString("\n")
+	b.WriteString(m.Viewport.View())
+
+	return b.String()
 }
 
 func (m *Model) SetContent(content []string) {

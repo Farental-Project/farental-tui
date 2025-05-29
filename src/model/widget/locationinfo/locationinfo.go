@@ -2,6 +2,7 @@ package locationinfo
 
 import (
 	"farental/core/data/api"
+	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,6 +12,10 @@ import (
 
 var (
 	styleCenterContent = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
+	styleBottomBorder  = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
 )
 
 type Model struct {
@@ -42,26 +47,29 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var b strings.Builder
+	var top strings.Builder
+	var tui strings.Builder
 
-	b.WriteString(styleCenterContent.
+	top.WriteString(styleCenterContent.
 		Render(m.LocationName))
-	b.WriteString("\n")
-	b.WriteString(styleCenterContent.
+	top.WriteString("\n")
+	top.WriteString(styleCenterContent.
 		Render(m.ContinentName))
-	b.WriteString("\n")
-	b.WriteString(styleCenterContent.
+	top.WriteString("\n")
+	top.WriteString(styleCenterContent.
 		Render(fmt.Sprintf("%s | %s",
 			m.LocationType, m.LocationBiome)))
-	b.WriteString("\n")
-	b.WriteString(styleCenterContent.
+
+	tui.WriteString(styleBottomBorder.Render(top.String()))
+	tui.WriteString("\n")
+	tui.WriteString(styleCenterContent.
 		Render(m.VPDescription.View()))
 
 	if m.VPDescription.TotalLineCount() > m.VPDescription.VisibleLineCount() {
-		b.WriteString("V")
+		tui.WriteString("V")
 	}
 
-	return b.String()
+	return tui.String()
 }
 
 func (m *Model) UpdateData(locationInfo *api.LocationResponse) {

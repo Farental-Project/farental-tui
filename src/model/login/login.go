@@ -111,6 +111,7 @@ func (m *Model) updateInputs(msg tea.Msg) tea.Cmd {
 
 func (m Model) View() string {
 	var form strings.Builder
+	var tui strings.Builder
 
 	for i, input := range m.Inputs {
 		var s lipgloss.Style
@@ -129,17 +130,19 @@ func (m Model) View() string {
 		}
 	}
 
-	tui := style.TitleStyle.Render(m.Title) +
-		"\n\n" + style.ContainerStyle.Render(form.String())
+	tui.WriteString(style.TitleStyle.Render(m.Title))
+	tui.WriteString("\n\n\n")
+	tui.WriteString(form.String())
 
 	if m.Err != nil {
-		tui += "\n\n" + style.ErrorStyle.Render(m.Err.Error())
+		tui.WriteString("\n\n")
+		tui.WriteString(style.ErrorStyle.Render(m.Err.Error()))
 	}
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
-		tui)
+		tui.String())
 }
 
 func (m *Model) submit() bool {
