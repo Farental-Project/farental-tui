@@ -23,10 +23,12 @@ type Model struct {
 	VPDescription viewport.Model
 }
 
-func New() Model {
+func New(width int) Model {
 	m := Model{
-		VPDescription: viewport.New(80, 5),
+		VPDescription: viewport.New(width, 5),
 	}
+
+	styleCenterContent = styleCenterContent.Width(width)
 
 	return m
 }
@@ -42,13 +44,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var b strings.Builder
 
-	b.WriteString(m.LocationName)
+	b.WriteString(styleCenterContent.
+		Render(m.LocationName))
 	b.WriteString("\n")
-	b.WriteString(m.ContinentName)
+	b.WriteString(styleCenterContent.
+		Render(m.ContinentName))
 	b.WriteString("\n")
-	b.WriteString(fmt.Sprintf("%s | %s", m.LocationType, m.LocationBiome))
+	b.WriteString(styleCenterContent.
+		Render(fmt.Sprintf("%s | %s",
+			m.LocationType, m.LocationBiome)))
 	b.WriteString("\n")
-	b.WriteString(m.VPDescription.View())
+	b.WriteString(styleCenterContent.
+		Render(m.VPDescription.View()))
 
 	if m.VPDescription.TotalLineCount() > m.VPDescription.VisibleLineCount() {
 		b.WriteString("V")
@@ -65,6 +72,5 @@ func (m *Model) UpdateData(locationInfo *api.LocationResponse) {
 	m.LocationDescription = locationInfo.Description
 	// Set the Width before the render to wrap text
 	m.VPDescription.SetContent(styleCenterContent.
-		Width(m.VPDescription.Width).
 		Render(m.LocationDescription))
 }

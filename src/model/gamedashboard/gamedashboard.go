@@ -19,33 +19,36 @@ import (
 
 var (
 	styleDashboard = lipgloss.NewStyle().Width(100).AlignHorizontal(lipgloss.Center)
+	styleWidget    = lipgloss.NewStyle().Border(lipgloss.NormalBorder())
 )
 
 type Model struct {
-	CharacterVitalInfo  charactervitalinfo.Model
-	LocationInfo        locationinfo.Model
-	EventLogViewer      simplelogviewer.Model
-	ChatViewer          simplelogviewer.Model
-	CharactersConnected simplelogviewer.Model
+	CharacterVitalInfo charactervitalinfo.Model
+	LocationInfo       locationinfo.Model
+	EventLogViewer     simplelogviewer.Model
+	ChatViewer         simplelogviewer.Model
+	CharactersVisible  simplelogviewer.Model
 
 	lastEventLogTimestamp time.Time
 	lastChatTimestamp     time.Time
 }
 
 func New() Model {
-	return Model{
-		CharacterVitalInfo:  charactervitalinfo.New(),
-		LocationInfo:        locationinfo.New(),
-		EventLogViewer:      simplelogviewer.New(),
-		ChatViewer:          simplelogviewer.New(),
-		CharactersConnected: simplelogviewer.New(),
+	m := Model{
+		CharacterVitalInfo: charactervitalinfo.New(105),
+		LocationInfo:       locationinfo.New(105),
+		EventLogViewer:     simplelogviewer.New(38, 12),
+		ChatViewer:         simplelogviewer.New(38, 12),
+		CharactersVisible:  simplelogviewer.New(25, 12),
 	}
+
+	return m
 }
 
 type tickMsg time.Time
 
 func doTick() tea.Cmd {
-	return tea.Tick(30, func(t time.Time) tea.Msg {
+	return tea.Tick(15*time.Second, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }
@@ -66,7 +69,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, doTick()
 	case model.InitMsg:
+		m.UpdateData()
 
+		return m, nil
 	}
 
 	context.ContentManager.Update(msg)
@@ -76,11 +81,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Center,
-		m.CharacterVitalInfo.View(),
-		m.LocationInfo.View(),
-		m.EventLogViewer.View(),
-		m.ChatViewer.View(),
-		m.CharactersConnected.View())
+		styleWidget.Render(m.CharacterVitalInfo.View()),
+		styleWidget.Render(m.LocationInfo.View()),
+		lipgloss.JoinHorizontal(lipgloss.Center,
+			styleWidget.Render(m.EventLogViewer.View()),
+			styleWidget.Render(m.ChatViewer.View()),
+			styleWidget.Render(m.CharactersVisible.View())))
 }
 
 func (m *Model) UpdateData() {
@@ -173,8 +179,8 @@ func (m *Model) updateChat() {
 
 	for _, message := range chatMessages {
 		m.ChatViewer.AddContent(fmt.Sprintf("%s %s - %s",
-			style.TitleStyle.Render(message.Name),
 			style.TitleStyle.Render(message.Timestamp.Format(time.TimeOnly)),
+			style.TitleStyle.Render(message.Name),
 			message.Message))
 	}
 
@@ -200,7 +206,7 @@ func (m *Model) updateCharactersConnected() {
 		return
 	}
 
-	str = make([]string, len(characters))
+	str = make([]string, 0)
 
 	for _, character := range characters {
 		str = append(str,
@@ -209,5 +215,5 @@ func (m *Model) updateCharactersConnected() {
 				character.RaceName, character.CurrentActivityTitle)))
 	}
 
-	m.CharactersConnected.SetContent(str)
+	m.CharactersVisible.SetContent(str)
 }

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	styleParagraph = lipgloss.NewStyle().Margin(1, 2)
+	styleParagraph = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 	styleBorder    = lipgloss.NewStyle().
 			Border(lipgloss.DoubleBorder()).
 			BorderForeground(lipgloss.Color("#39d800"))
@@ -31,16 +31,18 @@ type Model struct {
 	MpBar progress.Model
 }
 
-func New() Model {
+func New(width int) Model {
 	m := Model{
 		HpBar: progress.New(progress.WithSolidFill("#c90000")),
 		MpBar: progress.New(progress.WithSolidFill("#272de8")),
 	}
 
 	m.HpBar.ShowPercentage = false
-	m.HpBar.Width = 20
+	m.HpBar.Width = width / 3
 	m.MpBar.ShowPercentage = false
-	m.MpBar.Width = 20
+	m.MpBar.Width = width / 3
+
+	styleParagraph = styleParagraph.Width(width / 3)
 
 	return m
 }
@@ -65,14 +67,15 @@ func (m Model) View() string {
 	left.WriteString("\n")
 	left.WriteString(m.HpBar.ViewAs(m.HpPercent))
 
-	width := lipgloss.Width(m.FullName)
 	center.WriteString(m.FullName)
 	center.WriteString("\n")
-	center.WriteString(lipgloss.PlaceHorizontal(
-		width, lipgloss.Center, m.RaceName))
+	center.WriteString(m.RaceName)
+	// center.WriteString(lipgloss.PlaceHorizontal(
+	//	width, lipgloss.Center, m.RaceName))
 	center.WriteString("\n")
-	center.WriteString(lipgloss.PlaceHorizontal(
-		width, lipgloss.Center, fmt.Sprintf("%d", m.Power)))
+	center.WriteString(fmt.Sprintf("%d", m.Power))
+	// center.WriteString(lipgloss.PlaceHorizontal(
+	//	width, lipgloss.Center, fmt.Sprintf("%d", m.Power)))
 
 	right.WriteString(fmt.Sprintf("MP (%d/%d)",
 		m.MpCurrentValue, m.MpMaxValue))

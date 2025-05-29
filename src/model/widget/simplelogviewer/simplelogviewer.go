@@ -13,9 +13,9 @@ type Model struct {
 	Viewport viewport.Model
 }
 
-func New() Model {
+func New(width, heigh int) Model {
 	m := Model{
-		Viewport: viewport.New(100, 15),
+		Viewport: viewport.New(width, heigh),
 	}
 
 	return m
