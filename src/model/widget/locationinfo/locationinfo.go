@@ -50,6 +50,10 @@ func (m Model) View() string {
 	b.WriteString("\n")
 	b.WriteString(m.VPDescription.View())
 
+	if m.VPDescription.TotalLineCount() > m.VPDescription.VisibleLineCount() {
+		b.WriteString("V")
+	}
+
 	return b.String()
 }
 

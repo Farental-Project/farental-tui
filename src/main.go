@@ -38,7 +38,7 @@ func main() {
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
 
-	context.ContentManager.SwitchContent(model.ContentGameDashboard) // ContentLogin
+	context.ContentManager.SwitchContent(model.ContentLogin) // ContentLogin
 
 	p := tea.NewProgram(context.ContentManager.GetCurrentModel(), tea.WithAltScreen())
 

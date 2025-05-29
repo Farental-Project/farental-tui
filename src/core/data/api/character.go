@@ -1,6 +1,12 @@
 package api
 
-type CharacterBasicInfoResponse struct {
+type CharacterCreateBody struct {
+	FirstName string `validate:"required,alpha"`
+	LastName  string `validate:"required,alpha"`
+	RaceID    uint   `validate:"required,number"`
+}
+
+type CharacterBasicResponse struct {
 	ID           uint
 	RaceName     string
 	FirstName    string
@@ -8,10 +14,22 @@ type CharacterBasicInfoResponse struct {
 	LocationName string
 }
 
+type CharacterBasicWithActivityResponse struct {
+	CharacterBasicResponse
+	CurrentActivityTitle string
+}
+
 type CharacterStatResponse struct {
 	Code     string
 	Value    int
 	MaxValue int
+}
+
+type CharacterSkillResponse struct {
+	Code        string
+	Level       uint8
+	CurrentXp   uint
+	NextLevelXp uint
 }
 
 type CharacterInfoResponse struct {
@@ -21,13 +39,8 @@ type CharacterInfoResponse struct {
 	RaceName  string
 	Power     int
 
-	Stats []CharacterStatResponse
+	Stats  []CharacterStatResponse
+	Skills []CharacterSkillResponse
 
 	Location LocationResponse
-}
-
-type CharacterCreateBody struct {
-	FirstName string
-	LastName  string
-	RaceID    uint
 }

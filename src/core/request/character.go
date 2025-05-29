@@ -11,7 +11,7 @@ func CharacterGetAll() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
 	r.URL = "/character/all"
-	r.SetResult([]api.CharacterBasicInfoResponse{})
+	r.SetResult([]api.CharacterBasicResponse{})
 	r.SetError(api.ErrorResponse{})
 
 	return r
@@ -50,7 +50,7 @@ func CharacterGetActive() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
 	r.URL = "/character/getActive"
-	r.SetResult(api.CharacterBasicInfoResponse{})
+	r.SetResult(api.CharacterBasicResponse{})
 	r.SetError(api.ErrorResponse{})
 
 	return r

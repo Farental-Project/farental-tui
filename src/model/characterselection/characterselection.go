@@ -103,7 +103,7 @@ func (m *Model) initData() {
 }
 
 func (m *Model) loadCharacters() {
-	var characters *[]api.CharacterBasicInfoResponse
+	var characters *[]api.CharacterBasicResponse
 	var ok bool
 
 	req := request.CharacterGetAll()
@@ -115,7 +115,7 @@ func (m *Model) loadCharacters() {
 		return
 	}
 
-	characters, ok = resp.Result().(*[]api.CharacterBasicInfoResponse)
+	characters, ok = resp.Result().(*[]api.CharacterBasicResponse)
 
 	if !ok {
 		log.Println("Invalid request response")
