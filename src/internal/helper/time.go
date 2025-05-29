@@ -1,10 +1,9 @@
 package helper
 
 import (
+	"farental/internal/lang"
 	"fmt"
 	"time"
-
-	"fyne.io/fyne/v2/lang"
 )
 
 func HoursDecFormat(hours float64) string {
