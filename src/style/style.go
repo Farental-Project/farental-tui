@@ -46,4 +46,11 @@ var (
 	HighlightStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorSpecialHighlight)).
 			Bold(true)
+
+	ContainerTitleStyle = lipgloss.NewStyle().
+				Border(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color(ColorHighlightDim)).
+				Foreground(lipgloss.Color(ColorHighlightDim)).
+				Italic(true).
+				BorderTop(false).BorderRight(false).BorderLeft(false)
 )

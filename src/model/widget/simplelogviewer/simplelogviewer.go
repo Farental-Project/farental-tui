@@ -8,15 +8,6 @@ import (
 	"strings"
 )
 
-var (
-	styleTitle = lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
-		Foreground(lipgloss.Color(style.ColorHighlightDim)).
-		Italic(true).
-		BorderTop(false).BorderRight(false).BorderLeft(false)
-)
-
 type Model struct {
 	Content []string
 	Title   string
@@ -47,7 +38,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var b strings.Builder
 
-	b.WriteString(styleTitle.Width(m.width).Render(m.Title))
+	b.WriteString(style.ContainerTitleStyle.Width(m.width).Render(m.Title))
 	b.WriteString("\n")
 	b.WriteString(m.Viewport.View())
 

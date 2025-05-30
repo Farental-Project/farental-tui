@@ -5,22 +5,22 @@ import (
 )
 
 type ModularKeyMap struct {
-	bindings          [][]key.Binding
-	essentialBindings []key.Binding
+	Bindings          [][]key.Binding
+	EssentialBindings []key.Binding
 }
 
 func (k ModularKeyMap) ShortHelp() []key.Binding {
-	return k.essentialBindings
+	return k.EssentialBindings
 }
 
 func (k ModularKeyMap) FullHelp() [][]key.Binding {
-	return k.bindings
+	return k.Bindings
 }
 
 func (k *ModularKeyMap) SetBindings(b [][]key.Binding) {
-	k.bindings = b
+	k.Bindings = b
 }
 
 func (k *ModularKeyMap) SetEssentialBindings(b []key.Binding) {
-	k.essentialBindings = b
+	k.EssentialBindings = b
 }

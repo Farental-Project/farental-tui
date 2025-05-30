@@ -13,12 +13,18 @@ import (
 	"farental/model/widget/simplelogviewer"
 	"farental/style"
 	"fmt"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/go-resty/resty/v2"
 	"log"
+	"strings"
 	"time"
+)
+
+const (
+	layoutWidth = 75
 )
 
 type Model struct {
@@ -28,6 +34,8 @@ type Model struct {
 	EventLogViewer     simplelogviewer.Model
 	ChatViewer         simplelogviewer.Model
 	CharactersVisible  simplelogviewer.Model
+	Help               help.Model
+	FullHelpStyle      lipgloss.Style
 	Keymap             config.ModularKeyMap
 
 	lastEventLogTimestamp time.Time
@@ -36,26 +44,49 @@ type Model struct {
 
 func New() Model {
 	m := Model{
-		RunningTask:        runningtask.New(75),
-		CharacterVitalInfo: charactervitalinfo.New(75),
-		LocationInfo:       locationinfo.New(75),
+		RunningTask:        runningtask.New(layoutWidth),
+		CharacterVitalInfo: charactervitalinfo.New(layoutWidth),
+		LocationInfo:       locationinfo.New(layoutWidth),
 		EventLogViewer: simplelogviewer.New(
-			lang.L("Event log"), 75, 12),
+			lang.L("Event log"), layoutWidth, 12),
 		ChatViewer: simplelogviewer.New(
 			lang.L("Chat"), 48, 12),
 		CharactersVisible: simplelogviewer.New(
 			lang.L("Characters in location"), 25, 12),
 	}
 
+	m.FullHelpStyle = style.ContainerStyle.Width(layoutWidth).
+		Height(14)
+
+	m.Help = help.New()
+	m.Help.Styles.FullKey = style.TitleStyle
+	m.Help.Styles.FullDesc = style.DimTextStyle
+
 	m.Keymap = config.ModularKeyMap{}
 
 	m.Keymap.SetBindings([][]key.Binding{
-		{},
 		{
+			config.Travels,
+			config.Activities,
+			config.Crafts,
+			config.Fights,
+			config.LocationServices,
+			config.Npcs,
+		},
+		{
+			config.Scripts,
+			config.Inventory,
+			config.Claim,
 			config.Back,
 			config.Help,
 			config.Quit,
 		},
+	})
+
+	m.Keymap.SetEssentialBindings([]key.Binding{
+		config.Claim,
+		config.Help,
+		config.Quit,
 	})
 
 	return m
@@ -80,6 +111,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, config.Help):
+			m.Help.ShowAll = !m.Help.ShowAll
+
+			return m, nil
+
 		case key.Matches(msg, config.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, config.Back):
@@ -108,14 +144,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	tui := lipgloss.JoinVertical(lipgloss.Center,
+	var tui string
+	var bottom strings.Builder
+
+	if !m.Help.ShowAll {
+		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
+			lipgloss.JoinHorizontal(lipgloss.Center,
+				style.ContainerStyle.Render(m.ChatViewer.View()),
+				style.ContainerStyle.Render(m.CharactersVisible.View())),
+			m.Help.View(m.Keymap)))
+	} else {
+		bottom.WriteString(
+			style.ContainerStyle.Width(layoutWidth).Height(14).Render(
+				lipgloss.JoinVertical(lipgloss.Center,
+					style.ContainerTitleStyle.Width(layoutWidth).Render(
+						lang.L("Help")),
+					m.Help.View(m.Keymap))))
+		bottom.WriteString("\n")
+		bottom.WriteString(m.Help.ShortHelpView(m.Keymap.EssentialBindings))
+	}
+
+	tui = lipgloss.JoinVertical(lipgloss.Center,
 		style.ContainerStyle.Render(m.RunningTask.View()),
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		style.ContainerStyle.Render(m.LocationInfo.View()),
 		style.ContainerStyle.Render(m.EventLogViewer.View()),
-		lipgloss.JoinHorizontal(lipgloss.Center,
-			style.ContainerStyle.Render(m.ChatViewer.View()),
-			style.ContainerStyle.Render(m.CharactersVisible.View())))
+		bottom.String())
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,
