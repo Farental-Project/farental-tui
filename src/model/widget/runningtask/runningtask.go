@@ -26,6 +26,7 @@ func New(width int) Model {
 		style: style.TextStyle.Width(width).AlignHorizontal(lipgloss.Center),
 	}
 
+	// Characters
 	// "█", "▓", "▒", "░"},
 
 	m.spinner = spinner.New()

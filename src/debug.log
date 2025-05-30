@@ -205,3 +205,29 @@ debug 2025/05/30 00:25:33 Request package successfully initialized
 debug 2025/05/30 00:25:56 Request package successfully initialized
 debug 2025/05/30 00:27:12 Request package successfully initialized
 debug 2025/05/30 00:27:34 Request package successfully initialized
+debug 2025/05/30 07:05:47 error while writing the config file : Config File "farental" Not Found in "[/home/halsten/.configfarental_tui]"
+debug 2025/05/30 07:06:11 error while writing the config file : Config File "farental" Not Found in "[/home/halsten/.configfarental_tui]"
+debug 2025/05/30 07:06:58 error while writing the config file : Config File "farental" Not Found in "[/home/halsten/.configfarental_tui]"
+debug 2025/05/30 07:07:02 error while writing the config file : Config File "farental" Not Found in "[/home/halsten/.config/farental_tui]"
+debug 2025/05/30 07:07:11 error while writing the config file : Config File "farental" Not Found in "[/home/halsten/.config/farental_tui]"
+debug 2025/05/30 07:08:30 error while writing the config file : open /home/halsten/.config/farental_tui/farental.toml: no such file or directory
+debug 2025/05/30 07:11:12 error while writing the config file : open /home/halsten/.config/farental_tui/farental.toml: no such file or directory
+debug 2025/05/30 07:11:29 error while writing the config file : open /home/halsten/.config/farental_tui/farental.toml: no such file or directory
+debug 2025/05/30 07:11:46 error while writing the config file : 
+debug 2025/05/30 07:11:59 error while writing the config file : 
+debug 2025/05/30 07:12:15 error while writing the config file : open /home/halsten/.config/farental_tui/farental.toml: no such file or directory
+debug 2025/05/30 07:16:42 Request package successfully initialized
+debug 2025/05/30 07:16:54 Request package successfully initialized
+debug 2025/05/30 07:19:26 Request package successfully initialized
+debug 2025/05/30 07:21:39 Request package successfully initialized
+debug 2025/05/30 07:21:52 program was killed: program was interrupted
+debug 2025/05/30 07:21:56 Request package successfully initialized
+debug 2025/05/30 07:23:02 Request package successfully initialized
+debug 2025/05/30 07:28:19 Request package successfully initialized
+debug 2025/05/30 07:36:14 Request package successfully initialized
+debug 2025/05/30 07:37:53 Request package successfully initialized
+debug 2025/05/30 07:37:59 could not save last used e-mail :  Config File "/home/halsten/.config/farental_tui/farental.toml" Already Exists
+debug 2025/05/30 07:38:17 Request package successfully initialized
+debug 2025/05/30 07:39:06 Request package successfully initialized
+debug 2025/05/30 07:39:15 Request package successfully initialized
+debug 2025/05/30 07:40:07 Request package successfully initialized

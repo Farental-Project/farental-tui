@@ -12,6 +12,8 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/viper"
+	"log"
 	"strings"
 )
 
@@ -45,11 +47,26 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return model.InitCmd
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case model.InitMsg:
+		var lastUsedEmail string
+
+		lastUsedEmail = viper.GetString("lastusedemail")
+
+		if lastUsedEmail == "" {
+			return m, nil
+		}
+
+		m.Inputs[0].SetValue(lastUsedEmail)
+		m.Inputs[0].Blur()
+		m.Inputs[1].Focus()
+		m.Focus = 1
+
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
@@ -175,6 +192,12 @@ func (m *Model) submit() bool {
 	context.Client.SetCookie(resp.Cookies()[0])
 
 	// TODO: Manage the currently selected character to go directly to the gamedashboard.
+	viper.Set("lastusedemail", email)
+	err = viper.WriteConfig()
+
+	if err != nil {
+		log.Println("could not save last used e-mail : ", err)
+	}
 
 	return true
 }

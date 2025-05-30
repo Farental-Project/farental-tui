@@ -22,7 +22,7 @@ var (
 			Bold(true)
 
 	DimTextStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(ColorDim)).
+			Foreground(lipgloss.Color(ColorHighlightDim)).
 			Italic(true)
 
 	NeutralDimTextStyle = lipgloss.NewStyle().
