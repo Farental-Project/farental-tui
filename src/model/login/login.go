@@ -5,10 +5,13 @@ import (
 	"farental/art"
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -22,6 +25,9 @@ type Model struct {
 	Inputs [2]textinput.Model
 	Focus  int
 	Title  string
+
+	Help   help.Model
+	Keymap config.ModularKeyMap
 }
 
 func New() Model {
@@ -38,12 +44,32 @@ func New() Model {
 
 	title := art.CreateASCIIArtTitle("FARENTAL")
 
-	l := Model{}
-	l.Inputs[0] = tiUserEmail
-	l.Inputs[1] = tiPassword
-	l.Title = title
+	m := Model{}
+	m.Inputs[0] = tiUserEmail
+	m.Inputs[1] = tiPassword
+	m.Title = title
+	m.Help = help.New()
 
-	return l
+	m.Keymap = config.ModularKeyMap{}
+
+	m.Keymap.SetBindings([][]key.Binding{
+		{
+			config.Tab,
+			config.ShiftTab,
+			config.Submit,
+		},
+		{
+			config.Help,
+			config.Quit,
+		},
+	})
+	m.Keymap.SetEssentialBindings([]key.Binding{
+		config.Submit,
+		config.Help,
+		config.Quit,
+	})
+
+	return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -68,10 +94,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, nil
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c":
+		switch {
+		case key.Matches(msg, config.Quit):
 			return m, tea.Quit
-		case "enter":
+		case key.Matches(msg, config.Submit):
 			ret := m.submit()
 
 			if ret {
@@ -79,12 +105,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, nil
-		case "tab", "shift+tab":
-			key := msg.String()
+		case key.Matches(msg, config.Tab, config.ShiftTab):
 
-			if key == "tab" {
+			if key.Matches(msg, config.Tab) {
 				m.Focus++
-			} else if key == "shift+tab" {
+			} else if key.Matches(msg, config.ShiftTab) {
 				m.Focus--
 			}
 
@@ -106,6 +131,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, cmd
+		case key.Matches(msg, config.Help):
+			m.Help.ShowAll = !m.Help.ShowAll
+
+			return m, nil
 		}
 
 	}
@@ -155,6 +184,9 @@ func (m Model) View() string {
 		tui.WriteString("\n\n")
 		tui.WriteString(style.ErrorStyle.Render(m.Err.Error()))
 	}
+
+	tui.WriteString("\n\n\n")
+	tui.WriteString(m.Help.View(m.Keymap))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,

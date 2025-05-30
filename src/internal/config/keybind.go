@@ -36,4 +36,10 @@ var (
 	Back = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "back"))
+	Tab = key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("tab", "Next focus"))
+	ShiftTab = key.NewBinding(
+		key.WithKeys("shift+tab"),
+		key.WithHelp("shift+tab", "Previous focus"))
 )
