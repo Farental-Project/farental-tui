@@ -6,6 +6,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
@@ -83,27 +84,27 @@ func New() Model {
 
 	m.Keymap.SetBindings([][]key.Binding{
 		{
-			config.Travels,
-			config.Activities,
-			config.Crafts,
-			config.Fights,
-			config.LocationServices,
-			config.Npcs,
+			keybind.Travels,
+			keybind.Activities,
+			keybind.Crafts,
+			keybind.Fights,
+			keybind.LocationServices,
+			keybind.Npcs,
 		},
 		{
-			config.Scripts,
-			config.Inventory,
-			config.Claim,
-			config.Back,
-			config.Help,
-			config.Quit,
+			keybind.Scripts,
+			keybind.Inventory,
+			keybind.Claim,
+			keybind.Back,
+			keybind.Help,
+			keybind.Quit,
 		},
 	})
 
 	m.Keymap.SetEssentialBindings([]key.Binding{
-		config.Claim,
-		config.Help,
-		config.Quit,
+		keybind.Claim,
+		keybind.Help,
+		keybind.Quit,
 	})
 
 	return m
@@ -129,18 +130,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		m.resetError()
 		switch {
-		case key.Matches(msg, config.Help):
+		case key.Matches(msg, keybind.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
 			return m, nil
-		case key.Matches(msg, config.Claim):
+		case key.Matches(msg, keybind.Claim):
 			m.claim()
 			return m, nil
-		case key.Matches(msg, config.Quit):
+		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, config.Back):
+		case key.Matches(msg, keybind.Back):
 			return context.ContentManager.SwitchContent(
 				model.ContentCharacterSelection)
-		case key.Matches(msg, config.Travels):
+		case key.Matches(msg, keybind.Travels):
 			if context.RunningTask != nil {
 				m.runningTaskError()
 				return m, nil
@@ -365,7 +366,7 @@ func (m *Model) updateRunningTask() {
 
 func (m *Model) runningTaskError() {
 	if context.RunningTask.IsRunning {
-		m.Err = errors.New(lang.L("A task is already running."))
+		m.Err = errors.New(lang.L("A task is currently running."))
 	} else {
 		m.Err = errors.New(lang.L("Please claim your reward first."))
 	}
@@ -378,6 +379,10 @@ func (m *Model) resetError() {
 func (m *Model) claim() {
 	if context.RunningTask == nil {
 		return
+	}
+
+	if context.RunningTask.IsRunning {
+		m.runningTaskError()
 	}
 
 	req := request.TaskClaim()

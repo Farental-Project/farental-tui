@@ -5,6 +5,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/characterselection"
@@ -39,6 +40,8 @@ func main() {
 	}
 
 	lang.SetLanguage(viper.GetString("language"))
+
+	keybind.Init()
 
 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())

@@ -271,3 +271,19 @@ debug 2025/05/31 16:27:28 Request package successfully initialized
 debug 2025/05/31 16:30:56 Request package successfully initialized
 debug 2025/05/31 16:31:07 401 &{[{One task is still in progress}]}
 debug 2025/05/31 16:32:42 Request package successfully initialized
+debug 2025/05/31 16:54:40 Request package successfully initialized
+debug 2025/05/31 16:56:01 Request package successfully initialized
+debug 2025/05/31 16:59:59 program was killed: program was interrupted
+debug 2025/05/31 17:00:04 Request package successfully initialized
+debug 2025/05/31 17:00:33 Request package successfully initialized
+debug 2025/05/31 17:01:09 Request package successfully initialized
+debug 2025/05/31 17:01:32 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:01:33 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:01:33 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:01:33 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:01:34 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:03:56 Request package successfully initialized
+debug 2025/05/31 17:04:07 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:04:09 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:04:09 401 &{[{One task is still in progress}]}
+debug 2025/05/31 17:05:34 program was killed: program was interrupted

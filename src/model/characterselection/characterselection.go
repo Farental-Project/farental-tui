@@ -5,6 +5,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
@@ -49,20 +50,20 @@ func New() Model {
 
 	m.Keymap.SetBindings([][]key.Binding{
 		{
-			config.Up,
-			config.Down,
-			config.Submit,
+			keybind.Up,
+			keybind.Down,
+			keybind.Submit,
 		},
 		{
-			config.Help,
-			config.Back,
-			config.Quit,
+			keybind.Help,
+			keybind.Back,
+			keybind.Quit,
 		},
 	})
 	m.Keymap.SetEssentialBindings([]key.Binding{
-		config.Help,
-		config.Back,
-		config.Quit,
+		keybind.Help,
+		keybind.Back,
+		keybind.Quit,
 	})
 
 	return m
@@ -83,10 +84,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, config.Quit):
+		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
 
-		case key.Matches(msg, config.Submit):
+		case key.Matches(msg, keybind.Submit):
 			ok := m.submit()
 
 			if ok {
@@ -95,12 +96,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, nil
-		case key.Matches(msg, config.Help):
+		case key.Matches(msg, keybind.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
 
 			return m, nil
 
-		case key.Matches(msg, config.Back):
+		case key.Matches(msg, keybind.Back):
 			return context.ContentManager.SwitchContent(
 				model.ContentLogin)
 		}

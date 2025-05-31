@@ -7,6 +7,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
@@ -54,19 +55,19 @@ func New() Model {
 
 	m.Keymap.SetBindings([][]key.Binding{
 		{
-			config.Tab,
-			config.ShiftTab,
-			config.Submit,
+			keybind.Tab,
+			keybind.ShiftTab,
+			keybind.Submit,
 		},
 		{
-			config.Help,
-			config.Quit,
+			keybind.Help,
+			keybind.Quit,
 		},
 	})
 	m.Keymap.SetEssentialBindings([]key.Binding{
-		config.Submit,
-		config.Help,
-		config.Quit,
+		keybind.Submit,
+		keybind.Help,
+		keybind.Quit,
 	})
 
 	return m
@@ -95,9 +96,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, config.Quit):
+		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, config.Submit):
+		case key.Matches(msg, keybind.Submit):
 			ret := m.submit()
 
 			if ret {
@@ -105,11 +106,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, nil
-		case key.Matches(msg, config.Tab, config.ShiftTab):
+		case key.Matches(msg, keybind.Tab, keybind.ShiftTab):
 
-			if key.Matches(msg, config.Tab) {
+			if key.Matches(msg, keybind.Tab) {
 				m.Focus++
-			} else if key.Matches(msg, config.ShiftTab) {
+			} else if key.Matches(msg, keybind.ShiftTab) {
 				m.Focus--
 			}
 
@@ -131,7 +132,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, cmd
-		case key.Matches(msg, config.Help):
+		case key.Matches(msg, keybind.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
 
 			return m, nil
