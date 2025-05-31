@@ -11,6 +11,7 @@ import (
 	"farental/model/widget/locationinfo"
 	"farental/model/widget/runningtask"
 	"farental/model/widget/simplelogviewer"
+	"farental/model/widgetcontainer"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/help"
@@ -28,15 +29,23 @@ const (
 )
 
 type Model struct {
+	Help          help.Model
+	HelpContainer widgetcontainer.Model
+	FullHelpStyle lipgloss.Style
+	Keymap        config.ModularKeyMap
+
 	RunningTask        runningtask.Model
 	CharacterVitalInfo charactervitalinfo.Model
 	LocationInfo       locationinfo.Model
-	EventLogViewer     simplelogviewer.Model
-	ChatViewer         simplelogviewer.Model
-	CharactersVisible  simplelogviewer.Model
-	Help               help.Model
-	FullHelpStyle      lipgloss.Style
-	Keymap             config.ModularKeyMap
+
+	EventLogViewer         simplelogviewer.Model
+	EvenLogViewerContainer widgetcontainer.Model
+
+	ChatViewer          simplelogviewer.Model
+	ChatViewerContainer widgetcontainer.Model
+
+	CharactersVisible          simplelogviewer.Model
+	CharactersVisibleContainer widgetcontainer.Model
 
 	lastEventLogTimestamp time.Time
 	lastChatTimestamp     time.Time
@@ -47,13 +56,20 @@ func New() Model {
 		RunningTask:        runningtask.New(layoutWidth),
 		CharacterVitalInfo: charactervitalinfo.New(layoutWidth),
 		LocationInfo:       locationinfo.New(layoutWidth),
-		EventLogViewer: simplelogviewer.New(
-			lang.L("Event log"), layoutWidth, 12),
-		ChatViewer: simplelogviewer.New(
-			lang.L("Chat"), 48, 12),
-		CharactersVisible: simplelogviewer.New(
-			lang.L("Characters in location"), 25, 12),
+		EventLogViewer:     simplelogviewer.New(layoutWidth, 12),
+		ChatViewer:         simplelogviewer.New(48, 12),
+		CharactersVisible:  simplelogviewer.New(25, 12),
 	}
+
+	m.EvenLogViewerContainer = widgetcontainer.New(
+		m.EventLogViewer,
+		lang.L("Event log"), layoutWidth, 14)
+	m.ChatViewerContainer = widgetcontainer.New(
+		m.ChatViewer,
+		lang.L("Chat"), 48, 14)
+	m.CharactersVisibleContainer = widgetcontainer.New(
+		m.CharactersVisible,
+		lang.L("Characters in location"), 25, 14)
 
 	m.FullHelpStyle = style.ContainerStyle.Width(layoutWidth).
 		Height(14)
@@ -61,6 +77,9 @@ func New() Model {
 	m.Help = help.New()
 	m.Help.Styles.FullKey = style.TitleStyle
 	m.Help.Styles.FullDesc = style.DimTextStyle
+
+	m.HelpContainer = widgetcontainer.New(
+		nil, lang.L("Help"), layoutWidth, 14)
 
 	m.Keymap = config.ModularKeyMap{}
 
@@ -150,25 +169,22 @@ func (m Model) View() string {
 	if !m.Help.ShowAll {
 		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
 			lipgloss.JoinHorizontal(lipgloss.Center,
-				style.ContainerStyle.Render(m.ChatViewer.View()),
-				style.ContainerStyle.Render(m.CharactersVisible.View())),
+				m.ChatViewerContainer.View(),
+				m.CharactersVisibleContainer.View()),
 			m.Help.View(m.Keymap)))
 	} else {
-		bottom.WriteString(
-			style.ContainerStyle.Width(layoutWidth).Height(14).Render(
-				lipgloss.JoinVertical(lipgloss.Center,
-					style.ContainerTitleStyle.Width(layoutWidth).Render(
-						lang.L("Help")),
-					m.Help.View(m.Keymap))))
-		bottom.WriteString("\n")
-		bottom.WriteString(m.Help.ShortHelpView(m.Keymap.EssentialBindings))
+		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
+			m.HelpContainer.ViewContent(
+				m.Help.View(m.Keymap),
+				lipgloss.Center, lipgloss.Center),
+			m.Help.ShortHelpView(m.Keymap.EssentialBindings)))
 	}
 
 	tui = lipgloss.JoinVertical(lipgloss.Center,
 		style.ContainerStyle.Render(m.RunningTask.View()),
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		style.ContainerStyle.Render(m.LocationInfo.View()),
-		style.ContainerStyle.Render(m.EventLogViewer.View()),
+		m.EvenLogViewerContainer.View(),
 		bottom.String())
 
 	return lipgloss.Place(
@@ -236,6 +252,8 @@ func (m *Model) updateEventLog() {
 			entry.Value))
 	}
 
+	m.EvenLogViewerContainer.UpdateContent(m.EventLogViewer)
+
 	m.lastEventLogTimestamp = eventLog.Entries[len(eventLog.Entries)-1].Timestamp
 }
 
@@ -274,6 +292,8 @@ func (m *Model) updateChat() {
 			message.Message))
 	}
 
+	m.ChatViewerContainer.UpdateContent(m.ChatViewer)
+
 	m.lastChatTimestamp = chatMessages[len(chatMessages)-1].Timestamp
 }
 
@@ -302,6 +322,8 @@ func (m *Model) updateCharactersConnected() {
 	}
 
 	m.CharactersVisible.SetContent(str)
+
+	m.CharactersVisibleContainer.UpdateContent(m.CharactersVisible)
 }
 
 func (m *Model) updateRunningTask() {
