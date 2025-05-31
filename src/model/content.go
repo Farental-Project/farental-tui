@@ -5,4 +5,5 @@ const (
 	ContentCharacterSelection string = "ContentCharacterSelection"
 	ContentGameDashboard      string = "ContentGameDashboard"
 	ContentCharacterCreation  string = "ContentCharacterCreation"
+	ContentTravelSelection    string = "ContentTravelSelection"
 )

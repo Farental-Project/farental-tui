@@ -254,3 +254,20 @@ debug 2025/05/31 14:37:27 Request package successfully initialized
 debug 2025/05/31 14:38:39 Request package successfully initialized
 debug 2025/05/31 14:44:14 Request package successfully initialized
 debug 2025/05/31 14:44:28 Request package successfully initialized
+debug 2025/05/31 15:01:28 Request package successfully initialized
+debug 2025/05/31 15:20:19 Request package successfully initialized
+debug 2025/05/31 15:27:09 Get "http://127.0.0.1:3000/character/info": dial tcp 127.0.0.1:3000: connect: connection refused
+debug 2025/05/31 16:11:13 Request package successfully initialized
+debug 2025/05/31 16:16:04 Request package successfully initialized
+debug 2025/05/31 16:16:07 program was killed: program experienced a panic
+debug 2025/05/31 16:17:40 Request package successfully initialized
+debug 2025/05/31 16:18:04 Request package successfully initialized
+debug 2025/05/31 16:19:24 Request package successfully initialized
+debug 2025/05/31 16:22:40 Request package successfully initialized
+debug 2025/05/31 16:23:41 Request package successfully initialized
+debug 2025/05/31 16:24:54 Request package successfully initialized
+debug 2025/05/31 16:27:05 Request package successfully initialized
+debug 2025/05/31 16:27:28 Request package successfully initialized
+debug 2025/05/31 16:30:56 Request package successfully initialized
+debug 2025/05/31 16:31:07 401 &{[{One task is still in progress}]}
+debug 2025/05/31 16:32:42 Request package successfully initialized

@@ -1,6 +1,7 @@
 package gamedashboard
 
 import (
+	"errors"
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/config"
@@ -24,15 +25,12 @@ import (
 	"time"
 )
 
-const (
-	layoutWidth = 75
-)
-
 type Model struct {
 	Help          help.Model
 	HelpContainer widgetcontainer.Model
 	FullHelpStyle lipgloss.Style
 	Keymap        config.ModularKeyMap
+	Err           error
 
 	RunningTask        runningtask.Model
 	CharacterVitalInfo charactervitalinfo.Model
@@ -53,17 +51,17 @@ type Model struct {
 
 func New() Model {
 	m := Model{
-		RunningTask:        runningtask.New(layoutWidth),
-		CharacterVitalInfo: charactervitalinfo.New(layoutWidth),
-		LocationInfo:       locationinfo.New(layoutWidth),
-		EventLogViewer:     simplelogviewer.New(layoutWidth, 12),
+		RunningTask:        runningtask.New(style.LayoutWidth),
+		CharacterVitalInfo: charactervitalinfo.New(style.LayoutWidth),
+		LocationInfo:       locationinfo.New(style.LayoutWidth),
+		EventLogViewer:     simplelogviewer.New(style.LayoutWidth, 12),
 		ChatViewer:         simplelogviewer.New(48, 12),
 		CharactersVisible:  simplelogviewer.New(25, 12),
 	}
 
 	m.EvenLogViewerContainer = widgetcontainer.New(
 		m.EventLogViewer,
-		lang.L("Event log"), layoutWidth, 14)
+		lang.L("Event log"), style.LayoutWidth, 14)
 	m.ChatViewerContainer = widgetcontainer.New(
 		m.ChatViewer,
 		lang.L("Chat"), 48, 14)
@@ -71,7 +69,7 @@ func New() Model {
 		m.CharactersVisible,
 		lang.L("Characters in location"), 25, 14)
 
-	m.FullHelpStyle = style.ContainerStyle.Width(layoutWidth).
+	m.FullHelpStyle = style.ContainerStyle.Width(style.LayoutWidth).
 		Height(14)
 
 	m.Help = help.New()
@@ -79,7 +77,7 @@ func New() Model {
 	m.Help.Styles.FullDesc = style.DimTextStyle
 
 	m.HelpContainer = widgetcontainer.New(
-		nil, lang.L("Help"), layoutWidth, 14)
+		nil, lang.L("Help"), style.LayoutWidth, 14)
 
 	m.Keymap = config.ModularKeyMap{}
 
@@ -129,17 +127,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		m.resetError()
 		switch {
 		case key.Matches(msg, config.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
-
 			return m, nil
-
+		case key.Matches(msg, config.Claim):
+			m.claim()
+			return m, nil
 		case key.Matches(msg, config.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, config.Back):
 			return context.ContentManager.SwitchContent(
 				model.ContentCharacterSelection)
+		case key.Matches(msg, config.Travels):
+			if context.RunningTask != nil {
+				m.runningTaskError()
+				return m, nil
+			}
+
+			return context.ContentManager.SwitchContent(
+				model.ContentTravelSelection)
 		}
 	case tickMsg:
 		m.UpdateData()
@@ -180,7 +188,14 @@ func (m Model) View() string {
 			m.Help.ShortHelpView(m.Keymap.EssentialBindings)))
 	}
 
+	error := ""
+
+	if m.Err != nil {
+		error = fmt.Sprintf("%v\n", m.Err.Error())
+	}
+
 	tui = lipgloss.JoinVertical(lipgloss.Center,
+		style.ErrorStyle.Render(error),
 		style.ContainerStyle.Render(m.RunningTask.View()),
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		style.ContainerStyle.Render(m.LocationInfo.View()),
@@ -346,4 +361,39 @@ func (m *Model) updateRunningTask() {
 	task := resp.Result().(*api.TaskResponse)
 
 	context.RunningTask = task
+}
+
+func (m *Model) runningTaskError() {
+	if context.RunningTask.IsRunning {
+		m.Err = errors.New(lang.L("A task is already running."))
+	} else {
+		m.Err = errors.New(lang.L("Please claim your reward first."))
+	}
+}
+
+func (m *Model) resetError() {
+	m.Err = nil
+}
+
+func (m *Model) claim() {
+	if context.RunningTask == nil {
+		return
+	}
+
+	req := request.TaskClaim()
+
+	resp, err := req.Send()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if resp.StatusCode() != 200 {
+		log.Println(resp.StatusCode(), resp.Error())
+		return
+	}
+
+	context.RunningTask = nil
+	m.UpdateData()
 }

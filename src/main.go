@@ -10,6 +10,7 @@ import (
 	"farental/model/characterselection"
 	"farental/model/gamedashboard"
 	"farental/model/login"
+	"farental/model/travelselection"
 	"github.com/spf13/viper"
 	"log"
 
@@ -42,6 +43,7 @@ func main() {
 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
+	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
 
 	context.ContentManager.SwitchContent(model.ContentLogin) // ContentLogin
 

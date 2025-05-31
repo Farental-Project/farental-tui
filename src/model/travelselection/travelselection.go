@@ -1,4 +1,4 @@
-package characterselection
+package travelselection
 
 import (
 	"farental/core/data/api"
@@ -33,17 +33,12 @@ func New() Model {
 
 	m.Items = make([]list.Item, 0)
 
-	m.List = list.New(m.Items, ListItemDelegate{},
-		style.LayoutWidth, 20)
+	m.List = list.New(m.Items,
+		ListItemDelegate{},
+		style.LayoutWidth, 45)
 	m.List.SetShowHelp(false)
-	m.List.SetShowStatusBar(false)
-	m.List.SetShowFilter(false)
-	m.List.SetShowPagination(false)
-	m.List.SetShowTitle(false)
-	m.List.DisableQuitKeybindings()
-	m.List.InfiniteScrolling = true
 
-	m.Title = lang.L("Character selection")
+	m.Title = lang.L("Travel selection")
 
 	m.Keymap = config.ModularKeyMap{}
 
@@ -77,7 +72,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		m.initData()
+		m.UpdateData()
 
 		return m, nil
 
@@ -102,7 +97,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, config.Back):
 			return context.ContentManager.SwitchContent(
-				model.ContentLogin)
+				model.ContentGameDashboard)
 		}
 	}
 
@@ -121,7 +116,7 @@ func (m Model) View() string {
 
 	tui.WriteString(title)
 	tui.WriteString("\n\n")
-	tui.WriteString(style.ContainerStyle.Render(m.List.View()))
+	tui.WriteString(style.ContainerStyle.Width(style.LayoutWidth).Render(m.List.View()))
 	tui.WriteString("\n\n")
 	tui.WriteString(helpText)
 
@@ -132,16 +127,15 @@ func (m Model) View() string {
 		tui.String())
 }
 
-func (m *Model) initData() {
-	m.loadCharacters()
+func (m *Model) UpdateData() {
+	m.loadTravels()
 	m.List.SetItems(m.Items)
 }
 
-func (m *Model) loadCharacters() {
-	var characters *[]api.CharacterBasicResponse
-	var ok bool
+func (m *Model) loadTravels() {
+	var travels []api.TravelResponse
 
-	req := request.CharacterGetAll()
+	req := request.TravelGetAvailable()
 
 	resp, err := req.Send()
 
@@ -150,21 +144,13 @@ func (m *Model) loadCharacters() {
 		return
 	}
 
-	characters, ok = resp.Result().(*[]api.CharacterBasicResponse)
-
-	if !ok {
-		log.Println("Invalid request response")
-		return
-	}
+	travels = *resp.Result().(*[]api.TravelResponse)
 
 	m.Items = make([]list.Item, 0)
 
-	for _, c := range *characters {
+	for _, t := range travels {
 		item := ListItem{
-			CharacterID:       c.ID,
-			CharacterName:     c.FirstName + " " + c.LastName,
-			CharacterRace:     c.RaceName,
-			CharacterLocation: c.LocationName,
+			Travel: t,
 		}
 
 		m.Items = append(m.Items, item)
@@ -172,19 +158,13 @@ func (m *Model) loadCharacters() {
 }
 
 func (m *Model) submit() bool {
-	selectedItem, ok := m.List.SelectedItem().(ListItem)
+	i, ok := m.List.SelectedItem().(ListItem)
 
 	if !ok {
-		log.Println("Invalid item selected")
 		return false
 	}
 
-	if selectedItem.CharacterID == 0 {
-		log.Println("Selected character ID is 0")
-		return false
-	}
-
-	req := request.CharacterSetActive(selectedItem.CharacterID)
+	req := request.TravelStart(i.Travel.ID)
 
 	resp, err := req.Send()
 
@@ -197,8 +177,6 @@ func (m *Model) submit() bool {
 		log.Println(resp.Error())
 		return false
 	}
-
-	context.CharacterID = selectedItem.CharacterID
-
+	
 	return true
 }
