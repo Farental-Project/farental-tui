@@ -96,15 +96,15 @@ func New() Model {
 			keybind.Inventory,
 			keybind.Claim,
 			keybind.Back,
-			keybind.Help,
 			keybind.Quit,
+			keybind.HelpClose,
 		},
 	})
 
 	m.Keymap.SetEssentialBindings([]key.Binding{
 		keybind.Claim,
-		keybind.Help,
 		keybind.Quit,
+		keybind.HelpMore,
 	})
 
 	return m
@@ -130,7 +130,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		m.resetError()
 		switch {
-		case key.Matches(msg, keybind.Help):
+		case key.Matches(msg, keybind.HelpMore):
 			m.Help.ShowAll = !m.Help.ShowAll
 			return m, nil
 		case key.Matches(msg, keybind.Claim):
@@ -182,11 +182,10 @@ func (m Model) View() string {
 				m.CharactersVisibleContainer.View()),
 			m.Help.View(m.Keymap)))
 	} else {
-		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
-			m.HelpContainer.ViewContent(
-				m.Help.View(m.Keymap),
-				lipgloss.Center, lipgloss.Center),
-			m.Help.ShortHelpView(m.Keymap.EssentialBindings)))
+		bottom.WriteString(m.HelpContainer.ViewContent(
+			m.Help.View(m.Keymap),
+			lipgloss.Center, lipgloss.Center))
+		bottom.WriteString("\n")
 	}
 
 	error := ""

@@ -66,14 +66,14 @@ func New() Model {
 			keybind.Submit,
 		},
 		{
-			keybind.Help,
 			keybind.Quit,
+			keybind.HelpClose,
 		},
 	})
 	m.Keymap.SetEssentialBindings([]key.Binding{
 		keybind.Submit,
-		keybind.Help,
 		keybind.Quit,
+		keybind.HelpMore,
 	})
 
 	return m
@@ -138,7 +138,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, cmd
-		case key.Matches(msg, keybind.Help):
+		case key.Matches(msg, keybind.HelpMore):
 			m.Help.ShowAll = !m.Help.ShowAll
 
 			return m, nil

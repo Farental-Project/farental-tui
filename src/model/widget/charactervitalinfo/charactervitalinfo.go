@@ -91,7 +91,8 @@ func (m Model) View() string {
 }
 
 func (m *Model) UpdateData(characterInfo *api.CharacterInfoResponse) {
-	m.FullName = fmt.Sprintf("%s %s", characterInfo.FirstName, characterInfo.LastName)
+	m.FullName = style.BoldTextStyle.Render(
+		fmt.Sprintf("%s %s", characterInfo.FirstName, characterInfo.LastName))
 	m.RaceName = characterInfo.RaceName
 	m.RaceStyle = style.RaceStyle(m.RaceName)
 	m.Power = characterInfo.Power

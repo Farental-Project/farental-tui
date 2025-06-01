@@ -10,11 +10,16 @@ var (
 	Down             key.Binding
 	Left             key.Binding
 	Right            key.Binding
-	Help             key.Binding
+	HelpMore         key.Binding
+	HelpClose        key.Binding
 	Quit             key.Binding
 	Submit           key.Binding
+	Apply            key.Binding
 	Claim            key.Binding
 	Back             key.Binding
+	Cancel           key.Binding
+	ClearFilter      key.Binding
+	Filter           key.Binding
 	Tab              key.Binding
 	ShiftTab         key.Binding
 	Travels          key.Binding
@@ -25,6 +30,8 @@ var (
 	Scripts          key.Binding
 	LocationServices key.Binding
 	Inventory        key.Binding
+	GotoListStart    key.Binding
+	GotoListEnd      key.Binding
 )
 
 func Init() {
@@ -40,21 +47,36 @@ func Init() {
 	Right = key.NewBinding(
 		key.WithKeys("right", "l"),
 		key.WithHelp("→/l", lang.L("move right")))
-	Help = key.NewBinding(
+	HelpMore = key.NewBinding(
 		key.WithKeys("?"),
-		key.WithHelp("?", lang.L("toggle help")))
+		key.WithHelp("?", lang.L("more")))
+	HelpClose = key.NewBinding(
+		key.WithKeys("?"),
+		key.WithHelp("?", lang.L("close help")))
 	Quit = key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", lang.L("quit")))
 	Submit = key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", lang.L("submit")))
+	Apply = key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", lang.L("apply")))
 	Claim = key.NewBinding(
 		key.WithKeys(" "),
 		key.WithHelp(lang.L("space"), lang.L("claim")))
 	Back = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", lang.L("back")))
+	Cancel = key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", lang.L("cancel")))
+	ClearFilter = key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", lang.L("clear filter")))
+	Filter = key.NewBinding(
+		key.WithKeys("/"),
+		key.WithHelp("/", lang.L("filter")))
 	Tab = key.NewBinding(
 		key.WithKeys("tab"),
 		key.WithHelp("tab", lang.L("next focus")))
@@ -85,4 +107,10 @@ func Init() {
 	Inventory = key.NewBinding(
 		key.WithKeys("i"),
 		key.WithHelp("i", lang.L("inventory")))
+	GotoListStart = key.NewBinding(
+		key.WithKeys("g", "home"),
+		key.WithHelp("g/home", lang.L("goto list start")))
+	GotoListEnd = key.NewBinding(
+		key.WithKeys("G", "end"),
+		key.WithHelp("G/end", lang.L("goto list end")))
 }

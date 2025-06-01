@@ -38,28 +38,13 @@ func New() Model {
 		ListItemDelegate{},
 		style.LayoutWidth, 45)
 	m.List.SetShowHelp(false)
+	m.List.DisableQuitKeybindings()
 
 	m.Title = lang.L("Travel selection")
 
 	m.Keymap = config.ModularKeyMap{}
 
-	m.Keymap.SetBindings([][]key.Binding{
-		{
-			keybind.Up,
-			keybind.Down,
-			keybind.Submit,
-		},
-		{
-			keybind.Help,
-			keybind.Back,
-			keybind.Quit,
-		},
-	})
-	m.Keymap.SetEssentialBindings([]key.Binding{
-		keybind.Help,
-		keybind.Back,
-		keybind.Quit,
-	})
+	m.updateKeymap()
 
 	return m
 }
@@ -83,28 +68,34 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, keybind.Submit):
-			ok := m.submit()
+			if m.List.FilterState() != list.Filtering {
+				ok := m.submit()
 
-			if ok {
+				if ok {
+					return context.ContentManager.SwitchContent(
+						model.ContentGameDashboard)
+				}
+
+				return m, nil
+			}
+
+		case key.Matches(msg, keybind.HelpMore):
+			m.Help.ShowAll = !m.Help.ShowAll
+
+		case key.Matches(msg, keybind.Back):
+			if m.List.FilterState() == list.Unfiltered {
 				return context.ContentManager.SwitchContent(
 					model.ContentGameDashboard)
 			}
-
-			return m, nil
-		case key.Matches(msg, keybind.Help):
-			m.Help.ShowAll = !m.Help.ShowAll
-
-			return m, nil
-
-		case key.Matches(msg, keybind.Back):
-			return context.ContentManager.SwitchContent(
-				model.ContentGameDashboard)
 		}
 	}
 
 	context.ContentManager.Update(msg)
 
 	m.List, cmd = m.List.Update(msg)
+
+	m.updateKeymap()
+
 	return m, cmd
 }
 
@@ -180,4 +171,57 @@ func (m *Model) submit() bool {
 	}
 
 	return true
+}
+
+func (m *Model) updateKeymap() {
+	var fullKeys [][]key.Binding
+	var leftColumn []key.Binding
+	var rightColumn []key.Binding
+	var essentialsKeys []key.Binding
+	var escKey key.Binding
+	var enterKey key.Binding
+
+	keybind.HelpMore.SetEnabled(true)
+
+	switch m.List.FilterState() {
+	case list.Filtering:
+		escKey = keybind.Cancel
+		enterKey = keybind.Apply
+	case list.FilterApplied:
+		escKey = keybind.ClearFilter
+		enterKey = keybind.Submit
+	case list.Unfiltered:
+		escKey = keybind.Back
+		enterKey = keybind.Submit
+	}
+
+	if m.List.FilterState() == list.Filtering {
+		essentialsKeys = append(essentialsKeys, enterKey, escKey)
+		keybind.HelpMore.SetEnabled(false)
+		m.Keymap.SetEssentialBindings(essentialsKeys)
+		return
+	}
+
+	essentialsKeys = append(essentialsKeys,
+		keybind.Up, keybind.Down, keybind.Filter, escKey, enterKey, keybind.HelpMore)
+
+	leftColumn = append(leftColumn,
+		keybind.Up,
+		keybind.Down,
+		keybind.GotoListStart,
+		keybind.GotoListEnd,
+	)
+
+	rightColumn = append(rightColumn,
+		keybind.Filter,
+		keybind.Submit,
+		keybind.Back,
+		keybind.Quit,
+		keybind.HelpClose,
+	)
+
+	fullKeys = append(fullKeys, leftColumn, rightColumn)
+
+	m.Keymap.SetBindings(fullKeys)
+	m.Keymap.SetEssentialBindings(essentialsKeys)
 }
