@@ -36,12 +36,18 @@ func New() Model {
 	tiUserEmail.Placeholder = lang.L("E-mail")
 	tiUserEmail.Focus()
 	tiUserEmail.Width = 30
+	tiUserEmail.Prompt = ""
+	tiUserEmail.TextStyle = style.TextStyle.Foreground(
+		lipgloss.Color(style.ColorHighlight))
 
 	tiPassword := textinput.New()
 	tiPassword.Placeholder = lang.L("Password")
 	tiPassword.EchoMode = textinput.EchoPassword
 	tiPassword.EchoCharacter = '*'
 	tiPassword.Width = 30
+	tiPassword.Prompt = ""
+	tiPassword.TextStyle = style.TextStyle.Foreground(
+		lipgloss.Color(style.ColorHighlight))
 
 	title := art.CreateASCIIArtTitle("FARENTAL")
 

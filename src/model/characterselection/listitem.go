@@ -39,8 +39,8 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 	str := s.Width(m.Width()).Render(fmt.Sprintf(
 		"%s\n%s\n%s",
 		style.HighlightStyle.Render(i.CharacterName),
-		i.CharacterRace,
-		i.CharacterLocation))
+		style.RaceStyle(i.CharacterRace).Render(i.CharacterRace),
+		style.DimTextStyle.Render(i.CharacterLocation)))
 
 	fmt.Fprint(w, str)
 }
