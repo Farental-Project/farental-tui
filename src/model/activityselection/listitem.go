@@ -88,7 +88,11 @@ func (l ListItemDelegate) Spacing() int {
 
 func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 	selectedIndex := m.Index()
-	selectedItem := m.SelectedItem().(ListItem)
+	selectedItem, ok := m.SelectedItem().(ListItem)
+
+	if !ok {
+		return nil
+	}
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:

@@ -7,4 +7,5 @@ const (
 	ContentCharacterCreation  string = "ContentCharacterCreation"
 	ContentActivitySelection  string = "ContentActivitySelection"
 	ContentTravelSelection    string = "ContentTravelSelection"
+	ContentFightSelection     string = "ContentFightSelection"
 )

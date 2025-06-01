@@ -177,6 +177,14 @@ func (m *Model) updateKeymap() {
 		keybind.HelpClose,
 	)
 
+	if !m.ShowIncreaseDecrease {
+		keybind.Decrease.SetEnabled(false)
+		keybind.Increase.SetEnabled(false)
+	} else {
+		keybind.Decrease.SetEnabled(true)
+		keybind.Increase.SetEnabled(true)
+	}
+
 	fullKeys = append(fullKeys, leftColumn, rightColumn)
 
 	m.Keymap.SetBindings(fullKeys)
