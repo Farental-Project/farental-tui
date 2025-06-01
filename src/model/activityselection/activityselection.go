@@ -72,7 +72,8 @@ func (m *Model) loadData() []list.Item {
 
 	for _, a := range activities {
 		item := ListItem{
-			Activity: a,
+			Activity:      a,
+			DurationIndex: 0,
 		}
 
 		items = append(items, item)
