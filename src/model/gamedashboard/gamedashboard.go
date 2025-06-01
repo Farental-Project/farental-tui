@@ -149,6 +149,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return context.ContentManager.SwitchContent(
 				model.ContentTravelSelection)
+		case key.Matches(msg, keybind.Activities):
+			if context.RunningTask != nil {
+				m.runningTaskError()
+				return m, nil
+			}
+
+			return context.ContentManager.SwitchContent(
+				model.ContentActivitySelection)
 		}
 	case tickMsg:
 		m.UpdateData()

@@ -8,6 +8,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
+	"farental/model/activityselection"
 	"farental/model/characterselection"
 	"farental/model/gamedashboard"
 	"farental/model/login"
@@ -46,6 +47,7 @@ func main() {
 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
+	context.ContentManager.RegisterContent(model.ContentActivitySelection, activityselection.New())
 	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
 
 	context.ContentManager.SwitchContent(model.ContentLogin) // ContentLogin

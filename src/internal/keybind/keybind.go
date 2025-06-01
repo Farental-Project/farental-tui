@@ -32,6 +32,8 @@ var (
 	Inventory        key.Binding
 	GotoListStart    key.Binding
 	GotoListEnd      key.Binding
+	Decrease         key.Binding
+	Increase         key.Binding
 )
 
 func Init() {
@@ -47,6 +49,12 @@ func Init() {
 	Right = key.NewBinding(
 		key.WithKeys("right", "l"),
 		key.WithHelp("→/l", lang.L("move right")))
+	Decrease = key.NewBinding(
+		key.WithKeys("left", "l"),
+		key.WithHelp("←/h", lang.L("decrease value")))
+	Increase = key.NewBinding(
+		key.WithKeys("right", "l"),
+		key.WithHelp("→/l", lang.L("increase value")))
 	HelpMore = key.NewBinding(
 		key.WithKeys("?"),
 		key.WithHelp("?", lang.L("more")))

@@ -15,10 +15,11 @@ import (
 )
 
 type Model struct {
-	List   list.Model
-	Items  []list.Item
-	Help   help.Model
-	Keymap config.ModularKeyMap
+	List                 list.Model
+	Items                []list.Item
+	Help                 help.Model
+	Keymap               config.ModularKeyMap
+	ShowIncreaseDecrease bool
 
 	Title string
 
@@ -37,11 +38,13 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func() []lis
 		listItemDelegate,
 		style.LayoutWidth, 45)
 	m.List.SetShowHelp(false)
+	m.List.SetShowTitle(false)
 	m.List.DisableQuitKeybindings()
 
 	m.Title = title
 	m.loadData = loadData
 	m.submit = submit
+	m.ShowIncreaseDecrease = false
 
 	m.Keymap = config.ModularKeyMap{}
 
@@ -160,6 +163,8 @@ func (m *Model) updateKeymap() {
 	leftColumn = append(leftColumn,
 		keybind.Up,
 		keybind.Down,
+		keybind.Decrease,
+		keybind.Increase,
 		keybind.GotoListStart,
 		keybind.GotoListEnd,
 	)
