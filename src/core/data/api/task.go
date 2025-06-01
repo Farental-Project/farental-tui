@@ -5,3 +5,9 @@ type TaskResponse struct {
 	IsRunning          bool
 	RemainingTimeHours float64
 }
+
+type Duration struct {
+	ID uint
+
+	Duration float64
+}

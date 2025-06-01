@@ -17,6 +17,8 @@ type FightResponse struct {
 type FightCompositionResponse struct {
 	ID uint
 
+	Duration Duration
+
 	Actors []FightActorResponse
 }
 
