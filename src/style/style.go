@@ -40,6 +40,11 @@ var (
 				Italic(true).
 				BorderTop(false).BorderRight(false).BorderLeft(false)
 
+	DimBottomBorderStyle = lipgloss.NewStyle().
+				Border(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color(ColorHighlightDim)).
+				BorderTop(false).BorderRight(false).BorderLeft(false)
+
 	ErrorStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorError)).
 			Bold(true)

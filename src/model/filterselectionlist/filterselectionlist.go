@@ -20,6 +20,7 @@ type Model struct {
 	Help                 help.Model
 	Keymap               config.ModularKeyMap
 	ShowIncreaseDecrease bool
+	ShowPageUpDown       bool
 
 	Title string
 
@@ -36,7 +37,7 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func() []lis
 
 	m.List = list.New(m.Items,
 		listItemDelegate,
-		style.LayoutWidth, 45)
+		style.LayoutWidth, 30)
 	m.List.SetShowHelp(false)
 	m.List.SetShowTitle(false)
 	m.List.DisableQuitKeybindings()
@@ -45,12 +46,19 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func() []lis
 	m.loadData = loadData
 	m.submit = submit
 	m.ShowIncreaseDecrease = false
+	m.ShowPageUpDown = false
 
 	m.Keymap = config.ModularKeyMap{}
 
 	m.updateKeymap()
 
 	return m
+}
+
+func (m *Model) SetShowExtraKeybinds(showIncreaseDecrease, showPageUpDown bool) {
+	m.ShowIncreaseDecrease = showIncreaseDecrease
+	m.ShowPageUpDown = showPageUpDown
+	m.updateKeymap()
 }
 
 func (m Model) Init() tea.Cmd {
@@ -170,6 +178,8 @@ func (m *Model) updateKeymap() {
 	)
 
 	rightColumn = append(rightColumn,
+		keybind.PrevPage,
+		keybind.NextPage,
 		keybind.Filter,
 		keybind.Submit,
 		keybind.Back,
@@ -183,6 +193,14 @@ func (m *Model) updateKeymap() {
 	} else {
 		keybind.Decrease.SetEnabled(true)
 		keybind.Increase.SetEnabled(true)
+	}
+
+	if !m.ShowPageUpDown {
+		keybind.PrevPage.SetEnabled(false)
+		keybind.NextPage.SetEnabled(false)
+	} else {
+		keybind.PrevPage.SetEnabled(true)
+		keybind.NextPage.SetEnabled(true)
 	}
 
 	fullKeys = append(fullKeys, leftColumn, rightColumn)

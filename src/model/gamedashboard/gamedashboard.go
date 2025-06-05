@@ -165,6 +165,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return context.ContentManager.SwitchContent(
 				model.ContentFightSelection)
+		case key.Matches(msg, keybind.Crafts):
+			if context.RunningTask != nil {
+				m.runningTaskError()
+				return m, nil
+			}
+
+			return context.ContentManager.SwitchContent(
+				model.ContentCraftSelection)
 		}
 	case tickMsg:
 		m.UpdateData()

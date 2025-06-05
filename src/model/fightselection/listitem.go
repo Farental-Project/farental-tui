@@ -3,6 +3,7 @@ package fightselection
 import (
 	"farental/core/data/api"
 	"farental/internal/helper"
+	"farental/internal/keybind"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/list"
@@ -31,6 +32,8 @@ func NewListItem(f api.FightCompositionResponse) ListItem {
 	li.Paginator.ActiveDot = style.TitleStyle.Render("•")
 	li.Paginator.InactiveDot = style.DimTextStyle.Render("•")
 	li.Paginator.SetTotalPages(len(f.Actors))
+	li.Paginator.KeyMap.NextPage = keybind.NextPage
+	li.Paginator.KeyMap.PrevPage = keybind.PrevPage
 
 	for _, a := range f.Actors {
 		li.TotalPower += a.Power
@@ -82,7 +85,7 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 
 		left.WriteString(fmt.Sprintf("%s (%d)", pitem.Name, pitem.Power))
 
-		count += 1
+		count++
 	}
 
 	if count < perPage {
@@ -124,8 +127,6 @@ func (l ListItemDelegate) Spacing() int {
 }
 
 func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
-	var cmd tea.Cmd
-
 	selectedIndex := m.Index()
 	selectedItem, ok := m.SelectedItem().(ListItem)
 
@@ -133,11 +134,11 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 		return nil
 	}
 
-	selectedItem.Paginator, cmd = selectedItem.Paginator.Update(msg)
+	selectedItem.Paginator, _ = selectedItem.Paginator.Update(msg)
 
 	updateItem(m, selectedIndex, selectedItem)
 
-	return cmd
+	return nil
 }
 
 func updateItem(m *list.Model, index int, item ListItem) {

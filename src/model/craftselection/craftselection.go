@@ -1,4 +1,4 @@
-package fightselection
+package craftselection
 
 import (
 	"farental/core/data/api"
@@ -18,12 +18,12 @@ func New() Model {
 	m := Model{}
 
 	m.FilterSelectionList = filterselectionlist.New(
-		lang.L("Fight selection"),
+		lang.L("Craft selection"),
 		ListItemDelegate{},
 		m.loadData,
 		m.submit)
 
-	m.FilterSelectionList.SetShowExtraKeybinds(false, true)
+	m.FilterSelectionList.SetShowExtraKeybinds(true, true)
 
 	return m
 }
@@ -54,12 +54,12 @@ func (m Model) View() string {
 }
 
 func (m *Model) loadData() []list.Item {
-	var fights []api.FightCompositionResponse
+	var crafts []api.RecipeResponse
 	var items []list.Item
 
 	items = make([]list.Item, 0)
 
-	req := request.FightGetAvailable()
+	req := request.CraftGetAvailable()
 
 	resp, err := req.Send()
 
@@ -68,10 +68,10 @@ func (m *Model) loadData() []list.Item {
 		return items
 	}
 
-	fights = *resp.Result().(*[]api.FightCompositionResponse)
+	crafts = *resp.Result().(*[]api.RecipeResponse)
 
-	for _, f := range fights {
-		item := NewListItem(f)
+	for _, c := range crafts {
+		item := NewListItem(&c)
 
 		items = append(items, item)
 	}
@@ -86,7 +86,7 @@ func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 		return false
 	}
 
-	req := request.FightStart(i.FightCompo.ID)
+	req := request.CraftStart(i.CraftRecipe.ID, i.Amount)
 
 	resp, err := req.Send()
 

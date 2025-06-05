@@ -15,7 +15,7 @@ func CraftGetAvailable() *resty.Request {
 	return r
 }
 
-func CraftStart(craftID, amount uint) *resty.Request {
+func CraftStart(craftID uint, amount int) *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodPost
 	r.URL = "/craft/start"

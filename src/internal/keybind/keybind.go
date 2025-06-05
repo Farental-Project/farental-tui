@@ -34,6 +34,8 @@ var (
 	GotoListEnd      key.Binding
 	Decrease         key.Binding
 	Increase         key.Binding
+	PrevPage         key.Binding
+	NextPage         key.Binding
 )
 
 func Init() {
@@ -121,4 +123,10 @@ func Init() {
 	GotoListEnd = key.NewBinding(
 		key.WithKeys("G", "end"),
 		key.WithHelp("G/end", lang.L("goto list end")))
+	PrevPage = key.NewBinding(
+		key.WithKeys("pgup"),
+		key.WithHelp("page up", lang.L("previous page")))
+	NextPage = key.NewBinding(
+		key.WithKeys("pgdown"),
+		key.WithHelp("page down", lang.L("next page")))
 }

@@ -2,7 +2,7 @@ package api
 
 type CraftStartBody struct {
 	RecipeID uint `validate:"required"`
-	Amount   uint `validate:"required,number"`
+	Amount   int  `validate:"required,number"`
 }
 
 type RecipeResponse struct {

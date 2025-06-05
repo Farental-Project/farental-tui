@@ -10,6 +10,7 @@ import (
 	"farental/model"
 	"farental/model/activityselection"
 	"farental/model/characterselection"
+	"farental/model/craftselection"
 	"farental/model/fightselection"
 	"farental/model/gamedashboard"
 	"farental/model/login"
@@ -51,7 +52,8 @@ func main() {
 	context.ContentManager.RegisterContent(model.ContentActivitySelection, activityselection.New())
 	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
 	context.ContentManager.RegisterContent(model.ContentFightSelection, fightselection.New())
-	
+	context.ContentManager.RegisterContent(model.ContentCraftSelection, craftselection.New())
+
 	context.ContentManager.SwitchContent(model.ContentLogin) // ContentLogin
 
 	p := tea.NewProgram(context.ContentManager.GetCurrentModel(), tea.WithAltScreen())
