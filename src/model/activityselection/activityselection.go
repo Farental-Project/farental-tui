@@ -23,7 +23,7 @@ func New() Model {
 		m.loadData,
 		m.submit)
 
-	m.FilterSelectionList.ShowIncreaseDecrease = true
+	m.FilterSelectionList.SetShowExtraKeybinds(true, false)
 
 	return m
 }

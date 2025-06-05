@@ -19,8 +19,8 @@ type Model struct {
 	Items                []list.Item
 	Help                 help.Model
 	Keymap               config.ModularKeyMap
-	ShowIncreaseDecrease bool
-	ShowPageUpDown       bool
+	showIncreaseDecrease bool
+	showPageUpDown       bool
 
 	Title string
 
@@ -45,8 +45,8 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func() []lis
 	m.Title = title
 	m.loadData = loadData
 	m.submit = submit
-	m.ShowIncreaseDecrease = false
-	m.ShowPageUpDown = false
+	m.showIncreaseDecrease = false
+	m.showPageUpDown = false
 
 	m.Keymap = config.ModularKeyMap{}
 
@@ -56,8 +56,8 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func() []lis
 }
 
 func (m *Model) SetShowExtraKeybinds(showIncreaseDecrease, showPageUpDown bool) {
-	m.ShowIncreaseDecrease = showIncreaseDecrease
-	m.ShowPageUpDown = showPageUpDown
+	m.showIncreaseDecrease = showIncreaseDecrease
+	m.showPageUpDown = showPageUpDown
 	m.updateKeymap()
 }
 
@@ -187,7 +187,7 @@ func (m *Model) updateKeymap() {
 		keybind.HelpClose,
 	)
 
-	if !m.ShowIncreaseDecrease {
+	if !m.showIncreaseDecrease {
 		keybind.Decrease.SetEnabled(false)
 		keybind.Increase.SetEnabled(false)
 	} else {
@@ -195,7 +195,7 @@ func (m *Model) updateKeymap() {
 		keybind.Increase.SetEnabled(true)
 	}
 
-	if !m.ShowPageUpDown {
+	if !m.showPageUpDown {
 		keybind.PrevPage.SetEnabled(false)
 		keybind.NextPage.SetEnabled(false)
 	} else {
