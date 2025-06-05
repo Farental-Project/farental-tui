@@ -5,6 +5,11 @@ type CraftStartBody struct {
 	Amount   int  `validate:"required,number"`
 }
 
+type IngredientResponse struct {
+	Item   ItemResponse
+	Amount int
+}
+
 type RecipeResponse struct {
 	ID          uint
 	Name        string
@@ -14,14 +19,9 @@ type RecipeResponse struct {
 
 	Skill SkillResponse
 
-	Duration DurationResponse
+	Duration Duration
 
-	Amount uint
+	Amount int
 
 	Item ItemResponse
-}
-
-type IngredientResponse struct {
-	Item   ItemResponse
-	Amount uint
 }
