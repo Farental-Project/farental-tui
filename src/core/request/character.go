@@ -49,7 +49,7 @@ func CharacterSetActive(id uint) *resty.Request {
 func CharacterGetActive() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/character/getActive"
+	r.URL = "/character/active"
 	r.SetResult(api.CharacterBasicResponse{})
 	r.SetError(api.ErrorResponse{})
 

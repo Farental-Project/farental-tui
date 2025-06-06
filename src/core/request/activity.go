@@ -8,7 +8,7 @@ import (
 func ActivityGetAvailable() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/activity/getAvailable"
+	r.URL = "/activity/available"
 	r.SetResult([]api.ActivityResponse{})
 	r.SetError(api.ErrorResponse{})
 

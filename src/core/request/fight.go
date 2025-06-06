@@ -8,7 +8,7 @@ import (
 func FightGetFinished() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/fight/getFinished"
+	r.URL = "/fight/finished"
 	r.SetResult([]api.FightResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -18,7 +18,7 @@ func FightGetFinished() *resty.Request {
 func FightGetAvailable() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/fight/getAvailable"
+	r.URL = "/fight/available"
 	r.SetResult([]api.FightCompositionResponse{})
 	r.SetError(api.ErrorResponse{})
 

@@ -8,7 +8,7 @@ import (
 func TravelGetAvailable() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/travel/getAvailable"
+	r.URL = "/travel/available"
 	r.SetResult([]api.TravelResponse{})
 	r.SetError(api.ErrorResponse{})
 

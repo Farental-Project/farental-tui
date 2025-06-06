@@ -8,7 +8,7 @@ import (
 func LocationGetCharacters() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/location/getCharacters"
+	r.URL = "/location/characters"
 	r.SetResult([]api.CharacterBasicWithActivityResponse{})
 	r.SetError(api.ErrorResponse{})
 

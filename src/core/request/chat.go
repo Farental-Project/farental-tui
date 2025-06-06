@@ -8,7 +8,7 @@ import (
 func ChatGetMessages() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/chat/getMessages"
+	r.URL = "/chat/messages"
 	r.SetResult([]api.ChatMessageResponse{})
 	r.SetError(api.ErrorResponse{})
 
