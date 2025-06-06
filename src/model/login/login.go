@@ -223,6 +223,21 @@ func (m *Model) submit() bool {
 		return false
 	}
 
+	// TODO: Manage server errors messages
+
+	// if resp.Error() != nil {
+	// 	errorText := resp.Error().(*api.ErrorResponse).Errors[0]
+	// 	if resp.StatusCode() != 400 {
+	// 		log.Println(errorText.Message)
+	// 		l.EntryPassword.SetText("")
+	//
+	// 		// Comes after because in the OnChanged event of the password,
+	// 		// I clear the error message
+	// 		l.TxtError.Text = lang.L(errorText.Message)
+	// 	}
+	// 	return
+	// }
+
 	if resp.StatusCode() != 200 {
 		m.Err = errors.New(lang.L("invalid e-mail / password combination"))
 		return false
