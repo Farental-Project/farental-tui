@@ -27,9 +27,9 @@ type CharacterStatResponse struct {
 
 type CharacterSkillResponse struct {
 	Code        string
-	Level       uint8
-	CurrentXp   uint
-	NextLevelXp uint
+	Level       int
+	CurrentXp   int
+	NextLevelXp int
 }
 
 type CharacterInfoResponse struct {

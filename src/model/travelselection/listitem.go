@@ -57,11 +57,11 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 		rightBottom += fmt.Sprintf("Price : %d", i.Travel.Price)
 	}
 
-	if i.Travel.RequestedLocationFeature.Name != "" {
+	if i.Travel.RequiredLocationFeature.Name != "" {
 		if len(rightBottom) > 0 {
 			rightBottom += "\n"
 		}
-		rightBottom += fmt.Sprintf("%s", i.Travel.RequestedLocationFeature.Name)
+		rightBottom += fmt.Sprintf("%s", i.Travel.RequiredLocationFeature.Name)
 	}
 
 	right.WriteString(helper.HoursDecFormat(i.Travel.Duration))
