@@ -7,7 +7,7 @@ import (
 var (
 	FocusedStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color(ColorHighlight))
+			BorderForeground(lipgloss.Color(ColorSpecialHighlight))
 
 	BlurredStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).

@@ -84,8 +84,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				ok := m.submit(&m)
 
 				if ok {
-					return context.ContentManager.SwitchContent(
-						model.ContentGameDashboard)
+					return context.ContentManager.
+						SwitchContent(m, model.ContentGameDashboard)
 				}
 
 				return m, nil
@@ -96,8 +96,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keybind.Back):
 			if m.List.FilterState() == list.Unfiltered {
-				return context.ContentManager.SwitchContent(
-					model.ContentGameDashboard)
+				return context.ContentManager.
+					SwitchContent(m, model.ContentGameDashboard)
 			}
 		}
 	}

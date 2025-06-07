@@ -3,6 +3,7 @@ package travelselection
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/lang"
 	"farental/model/filterselectionlist"
 	"github.com/charmbracelet/bubbles/list"
@@ -33,6 +34,8 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var mod tea.Model
+
+	defer context.ContentManager.UpdateCurrentContent(m)
 
 	mod, cmd = m.FilterSelectionList.Update(msg)
 

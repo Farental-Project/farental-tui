@@ -23,9 +23,13 @@ func (m *Manager) RegisterContent(code string, content tea.Model) {
 	m.Contents[code] = content
 }
 
-func (m *Manager) SwitchContent(code string) (tea.Model, tea.Cmd) {
+func (m *Manager) SwitchContent(currentContent tea.Model, code string) (tea.Model, tea.Cmd) {
 	m.PreviousCode = m.CurrentCode
 	m.CurrentCode = code
+
+	if currentContent != nil {
+		m.Contents[m.PreviousCode] = currentContent
+	}
 
 	_, ok := m.Contents[code]
 
@@ -43,8 +47,8 @@ func (m *Manager) GetCurrentModel() tea.Model {
 	return m.Contents[m.CurrentCode]
 }
 
-func (m *Manager) Back() (tea.Model, tea.Cmd) {
-	return m.SwitchContent(m.PreviousCode)
+func (m *Manager) Back(currentContent tea.Model) (tea.Model, tea.Cmd) {
+	return m.SwitchContent(currentContent, m.PreviousCode)
 }
 
 func (m *Manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -56,6 +60,10 @@ func (m *Manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m.Contents[m.CurrentCode], nil
+}
+
+func (m *Manager) UpdateCurrentContent(content tea.Model) {
+	m.Contents[m.CurrentCode] = content
 }
 
 func (m Manager) View() string {

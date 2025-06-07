@@ -33,6 +33,8 @@ type Model struct {
 	Keymap        config.ModularKeyMap
 	Err           error
 
+	tickTag uint
+
 	RunningTask        runningtask.Model
 	CharacterVitalInfo charactervitalinfo.Model
 	LocationInfo       locationinfo.Model
@@ -110,21 +112,30 @@ func New() Model {
 	return m
 }
 
-type tickMsg time.Time
+// TickMsg indicates that the timer has ticked and we should render a frame.
+type TickMsg struct {
+	Time time.Time
+	tag  uint
+}
 
-func doTick() tea.Cmd {
+func (m Model) tick(tag uint) tea.Cmd {
 	return tea.Tick(15*time.Second, func(t time.Time) tea.Msg {
-		return tickMsg(t)
+		return TickMsg{
+			Time: t,
+			tag:  tag,
+		}
 	})
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(model.InitCmd, doTick())
+	return tea.Batch(model.InitCmd, m.tick(m.tickTag))
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var mod tea.Model
+
+	defer context.ContentManager.UpdateCurrentContent(m)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -139,45 +150,50 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, keybind.Back):
-			return context.ContentManager.SwitchContent(
-				model.ContentCharacterSelection)
+			return context.ContentManager.
+				SwitchContent(m, model.ContentCharacterSelection)
 		case key.Matches(msg, keybind.Travels):
 			if context.RunningTask != nil {
 				m.runningTaskError()
 				return m, nil
 			}
 
-			return context.ContentManager.SwitchContent(
-				model.ContentTravelSelection)
+			return context.ContentManager.
+				SwitchContent(m, model.ContentTravelSelection)
 		case key.Matches(msg, keybind.Activities):
 			if context.RunningTask != nil {
 				m.runningTaskError()
 				return m, nil
 			}
 
-			return context.ContentManager.SwitchContent(
-				model.ContentActivitySelection)
+			return context.ContentManager.
+				SwitchContent(m, model.ContentActivitySelection)
 		case key.Matches(msg, keybind.Fights):
 			if context.RunningTask != nil {
 				m.runningTaskError()
 				return m, nil
 			}
 
-			return context.ContentManager.SwitchContent(
-				model.ContentFightSelection)
+			return context.ContentManager.
+				SwitchContent(m, model.ContentFightSelection)
 		case key.Matches(msg, keybind.Crafts):
 			if context.RunningTask != nil {
 				m.runningTaskError()
 				return m, nil
 			}
 
-			return context.ContentManager.SwitchContent(
-				model.ContentCraftSelection)
+			return context.ContentManager.
+				SwitchContent(m, model.ContentCraftSelection)
 		}
-	case tickMsg:
+	case TickMsg:
+		if msg.tag != m.tickTag {
+			return m, nil
+		}
+
 		m.UpdateData()
 
-		return m, doTick()
+		m.tickTag++
+		return m, m.tick(m.tickTag)
 	case model.InitMsg:
 		m.UpdateData()
 

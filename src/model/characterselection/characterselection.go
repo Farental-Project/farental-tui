@@ -76,6 +76,8 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
+	defer context.ContentManager.UpdateCurrentContent(m)
+
 	switch msg := msg.(type) {
 	case model.InitMsg:
 		m.initData()
@@ -91,8 +93,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ok := m.submit()
 
 			if ok {
-				return context.ContentManager.SwitchContent(
-					model.ContentGameDashboard)
+				return context.ContentManager.
+					SwitchContent(m, model.ContentGameDashboard)
 			}
 
 			return m, nil
@@ -102,8 +104,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, keybind.Back):
-			return context.ContentManager.SwitchContent(
-				model.ContentLogin)
+			return context.ContentManager.
+				SwitchContent(m, model.ContentLogin)
 		}
 	}
 

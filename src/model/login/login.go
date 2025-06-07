@@ -84,6 +84,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	defer context.ContentManager.UpdateCurrentContent(m)
+
 	switch msg := msg.(type) {
 	case model.InitMsg:
 		var lastUsedEmail string
@@ -108,7 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ret := m.submit()
 
 			if ret {
-				return context.ContentManager.SwitchContent(model.ContentCharacterSelection)
+				return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
 			}
 
 			return m, nil
@@ -252,6 +254,8 @@ func (m *Model) submit() bool {
 	if err != nil {
 		log.Println("could not save last used e-mail : ", err)
 	}
+
+	m.Inputs[1].SetValue("")
 
 	return true
 }
