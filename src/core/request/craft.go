@@ -8,7 +8,7 @@ import (
 func CraftGetAvailable() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
-	r.URL = "/craft/getAvailable"
+	r.URL = "/craft/available"
 	r.SetResult([]api.RecipeResponse{})
 	r.SetError(api.ErrorResponse{})
 
