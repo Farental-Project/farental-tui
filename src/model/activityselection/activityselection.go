@@ -4,11 +4,11 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/lang"
 	"farental/model/filterselectionlist"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"log"
 )
 
 type Model struct {
@@ -56,7 +56,7 @@ func (m Model) View() string {
 	return m.FilterSelectionList.View()
 }
 
-func (m *Model) loadData() []list.Item {
+func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 	var activities []api.ActivityResponse
 	var items []list.Item
 
@@ -67,7 +67,13 @@ func (m *Model) loadData() []list.Item {
 	resp, err := req.Send()
 
 	if err != nil {
-		log.Println(err)
+		fsl.ErrMsg = helper.ConnectionError()
+		return items
+	}
+
+	fsl.ErrMsg = helper.ExtractError(resp)
+
+	if fsl.ErrMsg != nil {
 		return items
 	}
 
@@ -107,12 +113,13 @@ func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 	resp, err := req.Send()
 
 	if err != nil {
-		log.Println(err)
+		fsl.ErrMsg = helper.ConnectionError()
 		return false
 	}
 
-	if resp.StatusCode() != 200 {
-		log.Println(resp.Error())
+	fsl.ErrMsg = helper.ExtractError(resp)
+
+	if fsl.ErrMsg != nil {
 		return false
 	}
 

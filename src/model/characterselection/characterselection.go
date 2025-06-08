@@ -5,6 +5,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
@@ -19,6 +20,7 @@ import (
 )
 
 type Model struct {
+	ErrMsg error
 	List   list.Model
 	Items  []list.Item
 	Help   help.Model
@@ -29,6 +31,8 @@ type Model struct {
 
 func New() Model {
 	m := Model{}
+
+	m.ErrMsg = nil
 
 	m.Help = help.New()
 
@@ -149,7 +153,13 @@ func (m *Model) loadCharacters() {
 	resp, err := req.Send()
 
 	if err != nil {
-		log.Println(err)
+		m.ErrMsg = err
+		return
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
 		return
 	}
 
@@ -192,12 +202,17 @@ func (m *Model) submit() bool {
 	resp, err := req.Send()
 
 	if err != nil {
-		log.Println(err)
+		m.ErrMsg = helper.ConnectionError()
+		return false
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
 		return false
 	}
 
 	if resp.StatusCode() != 200 {
-		log.Println(resp.Error())
 		return false
 	}
 

@@ -24,11 +24,13 @@ type Model struct {
 
 	Title string
 
-	loadData func() []list.Item
+	ErrMsg error
+
+	loadData func(m *Model) []list.Item
 	submit   func(m *Model) bool
 }
 
-func New(title string, listItemDelegate list.ItemDelegate, loadData func() []list.Item, submit func(m *Model) bool) Model {
+func New(title string, listItemDelegate list.ItemDelegate, loadData func(m *Model) []list.Item, submit func(m *Model) bool) Model {
 	m := Model{}
 
 	m.Help = help.New()
@@ -75,6 +77,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
+		m.ErrMsg = nil
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
@@ -121,6 +124,12 @@ func (m Model) View() string {
 	tui.WriteString(title)
 	tui.WriteString("\n\n")
 	tui.WriteString(style.ContainerStyle.Width(style.LayoutWidth).Render(m.List.View()))
+
+	if m.ErrMsg != nil {
+		tui.WriteString("\n\n")
+		tui.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
+	}
+
 	tui.WriteString("\n\n")
 	tui.WriteString(helpText)
 
@@ -132,7 +141,7 @@ func (m Model) View() string {
 }
 
 func (m *Model) UpdateData() {
-	m.Items = m.loadData()
+	m.Items = m.loadData(m)
 	m.List.SetItems(m.Items)
 }
 

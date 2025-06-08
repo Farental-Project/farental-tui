@@ -1895,3 +1895,26 @@ debug 2025/06/08 07:52:19 429 &{[{Too many requests, please try again later.}]}
 debug 2025/06/08 07:52:20 429 &{[{Too many requests, please try again later.}]}
 debug 2025/06/08 07:54:06 Request package successfully initialized
 debug 2025/06/08 07:55:30 Request package successfully initialized
+debug 2025/06/08 08:03:33 Request package successfully initialized
+debug 2025/06/08 08:06:35 Request package successfully initialized
+debug 2025/06/08 08:06:46 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:06:51 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:08:16 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:08:21 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:08:25 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:08:25 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:08:35 Post "http://127.0.0.1:3000/craft/start": dial tcp 127.0.0.1:3000: connect: connection refused
+debug 2025/06/08 08:09:02 Request package successfully initialized
+debug 2025/06/08 08:09:12 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:09:16 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:09:19 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:09:20 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:09:36 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 08:10:18 Request package successfully initialized
+debug 2025/06/08 08:10:26 Request package successfully initialized
+debug 2025/06/08 08:10:44 Request package successfully initialized
+debug 2025/06/08 08:13:41 program was killed: program was interrupted
+debug 2025/06/08 08:19:18 Request package successfully initialized
+debug 2025/06/08 08:19:23 Request package successfully initialized
+debug 2025/06/08 08:20:28 Request package successfully initialized
+debug 2025/06/08 08:26:11 Request package successfully initialized
