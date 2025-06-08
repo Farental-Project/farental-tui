@@ -7,6 +7,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
@@ -22,7 +23,7 @@ import (
 )
 
 type Model struct {
-	Err    error
+	ErrMsg error
 	Inputs [2]textinput.Model
 	Focus  int
 	Title  string
@@ -110,7 +111,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ret := m.submit()
 
 			if ret {
-				return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
+				if context.CharacterID == 0 {
+					return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
+				} else {
+					return context.ContentManager.SwitchContent(m, model.ContentGameDashboard)
+				}
 			}
 
 			return m, nil
@@ -189,9 +194,9 @@ func (m Model) View() string {
 	tui.WriteString("\n\n\n")
 	tui.WriteString(form.String())
 
-	if m.Err != nil {
+	if m.ErrMsg != nil {
 		tui.WriteString("\n\n")
-		tui.WriteString(style.ErrorStyle.Render(m.Err.Error()))
+		tui.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
 	}
 
 	tui.WriteString("\n\n\n")
@@ -208,7 +213,7 @@ func (m *Model) submit() bool {
 	password := m.Inputs[1].Value()
 
 	if len(email) == 0 || len(password) == 0 {
-		m.Err = errors.New(lang.L("please input e-mail and password"))
+		m.ErrMsg = errors.New(lang.L("please input e-mail and password"))
 		return false
 	}
 
@@ -221,27 +226,13 @@ func (m *Model) submit() bool {
 		}).Send()
 
 	if err != nil {
-		m.Err = errors.New(lang.L("cannot connect to Farental's server"))
+		m.ErrMsg = helper.ConnectionError()
 		return false
 	}
 
-	// TODO: Manage server errors messages
+	m.ErrMsg = helper.ExtractError(resp)
 
-	// if resp.Error() != nil {
-	// 	errorText := resp.Error().(*api.ErrorResponse).Errors[0]
-	// 	if resp.StatusCode() != 400 {
-	// 		log.Println(errorText.Message)
-	// 		l.EntryPassword.SetText("")
-	//
-	// 		// Comes after because in the OnChanged event of the password,
-	// 		// I clear the error message
-	// 		l.TxtError.Text = lang.L(errorText.Message)
-	// 	}
-	// 	return
-	// }
-
-	if resp.StatusCode() != 200 {
-		m.Err = errors.New(lang.L("invalid e-mail / password combination"))
+	if m.ErrMsg != nil {
 		return false
 	}
 
@@ -252,7 +243,26 @@ func (m *Model) submit() bool {
 	err = viper.WriteConfig()
 
 	if err != nil {
-		log.Println("could not save last used e-mail : ", err)
+		log.Println(lang.L("could not save last used e-mail : "), err)
+	}
+
+	req = request.CharacterGetActive()
+
+	resp, err = req.Send()
+
+	if err != nil {
+		m.ErrMsg = helper.ConnectionError()
+		return false
+	}
+
+	context.CharacterID = 0
+
+	if resp.StatusCode() == 200 {
+		character, ok := resp.Result().(*api.CharacterBasicResponse)
+
+		if ok {
+			context.CharacterID = character.ID
+		}
 	}
 
 	m.Inputs[1].SetValue("")

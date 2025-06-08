@@ -1889,3 +1889,7 @@ debug 2025/06/08 00:39:00 Request package successfully initialized
 debug 2025/06/08 00:41:20 Request package successfully initialized
 debug 2025/06/08 00:42:30 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
 debug 2025/06/08 00:43:14 &{[{Certains ingrédients sont manquants dans l'inventaire}]}
+debug 2025/06/08 07:42:25 Request package successfully initialized
+debug 2025/06/08 07:51:06 Request package successfully initialized
+debug 2025/06/08 07:52:19 429 &{[{Too many requests, please try again later.}]}
+debug 2025/06/08 07:52:20 429 &{[{Too many requests, please try again later.}]}
