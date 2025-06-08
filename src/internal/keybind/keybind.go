@@ -17,6 +17,7 @@ var (
 	Apply            key.Binding
 	Claim            key.Binding
 	Back             key.Binding
+	ChangeCharacter  key.Binding
 	Cancel           key.Binding
 	ClearFilter      key.Binding
 	Filter           key.Binding
@@ -78,6 +79,9 @@ func Init() {
 	Back = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", lang.L("back")))
+	ChangeCharacter = key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", lang.L("change character")))
 	Cancel = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", lang.L("cancel")))

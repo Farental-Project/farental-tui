@@ -97,7 +97,7 @@ func New() Model {
 			keybind.Scripts,
 			keybind.Inventory,
 			keybind.Claim,
-			keybind.Back,
+			keybind.ChangeCharacter,
 			keybind.Quit,
 			keybind.HelpClose,
 		},
