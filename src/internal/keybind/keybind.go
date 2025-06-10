@@ -29,6 +29,9 @@ var (
 	Fights           key.Binding
 	Npcs             key.Binding
 	Scripts          key.Binding
+	Chat             key.Binding
+	SendMessage      key.Binding
+	NewLine          key.Binding
 	LocationServices key.Binding
 	Inventory        key.Binding
 	GotoListStart    key.Binding
@@ -37,6 +40,8 @@ var (
 	Increase         key.Binding
 	PrevPage         key.Binding
 	NextPage         key.Binding
+	ScrollUp         key.Binding
+	ScrollDown       key.Binding
 )
 
 func Init() {
@@ -115,6 +120,15 @@ func Init() {
 	Scripts = key.NewBinding(
 		key.WithKeys("s"),
 		key.WithHelp("s", lang.L("scripts")))
+	Chat = key.NewBinding(
+		key.WithKeys("y"),
+		key.WithHelp("y", lang.L("chat")))
+	SendMessage = key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", lang.L("send message")))
+	NewLine = key.NewBinding(
+		key.WithKeys("ctrl+y"),
+		key.WithHelp("ctrl+y", lang.L("new line")))
 	LocationServices = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", lang.L("location services")))
@@ -133,4 +147,10 @@ func Init() {
 	NextPage = key.NewBinding(
 		key.WithKeys("pgdown"),
 		key.WithHelp("page down", lang.L("next page")))
+	ScrollUp = key.NewBinding(
+		key.WithKeys("pgup"),
+		key.WithHelp("page up", lang.L("scroll up")))
+	ScrollDown = key.NewBinding(
+		key.WithKeys("pgdown"),
+		key.WithHelp("page down", lang.L("scroll down")))
 }

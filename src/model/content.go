@@ -9,4 +9,5 @@ const (
 	ContentTravelSelection    string = "ContentTravelSelection"
 	ContentFightSelection     string = "ContentFightSelection"
 	ContentCraftSelection     string = "ContentCraftSelection"
+	ContentChat               string = "ContentChat"
 )

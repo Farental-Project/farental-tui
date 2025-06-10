@@ -26,6 +26,10 @@ import (
 	"time"
 )
 
+const (
+	tick time.Duration = 15
+)
+
 type Model struct {
 	Help          help.Model
 	HelpContainer widgetcontainer.Model
@@ -39,8 +43,8 @@ type Model struct {
 	CharacterVitalInfo charactervitalinfo.Model
 	LocationInfo       locationinfo.Model
 
-	EventLogViewer         simplelogviewer.Model
-	EvenLogViewerContainer widgetcontainer.Model
+	EventLogViewer          simplelogviewer.Model
+	EventLogViewerContainer widgetcontainer.Model
 
 	ChatViewer          simplelogviewer.Model
 	ChatViewerContainer widgetcontainer.Model
@@ -62,7 +66,7 @@ func New() Model {
 		CharactersVisible:  simplelogviewer.New(25, 12),
 	}
 
-	m.EvenLogViewerContainer = widgetcontainer.New(
+	m.EventLogViewerContainer = widgetcontainer.New(
 		m.EventLogViewer,
 		lang.L("Event log"), style.LayoutWidth, 14)
 	m.ChatViewerContainer = widgetcontainer.New(
@@ -112,23 +116,9 @@ func New() Model {
 	return m
 }
 
-// TickMsg indicates that the timer has ticked and we should render a frame.
-type TickMsg struct {
-	Time time.Time
-	tag  uint
-}
-
-func (m Model) tick(tag uint) tea.Cmd {
-	return tea.Tick(15*time.Second, func(t time.Time) tea.Msg {
-		return TickMsg{
-			Time: t,
-			tag:  tag,
-		}
-	})
-}
-
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(model.InitCmd, m.tick(m.tickTag))
+	return tea.Batch(model.InitCmd,
+		model.TickCmd(m, tick, m.tickTag))
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -184,16 +174,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return context.ContentManager.
 				SwitchContent(m, model.ContentCraftSelection)
+		case key.Matches(msg, keybind.Chat):
+			return context.ContentManager.
+				SwitchContent(m, model.ContentChat)
+
 		}
-	case TickMsg:
-		if msg.tag != m.tickTag {
+	case model.TickMsg:
+		if msg.Tag != m.tickTag {
 			return m, nil
 		}
 
 		m.UpdateData()
 
 		m.tickTag++
-		return m, m.tick(m.tickTag)
+		return m, model.TickCmd(m, tick, m.tickTag)
 	case model.InitMsg:
 		m.UpdateData()
 
@@ -239,7 +233,7 @@ func (m Model) View() string {
 		style.ContainerStyle.Render(m.RunningTask.View()),
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		style.ContainerStyle.Render(m.LocationInfo.View()),
-		m.EvenLogViewerContainer.View(),
+		m.EventLogViewerContainer.View(),
 		bottom.String())
 
 	return lipgloss.Place(
@@ -307,7 +301,7 @@ func (m *Model) updateEventLog() {
 			entry.Value))
 	}
 
-	m.EvenLogViewerContainer.UpdateContent(m.EventLogViewer)
+	m.EventLogViewerContainer.UpdateContent(m.EventLogViewer)
 
 	m.lastEventLogTimestamp = eventLog.Entries[len(eventLog.Entries)-1].Timestamp
 }

@@ -14,3 +14,12 @@ func ChatGetMessages() *resty.Request {
 
 	return r
 }
+
+func ChatSendMessage() *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/chat/send"
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
