@@ -53,7 +53,6 @@ type Model struct {
 	CharactersVisibleContainer widgetcontainer.Model
 
 	lastEventLogTimestamp time.Time
-	lastChatTimestamp     time.Time
 }
 
 func New() Model {
@@ -258,6 +257,15 @@ func (m *Model) UpdateData() {
 
 	characterInfo := resp.Result().(*api.CharacterInfoResponse)
 
+	// If the character changed of location
+	if context.CharacterInfo == nil ||
+		context.CharacterInfo.Location.ID != characterInfo.Location.ID {
+		context.ChatContent = make([]string, 0)
+	}
+
+	context.CharacterID = characterInfo.ID
+	context.CharacterInfo = characterInfo
+
 	m.CharacterVitalInfo.UpdateData(characterInfo)
 	m.LocationInfo.UpdateData(&characterInfo.Location)
 	m.updateEventLog()
@@ -307,43 +315,12 @@ func (m *Model) updateEventLog() {
 }
 
 func (m *Model) updateChat() {
-	var req *resty.Request
-	var queryParam string
+	context.UpdateChat()
 
-	req = request.ChatGetMessages()
-
-	queryParam = ""
-	length := len(m.ChatViewer.Content)
-
-	if length > 0 {
-		queryParam = m.lastChatTimestamp.Format(time.DateTime)
+	if len(context.ChatContent) > len(m.ChatViewer.Content) {
+		m.ChatViewer.SetContent(context.ChatContent)
+		m.ChatViewerContainer.UpdateContent(m.ChatViewer)
 	}
-
-	req.SetQueryParam("lastTimestamp", queryParam)
-
-	resp, err := req.Send()
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	chatMessages := *resp.Result().(*[]api.ChatMessageResponse)
-
-	if len(chatMessages) == 0 {
-		return
-	}
-
-	for _, message := range chatMessages {
-		m.ChatViewer.AddContent(fmt.Sprintf("%s %s - %s",
-			style.TitleStyle.Render(message.Timestamp.Format(time.TimeOnly)),
-			style.TitleStyle.Render(message.Name),
-			message.Message))
-	}
-
-	m.ChatViewerContainer.UpdateContent(m.ChatViewer)
-
-	m.lastChatTimestamp = chatMessages[len(chatMessages)-1].Timestamp
 }
 
 func (m *Model) updateCharactersConnected() {

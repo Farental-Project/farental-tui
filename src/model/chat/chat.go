@@ -19,8 +19,6 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/go-resty/resty/v2"
-	"log"
 	"time"
 )
 
@@ -36,8 +34,7 @@ type Model struct {
 	Help         help.Model
 	Keymap       config.ModularKeyMap
 
-	lastChatTimestamp time.Time
-	tickTag           uint
+	tickTag uint
 }
 
 func New() Model {
@@ -94,6 +91,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case model.InitMsg:
 		m.loadChat()
 		m.Input.SetValue("")
+		m.LogContainer.Title = fmt.Sprintf("%s - %s",
+			lang.L("Chat"), context.CharacterInfo.Location.Name)
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
 			return m, nil
@@ -185,41 +184,10 @@ func (m *Model) sendMessage() {
 }
 
 func (m *Model) loadChat() {
-	var req *resty.Request
-	var queryParam string
+	context.UpdateChat()
 
-	req = request.ChatGetMessages()
-
-	queryParam = ""
-	length := len(m.Log.Content)
-
-	if length > 0 {
-		queryParam = m.lastChatTimestamp.Format(time.DateTime)
+	if len(context.ChatContent) > len(m.Log.Content) {
+		m.Log.SetContent(context.ChatContent)
+		m.LogContainer.UpdateContent(m.Log)
 	}
-
-	req.SetQueryParam("lastTimestamp", queryParam)
-
-	resp, err := req.Send()
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	chatMessages := *resp.Result().(*[]api.ChatMessageResponse)
-
-	if len(chatMessages) == 0 {
-		return
-	}
-
-	for _, message := range chatMessages {
-		m.Log.AddContent(fmt.Sprintf("%s %s - %s",
-			style.TitleStyle.Render(message.Timestamp.Format(time.TimeOnly)),
-			style.TitleStyle.Render(message.Name),
-			message.Message))
-	}
-
-	m.LogContainer.UpdateContent(m.Log)
-
-	m.lastChatTimestamp = chatMessages[len(chatMessages)-1].Timestamp
 }
