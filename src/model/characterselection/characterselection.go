@@ -90,6 +90,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, keybind.NewCharacter):
+			return context.ContentManager.SwitchContent(m, model.ContentCharacterCreation)
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
 

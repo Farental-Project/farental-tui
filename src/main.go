@@ -9,6 +9,7 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/activityselection"
+	"farental/model/charactercreation"
 	"farental/model/characterselection"
 	"farental/model/chat"
 	"farental/model/craftselection"
@@ -49,6 +50,7 @@ func main() {
 
 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
+	context.ContentManager.RegisterContent(model.ContentCharacterCreation, charactercreation.New())
 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
 	context.ContentManager.RegisterContent(model.ContentActivitySelection, activityselection.New())
 	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())

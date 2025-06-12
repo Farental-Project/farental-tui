@@ -32,6 +32,7 @@ var (
 	Chat             key.Binding
 	SendMessage      key.Binding
 	NewLine          key.Binding
+	NewCharacter     key.Binding
 	LocationServices key.Binding
 	Inventory        key.Binding
 	GotoListStart    key.Binding
@@ -129,6 +130,9 @@ func Init() {
 	NewLine = key.NewBinding(
 		key.WithKeys("ctrl+y"),
 		key.WithHelp("ctrl+y", lang.L("new line")))
+	NewCharacter = key.NewBinding(
+		key.WithKeys("n"),
+		key.WithHelp("n", lang.L("new character")))
 	LocationServices = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", lang.L("location services")))
