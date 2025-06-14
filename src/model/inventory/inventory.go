@@ -1,4 +1,4 @@
-package activityselection
+package inventory
 
 import (
 	"farental/core/data/api"
@@ -19,12 +19,10 @@ func New() Model {
 	m := Model{}
 
 	m.FilterSelectionList = filterselectionlist.New(
-		lang.L("Activity selection"),
+		lang.L("Inventory"),
 		ListItemDelegate{},
 		m.loadData,
 		m.submit)
-
-	m.FilterSelectionList.SetShowExtraKeybinds(true, false)
 
 	return m
 }
@@ -57,12 +55,12 @@ func (m Model) View() string {
 }
 
 func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
-	var activities []api.ActivityResponse
+	var inventory api.InventoryResponse
 	var items []list.Item
 
 	items = make([]list.Item, 0)
 
-	req := request.ActivityGetAvailable()
+	req := request.InventoryGetFull()
 
 	resp, err := req.Send()
 
@@ -77,12 +75,11 @@ func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 		return items
 	}
 
-	activities = *resp.Result().(*[]api.ActivityResponse)
+	inventory = *resp.Result().(*api.InventoryResponse)
 
-	for _, a := range activities {
+	for _, s := range inventory.Stacks {
 		item := ListItem{
-			Activity:      a,
-			DurationIndex: 0,
+			Stack: s,
 		}
 
 		items = append(items, item)
@@ -92,36 +89,5 @@ func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 }
 
 func (m *Model) submit(fsl *filterselectionlist.Model) bool {
-	var durationID uint
-
-	i, ok := fsl.List.SelectedItem().(ListItem)
-
-	if !ok {
-		return false
-	}
-
-	durationID = 0
-
-	if len(i.Activity.Duration.Durations) > 0 {
-		durationID = i.Activity.Duration.Durations[i.DurationIndex].ID
-	} else {
-		durationID = i.Activity.Duration.Durations[0].ID
-	}
-
-	req := request.ActivityStart(i.Activity.ID, durationID)
-
-	resp, err := req.Send()
-
-	if err != nil {
-		fsl.ErrMsg = helper.ConnectionError()
-		return false
-	}
-
-	fsl.ErrMsg = helper.ExtractError(resp)
-
-	if fsl.ErrMsg != nil {
-		return false
-	}
-
-	return true
+	return false
 }

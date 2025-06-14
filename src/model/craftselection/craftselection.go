@@ -6,7 +6,7 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/lang"
-	"farental/model/filterselectionlist"
+	"farental/model/widget/filterselectionlist"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"log"

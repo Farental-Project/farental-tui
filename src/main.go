@@ -15,6 +15,7 @@ import (
 	"farental/model/craftselection"
 	"farental/model/fightselection"
 	"farental/model/gamedashboard"
+	"farental/model/inventory"
 	"farental/model/login"
 	"farental/model/travelselection"
 	"github.com/spf13/viper"
@@ -56,6 +57,7 @@ func main() {
 	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
 	context.ContentManager.RegisterContent(model.ContentFightSelection, fightselection.New())
 	context.ContentManager.RegisterContent(model.ContentCraftSelection, craftselection.New())
+	context.ContentManager.RegisterContent(model.ContentInventory, inventory.New())
 	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
 
 	context.ContentManager.SwitchContent(nil, model.ContentLogin) // ContentLogin

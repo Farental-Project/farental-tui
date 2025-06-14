@@ -11,7 +11,7 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/widget/simplelogviewer"
-	"farental/model/widgetcontainer"
+	"farental/model/widget/widgetcontainer"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/help"

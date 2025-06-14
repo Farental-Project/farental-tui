@@ -14,7 +14,7 @@ import (
 	"farental/model/widget/locationinfo"
 	"farental/model/widget/runningtask"
 	"farental/model/widget/simplelogviewer"
-	"farental/model/widgetcontainer"
+	"farental/model/widget/widgetcontainer"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/help"
@@ -158,6 +158,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return context.ContentManager.
 				SwitchContent(m, model.ContentActivitySelection)
+		case key.Matches(msg, keybind.Inventory):
+			return context.ContentManager.
+				SwitchContent(m, model.ContentInventory)
 		case key.Matches(msg, keybind.Fights):
 			if context.RunningTask != nil {
 				m.runningTaskError()
