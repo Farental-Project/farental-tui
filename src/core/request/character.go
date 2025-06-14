@@ -65,3 +65,16 @@ func CharacterGetEventLog() *resty.Request {
 
 	return r
 }
+
+func CharacterGetCurrencyAmount(currencyCode api.CurrencyCode) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodGet
+	r.URL = "/character/currencyAmount"
+
+	r.SetQueryParam("currencyCode", fmt.Sprint(currencyCode))
+
+	r.SetResult(api.CurrencyResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}

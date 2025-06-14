@@ -2,6 +2,7 @@ package charactervitalinfo
 
 import (
 	"farental/core/data/api"
+	"farental/internal/lang"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/progress"
@@ -24,6 +25,7 @@ type Model struct {
 	MpMaxValue     int
 	MpCurrentValue int
 	MpPercent      float64
+	Money          int
 
 	RaceStyle lipgloss.Style
 
@@ -64,33 +66,31 @@ func (m Model) View() string {
 
 	left.WriteString(fmt.Sprintf("HP (%d/%d)",
 		m.HpCurrentValue, m.HpMaxValue))
-	left.WriteString("\n")
-	left.WriteString(m.HpBar.ViewAs(m.HpPercent))
-	left.WriteString("\n")
-	left.WriteString(m.HpBar.ViewAs(m.HpPercent))
+	left.WriteString(strings.Repeat(fmt.Sprintf("\n%s", m.HpBar.ViewAs(m.HpPercent)), 3))
 
 	center.WriteString(m.FullName)
 	center.WriteString("\n")
 	center.WriteString(m.RaceStyle.Render(m.RaceName))
 	center.WriteString("\n")
 	center.WriteString(style.TextStyle.Foreground(
+		lipgloss.Color(style.ColorHighlight)).
+		Render(fmt.Sprintf("%d Ǥ", m.Money)))
+	center.WriteString("\n")
+	center.WriteString(style.TextStyle.Foreground(
 		lipgloss.Color(style.ColorSpecialHighlight)).
-		Render(fmt.Sprintf("%d", m.Power)))
+		Render(fmt.Sprintf("%s : %d", lang.L("Power"), m.Power)))
 
 	right.WriteString(fmt.Sprintf("MP (%d/%d)",
 		m.MpCurrentValue, m.MpMaxValue))
-	right.WriteString("\n")
-	right.WriteString(m.MpBar.ViewAs(m.MpPercent))
-	right.WriteString("\n")
-	right.WriteString(m.MpBar.ViewAs(m.MpPercent))
+	right.WriteString(strings.Repeat(fmt.Sprintf("\n%s", m.MpBar.ViewAs(m.MpPercent)), 3))
 
-	return lipgloss.JoinHorizontal(lipgloss.Center,
+	return lipgloss.JoinHorizontal(lipgloss.Top,
 		styleParagraph.Render(left.String()),
 		styleParagraph.Render(center.String()),
 		styleParagraph.Render(right.String()))
 }
 
-func (m *Model) UpdateData(characterInfo *api.CharacterInfoResponse) {
+func (m *Model) UpdateData(characterInfo *api.CharacterInfoResponse, money int) {
 	m.FullName = style.BoldTextStyle.Render(
 		fmt.Sprintf("%s %s", characterInfo.FirstName, characterInfo.LastName))
 	m.RaceName = characterInfo.RaceName
@@ -116,4 +116,6 @@ func (m *Model) UpdateData(characterInfo *api.CharacterInfoResponse) {
 
 	percent = 100 * m.MpCurrentValue / m.MpMaxValue
 	m.MpPercent = float64(percent) / 100
+
+	m.Money = money
 }

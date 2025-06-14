@@ -6,6 +6,7 @@ import (
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
@@ -35,7 +36,7 @@ type Model struct {
 	HelpContainer widgetcontainer.Model
 	FullHelpStyle lipgloss.Style
 	Keymap        config.ModularKeyMap
-	Err           error
+	ErrMsg        error
 
 	tickTag uint
 
@@ -223,8 +224,8 @@ func (m Model) View() string {
 
 	error := ""
 
-	if m.Err != nil {
-		error = fmt.Sprintf("%v\n", m.Err.Error())
+	if m.ErrMsg != nil {
+		error = fmt.Sprintf("%v\n", m.ErrMsg.Error())
 	}
 
 	tui = lipgloss.JoinVertical(lipgloss.Center,
@@ -251,7 +252,13 @@ func (m *Model) UpdateData() {
 	resp, err := req.Send()
 
 	if err != nil {
-		log.Println(err)
+		m.ErrMsg = helper.ConnectionError()
+		return
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
 		return
 	}
 
@@ -266,7 +273,24 @@ func (m *Model) UpdateData() {
 	context.CharacterID = characterInfo.ID
 	context.CharacterInfo = characterInfo
 
-	m.CharacterVitalInfo.UpdateData(characterInfo)
+	req = request.CharacterGetCurrencyAmount(api.Grynars)
+
+	resp, err = req.Send()
+
+	if err != nil {
+		m.ErrMsg = helper.ConnectionError()
+		return
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
+		return
+	}
+
+	currencyResp := resp.Result().(*api.CurrencyResponse)
+
+	m.CharacterVitalInfo.UpdateData(characterInfo, currencyResp.Amount)
 	m.LocationInfo.UpdateData(&characterInfo.Location)
 	m.updateEventLog()
 	m.updateChat()
@@ -376,14 +400,14 @@ func (m *Model) updateRunningTask() {
 
 func (m *Model) runningTaskError() {
 	if context.RunningTask.IsRunning {
-		m.Err = errors.New(lang.L("A task is currently running."))
+		m.ErrMsg = errors.New(lang.L("A task is currently running."))
 	} else {
-		m.Err = errors.New(lang.L("Please claim your reward first."))
+		m.ErrMsg = errors.New(lang.L("Please claim your reward first."))
 	}
 }
 
 func (m *Model) resetError() {
-	m.Err = nil
+	m.ErrMsg = nil
 }
 
 func (m *Model) claim() {
