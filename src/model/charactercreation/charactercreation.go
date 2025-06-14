@@ -63,6 +63,10 @@ func New() Model {
 
 	m.RaceInput = multivalueselector.New[DataRaceValue]()
 	m.RaceInput.Width = 32
+	m.RaceInput.Style.BlurredControl = style.DimTextStyle
+	m.RaceInput.Style.BlurredValue = style.DimTextStyle
+	m.RaceInput.Style.FocusedControl = style.TitleStyle
+	m.RaceInput.Style.FocusedValue = style.HighlightStyle
 
 	m.Help = help.New()
 
