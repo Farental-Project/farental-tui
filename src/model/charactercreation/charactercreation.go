@@ -3,6 +3,7 @@ package charactercreation
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
@@ -10,6 +11,7 @@ import (
 	"farental/model"
 	"farental/model/widget/multivalueselector"
 	"farental/style"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,7 +20,7 @@ import (
 )
 
 type DataRaceValue struct {
-	data api.DataRaceResponse
+	data api.RaceResponse
 }
 
 func (d DataRaceValue) RenderValue() string {
@@ -29,12 +31,16 @@ type Model struct {
 	FirstnameInput textinput.Model
 	LastnameInput  textinput.Model
 	RaceInput      multivalueselector.Model[DataRaceValue]
+	Help           help.Model
+
+	Keymap config.ModularKeyMap
 
 	Title string
 
 	ErrMsg error
 
-	tabIndex int
+	tabIndex              int
+	currentlySelectedRace DataRaceValue
 }
 
 func New() Model {
@@ -43,23 +49,35 @@ func New() Model {
 	m.FirstnameInput = textinput.New()
 	m.FirstnameInput.Placeholder = lang.L("Firstname")
 	m.FirstnameInput.Focus()
-	m.FirstnameInput.Width = 30
+	m.FirstnameInput.Width = 31
 	m.FirstnameInput.Prompt = ""
 	m.FirstnameInput.TextStyle = style.TextStyle.Foreground(
 		lipgloss.Color(style.ColorHighlight))
 
 	m.LastnameInput = textinput.New()
 	m.LastnameInput.Placeholder = lang.L("Lastname")
-	m.LastnameInput.Width = 30
+	m.LastnameInput.Width = 31
 	m.LastnameInput.Prompt = ""
 	m.LastnameInput.TextStyle = style.TextStyle.Foreground(
 		lipgloss.Color(style.ColorHighlight))
 
 	m.RaceInput = multivalueselector.New[DataRaceValue]()
+	m.RaceInput.Width = 32
+
+	m.Help = help.New()
 
 	m.Title = lang.L("Character creation")
 
 	m.tabIndex = 0
+
+	m.Keymap = config.ModularKeyMap{}
+	m.Keymap.SetEssentialBindings([]key.Binding{
+		keybind.Tab,
+		keybind.ShiftTab,
+		keybind.Submit,
+		keybind.Back,
+		keybind.Quit,
+	})
 
 	return m
 }
@@ -75,13 +93,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
+		m.FirstnameInput.SetValue("")
+		m.LastnameInput.SetValue("")
+
 		m.loadRaces()
+
+		m.RaceInput.SetSelectedIndex(0)
+		m.currentlySelectedRace = m.RaceInput.GetSelectedValue()
 
 		return m, nil
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
+		case key.Matches(msg, keybind.Back):
+			return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
+		case key.Matches(msg, keybind.Submit):
+			ok := m.submit()
+
+			if ok {
+				return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
+			}
 		case key.Matches(msg, keybind.Tab, keybind.ShiftTab):
 			if key.Matches(msg, keybind.Tab) {
 				m.tabIndex++
@@ -114,6 +146,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.RaceInput = mod.(multivalueselector.Model[DataRaceValue])
 
+	m.currentlySelectedRace = m.RaceInput.GetSelectedValue()
+
 	return m, tea.Batch(cmds...)
 }
 
@@ -133,6 +167,9 @@ func (m Model) View() string {
 		m.RaceInput.Focused(),
 		m.RaceInput.View()))
 	form.WriteString("\n")
+	form.WriteString(style.DimTextStyle.Width(style.LayoutWidth).
+		AlignHorizontal(lipgloss.Center).
+		Render(m.currentlySelectedRace.data.Description))
 
 	tui.WriteString(style.TitleStyle.Render(m.Title))
 	tui.WriteString("\n\n\n")
@@ -143,8 +180,8 @@ func (m Model) View() string {
 		tui.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
 	}
 
-	// tui.WriteString("\n\n\n")
-	// tui.WriteString(m.Help.View(m.Keymap))
+	tui.WriteString("\n\n\n")
+	tui.WriteString(m.Help.View(m.Keymap))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,
@@ -197,7 +234,7 @@ func (m *Model) loadRaces() {
 		return
 	}
 
-	races := *resp.Result().(*[]api.DataRaceResponse)
+	races := *resp.Result().(*[]api.RaceResponse)
 
 	raceValues := make(map[string]DataRaceValue, len(races))
 	keys := make([]string, len(races))
@@ -210,4 +247,30 @@ func (m *Model) loadRaces() {
 	}
 
 	m.RaceInput.SetValues(keys, raceValues)
+
+	m.currentlySelectedRace = m.RaceInput.GetSelectedValue()
+}
+
+func (m *Model) submit() bool {
+	req := request.CharacterCreate()
+
+	resp, err := req.SetBody(
+		api.CharacterCreateBody{
+			FirstName: m.FirstnameInput.Value(),
+			LastName:  m.LastnameInput.Value(),
+			RaceID:    m.currentlySelectedRace.data.ID,
+		}).Send()
+
+	if err != nil {
+		m.ErrMsg = helper.ConnectionError()
+		return false
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
+		return false
+	}
+
+	return true
 }

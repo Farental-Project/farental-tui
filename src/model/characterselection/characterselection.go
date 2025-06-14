@@ -57,6 +57,7 @@ func New() Model {
 			keybind.Up,
 			keybind.Down,
 			keybind.Submit,
+			keybind.NewCharacter,
 		},
 		{
 			keybind.Back,

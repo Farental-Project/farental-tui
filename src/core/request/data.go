@@ -9,7 +9,7 @@ func DataGetAllRace() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
 	r.URL = "/data/races"
-	r.SetResult([]api.DataRaceResponse{})
+	r.SetResult([]api.RaceResponse{})
 	r.SetError(api.ErrorResponse{})
 
 	return r

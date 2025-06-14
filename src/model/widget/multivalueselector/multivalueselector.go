@@ -13,8 +13,10 @@ type Value interface {
 }
 
 type Style struct {
-	Control lipgloss.Style
-	Value   lipgloss.Style
+	BlurredControl lipgloss.Style
+	FocusedControl lipgloss.Style
+	BlurredValue   lipgloss.Style
+	FocusedValue   lipgloss.Style
 }
 
 type Model[T Value] struct {
@@ -26,6 +28,10 @@ type Model[T Value] struct {
 	selectedIndex int
 
 	focus bool
+
+	Width int
+
+	InfiniteLoop bool
 }
 
 func New[T Value]() Model[T] {
@@ -37,9 +43,13 @@ func New[T Value]() Model[T] {
 	m.selectedIndex = 0
 
 	m.Style = Style{
-		Control: lipgloss.NewStyle().Bold(true),
-		Value:   lipgloss.NewStyle().Italic(true),
+		BlurredControl: lipgloss.NewStyle().Italic(true),
+		BlurredValue:   lipgloss.NewStyle().Italic(true),
+		FocusedControl: lipgloss.NewStyle().Bold(true),
+		FocusedValue:   lipgloss.NewStyle().Bold(true),
 	}
+
+	m.InfiniteLoop = false
 
 	return m
 }
@@ -60,13 +70,22 @@ func (m Model[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.selectedIndex--
 
 			if m.selectedIndex < 0 {
-				m.selectedIndex = 0
+				if m.InfiniteLoop {
+					m.selectedIndex = len(m.keys) - 1
+				} else {
+					m.selectedIndex = 0
+				}
 			}
+
 		case key.Matches(msg, keybind.Right):
 			m.selectedIndex++
 
 			if m.selectedIndex > len(m.keys)-1 {
-				m.selectedIndex = len(m.keys) - 1
+				if m.InfiniteLoop {
+					m.selectedIndex = 0
+				} else {
+					m.selectedIndex = len(m.keys) - 1
+				}
 			}
 		}
 	}
@@ -76,12 +95,23 @@ func (m Model[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model[T]) View() string {
 	var b strings.Builder
+	var v, c lipgloss.Style
 
-	b.WriteString(m.Style.Control.Render("<"))
-	b.WriteString(m.Style.Value.Render(m.GetSelectedValue().RenderValue()))
-	b.WriteString(m.Style.Control.Render(">"))
+	if m.focus {
+		v = m.Style.FocusedValue
+		c = m.Style.FocusedControl
+	} else {
+		v = m.Style.BlurredValue
+		c = m.Style.BlurredControl
+	}
 
-	return b.String()
+	b.WriteString(c.Render("<"))
+	b.WriteString(v.Width(m.Width - 2).
+		AlignHorizontal(lipgloss.Center).
+		Render(m.GetSelectedValue().RenderValue()))
+	b.WriteString(c.Render(">"))
+
+	return lipgloss.NewStyle().Width(m.Width).AlignHorizontal(lipgloss.Center).Render(b.String())
 }
 
 func (m *Model[T]) SetValues(keys []string, values map[string]T) {
@@ -97,6 +127,14 @@ func (m Model[T]) GetSelectedValue() T {
 	}
 
 	return m.values[m.keys[m.selectedIndex]]
+}
+
+func (m *Model[T]) SetSelectedIndex(index int) {
+	if index < 0 || index >= len(m.keys) {
+		return
+	}
+
+	m.selectedIndex = index
 }
 
 func (m *Model[T]) Focus() tea.Cmd {

@@ -102,7 +102,7 @@ func Init() {
 		key.WithHelp("tab", lang.L("next focus")))
 	ShiftTab = key.NewBinding(
 		key.WithKeys("shift+tab"),
-		key.WithHelp(lang.L("shift+tab"), lang.L("previous focus")))
+		key.WithHelp(lang.L("shift+tab"), lang.L("prev. focus")))
 	Travels = key.NewBinding(
 		key.WithKeys("t"),
 		key.WithHelp("t", lang.L("travels")))

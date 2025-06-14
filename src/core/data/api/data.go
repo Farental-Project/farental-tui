@@ -1,8 +1,15 @@
 package api
 
-type DataRaceResponse struct {
-	ID                 uint
-	Name               string
-	Playable           bool
-	StartingLocationID uint
+type InfoResponse struct {
+	ID          uint
+	Code        string
+	Name        string
+	Description string
+}
+
+type RaceResponse struct {
+	ID               uint
+	Name             string
+	Description      string
+	StartingLocation LocationResponse
 }
