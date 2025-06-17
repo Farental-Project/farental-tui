@@ -41,5 +41,5 @@ func ExtractError(resp *resty.Response) error {
 }
 
 func ConnectionError() error {
-	return errors.New(lang.L("Cannot connect to Farental's server"))
+	return errors.New(lang.L("Cannot connect to Farental server"))
 }

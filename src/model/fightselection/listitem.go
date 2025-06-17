@@ -136,11 +136,9 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	selectedItem.Paginator, _ = selectedItem.Paginator.Update(msg)
 
-	updateItem(m, selectedIndex, selectedItem)
-
-	return nil
+	return updateItem(m, selectedIndex, selectedItem)
 }
 
-func updateItem(m *list.Model, index int, item ListItem) {
-	m.SetItem(index, item)
+func updateItem(m *list.Model, index int, item ListItem) tea.Cmd {
+	return m.SetItem(index, item)
 }

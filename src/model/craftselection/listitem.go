@@ -166,7 +166,7 @@ func (l ListItemDelegate) Spacing() int {
 }
 
 func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
-	selectedIndex := m.Index()
+	selectedIndex := m.GlobalIndex()
 	selectedItem, ok := m.SelectedItem().(ListItem)
 
 	if !ok {
@@ -184,9 +184,7 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 				selectedItem.Amount = 1
 			}
 
-			updateItem(m, selectedIndex, selectedItem)
-
-			return nil
+			return updateItem(m, selectedIndex, selectedItem)
 		case key.Matches(msgType, keybind.Increase):
 			selectedItem.Amount++
 
@@ -194,19 +192,15 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 				selectedItem.Amount = 100
 			}
 
-			updateItem(m, selectedIndex, selectedItem)
-
-			return nil
+			return updateItem(m, selectedIndex, selectedItem)
 		}
 	}
 
 	selectedItem.Paginator, _ = selectedItem.Paginator.Update(msg)
 
-	updateItem(m, selectedIndex, selectedItem)
-
-	return nil
+	return updateItem(m, selectedIndex, selectedItem)
 }
 
-func updateItem(m *list.Model, index int, item ListItem) {
-	m.SetItem(index, item)
+func updateItem(m *list.Model, index int, item ListItem) tea.Cmd {
+	return m.SetItem(index, item)
 }
