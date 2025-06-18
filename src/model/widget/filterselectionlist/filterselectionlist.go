@@ -10,8 +10,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"strings"
 )
 
 type Model struct {
@@ -100,12 +98,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keybind.HelpMore):
 			m.Help.ShowAll = !m.Help.ShowAll
-
-		case key.Matches(msg, keybind.Back):
-			if m.List.FilterState() == list.Unfiltered {
-				return context.ContentManager.
-					SwitchContent(m, model.ContentGameDashboard)
-			}
 		}
 	}
 
@@ -119,29 +111,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var tui strings.Builder
+	return style.ContainerStyle.Width(m.Width).Render(m.List.View())
+}
 
-	helpText := m.Help.View(m.Keymap)
+func (m Model) ViewHelp() string {
+	return m.Help.View(m.Keymap)
+}
 
-	title := style.TitleStyle.Render(m.Title)
+func (m Model) ViewTitle() string {
+	return style.TitleStyle.Render(m.Title)
+}
 
-	tui.WriteString(title)
-	tui.WriteString("\n\n")
-	tui.WriteString(style.ContainerStyle.Width(m.Width).Render(m.List.View()))
+func (m Model) ViewError() string {
+	var err string
 
 	if m.ErrMsg != nil {
-		tui.WriteString("\n\n")
-		tui.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
+		err = m.ErrMsg.Error()
 	}
 
-	tui.WriteString("\n\n")
-	tui.WriteString(helpText)
-
-	return lipgloss.Place(
-		context.ContentManager.ScreenWidth,
-		context.ContentManager.ScreenHeight,
-		lipgloss.Center, lipgloss.Center,
-		tui.String())
+	return err
 }
 
 func (m *Model) UpdateData() {

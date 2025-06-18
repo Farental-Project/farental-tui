@@ -5,11 +5,16 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
+	"farental/internal/keybind"
 	"farental/internal/lang"
+	"farental/model"
 	"farental/model/widget/filterselectionlist"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"log"
+	"strings"
 )
 
 type Model struct {
@@ -38,6 +43,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	defer context.ContentManager.UpdateCurrentContent(m)
 
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Back):
+			if m.FilterSelectionList.List.FilterState() == list.Unfiltered {
+				return context.ContentManager.
+					SwitchContent(m, model.ContentGameDashboard)
+			}
+		}
+	}
+
 	mod, cmd = m.FilterSelectionList.Update(msg)
 
 	modFSL, ok := mod.(filterselectionlist.Model)
@@ -52,7 +68,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.FilterSelectionList.View()
+	var b strings.Builder
+
+	b.WriteString(m.FilterSelectionList.ViewTitle())
+	b.WriteString("\n\n")
+	b.WriteString(m.FilterSelectionList.View())
+	b.WriteString("\n")
+	b.WriteString(m.FilterSelectionList.ViewError())
+	b.WriteString("\n")
+	b.WriteString(m.FilterSelectionList.ViewHelp())
+
+	return lipgloss.Place(
+		context.ContentManager.ScreenWidth,
+		context.ContentManager.ScreenHeight,
+		lipgloss.Center, lipgloss.Center,
+		b.String())
 }
 
 func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
