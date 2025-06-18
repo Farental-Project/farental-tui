@@ -22,6 +22,8 @@ type Model struct {
 	showIncreaseDecrease bool
 	showPageUpDown       bool
 
+	Width int
+
 	Title string
 
 	ErrMsg error
@@ -33,13 +35,15 @@ type Model struct {
 func New(title string, listItemDelegate list.ItemDelegate, loadData func(m *Model) []list.Item, submit func(m *Model) bool) Model {
 	m := Model{}
 
+	m.Width = style.LayoutWidth
+
 	m.Help = help.New()
 
 	m.Items = make([]list.Item, 0)
 
 	m.List = list.New(m.Items,
 		listItemDelegate,
-		style.LayoutWidth, 30)
+		m.Width, 30)
 	m.List.SetShowHelp(false)
 	m.List.SetShowTitle(false)
 	m.List.DisableQuitKeybindings()
@@ -123,7 +127,7 @@ func (m Model) View() string {
 
 	tui.WriteString(title)
 	tui.WriteString("\n\n")
-	tui.WriteString(style.ContainerStyle.Width(style.LayoutWidth).Render(m.List.View()))
+	tui.WriteString(style.ContainerStyle.Width(m.Width).Render(m.List.View()))
 
 	if m.ErrMsg != nil {
 		tui.WriteString("\n\n")
