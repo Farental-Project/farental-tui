@@ -9,6 +9,8 @@ type ItemResponse struct {
 	MaxStackCount  int
 	EquipmentSlot  *EquipmentSlotResponse
 	EquipmentStats *[]EquipmentStatResponse
+	Conditions     *[]string
+	Results        *[]string
 }
 
 type EquipmentSlotResponse struct {

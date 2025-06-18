@@ -20,7 +20,7 @@ func (i ListItem) FilterValue() string {
 
 	b.WriteString(i.Stack.Item.Name)
 	b.WriteString(i.Stack.Item.Description)
-	
+
 	if i.Stack.Item.EquipmentSlot != nil {
 		b.WriteString(i.Stack.Item.EquipmentSlot.Name)
 	}
@@ -51,16 +51,9 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 	}
 
 	left.WriteString(i.Stack.Item.Name)
-	left.WriteString("\n")
-	left.WriteString(style.DimTextStyle.Render(i.Stack.Item.Description))
 
 	right.WriteString(style.DimTextStyle.Render(
 		fmt.Sprintf("%d / %d", i.Stack.Count, i.Stack.Item.MaxStackCount)))
-
-	if i.Stack.Item.EquipmentSlot != nil {
-		right.WriteString(i.Stack.Item.EquipmentSlot.Name)
-		right.WriteString("\n")
-	}
 
 	tui := s.Width(m.Width() - 2).Height(l.Height()).Render(
 		lipgloss.JoinHorizontal(lipgloss.Top,
@@ -75,7 +68,7 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 }
 
 func (l ListItemDelegate) Height() int {
-	return 4
+	return 1
 }
 
 func (l ListItemDelegate) Spacing() int {

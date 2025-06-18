@@ -7,12 +7,16 @@ import (
 	"farental/internal/helper"
 	"farental/internal/lang"
 	"farental/model/widget/filterselectionlist"
+	"farental/model/widget/itemdetail"
+	"farental/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
 	FilterSelectionList filterselectionlist.Model
+	ItemDetail          itemdetail.Model
 }
 
 func New() Model {
@@ -23,6 +27,11 @@ func New() Model {
 		ListItemDelegate{},
 		m.loadData,
 		m.submit)
+
+	m.FilterSelectionList.Width = 32
+	m.FilterSelectionList.List.SetWidth(32)
+
+	m.ItemDetail = itemdetail.New(nil)
 
 	return m
 }
@@ -47,11 +56,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.FilterSelectionList = modFSL
 
+	selectedItem := m.FilterSelectionList.List.SelectedItem().(ListItem)
+
+	m.ItemDetail.UpdateData(&selectedItem.Stack)
+
 	return m, cmd
 }
 
 func (m Model) View() string {
-	return m.FilterSelectionList.View()
+	itemDetail := style.ContainerStyle.Width(35).
+		Height(m.FilterSelectionList.List.Height()).
+		Render(m.ItemDetail.View())
+
+	return lipgloss.JoinHorizontal(lipgloss.Left,
+		itemDetail,
+		m.FilterSelectionList.View(),
+	)
 }
 
 func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
