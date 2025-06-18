@@ -5,13 +5,17 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
+	"farental/internal/keybind"
 	"farental/internal/lang"
+	"farental/model"
 	"farental/model/widget/filterselectionlist"
 	"farental/model/widget/itemdetail"
 	"farental/style"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"strings"
 )
 
 type Model struct {
@@ -30,8 +34,9 @@ func New() Model {
 
 	m.FilterSelectionList.Width = 32
 	m.FilterSelectionList.List.SetWidth(32)
+	m.FilterSelectionList.List.SetHeight(25)
 
-	m.ItemDetail = itemdetail.New(nil)
+	m.ItemDetail = itemdetail.New(35)
 
 	return m
 }
@@ -46,6 +51,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	defer context.ContentManager.UpdateCurrentContent(m)
 
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Back):
+			if m.FilterSelectionList.List.FilterState() == list.Unfiltered {
+				return context.ContentManager.
+					SwitchContent(m, model.ContentGameDashboard)
+			}
+		}
+	}
+
 	mod, cmd = m.FilterSelectionList.Update(msg)
 
 	modFSL, ok := mod.(filterselectionlist.Model)
@@ -56,22 +72,41 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.FilterSelectionList = modFSL
 
-	selectedItem := m.FilterSelectionList.List.SelectedItem().(ListItem)
+	selectedItem, ok := m.FilterSelectionList.
+		List.SelectedItem().(ListItem)
 
-	m.ItemDetail.UpdateData(&selectedItem.Stack)
+	if ok {
+		if selectedItem.Stack.ItemID != m.ItemDetail.GetDataItemID() {
+			m.ItemDetail.UpdateData(&selectedItem.Stack)
+		}
+	}
 
 	return m, cmd
 }
 
 func (m Model) View() string {
-	itemDetail := style.ContainerStyle.Width(35).
-		Height(m.FilterSelectionList.List.Height()).
+	var b strings.Builder
+
+	itemDetail := style.ContainerStyle.Width(m.ItemDetail.GetWidth()).
 		Render(m.ItemDetail.View())
 
-	return lipgloss.JoinHorizontal(lipgloss.Left,
-		itemDetail,
+	b.WriteString(m.FilterSelectionList.ViewTitle())
+	b.WriteString("\n\n")
+	b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
 		m.FilterSelectionList.View(),
-	)
+		itemDetail,
+	))
+	b.WriteString("\n")
+	b.WriteString(m.FilterSelectionList.ViewError())
+	b.WriteString("\n")
+	b.WriteString(m.FilterSelectionList.ViewHelp())
+
+	return lipgloss.Place(
+		context.ContentManager.ScreenWidth,
+		context.ContentManager.ScreenHeight,
+		lipgloss.Center, lipgloss.Center,
+		b.String())
+
 }
 
 func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
