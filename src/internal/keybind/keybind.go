@@ -10,8 +10,7 @@ var (
 	Down             key.Binding
 	Left             key.Binding
 	Right            key.Binding
-	HelpMore         key.Binding
-	HelpClose        key.Binding
+	Help             key.Binding
 	Quit             key.Binding
 	Submit           key.Binding
 	Apply            key.Binding
@@ -65,12 +64,9 @@ func Init() {
 	Increase = key.NewBinding(
 		key.WithKeys("right", "l"),
 		key.WithHelp("→/l", lang.L("increase value")))
-	HelpMore = key.NewBinding(
+	Help = key.NewBinding(
 		key.WithKeys("?"),
-		key.WithHelp("?", lang.L("more")))
-	HelpClose = key.NewBinding(
-		key.WithKeys("?"),
-		key.WithHelp("?", lang.L("close help")))
+		key.WithHelp("?", lang.L("open/close help")))
 	Quit = key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", lang.L("quit")))

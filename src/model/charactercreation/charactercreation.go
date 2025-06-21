@@ -11,7 +11,6 @@ import (
 	"farental/model"
 	"farental/model/widget/multivalueselector"
 	"farental/style"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,7 +30,6 @@ type Model struct {
 	FirstnameInput textinput.Model
 	LastnameInput  textinput.Model
 	RaceInput      multivalueselector.Model[DataRaceValue]
-	Help           help.Model
 
 	Keymap config.ModularKeyMap
 
@@ -68,20 +66,9 @@ func New() Model {
 	m.RaceInput.Style.FocusedControl = style.TitleStyle
 	m.RaceInput.Style.FocusedValue = style.HighlightStyle
 
-	m.Help = help.New()
-
 	m.Title = lang.L("Character creation")
 
 	m.tabIndex = 0
-
-	m.Keymap = config.ModularKeyMap{}
-	m.Keymap.SetEssentialBindings([]key.Binding{
-		keybind.Tab,
-		keybind.ShiftTab,
-		keybind.Submit,
-		keybind.Back,
-		keybind.Quit,
-	})
 
 	return m
 }
@@ -104,6 +91,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.RaceInput.SetSelectedIndex(0)
 		m.currentlySelectedRace = m.RaceInput.GetSelectedValue()
+
+		context.KeymapManager.SwitchContext(model.ContextCharacterCreation)
 
 		return m, nil
 	case tea.KeyMsg:
@@ -185,7 +174,7 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString("\n\n\n")
-	tui.WriteString(m.Help.View(m.Keymap))
+	tui.WriteString(context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,

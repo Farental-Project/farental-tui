@@ -7,6 +7,7 @@ import (
 var (
 	ColorHighlight        = "#39d800"
 	ColorHighlightDim     = "#389118"
+	ColorNeutralLessDim   = "#999999"
 	ColorNeutralDim       = "#828282"
 	ColorError            = "#dd7302"
 	ColorSpecialHighlight = "#75f902"

@@ -21,6 +21,10 @@ var (
 			Foreground(lipgloss.Color(ColorHighlightDim)).
 			Italic(true)
 
+	NeutralLessDimTextStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(ColorNeutralLessDim)).
+				Italic(true)
+
 	NeutralDimTextStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color(ColorNeutralDim)).
 				Italic(true)

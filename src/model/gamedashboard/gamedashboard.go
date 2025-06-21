@@ -4,7 +4,6 @@ import (
 	"errors"
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
@@ -17,7 +16,6 @@ import (
 	"farental/model/widget/widgetcontainer"
 	"farental/style"
 	"fmt"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -32,10 +30,8 @@ const (
 )
 
 type Model struct {
-	Help          help.Model
 	HelpContainer widgetcontainer.Model
 	FullHelpStyle lipgloss.Style
-	Keymap        config.ModularKeyMap
 	ErrMsg        error
 
 	tickTag uint
@@ -76,42 +72,15 @@ func New() Model {
 		m.CharactersVisible,
 		lang.L("Characters in location"), 25, 14)
 
-	m.FullHelpStyle = style.ContainerStyle.Width(style.LayoutWidth).
-		Height(14)
+	// m.FullHelpStyle = style.ContainerStyle.Width(style.LayoutWidth).
+	// 	Height(14)
 
-	m.Help = help.New()
-	m.Help.Styles.FullKey = style.TitleStyle
-	m.Help.Styles.FullDesc = style.DimTextStyle
+	// m.Help = help.New()
+	// m.Help.Styles.FullKey = style.TitleStyle
+	// m.Help.Styles.FullDesc = style.DimTextStyle
 
 	m.HelpContainer = widgetcontainer.New(
 		nil, lang.L("Help"), style.LayoutWidth, 14)
-
-	m.Keymap = config.ModularKeyMap{}
-
-	m.Keymap.SetBindings([][]key.Binding{
-		{
-			keybind.Travels,
-			keybind.Activities,
-			keybind.Crafts,
-			keybind.Fights,
-			keybind.LocationServices,
-			keybind.Npcs,
-		},
-		{
-			keybind.Scripts,
-			keybind.Inventory,
-			keybind.Claim,
-			keybind.ChangeCharacter,
-			keybind.Quit,
-			keybind.HelpClose,
-		},
-	})
-
-	m.Keymap.SetEssentialBindings([]key.Binding{
-		keybind.Claim,
-		keybind.Quit,
-		keybind.HelpMore,
-	})
 
 	return m
 }
@@ -131,8 +100,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		m.resetError()
 		switch {
-		case key.Matches(msg, keybind.HelpMore):
-			m.Help.ShowAll = !m.Help.ShowAll
+		case key.Matches(msg, keybind.Help):
+			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
 			return m, nil
 		case key.Matches(msg, keybind.Claim):
 			m.claim()
@@ -196,6 +165,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		cmd = m.RunningTask.Init()
 
+		context.KeymapManager.SwitchContext(model.ContextGameDashboard)
+
 		return m, cmd
 	}
 
@@ -212,15 +183,17 @@ func (m Model) View() string {
 	var tui string
 	var bottom strings.Builder
 
-	if !m.Help.ShowAll {
+	if !context.KeymapManager.ShowAll {
 		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
 			lipgloss.JoinHorizontal(lipgloss.Center,
 				m.ChatViewerContainer.View(),
 				m.CharactersVisibleContainer.View()),
-			m.Help.View(m.Keymap)))
+			context.KeymapManager.View(style.LayoutWidth)))
 	} else {
 		bottom.WriteString(m.HelpContainer.ViewContent(
-			m.Help.View(m.Keymap),
+			context.KeymapManager.ViewAll(
+				context.KeymapManager.GetCurrentContextKeymap(),
+				style.LayoutWidth),
 			lipgloss.Center, lipgloss.Center))
 		bottom.WriteString("\n")
 	}

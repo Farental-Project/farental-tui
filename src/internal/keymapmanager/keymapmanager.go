@@ -35,6 +35,7 @@ func (m *KeymapManager) GetCurrentContextKeymap() *Keymap {
 func (m *KeymapManager) SwitchContext(context KeymapContext) {
 	if _, ok := m.Contexts[context]; ok {
 		m.CurrentContext = context
+		m.ShowAll = false
 	}
 }
 

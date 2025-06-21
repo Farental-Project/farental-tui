@@ -96,7 +96,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-		case key.Matches(msg, keybind.HelpMore):
+		case key.Matches(msg, keybind.Help):
 			m.Help.ShowAll = !m.Help.ShowAll
 		}
 	}
@@ -145,7 +145,7 @@ func (m *Model) updateKeymap() {
 	var escKey key.Binding
 	var enterKey key.Binding
 
-	keybind.HelpMore.SetEnabled(true)
+	keybind.Help.SetEnabled(true)
 
 	switch m.List.FilterState() {
 	case list.Filtering:
@@ -161,13 +161,13 @@ func (m *Model) updateKeymap() {
 
 	if m.List.FilterState() == list.Filtering {
 		essentialsKeys = append(essentialsKeys, enterKey, escKey)
-		keybind.HelpMore.SetEnabled(false)
+		keybind.Help.SetEnabled(false)
 		m.Keymap.SetEssentialBindings(essentialsKeys)
 		return
 	}
 
 	essentialsKeys = append(essentialsKeys,
-		keybind.Up, keybind.Down, keybind.Filter, escKey, enterKey, keybind.HelpMore)
+		keybind.Up, keybind.Down, keybind.Filter, escKey, enterKey, keybind.Help)
 
 	leftColumn = append(leftColumn,
 		keybind.Up,
@@ -185,7 +185,7 @@ func (m *Model) updateKeymap() {
 		keybind.Submit,
 		keybind.Back,
 		keybind.Quit,
-		keybind.HelpClose,
+		keybind.Help,
 	)
 
 	fullKeys = append(fullKeys, leftColumn, rightColumn)

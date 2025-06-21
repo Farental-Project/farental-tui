@@ -10,7 +10,6 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,7 +22,6 @@ type Model struct {
 	ErrMsg error
 	List   list.Model
 	Items  []list.Item
-	Help   help.Model
 	Keymap config.ModularKeyMap
 
 	Title string
@@ -33,8 +31,6 @@ func New() Model {
 	m := Model{}
 
 	m.ErrMsg = nil
-
-	m.Help = help.New()
 
 	m.Items = make([]list.Item, 0)
 
@@ -49,27 +45,6 @@ func New() Model {
 	m.List.InfiniteScrolling = true
 
 	m.Title = lang.L("Character selection")
-
-	m.Keymap = config.ModularKeyMap{}
-
-	m.Keymap.SetBindings([][]key.Binding{
-		{
-			keybind.Up,
-			keybind.Down,
-			keybind.Submit,
-			keybind.NewCharacter,
-		},
-		{
-			keybind.Back,
-			keybind.Quit,
-			keybind.HelpClose,
-		},
-	})
-	m.Keymap.SetEssentialBindings([]key.Binding{
-		keybind.Back,
-		keybind.Quit,
-		keybind.HelpMore,
-	})
 
 	return m
 }
@@ -86,6 +61,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case model.InitMsg:
 		m.initData()
+
+		context.KeymapManager.SwitchContext(model.ContextCharacterSel)
 
 		return m, nil
 
@@ -105,8 +82,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, nil
-		case key.Matches(msg, keybind.HelpMore):
-			m.Help.ShowAll = !m.Help.ShowAll
+		case key.Matches(msg, keybind.Help):
+			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
 
 			return m, nil
 
@@ -125,7 +102,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var tui strings.Builder
 
-	helpText := m.Help.View(m.Keymap)
+	helpText := context.KeymapManager.View(style.LayoutWidth)
 
 	title := style.TitleStyle.Render(m.Title)
 

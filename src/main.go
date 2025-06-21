@@ -80,13 +80,13 @@ func registerContents() {
 
 func registerKeymapContexts() {
 	mainHelpStyle := keymapmanager.Style{
-		EssentialKey:               style.NeutralDimTextStyle.Bold(true),
+		EssentialKey:               style.NeutralLessDimTextStyle.Bold(true),
 		EssentialKeyDescription:    style.NeutralDimTextStyle,
 		EssentialKeySeparator:      style.NeutralDimTextStyle,
 		EssentialKeySeparatorValue: " - ",
 		EssentialColSeparator:      style.NeutralDimTextStyle,
 		EssentialColSeparatorValue: " • ",
-		FullKey:                    style.NeutralDimTextStyle.Bold(true),
+		FullKey:                    style.NeutralLessDimTextStyle.Bold(true),
 		FullKeyDescription:         style.NeutralDimTextStyle,
 		FullKeySeparator:           style.NeutralDimTextStyle,
 		FullKeySeparatorValue:      " - ",
@@ -100,7 +100,47 @@ func registerKeymapContexts() {
 	loginKeymap.NewKeyBinding(keybind.ShiftTab, false)
 	loginKeymap.NewKeyBinding(keybind.Submit, true)
 	loginKeymap.NewKeyBinding(keybind.Quit, true)
-	loginKeymap.NewKeyBinding(keybind.HelpMore, true)
+	loginKeymap.NewKeyBinding(keybind.Help, true)
 
 	context.KeymapManager.RegisterContext(model.ContextLogin, loginKeymap)
+
+	characterSelectionKeymap := keymapmanager.NewKeymap(2)
+	characterSelectionKeymap.Style = mainHelpStyle
+	characterSelectionKeymap.NewKeyBinding(keybind.Up, false)
+	characterSelectionKeymap.NewKeyBinding(keybind.Down, false)
+	characterSelectionKeymap.NewKeyBinding(keybind.Submit, false)
+	characterSelectionKeymap.NewKeyBinding(keybind.NewCharacter, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.Back, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.Quit, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextCharacterSel, characterSelectionKeymap)
+
+	characterCreationKeymap := keymapmanager.NewKeymap(2)
+	characterCreationKeymap.Style = mainHelpStyle
+	characterCreationKeymap.NewKeyBinding(keybind.Tab, true)
+	characterCreationKeymap.NewKeyBinding(keybind.ShiftTab, true)
+	characterCreationKeymap.NewKeyBinding(keybind.Submit, true)
+	characterCreationKeymap.NewKeyBinding(keybind.Back, true)
+	characterCreationKeymap.NewKeyBinding(keybind.Quit, true)
+
+	context.KeymapManager.RegisterContext(model.ContextCharacterCreation, characterCreationKeymap)
+
+	gameDashboardKeymap := keymapmanager.NewKeymap(2)
+	gameDashboardKeymap.Style = mainHelpStyle
+	gameDashboardKeymap.NewKeyBinding(keybind.Travels, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Activities, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Crafts, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Fights, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.LocationServices, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Scripts, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Inventory, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Claim, true)
+	gameDashboardKeymap.NewKeyBinding(keybind.ChangeCharacter, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Quit, true)
+	gameDashboardKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextGameDashboard, gameDashboardKeymap)
+
 }

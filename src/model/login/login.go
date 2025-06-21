@@ -125,7 +125,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, cmd
-		case key.Matches(msg, keybind.HelpMore):
+		case key.Matches(msg, keybind.Help):
 			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
 
 			return m, nil
