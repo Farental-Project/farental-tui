@@ -188,22 +188,6 @@ func (m *Model) updateKeymap() {
 		keybind.HelpClose,
 	)
 
-	if !m.showIncreaseDecrease {
-		keybind.Decrease.SetEnabled(false)
-		keybind.Increase.SetEnabled(false)
-	} else {
-		keybind.Decrease.SetEnabled(true)
-		keybind.Increase.SetEnabled(true)
-	}
-
-	if !m.showPageUpDown {
-		keybind.PrevPage.SetEnabled(false)
-		keybind.NextPage.SetEnabled(false)
-	} else {
-		keybind.PrevPage.SetEnabled(true)
-		keybind.NextPage.SetEnabled(true)
-	}
-
 	fullKeys = append(fullKeys, leftColumn, rightColumn)
 
 	m.Keymap.SetBindings(fullKeys)

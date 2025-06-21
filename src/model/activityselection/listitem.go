@@ -87,7 +87,7 @@ func (l ListItemDelegate) Spacing() int {
 }
 
 func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
-	selectedIndex := m.Index()
+	selectedIndex := m.GlobalIndex()
 	selectedItem, ok := m.SelectedItem().(ListItem)
 
 	if !ok {
