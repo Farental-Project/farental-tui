@@ -12,7 +12,6 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,7 +27,6 @@ type Model struct {
 	Focus  int
 	Title  string
 
-	Help   help.Model
 	Keymap config.ModularKeyMap
 }
 
@@ -56,26 +54,6 @@ func New() Model {
 	m.Inputs[0] = tiUserEmail
 	m.Inputs[1] = tiPassword
 	m.Title = title
-	m.Help = help.New()
-
-	m.Keymap = config.ModularKeyMap{}
-
-	m.Keymap.SetBindings([][]key.Binding{
-		{
-			keybind.Tab,
-			keybind.ShiftTab,
-			keybind.Submit,
-		},
-		{
-			keybind.Quit,
-			keybind.HelpClose,
-		},
-	})
-	m.Keymap.SetEssentialBindings([]key.Binding{
-		keybind.Submit,
-		keybind.Quit,
-		keybind.HelpMore,
-	})
 
 	return m
 }
@@ -101,6 +79,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Inputs[0].Blur()
 		m.Inputs[1].Focus()
 		m.Focus = 1
+
+		context.KeymapManager.SwitchContext(model.ContextLogin)
 
 		return m, nil
 	case tea.KeyMsg:
@@ -146,7 +126,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, cmd
 		case key.Matches(msg, keybind.HelpMore):
-			m.Help.ShowAll = !m.Help.ShowAll
+			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
 
 			return m, nil
 		}
@@ -200,7 +180,7 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString("\n\n\n")
-	tui.WriteString(m.Help.View(m.Keymap))
+	tui.WriteString(context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,

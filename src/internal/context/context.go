@@ -4,6 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/contentmanager"
+	"farental/internal/keymapmanager"
 	"farental/style"
 	"fmt"
 	"github.com/go-resty/resty/v2"
@@ -15,6 +16,7 @@ import (
 var (
 	Client         *resty.Client
 	ContentManager *contentmanager.Manager
+	KeymapManager  *keymapmanager.KeymapManager
 
 	CharacterID   uint
 	CharacterInfo *api.CharacterInfoResponse
@@ -29,6 +31,7 @@ func Init() {
 	Client = resty.New()
 	Client.SetBaseURL(viper.GetString("baseurl"))
 	ContentManager = contentmanager.New()
+	KeymapManager = keymapmanager.NewKeymapManager()
 
 	CharacterID = 0
 	RunningTask = nil
