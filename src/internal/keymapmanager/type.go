@@ -21,8 +21,18 @@ type Style struct {
 }
 
 type Key struct {
-	Binding   key.Binding
-	Essential bool
+	Binding        key.Binding
+	Essential      bool
+	CustomHelpDesc string
+	Visible        bool
+}
+
+func (k *Key) GetHelpDesc() string {
+	if k.CustomHelpDesc == "" {
+		return k.Binding.Help().Desc
+	}
+
+	return k.CustomHelpDesc
 }
 
 type IKeymap interface {
@@ -67,8 +77,10 @@ func NewKeymap(showAllColCount int) *Keymap {
 
 func (k *Keymap) NewKeyBinding(binding key.Binding, essential bool) {
 	k.Bindings = append(k.Bindings, Key{
-		Binding:   binding,
-		Essential: essential,
+		Binding:        binding,
+		Essential:      essential,
+		CustomHelpDesc: "",
+		Visible:        true,
 	})
 }
 
@@ -76,7 +88,7 @@ func (k *Keymap) EssentialBindings() []Key {
 	var essentials []Key
 
 	for _, k := range k.Bindings {
-		if !k.Essential {
+		if !k.Essential || !k.Visible {
 			continue
 		}
 
@@ -87,7 +99,51 @@ func (k *Keymap) EssentialBindings() []Key {
 }
 
 func (k *Keymap) AllBindings() []Key {
-	return k.Bindings
+	var all []Key
+
+	for _, k := range k.Bindings {
+		if !k.Visible {
+			continue
+		}
+
+		all = append(all, k)
+	}
+
+	return all
+}
+
+func (k *Keymap) Reset() {
+	for i := 0; i < len(k.Bindings); i++ {
+		k.Bindings[i].CustomHelpDesc = ""
+		k.Bindings[i].Visible = true
+	}
+}
+
+func (k *Keymap) UpdateHelpDesc(keybind key.Binding, desc string) {
+	for i := 0; i < len(k.Bindings); i++ {
+		if keybind.Help().Key == k.Bindings[i].Binding.Help().Key {
+			k.Bindings[i].CustomHelpDesc = desc
+			return
+		}
+	}
+}
+
+func (k *Keymap) SetHelpDesc(keybind key.Binding, desc string) {
+	for i := 0; i < len(k.Bindings); i++ {
+		if keybind.Help().Key == k.Bindings[i].Binding.Help().Key {
+			k.Bindings[i].Binding.SetHelp(k.Bindings[i].Binding.Help().Key, desc)
+			return
+		}
+	}
+}
+
+func (k *Keymap) SetVisible(keybind key.Binding, visible bool) {
+	for i := 0; i < len(k.Bindings); i++ {
+		if keybind.Help().Key == k.Bindings[i].Binding.Help().Key {
+			k.Bindings[i].Visible = visible
+			return
+		}
+	}
 }
 
 type KeymapContext string

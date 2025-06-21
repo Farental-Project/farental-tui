@@ -1,6 +1,7 @@
 package keymapmanager
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/lipgloss"
 	"math"
 	"strings"
@@ -34,9 +35,37 @@ func (m *KeymapManager) GetCurrentContextKeymap() *Keymap {
 
 func (m *KeymapManager) SwitchContext(context KeymapContext) {
 	if _, ok := m.Contexts[context]; ok {
+		keymap := m.GetCurrentContextKeymap()
+
+		if keymap != nil {
+			keymap.Reset()
+		}
+
 		m.CurrentContext = context
 		m.ShowAll = false
 	}
+}
+
+// UpdateKeybindHelpDesc allows to temporary change the help description for a keybind
+func (m *KeymapManager) UpdateKeybindHelpDesc(keybind key.Binding, desc string) {
+	keymap := m.GetCurrentContextKeymap()
+
+	if keymap == nil {
+		return
+	}
+
+	keymap.UpdateHelpDesc(keybind, desc)
+}
+
+// SetKeybindVisible allows to set keybind visibility
+func (m *KeymapManager) SetKeybindVisible(keybind key.Binding, visible bool) {
+	keymap := m.GetCurrentContextKeymap()
+
+	if keymap == nil {
+		return
+	}
+
+	keymap.SetVisible(keybind, visible)
 }
 
 func (m *KeymapManager) View(width int) string {
@@ -80,7 +109,7 @@ func (m *KeymapManager) ViewAll(keymap *Keymap, width int) string {
 		sepStr.WriteString(keymap.Style.FullKeySeparator.
 			Render(keymap.Style.FullKeySeparatorValue))
 		descStr.WriteString(keymap.Style.FullKeyDescription.
-			Render(key.Binding.Help().Desc))
+			Render(key.GetHelpDesc()))
 
 		if ((i+1)%rowCount == 0 && i != 0 && notLastCol) || (remainingCount == 1) {
 
@@ -124,7 +153,7 @@ func (m *KeymapManager) ViewEssential(keymap *Keymap, width int) string {
 			Render(keymap.Style.EssentialKeySeparatorValue))
 
 		b.WriteString(keymap.Style.EssentialKeyDescription.
-			Render(key.Binding.Help().Desc))
+			Render(key.GetHelpDesc()))
 	}
 
 	return lipgloss.NewStyle().

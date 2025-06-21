@@ -99,9 +99,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, keybind.Back):
+		case key.Matches(msg, keybind.Esc):
 			return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
-		case key.Matches(msg, keybind.Submit):
+		case key.Matches(msg, keybind.Enter):
 			ok := m.submit()
 
 			if ok {

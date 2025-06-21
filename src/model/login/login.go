@@ -87,7 +87,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, keybind.Submit):
+		case key.Matches(msg, keybind.Enter):
 			ret := m.submit()
 
 			if ret {
@@ -218,7 +218,6 @@ func (m *Model) submit() bool {
 
 	context.Client.SetCookie(resp.Cookies()[0])
 
-	// TODO: Manage the currently selected character to go directly to the gamedashboard.
 	viper.Set("lastusedemail", email)
 	err = viper.WriteConfig()
 

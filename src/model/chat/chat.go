@@ -4,7 +4,6 @@ import (
 	"errors"
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
@@ -14,7 +13,6 @@ import (
 	"farental/model/widget/widgetcontainer"
 	"farental/style"
 	"fmt"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,8 +29,6 @@ type Model struct {
 	Log          simplelogviewer.Model
 	LogContainer widgetcontainer.Model
 	Input        textarea.Model
-	Help         help.Model
-	Keymap       config.ModularKeyMap
 
 	tickTag uint
 }
@@ -59,19 +55,6 @@ func New() Model {
 
 	m.Input.KeyMap.InsertNewline = keybind.NewLine
 
-	m.Help = help.New()
-
-	m.Keymap = config.ModularKeyMap{}
-
-	m.Keymap.SetEssentialBindings([]key.Binding{
-		keybind.SendMessage,
-		keybind.NewLine,
-		keybind.ScrollUp,
-		keybind.ScrollDown,
-		keybind.Back,
-		keybind.Quit,
-	})
-
 	return m
 }
 
@@ -93,6 +76,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Input.SetValue("")
 		m.LogContainer.Title = fmt.Sprintf("%s - %s",
 			lang.L("Chat"), context.CharacterInfo.Location.Name)
+
+		// TODO: Good context
+		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListBasic)
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
 			return m, nil
@@ -106,15 +92,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ErrMsg = nil
 
 		switch {
-		case key.Matches(msg, keybind.SendMessage):
+		case key.Matches(msg, keybind.Enter):
 			m.sendMessage()
-		case key.Matches(msg, keybind.ScrollUp):
+		case key.Matches(msg, keybind.PrevPage):
 			m.Log.Viewport.ScrollUp(1)
 			m.LogContainer.UpdateContent(m.Log)
-		case key.Matches(msg, keybind.ScrollDown):
+		case key.Matches(msg, keybind.NextPage):
 			m.Log.Viewport.ScrollDown(1)
 			m.LogContainer.UpdateContent(m.Log)
-		case key.Matches(msg, keybind.Back):
+		case key.Matches(msg, keybind.Esc):
 			return context.ContentManager.
 				SwitchContent(m, model.ContentGameDashboard)
 		case key.Matches(msg, keybind.Quit):
@@ -145,7 +131,7 @@ func (m Model) View() string {
 			m.LogContainer.View(),
 			m.Input.View(),
 			errorMessage,
-			m.Help.View(m.Keymap)))
+			context.KeymapManager.View(style.LayoutWidth)))
 }
 
 func (m *Model) sendMessage() {

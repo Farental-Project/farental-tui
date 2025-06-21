@@ -177,7 +177,7 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 	case tea.KeyMsg:
 
 		switch {
-		case key.Matches(msgType, keybind.Decrease):
+		case key.Matches(msgType, keybind.Left):
 			selectedItem.Amount--
 
 			if selectedItem.Amount < 1 {
@@ -185,7 +185,7 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 			}
 
 			return updateItem(m, selectedIndex, selectedItem)
-		case key.Matches(msgType, keybind.Increase):
+		case key.Matches(msgType, keybind.Right):
 			selectedItem.Amount++
 
 			if selectedItem.Amount > 100 {

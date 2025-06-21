@@ -83,22 +83,22 @@ func registerKeymapContexts() {
 		EssentialKey:               style.NeutralLessDimTextStyle.Bold(true),
 		EssentialKeyDescription:    style.NeutralDimTextStyle,
 		EssentialKeySeparator:      style.NeutralDimTextStyle,
-		EssentialKeySeparatorValue: " - ",
+		EssentialKeySeparatorValue: " ",
 		EssentialColSeparator:      style.NeutralDimTextStyle,
 		EssentialColSeparatorValue: " • ",
 		FullKey:                    style.NeutralLessDimTextStyle.Bold(true),
 		FullKeyDescription:         style.NeutralDimTextStyle,
 		FullKeySeparator:           style.NeutralDimTextStyle,
-		FullKeySeparatorValue:      " - ",
+		FullKeySeparatorValue:      " ",
 		FullColSeparator:           lipgloss.Style{},
-		FullColSeparatorValue:      "   ",
+		FullColSeparatorValue:      "  ",
 	}
 
 	loginKeymap := keymapmanager.NewKeymap(2)
 	loginKeymap.Style = mainHelpStyle
 	loginKeymap.NewKeyBinding(keybind.Tab, false)
 	loginKeymap.NewKeyBinding(keybind.ShiftTab, false)
-	loginKeymap.NewKeyBinding(keybind.Submit, true)
+	loginKeymap.NewKeyBinding(keybind.Enter, true)
 	loginKeymap.NewKeyBinding(keybind.Quit, true)
 	loginKeymap.NewKeyBinding(keybind.Help, true)
 
@@ -108,9 +108,9 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.Style = mainHelpStyle
 	characterSelectionKeymap.NewKeyBinding(keybind.Up, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Down, false)
-	characterSelectionKeymap.NewKeyBinding(keybind.Submit, false)
+	characterSelectionKeymap.NewKeyBinding(keybind.Enter, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.NewCharacter, true)
-	characterSelectionKeymap.NewKeyBinding(keybind.Back, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
 
@@ -120,8 +120,8 @@ func registerKeymapContexts() {
 	characterCreationKeymap.Style = mainHelpStyle
 	characterCreationKeymap.NewKeyBinding(keybind.Tab, true)
 	characterCreationKeymap.NewKeyBinding(keybind.ShiftTab, true)
-	characterCreationKeymap.NewKeyBinding(keybind.Submit, true)
-	characterCreationKeymap.NewKeyBinding(keybind.Back, true)
+	characterCreationKeymap.NewKeyBinding(keybind.Enter, true)
+	characterCreationKeymap.NewKeyBinding(keybind.Esc, true)
 	characterCreationKeymap.NewKeyBinding(keybind.Quit, true)
 
 	context.KeymapManager.RegisterContext(model.ContextCharacterCreation, characterCreationKeymap)
@@ -136,11 +136,79 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Scripts, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Inventory, false)
-	gameDashboardKeymap.NewKeyBinding(keybind.Claim, true)
-	gameDashboardKeymap.NewKeyBinding(keybind.ChangeCharacter, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.Space, true)
+	gameDashboardKeymap.NewKeyBinding(keybind.Esc, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.Esc, lang.L("character selection"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Quit, true)
 	gameDashboardKeymap.NewKeyBinding(keybind.Help, true)
 
 	context.KeymapManager.RegisterContext(model.ContextGameDashboard, gameDashboardKeymap)
 
+	filterSelListBasicKeymap := keymapmanager.NewKeymap(3)
+	filterSelListBasicKeymap.Style = mainHelpStyle
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Up, false)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Down, false)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Filter, true)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Enter, true)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Esc, true)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Quit, true)
+	filterSelListBasicKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListBasic, filterSelListBasicKeymap)
+
+	filterSelListIncDecKeymap := keymapmanager.NewKeymap(3)
+	filterSelListIncDecKeymap.Style = mainHelpStyle
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Up, false)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Down, false)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Left, false)
+	filterSelListIncDecKeymap.SetHelpDesc(keybind.Left, lang.L("decrease"))
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Right, false)
+	filterSelListIncDecKeymap.SetHelpDesc(keybind.Right, lang.L("increase"))
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Filter, true)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Enter, true)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Esc, true)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Quit, true)
+	filterSelListIncDecKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListIncDec, filterSelListIncDecKeymap)
+
+	filterSelListPageKeymap := keymapmanager.NewKeymap(3)
+	filterSelListPageKeymap.Style = mainHelpStyle
+	filterSelListPageKeymap.NewKeyBinding(keybind.Up, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Down, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.PrevPage, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.NextPage, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Filter, true)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Enter, true)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Esc, true)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Quit, true)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListPage, filterSelListPageKeymap)
+
+	filterSelListIncDecPageKeymap := keymapmanager.NewKeymap(3)
+	filterSelListIncDecPageKeymap.Style = mainHelpStyle
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Up, false)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Down, false)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Left, false)
+	filterSelListIncDecPageKeymap.SetHelpDesc(keybind.Left, lang.L("decrease"))
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Right, false)
+	filterSelListIncDecPageKeymap.SetHelpDesc(keybind.Right, lang.L("increase"))
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.PrevPage, false)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.NextPage, false)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Filter, true)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Enter, true)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Esc, true)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Quit, true)
+	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListIncDecPage, filterSelListIncDecPageKeymap)
 }

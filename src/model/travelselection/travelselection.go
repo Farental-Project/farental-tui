@@ -9,6 +9,7 @@ import (
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/widget/filterselectionlist"
+	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -34,7 +35,7 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.FilterSelectionList.Init()
+	return tea.Batch(model.InitCmd, m.FilterSelectionList.Init())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -44,9 +45,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	defer context.ContentManager.UpdateCurrentContent(m)
 
 	switch msg := msg.(type) {
+	case model.InitMsg:
+		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListBasic)
+
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, keybind.Back):
+		case key.Matches(msg, keybind.Esc):
 			if m.FilterSelectionList.List.FilterState() == list.Unfiltered {
 				return context.ContentManager.
 					SwitchContent(m, model.ContentGameDashboard)
@@ -76,7 +80,7 @@ func (m Model) View() string {
 	b.WriteString("\n")
 	b.WriteString(m.FilterSelectionList.ViewError())
 	b.WriteString("\n")
-	b.WriteString(m.FilterSelectionList.ViewHelp())
+	b.WriteString(context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,

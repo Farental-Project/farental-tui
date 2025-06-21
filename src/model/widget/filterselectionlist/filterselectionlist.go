@@ -1,12 +1,11 @@
 package filterselectionlist
 
 import (
-	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/keybind"
+	"farental/internal/lang"
 	"farental/model"
 	"farental/style"
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,8 +14,6 @@ import (
 type Model struct {
 	List                 list.Model
 	Items                []list.Item
-	Help                 help.Model
-	Keymap               config.ModularKeyMap
 	showIncreaseDecrease bool
 	showPageUpDown       bool
 
@@ -35,8 +32,6 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func(m *Mode
 
 	m.Width = style.LayoutWidth
 
-	m.Help = help.New()
-
 	m.Items = make([]list.Item, 0)
 
 	m.List = list.New(m.Items,
@@ -51,8 +46,6 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func(m *Mode
 	m.submit = submit
 	m.showIncreaseDecrease = false
 	m.showPageUpDown = false
-
-	m.Keymap = config.ModularKeyMap{}
 
 	m.updateKeymap()
 
@@ -84,7 +77,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
 
-		case key.Matches(msg, keybind.Submit):
+		case key.Matches(msg, keybind.Enter):
 			if m.List.FilterState() != list.Filtering {
 				ok := m.submit(&m)
 
@@ -97,7 +90,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, keybind.Help):
-			m.Help.ShowAll = !m.Help.ShowAll
+			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
 		}
 	}
 
@@ -112,10 +105,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	return style.ContainerStyle.Width(m.Width).Render(m.List.View())
-}
-
-func (m Model) ViewHelp() string {
-	return m.Help.View(m.Keymap)
 }
 
 func (m Model) ViewTitle() string {
@@ -138,58 +127,21 @@ func (m *Model) UpdateData() {
 }
 
 func (m *Model) updateKeymap() {
-	var fullKeys [][]key.Binding
-	var leftColumn []key.Binding
-	var rightColumn []key.Binding
-	var essentialsKeys []key.Binding
-	var escKey key.Binding
-	var enterKey key.Binding
-
-	keybind.Help.SetEnabled(true)
-
 	switch m.List.FilterState() {
 	case list.Filtering:
-		escKey = keybind.Cancel
-		enterKey = keybind.Apply
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, lang.L("cancel"))
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, lang.L("apply"))
+		context.KeymapManager.SetKeybindVisible(keybind.Filter, false)
+		context.KeymapManager.SetKeybindVisible(keybind.Help, false)
 	case list.FilterApplied:
-		escKey = keybind.ClearFilter
-		enterKey = keybind.Submit
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, lang.L("clear filter"))
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, "")
+		context.KeymapManager.SetKeybindVisible(keybind.Filter, true)
+		context.KeymapManager.SetKeybindVisible(keybind.Help, true)
 	case list.Unfiltered:
-		escKey = keybind.Back
-		enterKey = keybind.Submit
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, "")
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, "")
+		context.KeymapManager.SetKeybindVisible(keybind.Filter, true)
+		context.KeymapManager.SetKeybindVisible(keybind.Help, true)
 	}
-
-	if m.List.FilterState() == list.Filtering {
-		essentialsKeys = append(essentialsKeys, enterKey, escKey)
-		keybind.Help.SetEnabled(false)
-		m.Keymap.SetEssentialBindings(essentialsKeys)
-		return
-	}
-
-	essentialsKeys = append(essentialsKeys,
-		keybind.Up, keybind.Down, keybind.Filter, escKey, enterKey, keybind.Help)
-
-	leftColumn = append(leftColumn,
-		keybind.Up,
-		keybind.Down,
-		keybind.Decrease,
-		keybind.Increase,
-		keybind.GotoListStart,
-		keybind.GotoListEnd,
-	)
-
-	rightColumn = append(rightColumn,
-		keybind.PrevPage,
-		keybind.NextPage,
-		keybind.Filter,
-		keybind.Submit,
-		keybind.Back,
-		keybind.Quit,
-		keybind.Help,
-	)
-
-	fullKeys = append(fullKeys, leftColumn, rightColumn)
-
-	m.Keymap.SetBindings(fullKeys)
-	m.Keymap.SetEssentialBindings(essentialsKeys)
 }

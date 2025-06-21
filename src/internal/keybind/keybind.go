@@ -12,13 +12,9 @@ var (
 	Right            key.Binding
 	Help             key.Binding
 	Quit             key.Binding
-	Submit           key.Binding
-	Apply            key.Binding
-	Claim            key.Binding
-	Back             key.Binding
-	ChangeCharacter  key.Binding
-	Cancel           key.Binding
-	ClearFilter      key.Binding
+	Enter            key.Binding
+	Space            key.Binding
+	Esc              key.Binding
 	Filter           key.Binding
 	Tab              key.Binding
 	ShiftTab         key.Binding
@@ -29,19 +25,14 @@ var (
 	Npcs             key.Binding
 	Scripts          key.Binding
 	Chat             key.Binding
-	SendMessage      key.Binding
 	NewLine          key.Binding
 	NewCharacter     key.Binding
 	LocationServices key.Binding
 	Inventory        key.Binding
 	GotoListStart    key.Binding
 	GotoListEnd      key.Binding
-	Decrease         key.Binding
-	Increase         key.Binding
 	PrevPage         key.Binding
 	NextPage         key.Binding
-	ScrollUp         key.Binding
-	ScrollDown       key.Binding
 	UseItem          key.Binding
 )
 
@@ -58,39 +49,21 @@ func Init() {
 	Right = key.NewBinding(
 		key.WithKeys("right", "l"),
 		key.WithHelp("→/l", lang.L("move right")))
-	Decrease = key.NewBinding(
-		key.WithKeys("left", "l"),
-		key.WithHelp("←/h", lang.L("decrease value")))
-	Increase = key.NewBinding(
-		key.WithKeys("right", "l"),
-		key.WithHelp("→/l", lang.L("increase value")))
 	Help = key.NewBinding(
 		key.WithKeys("?"),
 		key.WithHelp("?", lang.L("open/close help")))
 	Quit = key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", lang.L("quit")))
-	Submit = key.NewBinding(
+	Enter = key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", lang.L("submit")))
-	Apply = key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", lang.L("apply")))
-	Claim = key.NewBinding(
+	Space = key.NewBinding(
 		key.WithKeys(" "),
 		key.WithHelp(lang.L("space"), lang.L("claim")))
-	Back = key.NewBinding(
+	Esc = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", lang.L("back")))
-	ChangeCharacter = key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", lang.L("change character")))
-	Cancel = key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", lang.L("cancel")))
-	ClearFilter = key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", lang.L("clear filter")))
 	Filter = key.NewBinding(
 		key.WithKeys("/"),
 		key.WithHelp("/", lang.L("filter")))
@@ -121,9 +94,6 @@ func Init() {
 	Chat = key.NewBinding(
 		key.WithKeys("y"),
 		key.WithHelp("y", lang.L("chat")))
-	SendMessage = key.NewBinding(
-		key.WithKeys("enter"),
-		key.WithHelp("enter", lang.L("send message")))
 	NewLine = key.NewBinding(
 		key.WithKeys("ctrl+y"),
 		key.WithHelp("ctrl+y", lang.L("new line")))
@@ -148,12 +118,6 @@ func Init() {
 	NextPage = key.NewBinding(
 		key.WithKeys("pgdown"),
 		key.WithHelp("page down", lang.L("next page")))
-	ScrollUp = key.NewBinding(
-		key.WithKeys("pgup"),
-		key.WithHelp("page up", lang.L("scroll up")))
-	ScrollDown = key.NewBinding(
-		key.WithKeys("pgdown"),
-		key.WithHelp("page down", lang.L("scroll down")))
 	UseItem = key.NewBinding(
 		key.WithKeys("u"),
 		key.WithHelp("u", lang.L("use item")))

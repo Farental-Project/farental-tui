@@ -103,12 +103,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keybind.Help):
 			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
 			return m, nil
-		case key.Matches(msg, keybind.Claim):
+		case key.Matches(msg, keybind.Space):
 			m.claim()
 			return m, nil
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, keybind.Back):
+		case key.Matches(msg, keybind.Esc):
 			return context.ContentManager.
 				SwitchContent(m, model.ContentCharacterSelection)
 		case key.Matches(msg, keybind.Travels):
