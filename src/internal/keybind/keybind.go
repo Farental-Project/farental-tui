@@ -43,6 +43,7 @@ var (
 	NextPage         key.Binding
 	ScrollUp         key.Binding
 	ScrollDown       key.Binding
+	UseItem          key.Binding
 )
 
 func Init() {
@@ -157,4 +158,7 @@ func Init() {
 	ScrollDown = key.NewBinding(
 		key.WithKeys("pgdown"),
 		key.WithHelp("page down", lang.L("scroll down")))
+	UseItem = key.NewBinding(
+		key.WithKeys("u"),
+		key.WithHelp("u", lang.L("use item")))
 }

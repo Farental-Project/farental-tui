@@ -14,3 +14,15 @@ func InventoryGetFull() *resty.Request {
 
 	return r
 }
+
+func InventoryUseItem(itemID uint) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/inventory/useItem"
+	r.SetBody(api.IDBody{
+		ID: itemID,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}

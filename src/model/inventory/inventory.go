@@ -21,6 +21,7 @@ import (
 type Model struct {
 	FilterSelectionList filterselectionlist.Model
 	ItemDetail          itemdetail.Model
+	SuccessMsg          string
 }
 
 func New() Model {
@@ -51,10 +52,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	defer context.ContentManager.UpdateCurrentContent(m)
 
-	switch msg := msg.(type) {
+	switch msgType := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, keybind.Back):
+		case key.Matches(msgType, keybind.Back):
 			if m.FilterSelectionList.List.FilterState() == list.Unfiltered {
 				return context.ContentManager.
 					SwitchContent(m, model.ContentGameDashboard)
@@ -72,12 +73,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.FilterSelectionList = modFSL
 
+	selectedIndex := m.FilterSelectionList.List.GlobalIndex()
 	selectedItem, ok := m.FilterSelectionList.
 		List.SelectedItem().(ListItem)
 
 	if ok {
 		if selectedItem.Stack.ItemID != m.ItemDetail.GetDataItemID() {
 			m.ItemDetail.UpdateData(&selectedItem.Stack)
+		}
+	} else {
+		return m, cmd
+	}
+
+	switch msgType := msg.(type) {
+	case tea.KeyMsg:
+		m.SuccessMsg = ""
+		switch {
+		case key.Matches(msgType, keybind.UseItem):
+			if selectedItem.Stack.Item.IsUsable {
+				m.useItem(selectedItem, selectedIndex)
+			}
 		}
 	}
 
@@ -96,6 +111,12 @@ func (m Model) View() string {
 		m.FilterSelectionList.View(),
 		itemDetail,
 	))
+
+	if len(m.SuccessMsg) > 0 {
+		b.WriteString("\n")
+		b.WriteString(style.TitleStyle.Render(m.SuccessMsg))
+	}
+
 	b.WriteString("\n")
 	b.WriteString(m.FilterSelectionList.ViewError())
 	b.WriteString("\n")
@@ -145,4 +166,32 @@ func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 
 func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 	return false
+}
+
+func (m *Model) useItem(selectedItem ListItem, index int) {
+	req := request.InventoryUseItem(selectedItem.Stack.Item.ID)
+
+	resp, err := req.Send()
+
+	if err != nil {
+		m.FilterSelectionList.ErrMsg = helper.ConnectionError()
+		return
+	}
+
+	m.FilterSelectionList.ErrMsg = helper.ExtractError(resp)
+
+	if m.FilterSelectionList.ErrMsg != nil {
+		return
+	}
+
+	selectedItem.Stack.Count--
+
+	m.SuccessMsg = lang.L("Item used !")
+
+	if selectedItem.Stack.Count == 0 {
+		m.FilterSelectionList.List.RemoveItem(index)
+		return
+	}
+
+	m.FilterSelectionList.List.SetItem(index, selectedItem)
 }
