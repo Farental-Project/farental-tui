@@ -35,11 +35,6 @@ func (k *Key) GetHelpDesc() string {
 	return k.CustomHelpDesc
 }
 
-type IKeymap interface {
-	EssentialBindings() []Key
-	AllBindings() []Key
-}
-
 type Keymap struct {
 	Bindings           []Key
 	ShowAllColumnCount int

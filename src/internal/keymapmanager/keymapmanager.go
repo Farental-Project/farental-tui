@@ -112,7 +112,6 @@ func (m *KeymapManager) ViewAll(keymap *Keymap, width int) string {
 			Render(key.GetHelpDesc()))
 
 		if ((i+1)%rowCount == 0 && i != 0 && notLastCol) || (remainingCount == 1) {
-
 			columns = append(columns, lipgloss.
 				JoinHorizontal(lipgloss.Center,
 					keyStr.String(),
@@ -130,8 +129,7 @@ func (m *KeymapManager) ViewAll(keymap *Keymap, width int) string {
 		}
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Top,
-		columns...)
+	return lipgloss.JoinHorizontal(lipgloss.Top, columns...)
 }
 
 func (m *KeymapManager) ViewEssential(keymap *Keymap, width int) string {
