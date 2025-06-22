@@ -26,3 +26,16 @@ func InventoryUseItem(itemID uint) *resty.Request {
 
 	return r
 }
+
+func InventoryEquipItem(itemID uint) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/inventory/equipItem"
+	r.SetBody(api.IDBody{
+		ID: itemID,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}

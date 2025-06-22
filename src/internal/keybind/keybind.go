@@ -33,7 +33,8 @@ var (
 	GotoListEnd      key.Binding
 	PrevPage         key.Binding
 	NextPage         key.Binding
-	UseItem          key.Binding
+	Use              key.Binding
+	Equip            key.Binding
 )
 
 func Init() {
@@ -118,7 +119,10 @@ func Init() {
 	NextPage = key.NewBinding(
 		key.WithKeys("pgdown"),
 		key.WithHelp("page down", lang.L("next page")))
-	UseItem = key.NewBinding(
+	Use = key.NewBinding(
 		key.WithKeys("u"),
-		key.WithHelp("u", lang.L("use item")))
+		key.WithHelp("u", lang.L("use")))
+	Equip = key.NewBinding(
+		key.WithKeys("e"),
+		key.WithHelp("e", lang.L("equip")))
 }

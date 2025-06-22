@@ -54,7 +54,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msgType := msg.(type) {
 	case model.InitMsg:
-		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListBasic)
+		context.KeymapManager.SwitchContext(model.ContextInventory)
+
+		m.updateKeybind(nil)
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msgType, keybind.Esc):
@@ -82,6 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if ok {
 		if selectedItem.Stack.ItemID != m.ItemDetail.GetDataItemID() {
 			m.ItemDetail.UpdateData(&selectedItem.Stack)
+			m.updateKeybind(&selectedItem.Stack.Item)
 		}
 	} else {
 		return m, cmd
@@ -90,10 +94,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msgType := msg.(type) {
 	case tea.KeyMsg:
 		m.SuccessMsg = ""
+		if m.FilterSelectionList.List.FilterState() == list.Filtering {
+			return m, cmd
+		}
+
 		switch {
-		case key.Matches(msgType, keybind.UseItem):
+		case key.Matches(msgType, keybind.Use):
 			if selectedItem.Stack.Item.IsUsable {
 				m.useItem(selectedItem, selectedIndex)
+			}
+		case key.Matches(msgType, keybind.Equip):
+			if selectedItem.Stack.Item.EquipmentSlot != nil {
+				m.equipItem(selectedItem, selectedIndex)
 			}
 		}
 	}
@@ -171,7 +183,7 @@ func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 }
 
 func (m *Model) useItem(selectedItem ListItem, index int) {
-	req := request.InventoryUseItem(selectedItem.Stack.Item.ID)
+	req := request.InventoryUseItem(selectedItem.Stack.ItemID)
 
 	resp, err := req.Send()
 
@@ -196,4 +208,47 @@ func (m *Model) useItem(selectedItem ListItem, index int) {
 	}
 
 	m.FilterSelectionList.List.SetItem(index, selectedItem)
+}
+
+func (m *Model) equipItem(selectedItem ListItem, index int) {
+	req := request.InventoryEquipItem(selectedItem.Stack.ItemID)
+
+	resp, err := req.Send()
+
+	if err != nil {
+		m.FilterSelectionList.ErrMsg = helper.ConnectionError()
+		return
+	}
+
+	m.FilterSelectionList.ErrMsg = helper.ExtractError(resp)
+
+	if m.FilterSelectionList.ErrMsg != nil {
+		return
+	}
+
+	selectedItem.Stack.Count--
+
+	m.SuccessMsg = lang.L("Item equipped !")
+
+	m.FilterSelectionList.UpdateData()
+}
+
+func (m *Model) updateKeybind(item *api.ItemResponse) {
+	if item == nil {
+		context.KeymapManager.SetKeybindVisible(keybind.Use, false)
+		context.KeymapManager.SetKeybindVisible(keybind.Equip, false)
+		return
+	}
+
+	if item.IsUsable {
+		context.KeymapManager.SetKeybindVisible(keybind.Use, true)
+	} else {
+		context.KeymapManager.SetKeybindVisible(keybind.Use, false)
+	}
+
+	if item.EquipmentSlot != nil {
+		context.KeymapManager.SetKeybindVisible(keybind.Equip, true)
+	} else {
+		context.KeymapManager.SetKeybindVisible(keybind.Equip, false)
+	}
 }

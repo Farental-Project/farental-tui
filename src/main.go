@@ -211,4 +211,20 @@ func registerKeymapContexts() {
 	filterSelListIncDecPageKeymap.NewKeyBinding(keybind.Help, true)
 
 	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListIncDecPage, filterSelListIncDecPageKeymap)
+
+	inventoryKeymap := keymapmanager.NewKeymap(3)
+	inventoryKeymap.Style = mainHelpStyle
+	inventoryKeymap.NewKeyBinding(keybind.Up, false)
+	inventoryKeymap.NewKeyBinding(keybind.Down, false)
+	inventoryKeymap.NewKeyBinding(keybind.Filter, true)
+	inventoryKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	inventoryKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	inventoryKeymap.NewKeyBinding(keybind.Use, true)
+	inventoryKeymap.NewKeyBinding(keybind.Equip, true)
+	inventoryKeymap.NewKeyBinding(keybind.Enter, true)
+	inventoryKeymap.NewKeyBinding(keybind.Esc, true)
+	inventoryKeymap.NewKeyBinding(keybind.Quit, true)
+	inventoryKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextInventory, inventoryKeymap)
 }

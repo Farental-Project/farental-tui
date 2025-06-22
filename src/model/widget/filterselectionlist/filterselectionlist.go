@@ -114,11 +114,13 @@ func (m Model) ViewTitle() string {
 func (m Model) ViewError() string {
 	var err string
 
+	err = ""
+
 	if m.ErrMsg != nil {
 		err = m.ErrMsg.Error()
 	}
 
-	return err
+	return style.ErrorStyle.Render(err)
 }
 
 func (m *Model) UpdateData() {
