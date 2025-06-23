@@ -46,7 +46,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListIncDecPage)
+		context.KeymapManager.SwitchContext(model.ContextCraft)
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Esc):

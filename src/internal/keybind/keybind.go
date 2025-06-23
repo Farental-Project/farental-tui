@@ -10,6 +10,8 @@ var (
 	Down             key.Binding
 	Left             key.Binding
 	Right            key.Binding
+	ShiftLeft        key.Binding
+	ShiftRight       key.Binding
 	Help             key.Binding
 	Quit             key.Binding
 	Enter            key.Binding
@@ -45,11 +47,17 @@ func Init() {
 		key.WithKeys("down", "j"),
 		key.WithHelp("↓/j", lang.L("move down")))
 	Left = key.NewBinding(
-		key.WithKeys("left", "l"),
+		key.WithKeys("left", "h"),
 		key.WithHelp("←/h", lang.L("move left")))
 	Right = key.NewBinding(
 		key.WithKeys("right", "l"),
 		key.WithHelp("→/l", lang.L("move right")))
+	ShiftLeft = key.NewBinding(
+		key.WithKeys("shift+left", "H"),
+		key.WithHelp("shift + ←/h", "move left step"))
+	ShiftRight = key.NewBinding(
+		key.WithKeys("shift+right", "L"),
+		key.WithHelp("shift + →/l", "move right step"))
 	Help = key.NewBinding(
 		key.WithKeys("?"),
 		key.WithHelp("?", lang.L("open/close help")))

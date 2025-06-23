@@ -185,8 +185,24 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 			}
 
 			return updateItem(m, selectedIndex, selectedItem)
+		case key.Matches(msgType, keybind.ShiftLeft):
+			selectedItem.Amount -= helper.Prev10Inc(selectedItem.Amount)
+
+			if selectedItem.Amount < 1 {
+				selectedItem.Amount = 1
+			}
+
+			return updateItem(m, selectedIndex, selectedItem)
 		case key.Matches(msgType, keybind.Right):
 			selectedItem.Amount++
+
+			if selectedItem.Amount > 100 {
+				selectedItem.Amount = 100
+			}
+
+			return updateItem(m, selectedIndex, selectedItem)
+		case key.Matches(msgType, keybind.ShiftRight):
+			selectedItem.Amount += helper.Next10Inc(selectedItem.Amount)
 
 			if selectedItem.Amount > 100 {
 				selectedItem.Amount = 100
