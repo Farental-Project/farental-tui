@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/viper"
 	"log"
 	"strings"
 )
@@ -88,6 +89,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, keybind.Esc):
+			// Logout - Clear the logintoken in config
+			viper.Set("logintoken", "")
+
+			err := viper.WriteConfig()
+
+			if err != nil {
+				log.Println(lang.L("could not save config : "), err)
+			}
+
 			return context.ContentManager.
 				SwitchContent(m, model.ContentLogin)
 		}

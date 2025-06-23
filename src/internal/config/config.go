@@ -30,6 +30,7 @@ func Init() {
 	viper.SetDefault("baseurl", "http://127.0.0.1:3000")
 	viper.SetDefault("language", "en")
 	viper.SetDefault("lastusedemail", "")
+	viper.SetDefault("logintoken", "")
 
 	viper.SetConfigName("farental")
 	viper.SetConfigType("toml")

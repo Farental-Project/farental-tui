@@ -49,15 +49,13 @@ func New() Model {
 	m.FirstnameInput.Focus()
 	m.FirstnameInput.Width = 31
 	m.FirstnameInput.Prompt = ""
-	m.FirstnameInput.TextStyle = style.TextStyle.Foreground(
-		lipgloss.Color(style.ColorHighlight))
+	style.SetTextInputStyle(&m.FirstnameInput)
 
 	m.LastnameInput = textinput.New()
 	m.LastnameInput.Placeholder = lang.L("Lastname")
 	m.LastnameInput.Width = 31
 	m.LastnameInput.Prompt = ""
-	m.LastnameInput.TextStyle = style.TextStyle.Foreground(
-		lipgloss.Color(style.ColorHighlight))
+	style.SetTextInputStyle(&m.LastnameInput)
 
 	m.RaceInput = multivalueselector.New[DataRaceValue]()
 	m.RaceInput.Width = 32

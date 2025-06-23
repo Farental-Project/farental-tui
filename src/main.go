@@ -111,6 +111,7 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.NewKeyBinding(keybind.Enter, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.NewCharacter, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Esc, true)
+	characterSelectionKeymap.SetHelpDesc(keybind.Esc, lang.L("logout"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
 

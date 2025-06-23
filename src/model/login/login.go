@@ -18,6 +18,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/viper"
 	"log"
+	"net/http"
 	"strings"
 )
 
@@ -36,8 +37,7 @@ func New() Model {
 	tiUserEmail.Focus()
 	tiUserEmail.Width = 30
 	tiUserEmail.Prompt = ""
-	tiUserEmail.TextStyle = style.TextStyle.Foreground(
-		lipgloss.Color(style.ColorHighlight))
+	style.SetTextInputStyle(&tiUserEmail)
 
 	tiPassword := textinput.New()
 	tiPassword.Placeholder = lang.L("Password")
@@ -45,8 +45,7 @@ func New() Model {
 	tiPassword.EchoCharacter = '*'
 	tiPassword.Width = 30
 	tiPassword.Prompt = ""
-	tiPassword.TextStyle = style.TextStyle.Foreground(
-		lipgloss.Color(style.ColorHighlight))
+	style.SetTextInputStyle(&tiPassword)
 
 	title := art.CreateASCIIArtTitle("FARENTAL")
 
@@ -68,6 +67,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case model.InitMsg:
 		var lastUsedEmail string
+		var loginToken string
+
+		context.KeymapManager.SwitchContext(model.ContextLogin)
+
+		loginToken = viper.GetString("logintoken")
+
+		if loginToken != "" {
+			ok := m.skipLogin(loginToken)
+
+			if ok {
+				return m.nextContent()
+			}
+
+			// Expired token
+			viper.Set("logintoken", "")
+		}
 
 		lastUsedEmail = viper.GetString("lastusedemail")
 
@@ -80,8 +95,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Inputs[1].Focus()
 		m.Focus = 1
 
-		context.KeymapManager.SwitchContext(model.ContextLogin)
-
 		return m, nil
 	case tea.KeyMsg:
 		switch {
@@ -91,11 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			ret := m.submit()
 
 			if ret {
-				if context.CharacterID == 0 {
-					return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
-				} else {
-					return context.ContentManager.SwitchContent(m, model.ContentGameDashboard)
-				}
+				return m.nextContent()
 			}
 
 			return m, nil
@@ -188,6 +197,18 @@ func (m Model) View() string {
 		tui.String())
 }
 
+func (m *Model) skipLogin(token string) bool {
+	cookie := http.Cookie{
+		Name:   "jwt",
+		Value:  token,
+		Secure: true,
+	}
+
+	context.Client.SetCookie(&cookie)
+
+	return m.getActiveCharacter()
+}
+
 func (m *Model) submit() bool {
 	email := m.Inputs[0].Value()
 	password := m.Inputs[1].Value()
@@ -216,18 +237,34 @@ func (m *Model) submit() bool {
 		return false
 	}
 
+	data := resp.Result().(*api.AuthSuccessResponse)
+
+	viper.Set("logintoken", data.Data)
+
 	context.Client.SetCookie(resp.Cookies()[0])
 
 	viper.Set("lastusedemail", email)
 	err = viper.WriteConfig()
 
 	if err != nil {
-		log.Println(lang.L("could not save last used e-mail : "), err)
+		log.Println(lang.L("could not save config : "), err)
 	}
 
-	req = request.CharacterGetActive()
+	ok := m.getActiveCharacter()
 
-	resp, err = req.Send()
+	if !ok {
+		return false
+	}
+
+	m.Inputs[1].SetValue("")
+
+	return true
+}
+
+func (m *Model) getActiveCharacter() bool {
+	req := request.CharacterGetActive()
+
+	resp, err := req.Send()
 
 	if err != nil {
 		m.ErrMsg = helper.ConnectionError()
@@ -241,10 +278,17 @@ func (m *Model) submit() bool {
 
 		if ok {
 			context.CharacterID = character.ID
+			return true
 		}
 	}
 
-	m.Inputs[1].SetValue("")
+	return false
+}
 
-	return true
+func (m *Model) nextContent() (tea.Model, tea.Cmd) {
+	if context.CharacterID == 0 {
+		return context.ContentManager.SwitchContent(m, model.ContentCharacterSelection)
+	} else {
+		return context.ContentManager.SwitchContent(m, model.ContentGameDashboard)
+	}
 }

@@ -13,6 +13,9 @@ var (
 			Border(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color(ColorHighlightDim))
 
+	NormalStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(ColorHighlight))
+
 	TitleStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(ColorHighlight)).
 			Bold(true)
