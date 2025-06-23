@@ -77,8 +77,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LogContainer.Title = fmt.Sprintf("%s - %s",
 			lang.L("Chat"), context.CharacterInfo.Location.Name)
 
-		// TODO: Good context
-		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListBasic)
+		context.KeymapManager.SwitchContext(model.ContextChat)
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
 			return m, nil
