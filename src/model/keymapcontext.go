@@ -14,4 +14,5 @@ const (
 	ContextFilterSelectionListPage       keymapmanager.KeymapContext = "filterSelectionListPage"
 	ContextFilterSelectionListIncDecPage keymapmanager.KeymapContext = "filterSelectionListIncDecPage"
 	ContextInventory                     keymapmanager.KeymapContext = "inventory"
+	ContextChat                          keymapmanager.KeymapContext = "chat"
 )

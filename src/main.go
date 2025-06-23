@@ -227,4 +227,15 @@ func registerKeymapContexts() {
 	inventoryKeymap.NewKeyBinding(keybind.Help, true)
 
 	context.KeymapManager.RegisterContext(model.ContextInventory, inventoryKeymap)
+
+	chatKeymap := keymapmanager.NewKeymap(3)
+	chatKeymap.Style = mainHelpStyle
+	chatKeymap.NewKeyBinding(keybind.Enter, true)
+	chatKeymap.SetHelpDesc(keybind.Enter, lang.L("send message"))
+	chatKeymap.NewKeyBinding(keybind.NewLine, true)
+	chatKeymap.NewKeyBinding(keybind.Esc, true)
+	chatKeymap.NewKeyBinding(keybind.Quit, true)
+	chatKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextChat, chatKeymap)
 }
