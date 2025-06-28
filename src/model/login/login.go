@@ -47,7 +47,7 @@ func New() Model {
 	tiPassword.Prompt = ""
 	style.SetTextInputStyle(&tiPassword)
 
-	title := art.CreateASCIIArtTitle("FARENTAL")
+	title := art.CreateASCIIArtBrokenTitle("FARENTAL")
 
 	m := Model{}
 	m.Inputs[0] = tiUserEmail
