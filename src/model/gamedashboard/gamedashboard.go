@@ -31,7 +31,6 @@ const (
 
 type Model struct {
 	HelpContainer widgetcontainer.Model
-	FullHelpStyle lipgloss.Style
 	ErrMsg        error
 
 	tickTag uint
@@ -71,13 +70,6 @@ func New() Model {
 	m.CharactersVisibleContainer = widgetcontainer.New(
 		m.CharactersVisible,
 		lang.L("Characters in location"), 25, 14)
-
-	// m.FullHelpStyle = style.ContainerStyle.Width(style.LayoutWidth).
-	// 	Height(14)
-
-	// m.Help = help.New()
-	// m.Help.Styles.FullKey = style.TitleStyle
-	// m.Help.Styles.FullDesc = style.DimTextStyle
 
 	m.HelpContainer = widgetcontainer.New(
 		nil, lang.L("Help"), style.LayoutWidth, 14)
