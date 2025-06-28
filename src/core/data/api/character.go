@@ -42,5 +42,6 @@ type CharacterInfoResponse struct {
 	Stats  []CharacterStatResponse
 	Skills []CharacterSkillResponse
 
-	Location LocationResponse
+	Location        LocationResponse
+	RespawnLocation LocationResponse
 }
