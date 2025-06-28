@@ -8,6 +8,7 @@ const (
 	ContextLogin                     keymapmanager.KeymapContext = "login"
 	ContextCharacterSel              keymapmanager.KeymapContext = "characterSelection"
 	ContextCharacterCreation         keymapmanager.KeymapContext = "characterCreation"
+	ContextCharacterSheet            keymapmanager.KeymapContext = "characterSheet"
 	ContextGameDashboard             keymapmanager.KeymapContext = "gameDashboard"
 	ContextFilterSelectionListBasic  keymapmanager.KeymapContext = "filterSelectionListBasic"
 	ContextFilterSelectionListIncDec keymapmanager.KeymapContext = "filterSelectionListIncDec"

@@ -26,6 +26,7 @@ var (
 	Fights           key.Binding
 	Npcs             key.Binding
 	Scripts          key.Binding
+	CharacterSheet   key.Binding
 	Chat             key.Binding
 	NewLine          key.Binding
 	NewCharacter     key.Binding
@@ -100,6 +101,9 @@ func Init() {
 	Scripts = key.NewBinding(
 		key.WithKeys("s"),
 		key.WithHelp("s", lang.L("scripts")))
+	CharacterSheet = key.NewBinding(
+		key.WithKeys("h"),
+		key.WithHelp("h", lang.L("character sheet")))
 	Chat = key.NewBinding(
 		key.WithKeys("y"),
 		key.WithHelp("y", lang.L("chat")))

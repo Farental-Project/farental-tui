@@ -12,6 +12,7 @@ import (
 	"farental/model/activityselection"
 	"farental/model/charactercreation"
 	"farental/model/characterselection"
+	"farental/model/charactersheet"
 	"farental/model/chat"
 	"farental/model/craftselection"
 	"farental/model/fightselection"
@@ -76,6 +77,7 @@ func registerContents() {
 	context.ContentManager.RegisterContent(model.ContentCraftSelection, craftselection.New())
 	context.ContentManager.RegisterContent(model.ContentInventory, inventory.New())
 	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
+	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
 }
 
 func registerKeymapContexts() {
@@ -243,4 +245,11 @@ func registerKeymapContexts() {
 	chatKeymap.NewKeyBinding(keybind.Help, true)
 
 	context.KeymapManager.RegisterContext(model.ContextChat, chatKeymap)
+
+	characterSheetKeymap := keymapmanager.NewKeymap(3)
+	characterSheetKeymap.Style = mainHelpStyle
+	characterSheetKeymap.NewKeyBinding(keybind.PrevPage, false)
+	characterSheetKeymap.NewKeyBinding(keybind.NextPage, false)
+	characterSheetKeymap.NewKeyBinding(keybind.Esc, true)
+	characterSheetKeymap.NewKeyBinding(keybind.Quit, true)
 }

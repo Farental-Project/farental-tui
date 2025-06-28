@@ -142,6 +142,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return context.ContentManager.
 				SwitchContent(m, model.ContentChat)
 
+		case key.Matches(msg, keybind.CharacterSheet):
+			return context.ContentManager.
+				SwitchContent(m, model.ContentCharacterSheet)
+
 		}
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
