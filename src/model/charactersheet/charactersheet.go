@@ -2,14 +2,20 @@ package charactersheet
 
 import (
 	"farental/core/data/api"
+	"farental/core/request"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/internal/lang"
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
+	"farental/model/widget/equipmentsummary"
+	"farental/model/widget/widgetcontainer"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/go-resty/resty/v2"
 )
 
 type Model struct {
@@ -17,12 +23,19 @@ type Model struct {
 	ErrMsg error
 
 	CharacterVitalInfo charactervitalinfo.Model
+
+	EquipmentSummary          equipmentsummary.Model
+	EquipmentSummaryContainer widgetcontainer.Model
 }
 
 func New() Model {
 	m := Model{
 		CharacterVitalInfo: charactervitalinfo.New(style.LayoutWidth),
+		EquipmentSummary:   equipmentsummary.New(style.LayoutWidth),
 	}
+
+	m.EquipmentSummaryContainer = widgetcontainer.New(m.EquipmentSummary,
+		lang.L("Equipment"), style.LayoutWidth, 6)
 
 	return m
 }
@@ -45,6 +58,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				SwitchContent(m, model.ContentGameDashboard)
 		}
 	case model.InitMsg:
+		m.UpdateData()
+
 		context.KeymapManager.SwitchContext(model.ContextCharacterSheet)
 	}
 
@@ -56,6 +71,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	tui := lipgloss.JoinVertical(lipgloss.Center,
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
+		m.EquipmentSummaryContainer.View(),
 		context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
@@ -64,4 +80,48 @@ func (m Model) View() string {
 		lipgloss.Center,
 		lipgloss.Center,
 		tui)
+}
+
+func (m *Model) UpdateData() {
+	var req *resty.Request
+
+	req = request.CharacterGetInfo()
+
+	resp, err := req.Send()
+
+	if err != nil {
+		m.ErrMsg = helper.ConnectionError()
+		return
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
+		return
+	}
+
+	characterInfo := resp.Result().(*api.CharacterInfoResponse)
+
+	context.CharacterID = characterInfo.ID
+	context.CharacterInfo = characterInfo
+	m.Data = *characterInfo
+
+	req = request.CharacterGetCurrencyAmount(api.Grynars)
+
+	resp, err = req.Send()
+
+	if err != nil {
+		m.ErrMsg = helper.ConnectionError()
+		return
+	}
+
+	m.ErrMsg = helper.ExtractError(resp)
+
+	if m.ErrMsg != nil {
+		return
+	}
+
+	currencyResp := resp.Result().(*api.CurrencyResponse)
+
+	m.CharacterVitalInfo.UpdateData(characterInfo, currencyResp.Amount)
 }
