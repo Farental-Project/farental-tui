@@ -36,14 +36,14 @@ func New() Model {
 	m := Model{
 		CharacterVitalInfo: charactervitalinfo.New(style.LayoutWidth),
 		EquipmentSummary:   equipmentsummary.New(style.LayoutWidth),
-		StatsSummary:       statssummary.New(style.LayoutWidth / 2),
+		StatsSummary:       statssummary.New(style.LayoutWidth / 3),
 	}
 
 	m.EquipmentSummaryContainer = widgetcontainer.New(m.EquipmentSummary,
 		lang.L("Equipment"), style.LayoutWidth, 6)
 
 	m.StatsSummaryContainer = widgetcontainer.New(m.StatsSummary,
-		lang.L("Stats"), style.LayoutWidth/2, 11)
+		lang.L("Stats"), style.LayoutWidth/3, 11)
 
 	return m
 }
