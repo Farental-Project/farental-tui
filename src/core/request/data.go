@@ -14,3 +14,14 @@ func DataGetAllRace() *resty.Request {
 
 	return r
 }
+
+func DataGetEquipmentSlots() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodGet
+	r.URL = "/data/equipmentSlots"
+	r.SetResult([]api.BasicInfoResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}

@@ -39,3 +39,14 @@ func InventoryEquipItem(itemID uint) *resty.Request {
 
 	return r
 }
+
+func InventoryGetEquippedItems() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodGet
+	r.URL = "/inventory/equippedItems"
+	r.SetResult([]api.ItemResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}

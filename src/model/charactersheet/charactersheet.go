@@ -124,4 +124,6 @@ func (m *Model) UpdateData() {
 	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	m.CharacterVitalInfo.UpdateData(characterInfo, currencyResp.Amount)
+	m.EquipmentSummary.UpdateData()
+	m.EquipmentSummaryContainer.UpdateContent(m.EquipmentSummary)
 }
