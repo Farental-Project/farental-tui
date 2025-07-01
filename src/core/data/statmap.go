@@ -21,6 +21,7 @@ const (
 )
 
 type Stat struct {
+	Name     string
 	Value    int
 	MaxValue int
 }
@@ -33,6 +34,7 @@ func NewStatMap(stats []api.CharacterStatResponse) StatMap {
 	for _, stat := range stats {
 		st := Stat{}
 
+		st.Name = stat.Name
 		st.Value = stat.Value
 		st.MaxValue = stat.MaxValue
 

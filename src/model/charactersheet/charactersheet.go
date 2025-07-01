@@ -10,6 +10,7 @@ import (
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
 	"farental/model/widget/equipmentsummary"
+	"farental/model/widget/statssummary"
 	"farental/model/widget/widgetcontainer"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
@@ -26,16 +27,23 @@ type Model struct {
 
 	EquipmentSummary          equipmentsummary.Model
 	EquipmentSummaryContainer widgetcontainer.Model
+
+	StatsSummary          statssummary.Model
+	StatsSummaryContainer widgetcontainer.Model
 }
 
 func New() Model {
 	m := Model{
 		CharacterVitalInfo: charactervitalinfo.New(style.LayoutWidth),
 		EquipmentSummary:   equipmentsummary.New(style.LayoutWidth),
+		StatsSummary:       statssummary.New(style.LayoutWidth / 2),
 	}
 
 	m.EquipmentSummaryContainer = widgetcontainer.New(m.EquipmentSummary,
 		lang.L("Equipment"), style.LayoutWidth, 6)
+
+	m.StatsSummaryContainer = widgetcontainer.New(m.StatsSummary,
+		lang.L("Stats"), style.LayoutWidth/2, 11)
 
 	return m
 }
@@ -72,6 +80,7 @@ func (m Model) View() string {
 	tui := lipgloss.JoinVertical(lipgloss.Center,
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		m.EquipmentSummaryContainer.View(),
+		m.StatsSummaryContainer.View(),
 		context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
@@ -124,6 +133,10 @@ func (m *Model) UpdateData() {
 	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	m.CharacterVitalInfo.UpdateData(characterInfo, currencyResp.Amount)
+
 	m.EquipmentSummary.UpdateData()
 	m.EquipmentSummaryContainer.UpdateContent(m.EquipmentSummary)
+
+	m.StatsSummary.UpdateData(characterInfo)
+	m.StatsSummaryContainer.UpdateContent(m.StatsSummary)
 }

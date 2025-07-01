@@ -21,6 +21,7 @@ type CharacterBasicWithActivityResponse struct {
 
 type CharacterStatResponse struct {
 	Code     string
+	Name     string
 	Value    int
 	MaxValue int
 }
