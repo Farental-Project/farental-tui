@@ -43,7 +43,7 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(model.InitCmd, m.FilterSelectionList.Init())
+	return tea.Batch(model.InitCmd)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -55,6 +55,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msgType := msg.(type) {
 	case model.InitMsg:
 		context.KeymapManager.SwitchContext(model.ContextInventory)
+
+		m.FilterSelectionList.UpdateData()
+		m.ItemDetail.UpdateData(nil)
 
 		m.updateKeybind(nil)
 
