@@ -38,6 +38,7 @@ var (
 	NextPage         key.Binding
 	Use              key.Binding
 	Equip            key.Binding
+	WKey             key.Binding
 )
 
 func Init() {
@@ -137,4 +138,7 @@ func Init() {
 	Equip = key.NewBinding(
 		key.WithKeys("e"),
 		key.WithHelp("e", lang.L("equip")))
+	WKey = key.NewBinding(
+		key.WithKeys("w"),
+		key.WithHelp("w", "w key"))
 }
