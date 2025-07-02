@@ -91,62 +91,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		m.resetError()
-		switch {
-		case key.Matches(msg, keybind.Help):
-			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
-			return m, nil
-		case key.Matches(msg, keybind.Space):
-			m.claim()
-			return m, nil
-		case key.Matches(msg, keybind.Quit):
-			return m, tea.Quit
-		case key.Matches(msg, keybind.Esc):
-			return context.ContentManager.
-				SwitchContent(m, model.ContentCharacterSelection)
-		case key.Matches(msg, keybind.Travels):
-			if context.RunningTask != nil {
-				m.runningTaskError()
-				return m, nil
+
+		switch context.KeymapManager.GetCurrentContext() {
+		case model.ContextGameDashboard:
+			mod, mes := m.gameKeyHandler(msg)
+
+			if mod != nil {
+				return mod, mes
 			}
 
-			return context.ContentManager.
-				SwitchContent(m, model.ContentTravelSelection)
-		case key.Matches(msg, keybind.Activities):
-			if context.RunningTask != nil {
-				m.runningTaskError()
-				return m, nil
+		case model.ContextLocationServices:
+			mod, mes := m.servicesKeyHandler(msg)
+
+			if mod != nil {
+				return mod, mes
 			}
-
-			return context.ContentManager.
-				SwitchContent(m, model.ContentActivitySelection)
-		case key.Matches(msg, keybind.Inventory):
-			return context.ContentManager.
-				SwitchContent(m, model.ContentInventory)
-		case key.Matches(msg, keybind.Fights):
-			if context.RunningTask != nil {
-				m.runningTaskError()
-				return m, nil
-			}
-
-			return context.ContentManager.
-				SwitchContent(m, model.ContentFightSelection)
-		case key.Matches(msg, keybind.Crafts):
-			if context.RunningTask != nil {
-				m.runningTaskError()
-				return m, nil
-			}
-
-			return context.ContentManager.
-				SwitchContent(m, model.ContentCraftSelection)
-		case key.Matches(msg, keybind.Chat):
-			return context.ContentManager.
-				SwitchContent(m, model.ContentChat)
-
-		case key.Matches(msg, keybind.CharacterSheet):
-			return context.ContentManager.
-				SwitchContent(m, model.ContentCharacterSheet)
-
 		}
+
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
 			return m, nil
@@ -407,4 +368,113 @@ func (m *Model) claim() {
 
 	context.RunningTask = nil
 	m.UpdateData()
+}
+
+func (m *Model) showLocationService() {
+	context.KeymapManager.SwitchContext(model.ContextLocationServices)
+	context.KeymapManager.ShowAll = true
+
+	m.HelpContainer.Title = lang.L("Location services")
+
+	// Activate keybind based on available features
+
+}
+
+func (m *Model) hideLocationService() {
+	context.KeymapManager.SwitchContext(model.ContextGameDashboard)
+	context.KeymapManager.ShowAll = false
+
+	m.HelpContainer.Title = lang.L("Help")
+}
+
+func (m *Model) gameKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, keybind.Help):
+		context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+		return m, nil
+
+	case key.Matches(msg, keybind.Space):
+		m.claim()
+		return m, nil
+
+	case key.Matches(msg, keybind.Quit):
+		return m, tea.Quit
+
+	case key.Matches(msg, keybind.Esc):
+		return context.ContentManager.
+			SwitchContent(m, model.ContentCharacterSelection)
+
+	case key.Matches(msg, keybind.Travels):
+		if context.RunningTask != nil {
+			m.runningTaskError()
+			return m, nil
+		}
+
+		return context.ContentManager.
+			SwitchContent(m, model.ContentTravelSelection)
+
+	case key.Matches(msg, keybind.Activities):
+		if context.RunningTask != nil {
+			m.runningTaskError()
+			return m, nil
+		}
+
+		return context.ContentManager.
+			SwitchContent(m, model.ContentActivitySelection)
+
+	case key.Matches(msg, keybind.Inventory):
+		return context.ContentManager.
+			SwitchContent(m, model.ContentInventory)
+
+	case key.Matches(msg, keybind.Fights):
+		if context.RunningTask != nil {
+			m.runningTaskError()
+			return m, nil
+		}
+
+		return context.ContentManager.
+			SwitchContent(m, model.ContentFightSelection)
+
+	case key.Matches(msg, keybind.Crafts):
+		if context.RunningTask != nil {
+			m.runningTaskError()
+			return m, nil
+		}
+
+		return context.ContentManager.
+			SwitchContent(m, model.ContentCraftSelection)
+
+	case key.Matches(msg, keybind.Chat):
+		return context.ContentManager.
+			SwitchContent(m, model.ContentChat)
+
+	case key.Matches(msg, keybind.CharacterSheet):
+		return context.ContentManager.
+			SwitchContent(m, model.ContentCharacterSheet)
+
+	case key.Matches(msg, keybind.LocationServices):
+		m.showLocationService()
+
+		return m, nil
+	}
+
+	return nil, nil
+}
+
+func (m *Model) servicesKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, keybind.Esc):
+		m.hideLocationService()
+
+		return m, nil
+
+	case key.Matches(msg, keybind.RKey):
+		if context.KeymapManager.IsKeybindVisible(keybind.RKey) {
+			m.ErrMsg = errors.New("OMG YEAH")
+			return m, nil
+		}
+		
+	}
+
+	return nil, nil
 }

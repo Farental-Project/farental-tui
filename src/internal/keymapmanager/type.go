@@ -141,4 +141,14 @@ func (k *Keymap) SetVisible(keybind key.Binding, visible bool) {
 	}
 }
 
+func (k *Keymap) IsVisible(keybind key.Binding) bool {
+	for i := 0; i < len(k.Bindings); i++ {
+		if keybind.Help().Key == k.Bindings[i].Binding.Help().Key {
+			return k.Bindings[i].Visible
+		}
+	}
+
+	return false
+}
+
 type KeymapContext string

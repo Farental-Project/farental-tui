@@ -252,4 +252,17 @@ func registerKeymapContexts() {
 	characterSheetKeymap.NewKeyBinding(keybind.NextPage, false)
 	characterSheetKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSheetKeymap.NewKeyBinding(keybind.Quit, true)
+
+	context.KeymapManager.RegisterContext(model.ContextCharacterSheet, characterSheetKeymap)
+
+	locationServicesKeymap := keymapmanager.NewKeymap(2)
+	locationServicesKeymap.Style = mainHelpStyle
+	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
+	locationServicesKeymap.SetVisible(keybind.RKey, false)
+	locationServicesKeymap.SetHelpDesc(keybind.RKey, lang.L("sleep in tavern"))
+	locationServicesKeymap.NewKeyBinding(keybind.Esc, true)
+	locationServicesKeymap.SetHelpDesc(keybind.Esc, lang.L("close"))
+	locationServicesKeymap.NewKeyBinding(keybind.Quit, true)
+
+	context.KeymapManager.RegisterContext(model.ContextLocationServices, locationServicesKeymap)
 }

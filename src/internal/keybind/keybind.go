@@ -39,6 +39,7 @@ var (
 	Use              key.Binding
 	Equip            key.Binding
 	WKey             key.Binding
+	RKey             key.Binding
 )
 
 func Init() {
@@ -141,4 +142,7 @@ func Init() {
 	WKey = key.NewBinding(
 		key.WithKeys("w"),
 		key.WithHelp("w", "w key"))
+	RKey = key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "r key"))
 }

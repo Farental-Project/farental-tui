@@ -16,4 +16,5 @@ const (
 	ContextCraft                     keymapmanager.KeymapContext = "craft"
 	ContextInventory                 keymapmanager.KeymapContext = "inventory"
 	ContextChat                      keymapmanager.KeymapContext = "chat"
+	ContextLocationServices          keymapmanager.KeymapContext = "locationServices"
 )

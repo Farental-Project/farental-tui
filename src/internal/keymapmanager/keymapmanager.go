@@ -23,6 +23,16 @@ func (m *KeymapManager) RegisterContext(context KeymapContext, keymap *Keymap) {
 	m.Contexts[context] = keymap
 }
 
+func (m *KeymapManager) GetCurrentContext() KeymapContext {
+	_, ok := m.Contexts[m.CurrentContext]
+
+	if !ok {
+		return ""
+	}
+
+	return m.CurrentContext
+}
+
 func (m *KeymapManager) GetCurrentContextKeymap() *Keymap {
 	ctx, ok := m.Contexts[m.CurrentContext]
 
@@ -66,6 +76,16 @@ func (m *KeymapManager) SetKeybindVisible(keybind key.Binding, visible bool) {
 	}
 
 	keymap.SetVisible(keybind, visible)
+}
+
+func (m *KeymapManager) IsKeybindVisible(keybind key.Binding) bool {
+	keymap := m.GetCurrentContextKeymap()
+
+	if keymap == nil {
+		return false
+	}
+
+	return keymap.IsVisible(keybind)
 }
 
 func (m *KeymapManager) View(width int) string {
