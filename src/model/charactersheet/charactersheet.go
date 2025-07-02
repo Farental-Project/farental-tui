@@ -10,6 +10,7 @@ import (
 	"farental/model"
 	"farental/model/widget/charactervitalinfo"
 	"farental/model/widget/equipmentsummary"
+	"farental/model/widget/skillssummary"
 	"farental/model/widget/statssummary"
 	"farental/model/widget/widgetcontainer"
 	"farental/style"
@@ -30,20 +31,27 @@ type Model struct {
 
 	StatsSummary          statssummary.Model
 	StatsSummaryContainer widgetcontainer.Model
+
+	SkillSummary          skillssummary.Model
+	SkillSummaryContainer widgetcontainer.Model
 }
 
 func New() Model {
 	m := Model{
 		CharacterVitalInfo: charactervitalinfo.New(style.LayoutWidth),
 		EquipmentSummary:   equipmentsummary.New(style.LayoutWidth),
-		StatsSummary:       statssummary.New(style.LayoutWidth / 3),
+		StatsSummary:       statssummary.New(25),
+		SkillSummary:       skillssummary.New(48),
 	}
 
 	m.EquipmentSummaryContainer = widgetcontainer.New(m.EquipmentSummary,
 		lang.L("Equipment"), style.LayoutWidth, 6)
 
 	m.StatsSummaryContainer = widgetcontainer.New(m.StatsSummary,
-		lang.L("Stats"), style.LayoutWidth/3, 11)
+		lang.L("Stats"), 25, 11)
+
+	m.SkillSummaryContainer = widgetcontainer.New(m.SkillSummary,
+		lang.L("Skills"), 48, 25)
 
 	return m
 }
@@ -77,10 +85,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	skillStat := lipgloss.JoinHorizontal(lipgloss.Top,
+		m.StatsSummaryContainer.View(),
+		m.SkillSummaryContainer.View())
+
 	tui := lipgloss.JoinVertical(lipgloss.Center,
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		m.EquipmentSummaryContainer.View(),
-		m.StatsSummaryContainer.View(),
+		skillStat,
 		context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
@@ -139,4 +151,7 @@ func (m *Model) UpdateData() {
 
 	m.StatsSummary.UpdateData(characterInfo)
 	m.StatsSummaryContainer.UpdateContent(m.StatsSummary)
+
+	m.SkillSummary.UpdateData(characterInfo)
+	m.SkillSummaryContainer.UpdateContent(m.SkillSummary)
 }

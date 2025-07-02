@@ -61,7 +61,7 @@ func Init() {
 		key.WithHelp("shift + →/l", "move right step"))
 	Help = key.NewBinding(
 		key.WithKeys("?"),
-		key.WithHelp("?", lang.L("open/close help")))
+		key.WithHelp("?", lang.L("help")))
 	Quit = key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", lang.L("quit")))

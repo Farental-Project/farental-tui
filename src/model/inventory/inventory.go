@@ -35,7 +35,7 @@ func New() Model {
 
 	m.FilterSelectionList.Width = 32
 	m.FilterSelectionList.List.SetWidth(32)
-	m.FilterSelectionList.List.SetHeight(25)
+	m.FilterSelectionList.List.SetHeight(20)
 
 	m.ItemDetail = itemdetail.New(35)
 
