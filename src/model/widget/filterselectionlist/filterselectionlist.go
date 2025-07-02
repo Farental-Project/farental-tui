@@ -82,8 +82,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				ok := m.submit(&m)
 
 				if ok {
-					return context.ContentManager.
-						SwitchContent(m, model.ContentGameDashboard)
+					return m, model.SwitchContentCmd("")
 				}
 
 				return m, nil

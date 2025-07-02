@@ -56,6 +56,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					SwitchContent(m, model.ContentGameDashboard)
 			}
 		}
+
+	case model.SwitchContentMsg:
+		return context.ContentManager.SwitchContent(m, model.ContentGameDashboard)
 	}
 
 	mod, cmd = m.FilterSelectionList.Update(msg)
@@ -67,6 +70,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.FilterSelectionList = modFSL
+
+	context.ContentManager.Update(msg)
 
 	return m, cmd
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"sort"
 	"strings"
 )
 
@@ -24,6 +25,7 @@ type Model struct {
 	LocationType        string
 	LocationBiome       string
 	LocationDescription string
+	LocationFeatures    []string
 
 	BiomeStyle lipgloss.Style
 
@@ -63,6 +65,22 @@ func (m Model) View() string {
 			style.NeutralDimTextStyle.Render(m.LocationType),
 			m.BiomeStyle.Italic(true).Render(m.LocationBiome))))
 
+	if len(m.LocationFeatures) > 0 {
+		top.WriteString("\n")
+
+		str := ""
+
+		for i, f := range m.LocationFeatures {
+			if i > 0 {
+				str += " • "
+			}
+
+			str += f
+		}
+
+		top.WriteString(styleCenterContent.Render(style.DimTextStyle.Render(str)))
+	}
+
 	tui.WriteString(styleBottomBorder.Render(top.String()))
 	tui.WriteString("\n")
 	tui.WriteString(styleCenterContent.
@@ -82,6 +100,19 @@ func (m *Model) UpdateData(locationInfo *api.LocationResponse) {
 	m.LocationBiome = locationInfo.Biome.Name
 	m.BiomeStyle = style.LocationBiomeStyle(locationInfo.Biome.Code)
 	m.LocationDescription = locationInfo.Description
+
+	m.LocationFeatures = make([]string, 0)
+
+	if len(locationInfo.Features) > 0 {
+		sort.Slice(locationInfo.Features, func(i, j int) bool {
+			return locationInfo.Features[i].Name < locationInfo.Features[j].Name
+		})
+
+		for _, f := range locationInfo.Features {
+			m.LocationFeatures = append(m.LocationFeatures, f.Name)
+		}
+	}
+
 	// Set the Width before the render to wrap text
 	m.VPDescription.SetContent(styleCenterContent.
 		Render(m.LocationDescription))

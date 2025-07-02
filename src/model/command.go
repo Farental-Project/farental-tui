@@ -11,6 +11,14 @@ func InitCmd() tea.Msg {
 	return InitMsg(0)
 }
 
+type SwitchContentMsg string
+
+func SwitchContentCmd(nextContent string) tea.Cmd {
+	return func() tea.Msg {
+		return SwitchContentMsg(nextContent)
+	}
+}
+
 type TickMsg struct {
 	Time time.Time
 	Tag  uint
