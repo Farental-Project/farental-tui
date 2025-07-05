@@ -206,7 +206,14 @@ func (m *Model) skipLogin(token string) bool {
 
 	context.Client.SetCookie(&cookie)
 
-	return m.getActiveCharacter()
+	ok := m.getActiveCharacter()
+
+	if !ok {
+		// Clear the bad cookie
+		context.Client.Cookies = make([]*http.Cookie, 0)
+	}
+
+	return ok
 }
 
 func (m *Model) submit() bool {
@@ -253,6 +260,8 @@ func (m *Model) submit() bool {
 	ok := m.getActiveCharacter()
 
 	if !ok {
+		// Clear cookies
+		context.Client.Cookies = make([]*http.Cookie, 0)
 		return false
 	}
 
