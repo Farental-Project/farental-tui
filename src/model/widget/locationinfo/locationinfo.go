@@ -14,9 +14,9 @@ import (
 var (
 	styleCenterContent = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 	styleBottomBorder  = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
-				BorderTop(false).BorderRight(false).BorderLeft(false)
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(style.ColorHighlightDim)).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
 )
 
 type Model struct {
@@ -109,6 +109,10 @@ func (m *Model) UpdateData(locationInfo *api.LocationResponse) {
 		})
 
 		for _, f := range locationInfo.Features {
+			if !f.IsAction {
+				continue
+			}
+
 			m.LocationFeatures = append(m.LocationFeatures, f.Name)
 		}
 	}
