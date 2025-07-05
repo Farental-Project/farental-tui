@@ -2,6 +2,7 @@ package gamedashboard
 
 import (
 	"errors"
+	"farental/core/data"
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/keybind"
@@ -220,7 +221,8 @@ func (m *Model) showLocationService() {
 	m.HelpContainer.Title = lang.L("Location services")
 
 	// Activate keybind based on available features
-
+	context.KeymapManager.SetKeybindVisible(keybind.RKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
 }
 
 func (m *Model) hideLocationService() {
