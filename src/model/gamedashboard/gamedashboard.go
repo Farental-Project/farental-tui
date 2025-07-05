@@ -14,7 +14,6 @@ import (
 	"farental/model/widget/simplelogviewer"
 	"farental/model/widget/widgetcontainer"
 	"farental/style"
-	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -30,6 +29,7 @@ const (
 type Model struct {
 	HelpContainer widgetcontainer.Model
 	ErrMsg        error
+	SuccessMsg    string
 
 	tickTag uint
 
@@ -88,7 +88,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		m.resetError()
+		m.resetMsg()
 
 		switch context.KeymapManager.GetCurrentContext() {
 		case model.ContextGameDashboard:
@@ -142,25 +142,25 @@ func (m Model) View() string {
 		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
 			lipgloss.JoinHorizontal(lipgloss.Center,
 				m.ChatViewerContainer.View(),
-				m.CharactersVisibleContainer.View()),
-			context.KeymapManager.View(style.LayoutWidth)))
+				m.CharactersVisibleContainer.View())))
+
+		m.renderMsg(&bottom)
+
+		bottom.WriteString("\n")
+		bottom.WriteString(context.KeymapManager.View(style.LayoutWidth))
 	} else {
 		bottom.WriteString(m.HelpContainer.ViewContent(
 			context.KeymapManager.ViewAll(
 				context.KeymapManager.GetCurrentContextKeymap(),
 				style.LayoutWidth),
 			lipgloss.Center, lipgloss.Center))
+
+		m.renderMsg(&bottom)
+
 		bottom.WriteString("\n")
 	}
 
-	error := ""
-
-	if m.ErrMsg != nil {
-		error = fmt.Sprintf("%v\n", m.ErrMsg.Error())
-	}
-
 	tui = lipgloss.JoinVertical(lipgloss.Center,
-		style.ErrorStyle.Render(error),
 		style.ContainerStyle.Render(m.RunningTask.View()),
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		style.ContainerStyle.Render(m.LocationInfo.View()),
@@ -183,8 +183,21 @@ func (m *Model) runningTaskError() {
 	}
 }
 
-func (m *Model) resetError() {
+func (m *Model) resetMsg() {
 	m.ErrMsg = nil
+	m.SuccessMsg = ""
+}
+
+func (m *Model) renderMsg(b *strings.Builder) {
+	b.WriteString("\n")
+	if m.ErrMsg != nil || len(m.SuccessMsg) > 0 {
+		switch {
+		case m.ErrMsg != nil:
+			b.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
+		case len(m.SuccessMsg) > 0:
+			b.WriteString(style.TitleStyle.Render(m.SuccessMsg))
+		}
+	}
 }
 
 func (m *Model) claim() {
@@ -308,6 +321,9 @@ func (m *Model) gameKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m *Model) servicesKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch {
+	case key.Matches(msg, keybind.Quit):
+		return m, tea.Quit
+
 	case key.Matches(msg, keybind.Esc):
 		m.hideLocationService()
 
@@ -315,7 +331,7 @@ func (m *Model) servicesKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case key.Matches(msg, keybind.RKey):
 		if context.KeymapManager.IsKeybindVisible(keybind.RKey) {
-			m.ErrMsg = errors.New("OMG YEAH")
+			m.tavernSleep()
 			return m, nil
 		}
 

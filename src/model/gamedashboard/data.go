@@ -12,21 +12,25 @@ import (
 	"time"
 )
 
+// updateErr used as defer to replace the error message only when necessary.
+func (m *Model) updateErr(err *error) {
+	if *err != nil {
+		m.resetMsg()
+		m.ErrMsg = *err
+	}
+}
+
 func (m *Model) UpdateData() {
 	var req *resty.Request
+	var err error
+
+	defer m.updateErr(&err)
 
 	req = request.CharacterGetInfo()
 
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(req)
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
 		return
 	}
 
@@ -43,16 +47,9 @@ func (m *Model) UpdateData() {
 
 	req = request.CharacterGetCurrencyAmount(api.Grynars)
 
-	resp, err = req.Send()
+	resp, err = helper.SendRequest(req)
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
 		return
 	}
 
@@ -81,7 +78,7 @@ func (m *Model) updateEventLog() {
 
 	req.SetQueryParam("lastTimestamp", queryParam)
 
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(req)
 
 	if err != nil {
 		log.Println(err)
@@ -116,12 +113,9 @@ func (m *Model) updateChat() {
 }
 
 func (m *Model) updateCharactersConnected() {
-	var req *resty.Request
 	var str []string
 
-	req = request.LocationGetCharacters()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.LocationGetCharacters())
 
 	if err != nil {
 		log.Println(err)
@@ -145,11 +139,7 @@ func (m *Model) updateCharactersConnected() {
 }
 
 func (m *Model) updateRunningTask() {
-	var req *resty.Request
-
-	req = request.TaskGetRunning()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.TaskGetRunning())
 
 	if err != nil {
 		log.Println(err)
