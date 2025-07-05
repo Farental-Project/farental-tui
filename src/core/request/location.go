@@ -14,3 +14,12 @@ func LocationGetCharacters() *resty.Request {
 
 	return r
 }
+
+func LocationTavernSleep() *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/location/tavern/sleep"
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
