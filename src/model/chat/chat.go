@@ -154,16 +154,10 @@ func (m *Model) sendMessage() {
 		Message: message,
 	}
 
-	resp, err := req.Send()
+	_, err := helper.SendRequest(req)
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
+		m.ErrMsg = err
 		return
 	}
 

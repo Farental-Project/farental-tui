@@ -271,12 +271,10 @@ func (m *Model) submit() bool {
 }
 
 func (m *Model) getActiveCharacter() bool {
-	req := request.CharacterGetActive()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.CharacterGetActive())
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
+		m.ErrMsg = err
 		return false
 	}
 

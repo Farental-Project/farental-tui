@@ -138,18 +138,10 @@ func (m *Model) loadCharacters() {
 	var characters *[]api.CharacterBasicResponse
 	var ok bool
 
-	req := request.CharacterGetAll()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.CharacterGetAll())
 
 	if err != nil {
 		m.ErrMsg = err
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
 		return
 	}
 
@@ -189,16 +181,10 @@ func (m *Model) submit() bool {
 
 	req := request.CharacterSetActive(selectedItem.CharacterID)
 
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(req)
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return false
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
+		m.ErrMsg = err
 		return false
 	}
 

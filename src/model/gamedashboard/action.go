@@ -7,20 +7,11 @@ import (
 )
 
 func (m *Model) tavernSleep() {
-	req := request.LocationTavernSleep()
-
-	resp, err := req.Send()
+	_, err := helper.SendRequest(request.LocationTavernSleep())
 
 	if err != nil {
 		m.hideLocationService()
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
-		m.hideLocationService()
+		m.ErrMsg = err
 		return
 	}
 

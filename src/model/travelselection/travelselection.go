@@ -100,18 +100,10 @@ func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 
 	items = make([]list.Item, 0)
 
-	req := request.TravelGetAvailable()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.TravelGetAvailable())
 
 	if err != nil {
-		fsl.ErrMsg = helper.ConnectionError()
-		return items
-	}
-
-	fsl.ErrMsg = helper.ExtractError(resp)
-
-	if fsl.ErrMsg != nil {
+		fsl.ErrMsg = err
 		return items
 	}
 
@@ -137,16 +129,10 @@ func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 
 	req := request.TravelStart(i.Travel.ID)
 
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(req)
 
 	if err != nil {
-		fsl.ErrMsg = helper.ConnectionError()
-		return false
-	}
-
-	fsl.ErrMsg = helper.ExtractError(resp)
-
-	if fsl.ErrMsg != nil {
+		fsl.ErrMsg = err
 		return false
 	}
 

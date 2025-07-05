@@ -210,18 +210,10 @@ func (m *Model) renderFocus(focus bool, view string) string {
 }
 
 func (m *Model) loadRaces() {
-	req := request.DataGetAllRace()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.DataGetAllRace())
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
+		m.ErrMsg = err
 		return
 	}
 
@@ -245,21 +237,17 @@ func (m *Model) loadRaces() {
 func (m *Model) submit() bool {
 	req := request.CharacterCreate()
 
-	resp, err := req.SetBody(
+	req.SetBody(
 		api.CharacterCreateBody{
 			FirstName: m.FirstnameInput.Value(),
 			LastName:  m.LastnameInput.Value(),
 			RaceID:    m.currentlySelectedRace.data.ID,
-		}).Send()
+		})
+
+	_, err := helper.SendRequest(req)
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return false
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
+		m.ErrMsg = err
 		return false
 	}
 

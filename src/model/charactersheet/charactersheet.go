@@ -17,7 +17,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/go-resty/resty/v2"
 )
 
 type Model struct {
@@ -104,20 +103,10 @@ func (m Model) View() string {
 }
 
 func (m *Model) UpdateData() {
-	var req *resty.Request
-
-	req = request.CharacterGetInfo()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.CharacterGetInfo())
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
+		m.ErrMsg = err
 		return
 	}
 
@@ -127,18 +116,12 @@ func (m *Model) UpdateData() {
 	context.CharacterInfo = characterInfo
 	m.Data = *characterInfo
 
-	req = request.CharacterGetCurrencyAmount(api.Grynars)
+	req := request.CharacterGetCurrencyAmount(api.Grynars)
 
-	resp, err = req.Send()
+	resp, err = helper.SendRequest(req)
 
 	if err != nil {
-		m.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.ErrMsg = helper.ExtractError(resp)
-
-	if m.ErrMsg != nil {
+		m.ErrMsg = err
 		return
 	}
 

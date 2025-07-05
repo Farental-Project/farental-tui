@@ -4,6 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/contentmanager"
+	"farental/internal/helper"
 	"farental/internal/keymapmanager"
 	"farental/style"
 	"fmt"
@@ -53,7 +54,7 @@ func UpdateChat() {
 
 	req.SetQueryParam("lastTimestamp", queryParam)
 
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(req)
 
 	if err != nil {
 		log.Println(err)

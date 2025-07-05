@@ -153,18 +153,10 @@ func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 
 	items = make([]list.Item, 0)
 
-	req := request.InventoryGetFull()
-
-	resp, err := req.Send()
+	resp, err := helper.SendRequest(request.InventoryGetFull())
 
 	if err != nil {
-		fsl.ErrMsg = helper.ConnectionError()
-		return items
-	}
-
-	fsl.ErrMsg = helper.ExtractError(resp)
-
-	if fsl.ErrMsg != nil {
+		fsl.ErrMsg = err
 		return items
 	}
 
@@ -188,16 +180,10 @@ func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 func (m *Model) useItem(selectedItem ListItem, index int) {
 	req := request.InventoryUseItem(selectedItem.Stack.ItemID)
 
-	resp, err := req.Send()
+	_, err := helper.SendRequest(req)
 
 	if err != nil {
-		m.FilterSelectionList.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.FilterSelectionList.ErrMsg = helper.ExtractError(resp)
-
-	if m.FilterSelectionList.ErrMsg != nil {
+		m.FilterSelectionList.ErrMsg = err
 		return
 	}
 
@@ -216,16 +202,10 @@ func (m *Model) useItem(selectedItem ListItem, index int) {
 func (m *Model) equipItem(selectedItem ListItem, index int) {
 	req := request.InventoryEquipItem(selectedItem.Stack.ItemID)
 
-	resp, err := req.Send()
+	_, err := helper.SendRequest(req)
 
 	if err != nil {
-		m.FilterSelectionList.ErrMsg = helper.ConnectionError()
-		return
-	}
-
-	m.FilterSelectionList.ErrMsg = helper.ExtractError(resp)
-
-	if m.FilterSelectionList.ErrMsg != nil {
+		m.FilterSelectionList.ErrMsg = err
 		return
 	}
 

@@ -5,6 +5,7 @@ import (
 	"farental/core/data"
 	"farental/core/request"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
@@ -209,17 +210,10 @@ func (m *Model) claim() {
 		m.runningTaskError()
 	}
 
-	req := request.TaskClaim()
-
-	resp, err := req.Send()
+	_, err := helper.SendRequest(request.TaskClaim())
 
 	if err != nil {
 		log.Println(err)
-		return
-	}
-
-	if resp.StatusCode() != 200 {
-		log.Println(resp.StatusCode(), resp.Error())
 		return
 	}
 

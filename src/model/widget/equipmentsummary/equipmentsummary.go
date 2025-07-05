@@ -113,15 +113,7 @@ func (m *Model) UpdateData() {
 	Equipments = make(map[string]EquipmentSlot)
 
 	// Get all slots
-	req := request.DataGetEquipmentSlots()
-
-	resp, err := req.Send()
-
-	if err != nil {
-		return
-	}
-
-	err = helper.ExtractError(resp)
+	resp, err := helper.SendRequest(request.DataGetEquipmentSlots())
 
 	if err != nil {
 		return
@@ -130,9 +122,7 @@ func (m *Model) UpdateData() {
 	slots = *resp.Result().(*[]api.BasicInfoResponse)
 
 	// Get equipped items
-	req = request.InventoryGetEquippedItems()
-
-	resp, err = req.Send()
+	resp, err = helper.SendRequest(request.InventoryGetEquippedItems())
 
 	if err != nil {
 		return
