@@ -12,4 +12,5 @@ const (
 	ContentCraftSelection     string = "ContentCraftSelection"
 	ContentInventory          string = "ContentInventory"
 	ContentChat               string = "ContentChat"
+	ContentMailbox            string = "ContentMailbox"
 )

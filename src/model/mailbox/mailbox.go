@@ -1,4 +1,4 @@
-package activityselection
+package mailbox
 
 import (
 	"farental/core/data/api"
@@ -25,10 +25,12 @@ func New() Model {
 	m := Model{}
 
 	m.FilterSelectionList = filterselectionlist.New(
-		lang.L("Activity selection"),
+		lang.L("Mailbox"),
 		ListItemDelegate{},
 		m.loadData,
 		m.submit)
+
+	m.FilterSelectionList.CustomEnterDesc = lang.L("open mail")
 
 	return m
 }
@@ -45,7 +47,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListIncDec)
+		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListBasic)
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Esc):
@@ -55,6 +58,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case model.SwitchContentMsg:
+		// TODO: goto mail detail screen (How to pass value to new screen ?)
 		return context.ContentManager.SwitchContent(m, model.ContentGameDashboard)
 	}
 
@@ -92,25 +96,22 @@ func (m Model) View() string {
 }
 
 func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
-	var activities []api.ActivityResponse
+	var mails []api.MailBasicResponse
 	var items []list.Item
 
 	items = make([]list.Item, 0)
 
-	resp, err := helper.SendRequest(request.ActivityGetAvailable())
+	resp, err := helper.SendRequest(request.MailGetAll())
 
 	if err != nil {
 		fsl.ErrMsg = err
 		return items
 	}
 
-	activities = *resp.Result().(*[]api.ActivityResponse)
+	mails = *resp.Result().(*[]api.MailBasicResponse)
 
-	for _, a := range activities {
-		item := ListItem{
-			Activity:      a,
-			DurationIndex: 0,
-		}
+	for _, a := range mails {
+		item := NewListItem(a)
 
 		items = append(items, item)
 	}
@@ -119,30 +120,10 @@ func (m *Model) loadData(fsl *filterselectionlist.Model) []list.Item {
 }
 
 func (m *Model) submit(fsl *filterselectionlist.Model) bool {
-	var durationID uint
+	// TODO: Switch to mail detail screen
+	// For this I need to rework the filter list widget.
+	// I cannot let the component manage the next screen part.
+	// I guess it's all right with the msg I've put into place.
 
-	i, ok := fsl.List.SelectedItem().(ListItem)
-
-	if !ok {
-		return false
-	}
-
-	durationID = 0
-
-	if len(i.Activity.Duration.Durations) > 0 {
-		durationID = i.Activity.Duration.Durations[i.DurationIndex].ID
-	} else {
-		durationID = i.Activity.Duration.Durations[0].ID
-	}
-
-	req := request.ActivityStart(i.Activity.ID, durationID)
-
-	_, err := helper.SendRequest(req)
-
-	if err != nil {
-		fsl.ErrMsg = err
-		return false
-	}
-
-	return true
+	return false
 }

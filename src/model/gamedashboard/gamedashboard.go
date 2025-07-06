@@ -230,6 +230,8 @@ func (m *Model) showLocationService() {
 	// Activate keybind based on available features
 	context.KeymapManager.SetKeybindVisible(keybind.RKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
+	context.KeymapManager.SetKeybindVisible(keybind.MKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureMailbox)))
 }
 
 func (m *Model) hideLocationService() {
@@ -329,6 +331,11 @@ func (m *Model) servicesKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
+	case key.Matches(msg, keybind.MKey):
+		if context.KeymapManager.IsKeybindVisible(keybind.MKey) {
+			return context.ContentManager.SwitchContent(
+				m, model.ContentMailbox)
+		}
 	}
 
 	return nil, nil

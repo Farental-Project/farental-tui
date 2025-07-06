@@ -38,8 +38,9 @@ var (
 	NextPage         key.Binding
 	Use              key.Binding
 	Equip            key.Binding
-	WKey             key.Binding
+	MKey             key.Binding
 	RKey             key.Binding
+	WKey             key.Binding
 )
 
 func Init() {
@@ -139,10 +140,13 @@ func Init() {
 	Equip = key.NewBinding(
 		key.WithKeys("e"),
 		key.WithHelp("e", lang.L("equip")))
-	WKey = key.NewBinding(
-		key.WithKeys("w"),
-		key.WithHelp("w", "w key"))
+	MKey = key.NewBinding(
+		key.WithKeys("m"),
+		key.WithHelp("m", "m key"))
 	RKey = key.NewBinding(
 		key.WithKeys("r"),
 		key.WithHelp("r", "r key"))
+	WKey = key.NewBinding(
+		key.WithKeys("w"),
+		key.WithHelp("w", "w key"))
 }

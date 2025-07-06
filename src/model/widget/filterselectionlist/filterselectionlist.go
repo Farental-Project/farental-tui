@@ -23,6 +23,8 @@ type Model struct {
 
 	ErrMsg error
 
+	CustomEnterDesc string
+
 	loadData func(m *Model) []list.Item
 	submit   func(m *Model) bool
 }
@@ -42,6 +44,7 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func(m *Mode
 	m.List.DisableQuitKeybindings()
 
 	m.Title = title
+	m.CustomEnterDesc = ""
 	m.loadData = loadData
 	m.submit = submit
 	m.showIncreaseDecrease = false
@@ -136,12 +139,12 @@ func (m *Model) updateKeymap() {
 		context.KeymapManager.SetKeybindVisible(keybind.Help, false)
 	case list.FilterApplied:
 		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, lang.L("clear filter"))
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, "")
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, m.CustomEnterDesc)
 		context.KeymapManager.SetKeybindVisible(keybind.Filter, true)
 		context.KeymapManager.SetKeybindVisible(keybind.Help, true)
 	case list.Unfiltered:
 		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, "")
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, "")
+		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, m.CustomEnterDesc)
 		context.KeymapManager.SetKeybindVisible(keybind.Filter, true)
 		context.KeymapManager.SetKeybindVisible(keybind.Help, true)
 	}

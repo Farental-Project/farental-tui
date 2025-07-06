@@ -19,6 +19,7 @@ import (
 	"farental/model/gamedashboard"
 	"farental/model/inventory"
 	"farental/model/login"
+	"farental/model/mailbox"
 	"farental/model/travelselection"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
@@ -78,6 +79,7 @@ func registerContents() {
 	context.ContentManager.RegisterContent(model.ContentInventory, inventory.New())
 	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
+	context.ContentManager.RegisterContent(model.ContentMailbox, mailbox.New())
 }
 
 func registerKeymapContexts() {
@@ -259,6 +261,8 @@ func registerKeymapContexts() {
 	locationServicesKeymap.Style = mainHelpStyle
 	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.RKey, lang.L("sleep in tavern"))
+	locationServicesKeymap.NewKeyBinding(keybind.MKey, true)
+	locationServicesKeymap.SetHelpDesc(keybind.MKey, lang.L("mailbox"))
 	locationServicesKeymap.NewKeyBinding(keybind.Esc, true)
 	locationServicesKeymap.SetHelpDesc(keybind.Esc, lang.L("close"))
 	locationServicesKeymap.NewKeyBinding(keybind.Quit, true)

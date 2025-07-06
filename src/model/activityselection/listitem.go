@@ -23,7 +23,9 @@ func (i ListItem) FilterValue() string {
 	var b strings.Builder
 
 	b.WriteString(i.Activity.Name)
+	b.WriteString(" ")
 	b.WriteString(i.Activity.Description)
+	b.WriteString(" ")
 	b.WriteString(i.Activity.Skill.Name)
 
 	return b.String()
