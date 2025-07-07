@@ -1,6 +1,7 @@
 package charactervitalinfo
 
 import (
+	"farental/art"
 	"farental/core/data/api"
 	"farental/internal/lang"
 	"farental/style"
@@ -74,7 +75,7 @@ func (m Model) View() string {
 	center.WriteString("\n")
 	center.WriteString(style.TextStyle.Foreground(
 		lipgloss.Color(style.ColorHighlight)).
-		Render(fmt.Sprintf("%d Ǥ", m.Money)))
+		Render(fmt.Sprintf("%d %c", m.Money, art.CharGrynars)))
 	center.WriteString("\n")
 	center.WriteString(style.TextStyle.Foreground(
 		lipgloss.Color(style.ColorSpecialHighlight)).

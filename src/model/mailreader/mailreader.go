@@ -1,6 +1,7 @@
 package mailreader
 
 import (
+	"farental/art"
 	"farental/core/data/api"
 	"farental/internal/context"
 	"farental/internal/keybind"
@@ -28,8 +29,8 @@ type Model struct {
 func New() Model {
 	m := Model{}
 
-	m.widthLeft = style.LayoutWidth - 20
-	m.widthRight = 18
+	m.widthLeft = style.LayoutWidth - 30
+	m.widthRight = 24
 
 	m.VPContent = viewport.New(m.widthLeft, 20)
 
@@ -86,9 +87,24 @@ func (m Model) View() string {
 	left.WriteString("\n")
 	left.WriteString(m.VPContent.View())
 
-	right.WriteString("")
+	if !m.Mail.HaveAttachments && m.Mail.MoneyAmount == 0 {
+		right.WriteString(style.TextStyle.Width(m.widthRight).
+			Render("No attachments"))
+	} else {
+		if m.Mail.MoneyAmount > 0 {
+			right.WriteString(fmt.Sprintf("%d %s", m.Mail.MoneyAmount,
+				style.HighlightStyle.Render(string(art.CharGrynars))))
+		}
 
-	tui := lipgloss.JoinHorizontal(lipgloss.Center,
+		right.WriteString("\n")
+
+		if right.Len() > 0 {
+			right.WriteString(style.DimBottomBorderStyle.
+				Width(m.widthRight).Render("\n"))
+		}
+	}
+
+	tui := lipgloss.JoinHorizontal(lipgloss.Top,
 		style.ContainerStyle.Render(left.String()),
 		style.ContainerStyle.Render(right.String()))
 
