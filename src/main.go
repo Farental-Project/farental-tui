@@ -20,6 +20,7 @@ import (
 	"farental/model/inventory"
 	"farental/model/login"
 	"farental/model/mailbox"
+	"farental/model/mailreader"
 	"farental/model/travelselection"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
@@ -60,7 +61,7 @@ func main() {
 
 	context.ContentManager.SwitchContent(nil, model.ContentLogin) // ContentLogin
 
-	p := tea.NewProgram(context.ContentManager.GetCurrentModel(), tea.WithAltScreen())
+	p := tea.NewProgram(context.ContentManager.GetCurrentContent(), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
@@ -80,6 +81,7 @@ func registerContents() {
 	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
 	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
 	context.ContentManager.RegisterContent(model.ContentMailbox, mailbox.New())
+	context.ContentManager.RegisterContent(model.ContentMailReader, mailreader.New())
 }
 
 func registerKeymapContexts() {

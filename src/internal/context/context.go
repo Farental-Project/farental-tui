@@ -23,7 +23,7 @@ var (
 	CharacterInfo *api.CharacterInfoResponse
 	RunningTask   *api.TaskResponse
 
-	// ChatContent is in the context because it need to stay coherent between gamedashboard and chat model.
+	// ChatContent is in the context because it needs to stay coherent between gamedashboard and chat model.
 	ChatContent       []string
 	LastChatTimestamp time.Time
 )

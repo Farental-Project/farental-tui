@@ -43,7 +43,17 @@ func (m *Manager) SwitchContent(currentContent tea.Model, code string) (tea.Mode
 	return m.Contents[m.CurrentCode], cmd
 }
 
-func (m *Manager) GetCurrentModel() tea.Model {
+func (m *Manager) GetContent(code string) tea.Model {
+	_, ok := m.Contents[code]
+
+	if !ok {
+		return nil
+	}
+
+	return m.Contents[code]
+}
+
+func (m *Manager) GetCurrentContent() tea.Model {
 	return m.Contents[m.CurrentCode]
 }
 
@@ -64,6 +74,14 @@ func (m *Manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *Manager) UpdateCurrentContent(content tea.Model) {
 	m.Contents[m.CurrentCode] = content
+}
+
+func (m *Manager) UpdateContent(code string, content tea.Model) {
+	if _, ok := m.Contents[code]; !ok {
+		return
+	}
+
+	m.Contents[code] = content
 }
 
 func (m Manager) View() string {

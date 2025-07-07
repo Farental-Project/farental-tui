@@ -19,6 +19,8 @@ import (
 
 type Model struct {
 	FilterSelectionList filterselectionlist.Model
+
+	SelectedMail *api.MailBasicResponse
 }
 
 func New() Model {
@@ -59,7 +61,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case model.SwitchContentMsg:
 		// TODO: goto mail detail screen (How to pass value to new screen ?)
-		return context.ContentManager.SwitchContent(m, model.ContentGameDashboard)
+		return context.ContentManager.SwitchContent(m, model.ContentMailReader)
 	}
 
 	mod, cmd = m.FilterSelectionList.Update(msg)
@@ -71,6 +73,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.FilterSelectionList = modFSL
+
+	mail := m.FilterSelectionList.List.SelectedItem().(ListItem).Mail
+
+	m.SelectedMail = &mail
 
 	context.ContentManager.Update(msg)
 
@@ -125,5 +131,5 @@ func (m *Model) submit(fsl *filterselectionlist.Model) bool {
 	// I cannot let the component manage the next screen part.
 	// I guess it's all right with the msg I've put into place.
 
-	return false
+	return true
 }
