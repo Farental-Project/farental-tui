@@ -38,3 +38,8 @@ type MailBasicResponse struct {
 	MoneyAmount      int
 	HaveAttachments  bool
 }
+
+type MailAttachmentResponse struct {
+	ItemName string
+	Amount   int
+}

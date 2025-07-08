@@ -3,7 +3,9 @@ package mailreader
 import (
 	"farental/art"
 	"farental/core/data/api"
+	"farental/core/request"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
@@ -19,7 +21,9 @@ import (
 
 type Model struct {
 	Mail        *api.MailBasicResponse
-	Attachments []api.MailAttachment
+	Attachments []api.MailAttachmentResponse
+
+	ErrMsg error
 
 	VPContent viewport.Model
 
@@ -54,6 +58,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.VPContent.SetContent(m.Mail.Content)
 
+		m.updateAttachments()
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Quit):
@@ -69,7 +75,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var left, right strings.Builder
+	var left, right, tui strings.Builder
 
 	if m.Mail == nil {
 		return ""
@@ -98,20 +104,58 @@ func (m Model) View() string {
 
 		right.WriteString("\n")
 
+		if len(m.Attachments) > 0 {
+			right.WriteString("\n")
+			for i, a := range m.Attachments {
+				if i > 0 {
+					right.WriteString("\n")
+				}
+
+				right.WriteString(fmt.Sprintf("%c %dx %s",
+					art.CharBullet, a.Amount, a.ItemName))
+			}
+		}
+
 		if right.Len() > 0 {
+			right.WriteString("\n")
 			right.WriteString(style.DimBottomBorderStyle.
-				Width(m.widthRight).Render("\n"))
+				Width(m.widthRight).Render(""))
 		}
 	}
 
-	tui := lipgloss.JoinHorizontal(lipgloss.Top,
+	tui.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
 		style.ContainerStyle.Render(left.String()),
-		style.ContainerStyle.Render(right.String()))
+		style.ContainerStyle.Render(right.String())))
+
+	if m.ErrMsg != nil {
+		tui.WriteString("\n")
+		tui.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
+	}
+
+	tui.WriteString("\n")
+	tui.WriteString(context.KeymapManager.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,
 		context.ContentManager.ScreenHeight,
 		lipgloss.Center, lipgloss.Center,
-		tui,
+		tui.String(),
 	)
+}
+
+func (m *Model) updateAttachments() {
+	if m.Mail == nil {
+		return
+	}
+
+	req := request.MailGetAttachments(m.Mail.ID)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		m.ErrMsg = err
+		return
+	}
+
+	m.Attachments = *resp.Result().(*[]api.MailAttachmentResponse)
 }
