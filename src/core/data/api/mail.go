@@ -36,6 +36,7 @@ type MailBasicResponse struct {
 	IsAgainstPayment bool
 	IsRead           bool
 	MoneyAmount      int
+	PaymentAmount    int
 	HaveAttachments  bool
 }
 
