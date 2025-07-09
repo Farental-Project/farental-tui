@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/spf13/viper"
 	"io"
 	"strings"
 )
@@ -22,6 +23,8 @@ func NewListItem(mail api.MailBasicResponse) ListItem {
 func (i ListItem) FilterValue() string {
 	var b strings.Builder
 
+	b.WriteString(i.Mail.DeliveredAt.Format(viper.GetString("datetimeformat")))
+	b.WriteString(" ")
 	b.WriteString(i.Mail.SenderName)
 	b.WriteString(" ")
 	b.WriteString(i.Mail.Subject)
@@ -53,6 +56,8 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 		s = style.BlurredStyle
 	}
 
+	left.WriteString(style.NormalStyle.Render(fmt.Sprint(i.Mail.DeliveredAt.Format(viper.GetString("datetimeformat")))))
+	left.WriteString("\n")
 	left.WriteString(style.TitleStyle.Render(i.Mail.SenderName))
 	left.WriteString("\n")
 	left.WriteString(style.DimTextStyle.Render(i.Mail.Subject))
@@ -76,7 +81,7 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 }
 
 func (l ListItemDelegate) Height() int {
-	return 2
+	return 3
 }
 
 func (l ListItemDelegate) Spacing() int {

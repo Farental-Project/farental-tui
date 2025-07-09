@@ -50,6 +50,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
+		context.KeymapManager.SwitchContext(model.ContextMailReader)
+
 		content := context.ContentManager.GetContent(model.ContentMailbox)
 
 		mailbox := content.(mailbox.Model)
@@ -59,6 +61,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.VPContent.SetContent(m.Mail.Content)
 
 		m.updateAttachments()
+
+		m.updateKeymap()
 
 	case tea.KeyMsg:
 		switch {
@@ -116,10 +120,18 @@ func (m Model) View() string {
 			}
 		}
 
-		if right.Len() > 0 {
+		if right.Len() > 0 && m.Mail.IsAgainstPayment {
 			right.WriteString("\n")
 			right.WriteString(style.DimBottomBorderStyle.
 				Width(m.widthRight).Render(""))
+		}
+
+		if m.Mail.IsAgainstPayment {
+			right.WriteString("\n")
+			right.WriteString(style.TextStyle.Width(m.widthRight).
+				Render(fmt.Sprintf(
+					lang.L("The sender ask you to pay %d %c to access the attachments."),
+					m.Mail.PaymentAmount, art.CharGrynars)))
 		}
 	}
 
@@ -158,4 +170,15 @@ func (m *Model) updateAttachments() {
 	}
 
 	m.Attachments = *resp.Result().(*[]api.MailAttachmentResponse)
+}
+
+func (m Model) updateKeymap() {
+	if !m.Mail.IsAgainstPayment {
+		context.KeymapManager.SetKeybindVisible(keybind.PKey, false)
+	}
+
+	if m.Mail.IsAgainstPayment || (len(m.Attachments) == 0 && m.Mail.MoneyAmount == 0) {
+		context.KeymapManager.SetKeybindVisible(keybind.TKey, false)
+	}
+
 }

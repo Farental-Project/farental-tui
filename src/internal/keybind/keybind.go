@@ -39,7 +39,9 @@ var (
 	Use              key.Binding
 	Equip            key.Binding
 	MKey             key.Binding
+	PKey             key.Binding
 	RKey             key.Binding
+	TKey             key.Binding
 	WKey             key.Binding
 )
 
@@ -143,9 +145,15 @@ func Init() {
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))
+	PKey = key.NewBinding(
+		key.WithKeys("p"),
+		key.WithHelp("p", "p key"))
 	RKey = key.NewBinding(
 		key.WithKeys("r"),
 		key.WithHelp("r", "r key"))
+	TKey = key.NewBinding(
+		key.WithKeys("t"),
+		key.WithHelp("t", "t key"))
 	WKey = key.NewBinding(
 		key.WithKeys("w"),
 		key.WithHelp("w", "w key"))

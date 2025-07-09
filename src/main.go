@@ -270,4 +270,16 @@ func registerKeymapContexts() {
 	locationServicesKeymap.NewKeyBinding(keybind.Quit, true)
 
 	context.KeymapManager.RegisterContext(model.ContextLocationServices, locationServicesKeymap)
+
+	mailReaderKeymap := keymapmanager.NewKeymap(3)
+	mailReaderKeymap.Style = mainHelpStyle
+	mailReaderKeymap.NewKeyBinding(keybind.PKey, true)
+	mailReaderKeymap.SetHelpDesc(keybind.PKey, lang.L("pay the sender"))
+	mailReaderKeymap.NewKeyBinding(keybind.TKey, true)
+	mailReaderKeymap.SetHelpDesc(keybind.TKey, lang.L("transfer all attachments"))
+	mailReaderKeymap.NewKeyBinding(keybind.Esc, true)
+	mailReaderKeymap.NewKeyBinding(keybind.Quit, false)
+	mailReaderKeymap.NewKeyBinding(keybind.Help, true)
+
+	context.KeymapManager.RegisterContext(model.ContextMailReader, mailReaderKeymap)
 }

@@ -31,6 +31,7 @@ func Init() {
 	viper.SetDefault("language", "en")
 	viper.SetDefault("lastusedemail", "")
 	viper.SetDefault("logintoken", "")
+	viper.SetDefault("datetimeformat", "02.01.2006 15:04")
 
 	viper.SetConfigName("farental")
 	viper.SetConfigType("toml")

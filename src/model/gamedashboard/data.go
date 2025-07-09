@@ -8,6 +8,7 @@ import (
 	"farental/style"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 	"log"
 	"time"
 )
@@ -94,7 +95,7 @@ func (m *Model) updateEventLog() {
 	for _, entry := range eventLog.Entries {
 		m.EventLogViewer.AddContent(fmt.Sprintf("%s - %s",
 			style.TitleStyle.Render(
-				entry.Timestamp.Format("01.02.2006 15:04:05")),
+				entry.Timestamp.Format(viper.GetString("datetimeformat"))),
 			entry.Value))
 	}
 
