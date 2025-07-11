@@ -16,6 +16,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"net/http"
 	"strings"
 )
 
@@ -65,11 +66,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateKeymap()
 
 	case tea.KeyMsg:
+		m.ErrMsg = nil
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
+
+		case key.Matches(msg, keybind.Help):
+			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+
+			return m, nil
+
 		case key.Matches(msg, keybind.Esc):
 			return context.ContentManager.Back(m)
+
+		case key.Matches(msg, keybind.PKey):
+			if context.KeymapManager.IsKeybindVisible(keybind.PKey) {
+				m.payMail()
+
+				return m, nil
+			}
+
+		case key.Matches(msg, keybind.TKey):
+			if context.KeymapManager.IsKeybindVisible(keybind.TKey) {
+				m.transferAttachments()
+
+				return m, nil
+			}
 		}
 	}
 
@@ -98,8 +120,7 @@ func (m Model) View() string {
 	left.WriteString(m.VPContent.View())
 
 	if !m.Mail.HaveAttachments && m.Mail.MoneyAmount == 0 {
-		right.WriteString(style.TextStyle.Width(m.widthRight).
-			Render("No attachments"))
+		right.WriteString("No attachments")
 	} else {
 		if m.Mail.MoneyAmount > 0 {
 			right.WriteString(fmt.Sprintf("%d %s", m.Mail.MoneyAmount,
@@ -127,7 +148,7 @@ func (m Model) View() string {
 		}
 
 		if m.Mail.IsAgainstPayment {
-			right.WriteString("\n")
+			right.WriteString("\n\n")
 			right.WriteString(style.TextStyle.Width(m.widthRight).
 				Render(fmt.Sprintf(
 					lang.L("The sender ask you to pay %d %c to access the attachments."),
@@ -136,11 +157,12 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
-		style.ContainerStyle.Render(left.String()),
-		style.ContainerStyle.Render(right.String())))
+		style.ContainerStyle.Width(m.widthLeft).Render(left.String()),
+		style.ContainerStyle.Width(m.widthRight).Render(right.String())))
+
+	tui.WriteString("\n")
 
 	if m.ErrMsg != nil {
-		tui.WriteString("\n")
 		tui.WriteString(style.ErrorStyle.Render(m.ErrMsg.Error()))
 	}
 
@@ -153,6 +175,21 @@ func (m Model) View() string {
 		lipgloss.Center, lipgloss.Center,
 		tui.String(),
 	)
+}
+
+func (m *Model) updateData() {
+	req := request.MailGetOne(m.Mail.ID)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		m.ErrMsg = err
+		return
+	}
+
+	mail := resp.Result().(*api.MailBasicResponse)
+
+	m.Mail = mail
 }
 
 func (m *Model) updateAttachments() {
@@ -181,4 +218,37 @@ func (m Model) updateKeymap() {
 		context.KeymapManager.SetKeybindVisible(keybind.TKey, false)
 	}
 
+}
+
+func (m *Model) payMail() {
+	req := request.MailPay(m.Mail.ID)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		m.ErrMsg = err
+		return
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		m.updateData()
+		m.updateKeymap()
+	}
+}
+
+func (m *Model) transferAttachments() {
+	req := request.MailTransferAttachments(m.Mail.ID)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		m.ErrMsg = err
+		return
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		m.updateData()
+		m.updateAttachments()
+		m.updateKeymap()
+	}
 }

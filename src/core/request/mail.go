@@ -16,12 +16,43 @@ func MailGetAll() *resty.Request {
 	return r
 }
 
+func MailGetOne(mailID uint) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodGet
+	r.URL = "/mail/one"
+	r.SetQueryParam("mailID", fmt.Sprint(mailID))
+	r.SetResult(api.MailBasicResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func MailGetAttachments(mailID uint) *resty.Request {
 	r := client.R()
-	r.Method = resty.MethodPost
+	r.Method = resty.MethodGet
 	r.URL = "/mail/attachments"
 	r.SetQueryParam("mailID", fmt.Sprint(mailID))
 	r.SetResult([]api.MailAttachmentResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
+func MailTransferAttachments(mailID uint) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/mail/transferAttachments"
+	r.SetBody(api.IDBody{ID: mailID})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
+func MailPay(mailID uint) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/mail/pay"
+	r.SetBody(api.IDBody{ID: mailID})
 	r.SetError(api.ErrorResponse{})
 
 	return r

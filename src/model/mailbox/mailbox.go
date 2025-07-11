@@ -74,9 +74,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.FilterSelectionList = modFSL
 
-	mail := m.FilterSelectionList.List.SelectedItem().(ListItem).Mail
+	mail, ok := m.FilterSelectionList.List.SelectedItem().(ListItem)
 
-	m.SelectedMail = &mail
+	if ok {
+		m.SelectedMail = &mail.Mail
+	}
 
 	context.ContentManager.Update(msg)
 
