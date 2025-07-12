@@ -71,6 +71,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		context.KeymapManager.SwitchContext(model.ContextLogin)
 
+		context.Client.Cookies = make([]*http.Cookie, 0)
+
 		loginToken = viper.GetString("logintoken")
 
 		if loginToken != "" {
@@ -257,13 +259,7 @@ func (m *Model) submit() bool {
 		log.Println(lang.L("could not save config : "), err)
 	}
 
-	ok := m.getActiveCharacter()
-
-	if !ok {
-		// Clear cookies
-		context.Client.Cookies = make([]*http.Cookie, 0)
-		return false
-	}
+	m.getActiveCharacter()
 
 	m.Inputs[1].SetValue("")
 
