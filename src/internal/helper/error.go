@@ -11,7 +11,7 @@ import (
 func ExtractError(resp *resty.Response) error {
 	var b strings.Builder
 
-	if resp.StatusCode() == 200 {
+	if resp.StatusCode() == 200 || resp.StatusCode() == 201 {
 		return nil
 	}
 

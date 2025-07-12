@@ -57,3 +57,16 @@ func MailPay(mailID uint) *resty.Request {
 
 	return r
 }
+
+func MailSetRead(mailID uint, read bool) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPut
+	r.URL = "/mail/setRead"
+	r.SetBody(api.MailSetReadBody{
+		ID:     mailID,
+		IsRead: read,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}

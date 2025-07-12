@@ -65,6 +65,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.updateKeymap()
 
+		m.changeReadStatus(true)
+
 	case tea.KeyMsg:
 		m.ErrMsg = nil
 		switch {
@@ -92,6 +94,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, nil
 			}
+
+		case key.Matches(msg, keybind.RKey):
+			m.changeReadStatus(!m.Mail.IsRead)
 		}
 	}
 
@@ -102,14 +107,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var left, right, tui strings.Builder
+	var readStatus string
+	var from string
 
 	if m.Mail == nil {
 		return ""
 	}
 
-	left.WriteString(fmt.Sprintf("%s : %s",
+	readStatus = ""
+
+	if !m.Mail.IsRead {
+		readStatus = string(art.CharBullet)
+	}
+
+	from = fmt.Sprintf("%s : %s",
 		style.TitleStyle.Render(lang.L("From")),
-		m.Mail.SenderName))
+		m.Mail.SenderName)
+
+	left.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
+		style.TextStyle.Width(m.widthLeft-2).
+			AlignHorizontal(lipgloss.Left).
+			Render(from),
+		style.TextStyle.Width(1).
+			AlignHorizontal(lipgloss.Right).
+			Render(readStatus)))
 	left.WriteString("\n")
 	left.WriteString(style.DimBottomBorderStyle.
 		Width(m.widthLeft).
@@ -249,6 +270,22 @@ func (m *Model) transferAttachments() {
 	if resp.StatusCode() == http.StatusOK {
 		m.updateData()
 		m.updateAttachments()
+		m.updateKeymap()
+	}
+}
+
+func (m *Model) changeReadStatus(read bool) {
+	req := request.MailSetRead(m.Mail.ID, read)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		m.ErrMsg = err
+		return
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		m.updateData()
 		m.updateKeymap()
 	}
 }
