@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 type Model struct {
@@ -93,7 +94,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, keybind.Help):
-			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
 		}
 	}
 
@@ -134,19 +135,19 @@ func (m *Model) UpdateData() {
 func (m *Model) updateKeymap() {
 	switch m.List.FilterState() {
 	case list.Filtering:
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, lang.L("cancel"))
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, lang.L("apply"))
-		context.KeymapManager.SetKeybindVisible(keybind.Filter, false)
-		context.KeymapManager.SetKeybindVisible(keybind.Help, false)
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lang.L("cancel"))
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, lang.L("apply"))
+		bubblehelp.SetKeybindVisible(keybind.Filter, false)
+		bubblehelp.SetKeybindVisible(keybind.Help, false)
 	case list.FilterApplied:
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, lang.L("clear filter"))
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, m.CustomEnterDesc)
-		context.KeymapManager.SetKeybindVisible(keybind.Filter, true)
-		context.KeymapManager.SetKeybindVisible(keybind.Help, true)
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lang.L("clear filter"))
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, m.CustomEnterDesc)
+		bubblehelp.SetKeybindVisible(keybind.Filter, true)
+		bubblehelp.SetKeybindVisible(keybind.Help, true)
 	case list.Unfiltered:
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Esc, "")
-		context.KeymapManager.UpdateKeybindHelpDesc(keybind.Enter, m.CustomEnterDesc)
-		context.KeymapManager.SetKeybindVisible(keybind.Filter, true)
-		context.KeymapManager.SetKeybindVisible(keybind.Help, true)
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, "")
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, m.CustomEnterDesc)
+		bubblehelp.SetKeybindVisible(keybind.Filter, true)
+		bubblehelp.SetKeybindVisible(keybind.Help, true)
 	}
 }

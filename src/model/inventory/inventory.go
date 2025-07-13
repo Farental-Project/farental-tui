@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"strings"
 )
 
@@ -54,7 +55,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msgType := msg.(type) {
 	case model.InitMsg:
-		context.KeymapManager.SwitchContext(model.ContextInventory)
+		bubblehelp.SwitchContext(model.ContextInventory)
 
 		m.FilterSelectionList.UpdateData()
 		m.ItemDetail.UpdateData(nil)
@@ -137,7 +138,7 @@ func (m Model) View() string {
 	b.WriteString("\n")
 	b.WriteString(m.FilterSelectionList.ViewError())
 	b.WriteString("\n")
-	b.WriteString(context.KeymapManager.View(style.LayoutWidth))
+	b.WriteString(bubblehelp.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,
@@ -218,20 +219,20 @@ func (m *Model) equipItem(selectedItem ListItem, index int) {
 
 func (m *Model) updateKeybind(item *api.ItemResponse) {
 	if item == nil {
-		context.KeymapManager.SetKeybindVisible(keybind.Use, false)
-		context.KeymapManager.SetKeybindVisible(keybind.Equip, false)
+		bubblehelp.SetKeybindVisible(keybind.Use, false)
+		bubblehelp.SetKeybindVisible(keybind.Equip, false)
 		return
 	}
 
 	if item.IsUsable {
-		context.KeymapManager.SetKeybindVisible(keybind.Use, true)
+		bubblehelp.SetKeybindVisible(keybind.Use, true)
 	} else {
-		context.KeymapManager.SetKeybindVisible(keybind.Use, false)
+		bubblehelp.SetKeybindVisible(keybind.Use, false)
 	}
 
 	if item.EquipmentSlot != nil {
-		context.KeymapManager.SetKeybindVisible(keybind.Equip, true)
+		bubblehelp.SetKeybindVisible(keybind.Equip, true)
 	} else {
-		context.KeymapManager.SetKeybindVisible(keybind.Equip, false)
+		bubblehelp.SetKeybindVisible(keybind.Equip, false)
 	}
 }

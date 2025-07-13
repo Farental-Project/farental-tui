@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"strings"
 )
 
@@ -90,7 +91,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.RaceInput.SetSelectedIndex(0)
 		m.currentlySelectedRace = m.RaceInput.GetSelectedValue()
 
-		context.KeymapManager.SwitchContext(model.ContextCharacterCreation)
+		bubblehelp.SwitchContext(model.ContextCharacterCreation)
 
 		return m, nil
 	case tea.KeyMsg:
@@ -172,7 +173,7 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString("\n\n\n")
-	tui.WriteString(context.KeymapManager.View(style.LayoutWidth))
+	tui.WriteString(bubblehelp.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,

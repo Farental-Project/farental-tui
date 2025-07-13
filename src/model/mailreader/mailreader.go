@@ -16,6 +16,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"net/http"
 	"strings"
 )
@@ -51,7 +52,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		context.KeymapManager.SwitchContext(model.ContextMailReader)
+		bubblehelp.SwitchContext(model.ContextMailReader)
 
 		content := context.ContentManager.GetContent(model.ContentMailbox)
 
@@ -74,7 +75,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, keybind.Help):
-			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
 
 			return m, nil
 
@@ -82,14 +83,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return context.ContentManager.Back(m)
 
 		case key.Matches(msg, keybind.PKey):
-			if context.KeymapManager.IsKeybindVisible(keybind.PKey) {
+			if bubblehelp.IsKeybindVisible(keybind.PKey) {
 				m.payMail()
 
 				return m, nil
 			}
 
 		case key.Matches(msg, keybind.TKey):
-			if context.KeymapManager.IsKeybindVisible(keybind.TKey) {
+			if bubblehelp.IsKeybindVisible(keybind.TKey) {
 				m.transferAttachments()
 
 				return m, nil
@@ -188,7 +189,7 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString("\n")
-	tui.WriteString(context.KeymapManager.View(style.LayoutWidth))
+	tui.WriteString(bubblehelp.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,
@@ -232,11 +233,11 @@ func (m *Model) updateAttachments() {
 
 func (m Model) updateKeymap() {
 	if !m.Mail.IsAgainstPayment {
-		context.KeymapManager.SetKeybindVisible(keybind.PKey, false)
+		bubblehelp.SetKeybindVisible(keybind.PKey, false)
 	}
 
 	if m.Mail.IsAgainstPayment || (len(m.Attachments) == 0 && m.Mail.MoneyAmount == 0) {
-		context.KeymapManager.SetKeybindVisible(keybind.TKey, false)
+		bubblehelp.SetKeybindVisible(keybind.TKey, false)
 	}
 
 }

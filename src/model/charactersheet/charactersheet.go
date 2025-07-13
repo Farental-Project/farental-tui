@@ -17,6 +17,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 type Model struct {
@@ -75,7 +76,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case model.InitMsg:
 		m.UpdateData()
 
-		context.KeymapManager.SwitchContext(model.ContextCharacterSheet)
+		bubblehelp.SwitchContext(model.ContextCharacterSheet)
 	}
 
 	context.ContentManager.Update(msg)
@@ -92,7 +93,7 @@ func (m Model) View() string {
 		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
 		m.EquipmentSummaryContainer.View(),
 		skillStat,
-		context.KeymapManager.View(style.LayoutWidth))
+		bubblehelp.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,

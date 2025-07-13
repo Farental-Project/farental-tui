@@ -16,6 +16,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
@@ -69,7 +70,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var lastUsedEmail string
 		var loginToken string
 
-		context.KeymapManager.SwitchContext(model.ContextLogin)
+		bubblehelp.SwitchContext(model.ContextLogin)
 
 		context.Client.Cookies = make([]*http.Cookie, 0)
 
@@ -137,7 +138,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, cmd
 		case key.Matches(msg, keybind.Help):
-			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
 
 			return m, nil
 		}
@@ -191,7 +192,7 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString("\n\n\n")
-	tui.WriteString(context.KeymapManager.View(style.LayoutWidth))
+	tui.WriteString(bubblehelp.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,

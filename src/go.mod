@@ -1,12 +1,13 @@
 module farental
 
-go 1.24.3
+go 1.24.5
 
 require (
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/go-resty/resty/v2 v2.16.5
+	github.com/halsten-dev/bubblehelp v1.0.0
 	github.com/jeandeaual/go-locale v0.0.0-20250421151639-a9d6ed1b3d45
 	github.com/nicksnyder/go-i18n/v2 v2.6.0
 	github.com/spf13/viper v1.20.1

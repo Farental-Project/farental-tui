@@ -17,6 +17,7 @@ import (
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"time"
 )
 
@@ -80,7 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LogContainer.Title = fmt.Sprintf("%s - %s",
 			lang.L("Chat"), context.CharacterInfo.Location.Name)
 
-		context.KeymapManager.SwitchContext(model.ContextChat)
+		bubblehelp.SwitchContext(model.ContextChat)
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
 			return m, nil
@@ -133,7 +134,7 @@ func (m Model) View() string {
 			m.LogContainer.View(),
 			m.Input.View(),
 			errorMessage,
-			context.KeymapManager.View(style.LayoutWidth)))
+			bubblehelp.View(style.LayoutWidth)))
 }
 
 func (m *Model) sendMessage() {

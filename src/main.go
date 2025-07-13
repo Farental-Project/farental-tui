@@ -6,7 +6,6 @@ import (
 	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/keybind"
-	"farental/internal/keymapmanager"
 	"farental/internal/lang"
 	"farental/model"
 	"farental/model/activityselection"
@@ -24,6 +23,7 @@ import (
 	"farental/model/travelselection"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
 	"log"
 
@@ -55,6 +55,8 @@ func main() {
 
 	keybind.Init()
 
+	bubblehelp.Init()
+
 	registerContents()
 
 	registerKeymapContexts()
@@ -85,7 +87,7 @@ func registerContents() {
 }
 
 func registerKeymapContexts() {
-	mainHelpStyle := keymapmanager.Style{
+	mainHelpStyle := bubblehelp.Style{
 		EssentialKey:               style.NeutralLessDimTextStyle.Bold(true),
 		EssentialKeyDescription:    style.NeutralDimTextStyle,
 		EssentialKeySeparator:      style.NeutralDimTextStyle,
@@ -100,7 +102,7 @@ func registerKeymapContexts() {
 		FullColSeparatorValue:      "  ",
 	}
 
-	loginKeymap := keymapmanager.NewKeymap(2)
+	loginKeymap := bubblehelp.NewKeymap(2)
 	loginKeymap.Style = mainHelpStyle
 	loginKeymap.NewKeyBinding(keybind.Tab, false)
 	loginKeymap.NewKeyBinding(keybind.ShiftTab, false)
@@ -108,9 +110,9 @@ func registerKeymapContexts() {
 	loginKeymap.NewKeyBinding(keybind.Quit, true)
 	loginKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextLogin, loginKeymap)
+	bubblehelp.RegisterContext(model.ContextLogin, loginKeymap)
 
-	characterSelectionKeymap := keymapmanager.NewKeymap(2)
+	characterSelectionKeymap := bubblehelp.NewKeymap(2)
 	characterSelectionKeymap.Style = mainHelpStyle
 	characterSelectionKeymap.NewKeyBinding(keybind.Up, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Down, false)
@@ -121,9 +123,9 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextCharacterSel, characterSelectionKeymap)
+	bubblehelp.RegisterContext(model.ContextCharacterSel, characterSelectionKeymap)
 
-	characterCreationKeymap := keymapmanager.NewKeymap(2)
+	characterCreationKeymap := bubblehelp.NewKeymap(2)
 	characterCreationKeymap.Style = mainHelpStyle
 	characterCreationKeymap.NewKeyBinding(keybind.Tab, true)
 	characterCreationKeymap.NewKeyBinding(keybind.ShiftTab, true)
@@ -131,9 +133,9 @@ func registerKeymapContexts() {
 	characterCreationKeymap.NewKeyBinding(keybind.Esc, true)
 	characterCreationKeymap.NewKeyBinding(keybind.Quit, true)
 
-	context.KeymapManager.RegisterContext(model.ContextCharacterCreation, characterCreationKeymap)
+	bubblehelp.RegisterContext(model.ContextCharacterCreation, characterCreationKeymap)
 
-	gameDashboardKeymap := keymapmanager.NewKeymap(2)
+	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle
 	gameDashboardKeymap.NewKeyBinding(keybind.Travels, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Activities, false)
@@ -149,9 +151,9 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.NewKeyBinding(keybind.Quit, true)
 	gameDashboardKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextGameDashboard, gameDashboardKeymap)
+	bubblehelp.RegisterContext(model.ContextGameDashboard, gameDashboardKeymap)
 
-	filterSelListBasicKeymap := keymapmanager.NewKeymap(3)
+	filterSelListBasicKeymap := bubblehelp.NewKeymap(3)
 	filterSelListBasicKeymap.Style = mainHelpStyle
 	filterSelListBasicKeymap.NewKeyBinding(keybind.Up, false)
 	filterSelListBasicKeymap.NewKeyBinding(keybind.Down, false)
@@ -163,9 +165,9 @@ func registerKeymapContexts() {
 	filterSelListBasicKeymap.NewKeyBinding(keybind.Quit, true)
 	filterSelListBasicKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListBasic, filterSelListBasicKeymap)
+	bubblehelp.RegisterContext(model.ContextFilterSelectionListBasic, filterSelListBasicKeymap)
 
-	filterSelListIncDecKeymap := keymapmanager.NewKeymap(3)
+	filterSelListIncDecKeymap := bubblehelp.NewKeymap(3)
 	filterSelListIncDecKeymap.Style = mainHelpStyle
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Up, false)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Down, false)
@@ -181,9 +183,9 @@ func registerKeymapContexts() {
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Quit, true)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListIncDec, filterSelListIncDecKeymap)
+	bubblehelp.RegisterContext(model.ContextFilterSelectionListIncDec, filterSelListIncDecKeymap)
 
-	filterSelListPageKeymap := keymapmanager.NewKeymap(3)
+	filterSelListPageKeymap := bubblehelp.NewKeymap(3)
 	filterSelListPageKeymap.Style = mainHelpStyle
 	filterSelListPageKeymap.NewKeyBinding(keybind.Up, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Down, false)
@@ -197,9 +199,9 @@ func registerKeymapContexts() {
 	filterSelListPageKeymap.NewKeyBinding(keybind.Quit, true)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextFilterSelectionListPage, filterSelListPageKeymap)
+	bubblehelp.RegisterContext(model.ContextFilterSelectionListPage, filterSelListPageKeymap)
 
-	craftKeymap := keymapmanager.NewKeymap(3)
+	craftKeymap := bubblehelp.NewKeymap(3)
 	craftKeymap.Style = mainHelpStyle
 	craftKeymap.NewKeyBinding(keybind.Up, false)
 	craftKeymap.NewKeyBinding(keybind.Down, false)
@@ -221,9 +223,9 @@ func registerKeymapContexts() {
 	craftKeymap.NewKeyBinding(keybind.Quit, true)
 	craftKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextCraft, craftKeymap)
+	bubblehelp.RegisterContext(model.ContextCraft, craftKeymap)
 
-	inventoryKeymap := keymapmanager.NewKeymap(3)
+	inventoryKeymap := bubblehelp.NewKeymap(3)
 	inventoryKeymap.Style = mainHelpStyle
 	inventoryKeymap.NewKeyBinding(keybind.Up, false)
 	inventoryKeymap.NewKeyBinding(keybind.Down, false)
@@ -237,9 +239,9 @@ func registerKeymapContexts() {
 	inventoryKeymap.NewKeyBinding(keybind.Quit, true)
 	inventoryKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextInventory, inventoryKeymap)
+	bubblehelp.RegisterContext(model.ContextInventory, inventoryKeymap)
 
-	chatKeymap := keymapmanager.NewKeymap(3)
+	chatKeymap := bubblehelp.NewKeymap(3)
 	chatKeymap.Style = mainHelpStyle
 	chatKeymap.NewKeyBinding(keybind.Enter, true)
 	chatKeymap.SetHelpDesc(keybind.Enter, lang.L("send message"))
@@ -248,18 +250,18 @@ func registerKeymapContexts() {
 	chatKeymap.NewKeyBinding(keybind.Quit, true)
 	chatKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextChat, chatKeymap)
+	bubblehelp.RegisterContext(model.ContextChat, chatKeymap)
 
-	characterSheetKeymap := keymapmanager.NewKeymap(3)
+	characterSheetKeymap := bubblehelp.NewKeymap(3)
 	characterSheetKeymap.Style = mainHelpStyle
 	characterSheetKeymap.NewKeyBinding(keybind.PrevPage, false)
 	characterSheetKeymap.NewKeyBinding(keybind.NextPage, false)
 	characterSheetKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSheetKeymap.NewKeyBinding(keybind.Quit, true)
 
-	context.KeymapManager.RegisterContext(model.ContextCharacterSheet, characterSheetKeymap)
+	bubblehelp.RegisterContext(model.ContextCharacterSheet, characterSheetKeymap)
 
-	locationServicesKeymap := keymapmanager.NewKeymap(2)
+	locationServicesKeymap := bubblehelp.NewKeymap(2)
 	locationServicesKeymap.Style = mainHelpStyle
 	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.RKey, lang.L("sleep in tavern"))
@@ -269,9 +271,9 @@ func registerKeymapContexts() {
 	locationServicesKeymap.SetHelpDesc(keybind.Esc, lang.L("close"))
 	locationServicesKeymap.NewKeyBinding(keybind.Quit, true)
 
-	context.KeymapManager.RegisterContext(model.ContextLocationServices, locationServicesKeymap)
+	bubblehelp.RegisterContext(model.ContextLocationServices, locationServicesKeymap)
 
-	mailReaderKeymap := keymapmanager.NewKeymap(3)
+	mailReaderKeymap := bubblehelp.NewKeymap(3)
 	mailReaderKeymap.Style = mainHelpStyle
 	mailReaderKeymap.NewKeyBinding(keybind.PKey, true)
 	mailReaderKeymap.SetHelpDesc(keybind.PKey, lang.L("pay the sender"))
@@ -283,5 +285,5 @@ func registerKeymapContexts() {
 	mailReaderKeymap.NewKeyBinding(keybind.Quit, false)
 	mailReaderKeymap.NewKeyBinding(keybind.Help, true)
 
-	context.KeymapManager.RegisterContext(model.ContextMailReader, mailReaderKeymap)
+	bubblehelp.RegisterContext(model.ContextMailReader, mailReaderKeymap)
 }

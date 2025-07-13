@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"strings"
 )
 
@@ -45,7 +46,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		context.KeymapManager.SwitchContext(model.ContextFilterSelectionListIncDec)
+		bubblehelp.SwitchContext(model.ContextFilterSelectionListIncDec)
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Esc):
@@ -82,7 +83,7 @@ func (m Model) View() string {
 	b.WriteString("\n")
 	b.WriteString(m.FilterSelectionList.ViewError())
 	b.WriteString("\n")
-	b.WriteString(context.KeymapManager.View(style.LayoutWidth))
+	b.WriteString(bubblehelp.View(style.LayoutWidth))
 
 	return lipgloss.Place(
 		context.ContentManager.ScreenWidth,

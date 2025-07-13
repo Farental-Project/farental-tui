@@ -1,21 +1,21 @@
 package model
 
 import (
-	"farental/internal/keymapmanager"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 const (
-	ContextLogin                     keymapmanager.KeymapContext = "login"
-	ContextCharacterSel              keymapmanager.KeymapContext = "characterSelection"
-	ContextCharacterCreation         keymapmanager.KeymapContext = "characterCreation"
-	ContextCharacterSheet            keymapmanager.KeymapContext = "characterSheet"
-	ContextGameDashboard             keymapmanager.KeymapContext = "gameDashboard"
-	ContextFilterSelectionListBasic  keymapmanager.KeymapContext = "filterSelectionListBasic"
-	ContextFilterSelectionListIncDec keymapmanager.KeymapContext = "filterSelectionListIncDec"
-	ContextFilterSelectionListPage   keymapmanager.KeymapContext = "filterSelectionListPage"
-	ContextCraft                     keymapmanager.KeymapContext = "craft"
-	ContextInventory                 keymapmanager.KeymapContext = "inventory"
-	ContextChat                      keymapmanager.KeymapContext = "chat"
-	ContextLocationServices          keymapmanager.KeymapContext = "locationServices"
-	ContextMailReader                keymapmanager.KeymapContext = "mailReader"
+	ContextLogin                     bubblehelp.KeymapContext = "login"
+	ContextCharacterSel              bubblehelp.KeymapContext = "characterSelection"
+	ContextCharacterCreation         bubblehelp.KeymapContext = "characterCreation"
+	ContextCharacterSheet            bubblehelp.KeymapContext = "characterSheet"
+	ContextGameDashboard             bubblehelp.KeymapContext = "gameDashboard"
+	ContextFilterSelectionListBasic  bubblehelp.KeymapContext = "filterSelectionListBasic"
+	ContextFilterSelectionListIncDec bubblehelp.KeymapContext = "filterSelectionListIncDec"
+	ContextFilterSelectionListPage   bubblehelp.KeymapContext = "filterSelectionListPage"
+	ContextCraft                     bubblehelp.KeymapContext = "craft"
+	ContextInventory                 bubblehelp.KeymapContext = "inventory"
+	ContextChat                      bubblehelp.KeymapContext = "chat"
+	ContextLocationServices          bubblehelp.KeymapContext = "locationServices"
+	ContextMailReader                bubblehelp.KeymapContext = "mailReader"
 )

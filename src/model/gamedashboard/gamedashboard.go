@@ -18,6 +18,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"log"
 	"strings"
 	"time"
@@ -91,7 +92,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		m.resetMsg()
 
-		switch context.KeymapManager.GetCurrentContext() {
+		switch bubblehelp.CurrentContext {
 		case model.ContextGameDashboard:
 			mod, mes := m.gameKeyHandler(msg)
 
@@ -121,7 +122,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		cmd = m.RunningTask.Init()
 
-		context.KeymapManager.SwitchContext(model.ContextGameDashboard)
+		bubblehelp.SwitchContext(model.ContextGameDashboard)
 
 		return m, cmd
 	}
@@ -139,7 +140,7 @@ func (m Model) View() string {
 	var tui string
 	var bottom strings.Builder
 
-	if !context.KeymapManager.ShowAll {
+	if !bubblehelp.ShowAll {
 		bottom.WriteString(lipgloss.JoinVertical(lipgloss.Center,
 			lipgloss.JoinHorizontal(lipgloss.Center,
 				m.ChatViewerContainer.View(),
@@ -148,11 +149,11 @@ func (m Model) View() string {
 		m.renderMsg(&bottom)
 
 		bottom.WriteString("\n")
-		bottom.WriteString(context.KeymapManager.View(style.LayoutWidth))
+		bottom.WriteString(bubblehelp.View(style.LayoutWidth))
 	} else {
 		bottom.WriteString(m.HelpContainer.ViewContent(
-			context.KeymapManager.ViewAll(
-				context.KeymapManager.GetCurrentContextKeymap(),
+			bubblehelp.ViewAll(
+				bubblehelp.GetCurrentContextKeymap(),
 				style.LayoutWidth),
 			lipgloss.Center, lipgloss.Center))
 
@@ -222,21 +223,21 @@ func (m *Model) claim() {
 }
 
 func (m *Model) showLocationService() {
-	context.KeymapManager.SwitchContext(model.ContextLocationServices)
-	context.KeymapManager.ShowAll = true
+	bubblehelp.SwitchContext(model.ContextLocationServices)
+	bubblehelp.ShowAll = true
 
 	m.HelpContainer.Title = lang.L("Location services")
 
 	// Activate keybind based on available features
-	context.KeymapManager.SetKeybindVisible(keybind.RKey,
+	bubblehelp.SetKeybindVisible(keybind.RKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
-	context.KeymapManager.SetKeybindVisible(keybind.MKey,
+	bubblehelp.SetKeybindVisible(keybind.MKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureMailbox)))
 }
 
 func (m *Model) hideLocationService() {
-	context.KeymapManager.SwitchContext(model.ContextGameDashboard)
-	context.KeymapManager.ShowAll = false
+	bubblehelp.SwitchContext(model.ContextGameDashboard)
+	bubblehelp.ShowAll = false
 
 	m.HelpContainer.Title = lang.L("Help")
 }
@@ -244,7 +245,7 @@ func (m *Model) hideLocationService() {
 func (m *Model) gameKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, keybind.Help):
-		context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+		bubblehelp.ShowAll = !bubblehelp.ShowAll
 		return m, nil
 
 	case key.Matches(msg, keybind.Space):
@@ -326,13 +327,13 @@ func (m *Model) servicesKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case key.Matches(msg, keybind.RKey):
-		if context.KeymapManager.IsKeybindVisible(keybind.RKey) {
+		if bubblehelp.IsKeybindVisible(keybind.RKey) {
 			m.tavernSleep()
 			return m, nil
 		}
 
 	case key.Matches(msg, keybind.MKey):
-		if context.KeymapManager.IsKeybindVisible(keybind.MKey) {
+		if bubblehelp.IsKeybindVisible(keybind.MKey) {
 			return context.ContentManager.SwitchContent(
 				m, model.ContentMailbox)
 		}

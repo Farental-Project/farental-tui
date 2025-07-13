@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
 	"log"
 	"strings"
@@ -63,7 +64,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case model.InitMsg:
 		m.initData()
 
-		context.KeymapManager.SwitchContext(model.ContextCharacterSel)
+		bubblehelp.SwitchContext(model.ContextCharacterSel)
 
 		return m, nil
 
@@ -84,7 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, nil
 		case key.Matches(msg, keybind.Help):
-			context.KeymapManager.ShowAll = !context.KeymapManager.ShowAll
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
 
 			return m, nil
 
@@ -112,7 +113,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var tui strings.Builder
 
-	helpText := context.KeymapManager.View(style.LayoutWidth)
+	helpText := bubblehelp.View(style.LayoutWidth)
 
 	title := style.TitleStyle.Render(m.Title)
 
