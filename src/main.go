@@ -19,6 +19,7 @@ import (
 	"farental/model/inventory"
 	"farental/model/login"
 	"farental/model/mailbox"
+	"farental/model/maileditor"
 	"farental/model/mailreader"
 	"farental/model/travelselection"
 	"farental/style"
@@ -84,6 +85,7 @@ func registerContents() {
 	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
 	context.ContentManager.RegisterContent(model.ContentMailbox, mailbox.New())
 	context.ContentManager.RegisterContent(model.ContentMailReader, mailreader.New())
+	context.ContentManager.RegisterContent(model.ContentMailEditor, maileditor.New())
 }
 
 func registerKeymapContexts() {

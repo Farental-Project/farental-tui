@@ -14,4 +14,5 @@ const (
 	ContentChat               string = "ContentChat"
 	ContentMailbox            string = "ContentMailbox"
 	ContentMailReader         string = "ContentMailReader"
+	ContentMailEditor         string = "ContentMailEditor"
 )

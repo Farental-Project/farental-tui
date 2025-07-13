@@ -59,9 +59,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return context.ContentManager.
 					SwitchContent(m, model.ContentGameDashboard)
 			}
+
+		case key.Matches(msg, keybind.NewCharacter):
+			return context.ContentManager.
+				SwitchContent(m, model.ContentMailEditor)
 		}
+		
 	case model.SwitchContentMsg:
-		// TODO: goto mail detail screen (How to pass value to new screen ?)
 		return context.ContentManager.SwitchContent(m, model.ContentMailReader)
 	}
 
