@@ -1,25 +1,35 @@
 package mailwriter
 
 import (
+	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
+	"farental/model/widget/textarea"
+	"farental/model/widget/textinput"
 	"farental/style"
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
 	widgetfocusmanager.BaseFocusWidget
 
-	TISubject textinput.Model
-	TIContent textarea.Model
+	TIReceiver *textinput.Model
+	TISubject  *textinput.Model
+	TIContent  *textarea.Model
 }
 
 // New creates a new Mail Writer widget, Focusable Widgets needs to return as pointer.
 func New() *Model {
 	m := &Model{}
 
+	m.TIReceiver = textinput.New()
+	m.TIReceiver.Placeholder = lang.L("Receiver name")
+	m.TIReceiver.Prompt = ""
+
 	m.TISubject = textinput.New()
+	m.TISubject.Placeholder = lang.L("Subject")
+	m.TISubject.Prompt = ""
+
 	m.TIContent = textarea.New()
 
 	return m
@@ -34,11 +44,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	var containerStyle lipgloss.Style
+
+	containerStyle = style.BlurContainerStyle
+
 	if m.Focused {
-		return style.TitleStyle.Render("FOCUSED")
+		containerStyle = style.ContainerStyle
 	}
 
-	return style.DimTextStyle.Render("NOT FOCUSED")
+	tui := lipgloss.JoinVertical(lipgloss.Top,
+		m.TIReceiver.View(),
+		m.TISubject.View(),
+		m.TIContent.View(),
+	)
+
+	return containerStyle.Render(tui)
 
 }
 

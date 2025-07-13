@@ -40,6 +40,10 @@ var (
 			Border(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color(ColorHighlight))
 
+	BlurContainerStyle = lipgloss.NewStyle().
+				Border(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color(ColorHighlightDim))
+
 	ContainerTitleStyle = lipgloss.NewStyle().
 				Border(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color(ColorHighlightDim)).
