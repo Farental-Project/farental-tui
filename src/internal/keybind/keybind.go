@@ -37,7 +37,7 @@ var (
 	PrevPage         key.Binding
 	NextPage         key.Binding
 	Use              key.Binding
-	Equip            key.Binding
+	EKey             key.Binding
 	MKey             key.Binding
 	PKey             key.Binding
 	RKey             key.Binding
@@ -139,9 +139,9 @@ func Init() {
 	Use = key.NewBinding(
 		key.WithKeys("u"),
 		key.WithHelp("u", lang.L("use")))
-	Equip = key.NewBinding(
+	EKey = key.NewBinding(
 		key.WithKeys("e"),
-		key.WithHelp("e", lang.L("equip")))
+		key.WithHelp("e", "e key"))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))

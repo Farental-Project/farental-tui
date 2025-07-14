@@ -23,7 +23,6 @@ import (
 	"farental/model/mailreader"
 	"farental/model/travelselection"
 	"farental/style"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
 	"log"
@@ -89,20 +88,7 @@ func registerContents() {
 }
 
 func registerKeymapContexts() {
-	mainHelpStyle := bubblehelp.Style{
-		EssentialKey:               style.NeutralLessDimTextStyle.Bold(true),
-		EssentialKeyDescription:    style.NeutralDimTextStyle,
-		EssentialKeySeparator:      style.NeutralDimTextStyle,
-		EssentialKeySeparatorValue: " ",
-		EssentialColSeparator:      style.NeutralDimTextStyle,
-		EssentialColSeparatorValue: " • ",
-		FullKey:                    style.NeutralLessDimTextStyle.Bold(true),
-		FullKeyDescription:         style.NeutralDimTextStyle,
-		FullKeySeparator:           style.NeutralDimTextStyle,
-		FullKeySeparatorValue:      " ",
-		FullColSeparator:           lipgloss.Style{},
-		FullColSeparatorValue:      "  ",
-	}
+	mainHelpStyle := style.MainHelpStyle
 
 	loginKeymap := bubblehelp.NewKeymap(2)
 	loginKeymap.Style = mainHelpStyle
@@ -235,7 +221,8 @@ func registerKeymapContexts() {
 	inventoryKeymap.NewKeyBinding(keybind.GotoListStart, false)
 	inventoryKeymap.NewKeyBinding(keybind.GotoListEnd, false)
 	inventoryKeymap.NewKeyBinding(keybind.Use, true)
-	inventoryKeymap.NewKeyBinding(keybind.Equip, true)
+	inventoryKeymap.NewKeyBinding(keybind.EKey, true)
+	inventoryKeymap.SetHelpDesc(keybind.EKey, lang.L("equip"))
 	inventoryKeymap.NewKeyBinding(keybind.Enter, true)
 	inventoryKeymap.NewKeyBinding(keybind.Esc, true)
 	inventoryKeymap.NewKeyBinding(keybind.Quit, true)

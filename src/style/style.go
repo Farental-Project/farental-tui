@@ -2,9 +2,25 @@ package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 var (
+	MainHelpStyle = bubblehelp.Style{
+		EssentialKey:               NeutralLessDimTextStyle.Bold(true),
+		EssentialKeyDescription:    NeutralDimTextStyle,
+		EssentialKeySeparator:      NeutralDimTextStyle,
+		EssentialKeySeparatorValue: " ",
+		EssentialColSeparator:      NeutralDimTextStyle,
+		EssentialColSeparatorValue: " • ",
+		FullKey:                    NeutralLessDimTextStyle.Bold(true),
+		FullKeyDescription:         NeutralDimTextStyle,
+		FullKeySeparator:           NeutralDimTextStyle,
+		FullKeySeparatorValue:      " ",
+		FullColSeparator:           lipgloss.Style{},
+		FullColSeparatorValue:      "  ",
+	}
+
 	FocusedStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color(ColorSpecialHighlight))
