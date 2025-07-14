@@ -19,6 +19,12 @@ func SwitchContentCmd(nextContent string) tea.Cmd {
 	}
 }
 
+type BackMsg int
+
+func BackCmd() tea.Msg {
+	return BackMsg(0)
+}
+
 type TickMsg struct {
 	Time time.Time
 	Tag  uint

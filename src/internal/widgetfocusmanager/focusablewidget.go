@@ -10,10 +10,15 @@ type FocusableWidget interface {
 	Focus()
 	Blur()
 	GetFocusKeybind() *key.Binding
+	GetEditModeKeybind() *key.Binding
+	EnterEditMode()
+	ExitEditMode()
+	IsInEditMode() bool
 }
 
 type BaseFocusWidget struct {
-	Focused bool
+	Focused  bool
+	EditMode bool
 }
 
 func (b BaseFocusWidget) Init() tea.Cmd {
@@ -38,4 +43,20 @@ func (b *BaseFocusWidget) Blur() {
 
 func (b *BaseFocusWidget) GetFocusKeybind() *key.Binding {
 	return nil
+}
+
+func (b *BaseFocusWidget) GetEditModeKeybind() *key.Binding {
+	return nil
+}
+
+func (b *BaseFocusWidget) IsInEditMode() bool {
+	return b.EditMode
+}
+
+func (b *BaseFocusWidget) EnterEditMode() {
+	b.EditMode = true
+}
+
+func (b *BaseFocusWidget) ExitEditMode() {
+	b.EditMode = false
 }

@@ -1,12 +1,14 @@
 package maileditor
 
 import (
-	"farental/internal/keybind"
+	"farental/internal/context"
 	"farental/internal/widgetfocusmanager"
+	"farental/model"
 	"farental/model/widget/mailwriter"
-	"github.com/charmbracelet/bubbles/key"
+	"farental/style"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 type Model struct {
@@ -32,22 +34,18 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return tea.Batch(m.MailWriter.Init(), m.MailWriter2.Init())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keybind.Quit):
-			return m, tea.Quit
-
-		}
+	switch msg.(type) {
+	case model.BackMsg:
+		return context.ContentManager.Back(m)
 	}
 
-	m.focusManager.Update(msg)
+	cmd := m.focusManager.Update(msg)
 
-	return m, nil
+	return m, cmd
 }
 
 func (m Model) View() string {
@@ -55,5 +53,6 @@ func (m Model) View() string {
 		lipgloss.Center,
 		m.MailWriter.View(),
 		m.MailWriter2.View(),
+		bubblehelp.View(style.LayoutWidth),
 	)
 }

@@ -42,7 +42,19 @@ func (w *WidgetFocusManager) Focus(index int) {
 	w.widgets[w.tabIndex].Focus()
 }
 
-func (w *WidgetFocusManager) Update(msg tea.Msg) {
+func (w *WidgetFocusManager) BlurCurrent() {
+	w.widgets[w.tabIndex].Blur()
+}
+
+// Update returns true if the keybind can be processed by the focusManager holder.
+func (w *WidgetFocusManager) Update(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+
+	if w.widgets[w.tabIndex].IsInEditMode() {
+		_, cmd = w.widgets[w.tabIndex].Update(msg)
+		return cmd
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -56,7 +68,7 @@ func (w *WidgetFocusManager) Update(msg tea.Msg) {
 
 			w.widgets[w.tabIndex].Focus()
 
-			return
+			return nil
 
 		case key.Matches(msg, keybind.ShiftTab):
 			w.widgets[w.tabIndex].Blur()
@@ -69,7 +81,18 @@ func (w *WidgetFocusManager) Update(msg tea.Msg) {
 
 			w.widgets[w.tabIndex].Focus()
 
-			return
+			return nil
+
+		}
+
+		editModeKeybind := w.widgets[w.tabIndex].GetEditModeKeybind()
+
+		if editModeKeybind != nil {
+			if key.Matches(msg, *editModeKeybind) {
+				w.widgets[w.tabIndex].EnterEditMode()
+
+				return nil
+			}
 		}
 
 		// Specific focus keybind
@@ -86,7 +109,13 @@ func (w *WidgetFocusManager) Update(msg tea.Msg) {
 				w.tabIndex = i
 
 				w.widgets[w.tabIndex].Focus()
+
+				return nil
 			}
 		}
 	}
+
+	_, cmd = w.widgets[w.tabIndex].Update(msg)
+
+	return cmd
 }

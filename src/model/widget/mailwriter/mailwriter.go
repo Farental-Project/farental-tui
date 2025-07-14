@@ -4,9 +4,11 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
+	"farental/model"
 	"farental/model/widget/textarea"
 	"farental/model/widget/textinput"
 	"farental/style"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
@@ -19,7 +21,7 @@ type Model struct {
 	TISubject  *textinput.Model
 	TIContent  *textarea.Model
 
-	editMode bool
+	focusManager *widgetfocusmanager.WidgetFocusManager
 }
 
 // New creates a new Mail Writer widget, Focusable Widgets needs to return as pointer.
@@ -32,6 +34,9 @@ func New() *Model {
 	normalModeKeymap.NewKeyBinding(keybind.ShiftTab, false)
 	normalModeKeymap.NewKeyBinding(keybind.Esc, true)
 	normalModeKeymap.NewKeyBinding(keybind.Quit, false)
+	normalModeKeymap.NewKeyBinding(keybind.Help, true)
+
+	bubblehelp.RegisterContext(model.ContextMailWriterNormalMode, normalModeKeymap)
 
 	editModeKeymap := bubblehelp.NewKeymap(2)
 	editModeKeymap.Style = style.MainHelpStyle
@@ -39,6 +44,10 @@ func New() *Model {
 	editModeKeymap.NewKeyBinding(keybind.ShiftTab, false)
 	editModeKeymap.NewKeyBinding(keybind.Esc, true)
 	editModeKeymap.SetHelpDesc(keybind.Esc, lang.L("stop editing"))
+	editModeKeymap.NewKeyBinding(keybind.Quit, false)
+	editModeKeymap.NewKeyBinding(keybind.Help, true)
+
+	bubblehelp.RegisterContext(model.ContextMailWriterEditMode, editModeKeymap)
 
 	m := &Model{}
 
@@ -54,29 +63,68 @@ func New() *Model {
 
 	m.TIContent = textarea.New()
 
-	m.editMode = false
+	m.focusManager = widgetfocusmanager.New()
+
+	m.focusManager.Add(m.TIReceiver)
+	m.focusManager.Add(m.TISubject)
+	m.focusManager.Add(m.TIContent)
 
 	return m
 }
 
 func (m Model) Init() tea.Cmd {
-	return nil
+	return model.InitCmd
 }
 
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	if m.editMode {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case model.InitMsg:
+		m.EditMode = false
+		m.focusManager.BlurCurrent()
+		bubblehelp.SwitchContext(model.ContextMailWriterNormalMode)
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Quit):
+			return m, tea.Quit
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+			return m, nil
+		}
+	}
+
+	if m.EditMode {
 		return m.editModeUpdate(msg)
 	}
+
+	return m.normalModeUpdate(msg)
+}
+
+func (m *Model) editModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Esc):
+			m.ExitEditMode()
+
+			return m, nil
+		}
+	}
+
+	m.focusManager.Update(msg)
 
 	return m, nil
 }
 
-func (m Model) editModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return m, n
-}
+func (m *Model) normalModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Esc):
+			return m, model.BackCmd
+		}
+	}
 
-func (m Model) normalModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return m, n
+	return m, nil
 }
 
 func (m Model) View() string {
@@ -100,14 +148,25 @@ func (m Model) View() string {
 
 func (m *Model) Focus() {
 	m.BaseFocusWidget.Focus()
+	bubblehelp.SwitchContext(model.ContextMailWriterNormalMode)
 }
 
 func (m *Model) Blur() {
 	m.BaseFocusWidget.Blur()
 }
 
-func (m *Model) updateFocus() {
-	if m.Focused {
+func (m *Model) GetEditModeKeybind() *key.Binding {
+	return &keybind.EKey
+}
 
-	}
+func (m *Model) EnterEditMode() {
+	m.BaseFocusWidget.EnterEditMode()
+	m.focusManager.Focus(0)
+	bubblehelp.SwitchContext(model.ContextMailWriterEditMode)
+}
+
+func (m *Model) ExitEditMode() {
+	m.BaseFocusWidget.ExitEditMode()
+	m.focusManager.BlurCurrent()
+	bubblehelp.SwitchContext(model.ContextMailWriterNormalMode)
 }
