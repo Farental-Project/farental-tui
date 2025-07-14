@@ -1,3 +1,4 @@
+// Package widgetfocusmanager contains everything needed to automate focus management.
 package widgetfocusmanager
 
 import (
@@ -6,11 +7,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// WidgetFocusManager helps managing focusable widgets.
 type WidgetFocusManager struct {
 	widgets  []FocusableWidget
 	tabIndex int
 }
 
+// New creates and return a new WidgetFocusManager
 func New() *WidgetFocusManager {
 	w := &WidgetFocusManager{}
 
@@ -20,10 +23,12 @@ func New() *WidgetFocusManager {
 	return w
 }
 
+// Add adds up the given widget to the widgets list. Order of addition defines tab order.
 func (w *WidgetFocusManager) Add(widget FocusableWidget) {
 	w.widgets = append(w.widgets, widget)
 }
 
+// Remove removes the widget at the given index.
 func (w *WidgetFocusManager) Remove(index int) {
 	if index < 0 || index >= len(w.widgets) {
 		return
@@ -32,6 +37,7 @@ func (w *WidgetFocusManager) Remove(index int) {
 	w.widgets = append(w.widgets[:index], w.widgets[index+1:]...)
 }
 
+// Focus set the focus on the given index.
 func (w *WidgetFocusManager) Focus(index int) {
 	if index != w.tabIndex {
 		w.widgets[w.tabIndex].Blur()
@@ -42,11 +48,17 @@ func (w *WidgetFocusManager) Focus(index int) {
 	w.widgets[w.tabIndex].Focus()
 }
 
+// BlurCurrent blurs the currently focused widget.
 func (w *WidgetFocusManager) BlurCurrent() {
 	w.widgets[w.tabIndex].Blur()
 }
 
-// Update returns true if the keybind can be processed by the focusManager holder.
+// Update must be called from the screen Model, all key events should be managed by widgets.
+// It returns a tea.Cmd, that should be used by the screen Model.
+// The widget currently in EditMode have total control of the update messages.
+// If the currently focused widget is not in EditMode, the standard keybinds are managed.
+// The update of the currently focused widget is executed, for example to manage the back action.
+// The switch to EditMode is managed here.
 func (w *WidgetFocusManager) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
