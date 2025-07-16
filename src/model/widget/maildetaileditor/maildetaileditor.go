@@ -37,7 +37,9 @@ func New() *Model {
 	m := &Model{}
 
 	m.TIMoneyAmount = textinput.New()
+	m.TIMoneyAmount.Placeholder = lang.L("Money amount")
 	m.TIMoneyAmount.Prompt = ""
+	m.TIMoneyAmount.Width = 50
 	m.TIMoneyAmount.Validate = model.NumericalValidate
 
 	m.focusManager = widgetfocusmanager.New()
@@ -94,12 +96,6 @@ func (m *Model) updateEditMode(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	cmd := m.focusManager.Update(msg)
-
-	// err := model.NumericalValidate(m.TIMoneyAmount.Value())
-	//
-	// if err != nil {
-	// 	m.TIMoneyAmount.Err = err
-	// }
 
 	return m, cmd
 }
