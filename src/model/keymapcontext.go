@@ -18,6 +18,7 @@ const (
 	ContextChat                      bubblehelp.KeymapContext = "chat"
 	ContextLocationServices          bubblehelp.KeymapContext = "locationServices"
 	ContextMailReader                bubblehelp.KeymapContext = "mailReader"
-	ContextMailWriterNormalMode      bubblehelp.KeymapContext = "mailWriterNormalMode"
+	ContextMailWidgetNormalMode      bubblehelp.KeymapContext = "mailWidgetNormalMode"
 	ContextMailWriterEditMode        bubblehelp.KeymapContext = "mailWriterEditMode"
+	ContextMailDetailEditorEditMode  bubblehelp.KeymapContext = "mailDetailEditorEditMode"
 )
