@@ -5,9 +5,11 @@ import (
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
 	"farental/model"
+	"farental/model/widget/list"
 	"farental/model/widget/textinput"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
+	teaList "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
@@ -17,12 +19,16 @@ import (
 type Model struct {
 	widgetfocusmanager.BaseFocusWidget
 
-	TIMoneyAmount *textinput.Model
+	TIMoneyAmount   *textinput.Model
+	ListAttachments *list.Model
+	Attachments     *[]teaList.Item
 
 	focusManager *widgetfocusmanager.WidgetFocusManager
+
+	Width int
 }
 
-func New() *Model {
+func New(width int) *Model {
 	editModeKeymap := bubblehelp.NewKeymap(2)
 	editModeKeymap.Style = style.MainHelpStyle
 	editModeKeymap.NewKeyBinding(keybind.Tab, true)
@@ -34,17 +40,42 @@ func New() *Model {
 
 	bubblehelp.RegisterContext(model.ContextMailDetailEditorEditMode, editModeKeymap)
 
-	m := &Model{}
+	m := &Model{
+		Width: width,
+	}
 
 	m.TIMoneyAmount = textinput.New()
 	m.TIMoneyAmount.Placeholder = lang.L("Money amount")
 	m.TIMoneyAmount.Prompt = ""
-	m.TIMoneyAmount.Width = 50
+	m.TIMoneyAmount.Width = m.Width
 	m.TIMoneyAmount.Validate = model.NumericalValidate
+
+	m.Attachments = &[]teaList.Item{
+		ListItem{
+			3, "Truite",
+		},
+		ListItem{
+			5, "Fruit",
+		},
+		ListItem{
+			3, "Toto",
+		},
+		ListItem{
+			2, "Tissu",
+		},
+		ListItem{
+			3, "Patate",
+		},
+	}
+
+	m.ListAttachments = list.New(*m.Attachments,
+		ListItemDelegate{},
+		m.Width, 5)
 
 	m.focusManager = widgetfocusmanager.New()
 
 	m.focusManager.Add(m.TIMoneyAmount)
+	m.focusManager.Add(m.ListAttachments)
 
 	return m
 }
@@ -119,6 +150,7 @@ func (m *Model) View() string {
 
 	tui := lipgloss.JoinVertical(lipgloss.Top,
 		moneyAmountField.String(),
+		m.ListAttachments.View(),
 	)
 
 	return containerStyle.Render(tui)

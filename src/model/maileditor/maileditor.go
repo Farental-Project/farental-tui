@@ -23,7 +23,7 @@ func New() Model {
 	m := Model{
 		focusManager:     widgetfocusmanager.New(),
 		MailWriter:       mailwriter.New(),
-		MailDetailEditor: maildetaileditor.New(),
+		MailDetailEditor: maildetaileditor.New(25),
 	}
 
 	m.focusManager.Add(m.MailWriter)

@@ -43,13 +43,9 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 	b.WriteString(fmt.Sprintf("%dx %s", i.Amount, i.ItemName))
 
 	tui := s.Width(m.Width() - 2).Height(l.Height()).Render(
-		lipgloss.JoinHorizontal(lipgloss.Top,
-			style.TextStyle.Width(width/2).
-				AlignHorizontal(lipgloss.Left).
-				Render(left.String()),
-			style.TextStyle.Width(width/2).
-				AlignHorizontal(lipgloss.Right).
-				Render(right.String())))
+		style.TextStyle.Width(width / 2).Render(
+			b.String(),
+		))
 
 	fmt.Fprint(w, tui)
 
