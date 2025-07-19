@@ -8,6 +8,7 @@ import (
 	"farental/model/widget/textarea"
 	"farental/model/widget/textinput"
 	"farental/style"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -80,8 +81,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, keybind.Help):
-			bubblehelp.ShowAll = !bubblehelp.ShowAll
-			return m, nil
+			if !m.TIContent.Model.Focused() {
+				bubblehelp.ShowAll = !bubblehelp.ShowAll
+				return m, nil
+			}
 		}
 	}
 

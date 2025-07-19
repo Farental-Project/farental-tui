@@ -7,6 +7,8 @@ import (
 	"farental/model/widget/maildetaileditor"
 	"farental/model/widget/mailwriter"
 	"farental/style"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
@@ -35,17 +37,19 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(m.MailWriter.Init(), m.MailDetailEditor.Init())
+	return model.InitCmd
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
 	case model.InitMsg:
+		m.focusManager.Focus(0)
+
 		m.MailWriter.Update(msg)
 		m.MailDetailEditor.Update(msg)
 
 		return m, nil
-		
+
 	case model.BackMsg:
 		return context.ContentManager.Back(m)
 	}
@@ -56,10 +60,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(
-		lipgloss.Center,
+	var b strings.Builder
+
+	b.WriteString(lipgloss.JoinHorizontal(
+		lipgloss.Top,
 		m.MailWriter.View(),
-		m.MailDetailEditor.View(),
-		bubblehelp.View(style.LayoutWidth),
-	)
+		m.MailDetailEditor.View()))
+
+	b.WriteString("\n\n")
+	b.WriteString(bubblehelp.View(style.LayoutWidth))
+
+	return lipgloss.Place(
+		context.ContentManager.ScreenWidth, context.ContentManager.ScreenHeight,
+		lipgloss.Center, lipgloss.Center, b.String())
 }
