@@ -50,7 +50,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		bubblehelp.SwitchContext(model.ContextFilterSelectionListBasic)
+		bubblehelp.SwitchContext(model.ContextFilterSelectionListWithNew)
 
 	case tea.KeyMsg:
 		switch {
@@ -60,11 +60,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					SwitchContent(m, model.ContentGameDashboard)
 			}
 
-		case key.Matches(msg, keybind.NewCharacter):
-			return context.ContentManager.
-				SwitchContent(m, model.ContentMailEditor)
+		case key.Matches(msg, keybind.NKey):
+			if m.FilterSelectionList.List.FilterState() != list.Filtering {
+				return context.ContentManager.
+					SwitchContent(m, model.ContentMailEditor)
+			}
 		}
-		
+
 	case model.SwitchContentMsg:
 		return context.ContentManager.SwitchContent(m, model.ContentMailReader)
 	}

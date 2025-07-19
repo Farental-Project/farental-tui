@@ -7,7 +7,7 @@ import (
 )
 
 type Model struct {
-	widgetfocusmanager.BaseFocusWidget
+	widgetfocusmanager.BaseFocusableWidget
 	list.Model
 }
 
@@ -40,9 +40,15 @@ func (m Model) View() string {
 }
 
 func (m *Model) Focus() {
-	m.BaseFocusWidget.Focus()
+	m.BaseFocusableWidget.Focus()
+
+	if m.Model.Index() < 0 {
+		m.Model.Select(0)
+	}
 }
 
 func (m *Model) Blur() {
-	m.BaseFocusWidget.Blur()
+	m.BaseFocusableWidget.Blur()
+
+	m.Model.Select(-1)
 }

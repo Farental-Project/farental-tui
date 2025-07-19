@@ -29,7 +29,6 @@ var (
 	CharacterSheet   key.Binding
 	Chat             key.Binding
 	NewLine          key.Binding
-	NewCharacter     key.Binding
 	LocationServices key.Binding
 	Inventory        key.Binding
 	GotoListStart    key.Binding
@@ -37,8 +36,11 @@ var (
 	PrevPage         key.Binding
 	NextPage         key.Binding
 	Use              key.Binding
+	AKey             key.Binding
+	DKey             key.Binding
 	EKey             key.Binding
 	MKey             key.Binding
+	NKey             key.Binding
 	PKey             key.Binding
 	RKey             key.Binding
 	TKey             key.Binding
@@ -115,9 +117,6 @@ func Init() {
 	NewLine = key.NewBinding(
 		key.WithKeys("ctrl+y"),
 		key.WithHelp("ctrl+y", lang.L("new line")))
-	NewCharacter = key.NewBinding(
-		key.WithKeys("n"),
-		key.WithHelp("n", lang.L("new character")))
 	LocationServices = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", lang.L("location services")))
@@ -139,12 +138,21 @@ func Init() {
 	Use = key.NewBinding(
 		key.WithKeys("u"),
 		key.WithHelp("u", lang.L("use")))
+	AKey = key.NewBinding(
+		key.WithKeys("a"),
+		key.WithHelp("a", "a key"))
+	DKey = key.NewBinding(
+		key.WithKeys("d"),
+		key.WithHelp("d", "d key"))
 	EKey = key.NewBinding(
 		key.WithKeys("e"),
 		key.WithHelp("e", "e key"))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))
+	NKey = key.NewBinding(
+		key.WithKeys("n"),
+		key.WithHelp("n", "n key"))
 	PKey = key.NewBinding(
 		key.WithKeys("p"),
 		key.WithHelp("p", "p key"))

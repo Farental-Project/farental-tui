@@ -8,7 +8,7 @@ import (
 
 type Model struct {
 	textarea.Model
-	widgetfocusmanager.BaseFocusWidget
+	widgetfocusmanager.BaseFocusableWidget
 }
 
 func New() *Model {
@@ -36,11 +36,11 @@ func (m Model) View() string {
 }
 
 func (m *Model) Focus() {
-	m.BaseFocusWidget.Focus()
+	m.BaseFocusableWidget.Focus()
 	m.Model.Focus()
 }
 
 func (m *Model) Blur() {
-	m.BaseFocusWidget.Blur()
+	m.BaseFocusableWidget.Blur()
 	m.Model.Blur()
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type Model struct {
-	widgetfocusmanager.BaseFocusWidget
+	widgetfocusmanager.BaseFocusableWidget
 	textinput.Model
 }
 
@@ -38,11 +38,11 @@ func (m Model) View() string {
 }
 
 func (m *Model) Focus() {
-	m.BaseFocusWidget.Focus()
+	m.BaseFocusableWidget.Focus()
 	m.Model.Focus()
 }
 
 func (m *Model) Blur() {
-	m.BaseFocusWidget.Blur()
+	m.BaseFocusableWidget.Blur()
 	m.Model.Blur()
 }

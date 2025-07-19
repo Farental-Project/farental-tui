@@ -19,7 +19,8 @@ func (i ListItem) FilterValue() string {
 	return ""
 }
 
-type ListItemDelegate struct{}
+type ListItemDelegate struct {
+}
 
 func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list.Item) {
 	i, ok := item.(ListItem)

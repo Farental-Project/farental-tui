@@ -105,7 +105,8 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.NewKeyBinding(keybind.Up, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Down, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Enter, false)
-	characterSelectionKeymap.NewKeyBinding(keybind.NewCharacter, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.NKey, true)
+	characterSelectionKeymap.SetHelpDesc(keybind.NKey, lang.L("new character"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSelectionKeymap.SetHelpDesc(keybind.Esc, lang.L("logout"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, true)
@@ -188,6 +189,22 @@ func registerKeymapContexts() {
 	filterSelListPageKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(model.ContextFilterSelectionListPage, filterSelListPageKeymap)
+
+	filterSelListBasicKeymapWithNew := bubblehelp.NewKeymap(3)
+	filterSelListBasicKeymapWithNew.Style = mainHelpStyle
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Up, false)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Down, false)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.GotoListStart, false)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.GotoListEnd, false)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.NKey, true)
+	filterSelListBasicKeymapWithNew.SetHelpDesc(keybind.NKey, lang.L("new"))
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Filter, true)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Enter, true)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Esc, true)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Quit, true)
+	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Help, true)
+
+	bubblehelp.RegisterContext(model.ContextFilterSelectionListWithNew, filterSelListBasicKeymapWithNew)
 
 	craftKeymap := bubblehelp.NewKeymap(3)
 	craftKeymap.Style = mainHelpStyle

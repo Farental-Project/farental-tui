@@ -40,6 +40,12 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
+	case model.InitMsg:
+		m.MailWriter.Update(msg)
+		m.MailDetailEditor.Update(msg)
+
+		return m, nil
+		
 	case model.BackMsg:
 		return context.ContentManager.Back(m)
 	}

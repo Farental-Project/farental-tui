@@ -15,7 +15,7 @@ import (
 )
 
 type Model struct {
-	widgetfocusmanager.BaseFocusWidget
+	widgetfocusmanager.BaseFocusableWidget
 
 	TIReceiver *textinput.Model
 	TISubject  *textinput.Model
@@ -140,12 +140,12 @@ func (m Model) View() string {
 }
 
 func (m *Model) Focus() {
-	m.BaseFocusWidget.Focus()
+	m.BaseFocusableWidget.Focus()
 	bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
 }
 
 func (m *Model) Blur() {
-	m.BaseFocusWidget.Blur()
+	m.BaseFocusableWidget.Blur()
 }
 
 func (m *Model) GetEditModeKeybind() *key.Binding {
@@ -153,13 +153,13 @@ func (m *Model) GetEditModeKeybind() *key.Binding {
 }
 
 func (m *Model) EnterEditMode() {
-	m.BaseFocusWidget.EnterEditMode()
+	m.BaseFocusableWidget.EnterEditMode()
 	m.focusManager.Focus(0)
 	bubblehelp.SwitchContext(model.ContextMailWriterEditMode)
 }
 
 func (m *Model) ExitEditMode() {
-	m.BaseFocusWidget.ExitEditMode()
+	m.BaseFocusableWidget.ExitEditMode()
 	m.focusManager.BlurCurrent()
 	bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
 }

@@ -5,11 +5,9 @@ import (
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
 	"farental/model"
-	"farental/model/widget/list"
 	"farental/model/widget/textinput"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
-	teaList "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
@@ -17,11 +15,10 @@ import (
 )
 
 type Model struct {
-	widgetfocusmanager.BaseFocusWidget
+	widgetfocusmanager.BaseFocusableWidget
 
 	TIMoneyAmount   *textinput.Model
-	ListAttachments *list.Model
-	Attachments     *[]teaList.Item
+	ListAttachments *ListAttachmentModel
 
 	focusManager *widgetfocusmanager.WidgetFocusManager
 
@@ -50,27 +47,7 @@ func New(width int) *Model {
 	m.TIMoneyAmount.Width = m.Width
 	m.TIMoneyAmount.Validate = model.NumericalValidate
 
-	m.Attachments = &[]teaList.Item{
-		ListItem{
-			3, "Truite",
-		},
-		ListItem{
-			5, "Fruit",
-		},
-		ListItem{
-			3, "Toto",
-		},
-		ListItem{
-			2, "Tissu",
-		},
-		ListItem{
-			3, "Patate",
-		},
-	}
-
-	m.ListAttachments = list.New(*m.Attachments,
-		ListItemDelegate{},
-		m.Width, 5)
+	m.ListAttachments = NewListAttachment(width, 5)
 
 	m.focusManager = widgetfocusmanager.New()
 
@@ -86,6 +63,10 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case model.InitMsg:
+		m.TIMoneyAmount.SetValue("")
+		m.ListAttachments.List.Blur()
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Quit):
@@ -157,12 +138,12 @@ func (m *Model) View() string {
 }
 
 func (m *Model) Focus() {
-	m.BaseFocusWidget.Focus()
+	m.BaseFocusableWidget.Focus()
 	bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
 }
 
 func (m *Model) Blur() {
-	m.BaseFocusWidget.Blur()
+	m.BaseFocusableWidget.Blur()
 }
 
 func (m *Model) GetEditModeKeybind() *key.Binding {
@@ -170,13 +151,13 @@ func (m *Model) GetEditModeKeybind() *key.Binding {
 }
 
 func (m *Model) EnterEditMode() {
-	m.BaseFocusWidget.EnterEditMode()
+	m.BaseFocusableWidget.EnterEditMode()
 	m.focusManager.Focus(0)
 	bubblehelp.SwitchContext(model.ContextMailDetailEditorEditMode)
 }
 
 func (m *Model) ExitEditMode() {
-	m.BaseFocusWidget.ExitEditMode()
+	m.BaseFocusableWidget.ExitEditMode()
 	m.focusManager.BlurCurrent()
 	bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
 }
