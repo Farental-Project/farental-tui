@@ -15,6 +15,7 @@ type FocusableWidget interface {
 	EnterEditMode()
 	ExitEditMode()
 	IsInEditMode() bool
+	IsFocused() bool
 }
 
 // BaseFocusableWidget is a base struct to help build FocusableWidget.
@@ -61,6 +62,10 @@ func (b *BaseFocusableWidget) GetEditModeKeybind() *key.Binding {
 // IsInEditMode returns the EditMode value
 func (b *BaseFocusableWidget) IsInEditMode() bool {
 	return b.EditMode
+}
+
+func (b *BaseFocusableWidget) IsFocused() bool {
+	return b.Focused
 }
 
 // EnterEditMode is called to enter in edit mode. The widget should call the base code.

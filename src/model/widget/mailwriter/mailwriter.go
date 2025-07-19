@@ -23,10 +23,12 @@ type Model struct {
 	TIContent  *textarea.Model
 
 	focusManager *widgetfocusmanager.WidgetFocusManager
+
+	width int
 }
 
 // New creates a new Mail Writer widget, Focusable Widgets needs to return as pointer.
-func New() *Model {
+func New(width int) *Model {
 	editModeKeymap := bubblehelp.NewKeymap(2)
 	editModeKeymap.Style = style.MainHelpStyle
 	editModeKeymap.NewKeyBinding(keybind.Tab, true)
@@ -38,19 +40,24 @@ func New() *Model {
 
 	bubblehelp.RegisterContext(model.ContextMailWriterEditMode, editModeKeymap)
 
-	m := &Model{}
+	m := &Model{width: width}
 
 	m.TIReceiver = textinput.New()
 	m.TIReceiver.Placeholder = lang.L("Receiver name")
 	m.TIReceiver.Prompt = ""
-	m.TIReceiver.Width = 100
+	m.TIReceiver.Width = width
 
 	m.TISubject = textinput.New()
 	m.TISubject.Placeholder = lang.L("Subject")
 	m.TISubject.Prompt = ""
-	m.TISubject.Width = 100
+	m.TISubject.Width = width
 
 	m.TIContent = textarea.New()
+	m.TIContent.ShowLineNumbers = false
+	m.TIContent.Prompt = ""
+	m.TIContent.Placeholder = lang.L("Mail content")
+	m.TIContent.SetWidth(width + 1)
+	m.TIContent.SetHeight(20)
 
 	m.focusManager = widgetfocusmanager.New()
 

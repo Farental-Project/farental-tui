@@ -2,6 +2,7 @@ package maileditor
 
 import (
 	"farental/internal/context"
+	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
 	"farental/model"
 	"farental/model/widget/maildetaileditor"
@@ -19,13 +20,16 @@ type Model struct {
 
 	MailWriter       *mailwriter.Model
 	MailDetailEditor *maildetaileditor.Model
+
+	Title string
 }
 
 func New() Model {
 	m := Model{
 		focusManager:     widgetfocusmanager.New(),
-		MailWriter:       mailwriter.New(),
+		MailWriter:       mailwriter.New(48),
 		MailDetailEditor: maildetaileditor.New(25),
+		Title:            style.TitleStyle.Render(lang.L("New mail")),
 	}
 
 	m.focusManager.Add(m.MailWriter)
@@ -61,6 +65,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var b strings.Builder
+
+	b.WriteString(m.Title)
+
+	b.WriteString("\n\n")
 
 	b.WriteString(lipgloss.JoinHorizontal(
 		lipgloss.Top,

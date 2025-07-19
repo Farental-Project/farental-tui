@@ -7,8 +7,10 @@ import (
 	"farental/model"
 	"farental/model/widget/list"
 	"farental/style"
+
 	teaList "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 )
 
@@ -74,7 +76,15 @@ func (m *ListAttachmentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *ListAttachmentModel) View() string {
-	return m.List.View()
+	var containerStyle lipgloss.Style
+
+	if m.Focused {
+		containerStyle = style.FocusedStyle
+	} else {
+		containerStyle = style.BlurredStyle
+	}
+
+	return containerStyle.Render(m.List.View())
 }
 
 func (m *ListAttachmentModel) Focus() {

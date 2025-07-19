@@ -17,8 +17,9 @@ import (
 type Model struct {
 	widgetfocusmanager.BaseFocusableWidget
 
-	TIMoneyAmount   *textinput.Model
-	ListAttachments *ListAttachmentModel
+	TitleAttachments string
+	TIMoneyAmount    *textinput.Model
+	ListAttachments  *ListAttachmentModel
 
 	focusManager *widgetfocusmanager.WidgetFocusManager
 
@@ -39,15 +40,17 @@ func New(width int) *Model {
 
 	m := &Model{
 		Width: width,
+		TitleAttachments: style.DimBottomBorderStyle.Width(width).Render(
+			style.DimTextStyle.Render(lang.L("Attachments"))),
 	}
 
 	m.TIMoneyAmount = textinput.New()
 	m.TIMoneyAmount.Placeholder = lang.L("Money amount")
 	m.TIMoneyAmount.Prompt = ""
-	m.TIMoneyAmount.Width = m.Width
+	m.TIMoneyAmount.Width = m.Width - 3
 	m.TIMoneyAmount.Validate = model.NumericalValidate
 
-	m.ListAttachments = NewListAttachment(width, 5)
+	m.ListAttachments = NewListAttachment(width-2, 5)
 
 	m.focusManager = widgetfocusmanager.New()
 
@@ -130,6 +133,7 @@ func (m *Model) View() string {
 	}
 
 	tui := lipgloss.JoinVertical(lipgloss.Top,
+		m.TitleAttachments,
 		moneyAmountField.String(),
 		m.ListAttachments.View(),
 	)
