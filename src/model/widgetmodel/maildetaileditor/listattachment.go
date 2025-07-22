@@ -5,7 +5,7 @@ import (
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
 	"farental/model"
-	"farental/model/widget/list"
+	"farental/model/widgetmodel/list"
 	"farental/style"
 
 	teaList "github.com/charmbracelet/bubbles/list"

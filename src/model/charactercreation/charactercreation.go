@@ -9,7 +9,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
-	"farental/model/widget/multivalueselector"
+	"farental/model/widgetmodel/multivalueselector"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"

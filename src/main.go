@@ -7,21 +7,9 @@ import (
 	"farental/internal/context"
 	"farental/internal/keybind"
 	"farental/internal/lang"
+	"farental/internal/orvyn"
 	"farental/model"
-	"farental/model/activityselection"
-	"farental/model/charactercreation"
-	"farental/model/characterselection"
-	"farental/model/charactersheet"
-	"farental/model/chat"
-	"farental/model/craftselection"
-	"farental/model/fightselection"
-	"farental/model/gamedashboard"
-	"farental/model/inventory"
-	"farental/model/login"
-	"farental/model/mailbox"
-	"farental/model/maileditor"
-	"farental/model/mailreader"
-	"farental/model/travelselection"
+	"farental/screen/login"
 	"farental/style"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
@@ -57,35 +45,42 @@ func main() {
 
 	bubblehelp.Init()
 
-	registerContents()
+	// registerContents()
 
 	registerKeymapContexts()
 
-	context.ContentManager.SwitchContent(nil, model.ContentLogin) // ContentLogin
+	// context.ContentManager.SwitchContent(nil, model.ContentLogin) // ContentLogin
 
-	p := tea.NewProgram(context.ContentManager.GetCurrentContent(), tea.WithAltScreen())
+	// Orvyn
+	orvyn.Init()
+
+	orvyn.RegisterScreen(login.ID, login.New())
+
+	orvyn.SwitchScreen(login.ID)
+
+	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func registerContents() {
-	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
-	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
-	context.ContentManager.RegisterContent(model.ContentCharacterCreation, charactercreation.New())
-	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
-	context.ContentManager.RegisterContent(model.ContentActivitySelection, activityselection.New())
-	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
-	context.ContentManager.RegisterContent(model.ContentFightSelection, fightselection.New())
-	context.ContentManager.RegisterContent(model.ContentCraftSelection, craftselection.New())
-	context.ContentManager.RegisterContent(model.ContentInventory, inventory.New())
-	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
-	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
-	context.ContentManager.RegisterContent(model.ContentMailbox, mailbox.New())
-	context.ContentManager.RegisterContent(model.ContentMailReader, mailreader.New())
-	context.ContentManager.RegisterContent(model.ContentMailEditor, maileditor.New())
-}
+// func registerContents() {
+// 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
+// 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
+// 	context.ContentManager.RegisterContent(model.ContentCharacterCreation, charactercreation.New())
+// 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
+// 	context.ContentManager.RegisterContent(model.ContentActivitySelection, activityselection.New())
+// 	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
+// 	context.ContentManager.RegisterContent(model.ContentFightSelection, fightselection.New())
+// 	context.ContentManager.RegisterContent(model.ContentCraftSelection, craftselection.New())
+// 	context.ContentManager.RegisterContent(model.ContentInventory, inventory.New())
+// 	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
+// 	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
+// 	context.ContentManager.RegisterContent(model.ContentMailbox, mailbox.New())
+// 	context.ContentManager.RegisterContent(model.ContentMailReader, mailreader.New())
+// 	context.ContentManager.RegisterContent(model.ContentMailEditor, maileditor.New())
+// }
 
 func registerKeymapContexts() {
 	mainHelpStyle := style.MainHelpStyle

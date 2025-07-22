@@ -1,5 +1,20 @@
 package orvyn
 
+import (
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+type Renderable interface {
+	Render(*Size) string
+	GetMinSize() Size
+	GetPreferredSize() Size
+	GetMaxSize() Size
+}
+
+type Updatable interface {
+	Update(tea.Msg) tea.Cmd
+}
+
 // Size is a simple struct to represent a size.
 type Size struct {
 	Width  int

@@ -1,31 +1,33 @@
-package maildetaileditor
+package mailwriter
 
 import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
 	"farental/model"
-	"farental/model/widget/textinput"
+	"farental/model/widgetmodel/textarea"
+	"farental/model/widgetmodel/textinput"
 	"farental/style"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
-	"strings"
 )
 
 type Model struct {
 	widgetfocusmanager.BaseFocusableWidget
 
-	TitleAttachments string
-	TIMoneyAmount    *textinput.Model
-	ListAttachments  *ListAttachmentModel
+	TIReceiver *textinput.Model
+	TISubject  *textinput.Model
+	TIContent  *textarea.Model
 
 	focusManager *widgetfocusmanager.WidgetFocusManager
 
-	Width int
+	width int
 }
 
+// New creates a new Mail Writer widget, Focusable Widgets needs to return as pointer.
 func New(width int) *Model {
 	editModeKeymap := bubblehelp.NewKeymap(2)
 	editModeKeymap.Style = style.MainHelpStyle
@@ -36,58 +38,87 @@ func New(width int) *Model {
 	editModeKeymap.NewKeyBinding(keybind.Quit, false)
 	editModeKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextMailDetailEditorEditMode, editModeKeymap)
+	bubblehelp.RegisterContext(model.ContextMailWriterEditMode, editModeKeymap)
 
-	m := &Model{
-		Width: width,
-		TitleAttachments: style.DimBottomBorderStyle.Width(width).Render(
-			style.DimTextStyle.Render(lang.L("Attachments"))),
-	}
+	m := &Model{width: width}
 
-	m.TIMoneyAmount = textinput.New()
-	m.TIMoneyAmount.Placeholder = lang.L("Money amount")
-	m.TIMoneyAmount.Prompt = ""
-	m.TIMoneyAmount.Width = m.Width - 3
-	m.TIMoneyAmount.Validate = model.NumericalValidate
+	m.TIReceiver = textinput.New()
+	m.TIReceiver.Placeholder = lang.L("Receiver name")
+	m.TIReceiver.Prompt = ""
+	m.TIReceiver.Width = width
 
-	m.ListAttachments = NewListAttachment(width-2, 5)
+	m.TISubject = textinput.New()
+	m.TISubject.Placeholder = lang.L("Subject")
+	m.TISubject.Prompt = ""
+	m.TISubject.Width = width
+
+	m.TIContent = textarea.New()
+	m.TIContent.ShowLineNumbers = false
+	m.TIContent.Prompt = ""
+	m.TIContent.Placeholder = lang.L("Mail content")
+	m.TIContent.SetWidth(width + 1)
+	m.TIContent.SetHeight(20)
 
 	m.focusManager = widgetfocusmanager.New()
 
-	m.focusManager.Add(m.TIMoneyAmount)
-	m.focusManager.Add(m.ListAttachments)
+	m.focusManager.Add(m.TIReceiver)
+	m.focusManager.Add(m.TISubject)
+	m.focusManager.Add(m.TIContent)
 
 	return m
 }
 
-func (m *Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return model.InitCmd
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		m.TIMoneyAmount.SetValue("")
-		m.ListAttachments.List.Blur()
+		bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
+		m.EditMode = false
+		m.focusManager.BlurCurrent()
+
+		m.TIReceiver.SetValue("")
+		m.TISubject.SetValue("")
+		m.TIContent.SetValue("")
 
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, keybind.Help):
-			bubblehelp.ShowAll = !bubblehelp.ShowAll
-			return m, nil
+			if !m.TIContent.Model.Focused() {
+				bubblehelp.ShowAll = !bubblehelp.ShowAll
+				return m, nil
+			}
 		}
 	}
 
 	if m.EditMode {
-		return m.updateEditMode(msg)
+		return m.editModeUpdate(msg)
 	}
 
-	return m.updateNormalMode(msg)
+	return m.normalModeUpdate(msg)
 }
 
-func (m *Model) updateNormalMode(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) editModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Esc):
+			m.ExitEditMode()
+
+			return m, nil
+		}
+	}
+
+	m.focusManager.Update(msg)
+
+	return m, nil
+}
+
+func (m *Model) normalModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -99,25 +130,8 @@ func (m *Model) updateNormalMode(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *Model) updateEditMode(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keybind.Esc):
-			m.ExitEditMode()
-
-			return m, nil
-		}
-	}
-
-	cmd := m.focusManager.Update(msg)
-
-	return m, cmd
-}
-
-func (m *Model) View() string {
+func (m Model) View() string {
 	var containerStyle lipgloss.Style
-	var moneyAmountField strings.Builder
 
 	containerStyle = style.BlurContainerStyle
 
@@ -125,20 +139,14 @@ func (m *Model) View() string {
 		containerStyle = style.ContainerStyle
 	}
 
-	moneyAmountField.WriteString(m.TIMoneyAmount.View())
-
-	if m.TIMoneyAmount.Err != nil {
-		moneyAmountField.WriteString("\n")
-		moneyAmountField.WriteString(style.ErrorStyle.Render(m.TIMoneyAmount.Err.Error()))
-	}
-
 	tui := lipgloss.JoinVertical(lipgloss.Top,
-		m.TitleAttachments,
-		moneyAmountField.String(),
-		m.ListAttachments.View(),
+		m.TIReceiver.View(),
+		m.TISubject.View(),
+		m.TIContent.View(),
 	)
 
 	return containerStyle.Render(tui)
+
 }
 
 func (m *Model) Focus() {
@@ -157,7 +165,7 @@ func (m *Model) GetEditModeKeybind() *key.Binding {
 func (m *Model) EnterEditMode() {
 	m.BaseFocusableWidget.EnterEditMode()
 	m.focusManager.Focus(0)
-	bubblehelp.SwitchContext(model.ContextMailDetailEditorEditMode)
+	bubblehelp.SwitchContext(model.ContextMailWriterEditMode)
 }
 
 func (m *Model) ExitEditMode() {

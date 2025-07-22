@@ -14,11 +14,11 @@ type Screen interface {
 	// OnExit is called when the screen is being exited. Can return a struct that will be passed to the next screen.
 	OnExit() interface{}
 
-	// Update takes the current tea.Msg and can return a tea.Cmd
-	Update(tea.Msg) tea.Cmd
+	// Updatable Screen can be updated.
+	Updatable
 
 	// Render returns the view string of the whole screen
-	Render() string
+	Render() Layout
 
 	// GetID returns the ScreenID of the screen.
 	GetID() ScreenID
@@ -53,4 +53,8 @@ func (b *BaseScreen) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	return tea.Batch(cmds...)
+}
+
+func (b *BaseScreen) AddWidget(w Widget) {
+	b.Widgets = append(b.Widgets, w)
 }

@@ -2,12 +2,11 @@ package orvyn
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 type Focusable interface {
-	// Update is the same signature as the Widget interface.
-	Update(tea.Msg) tea.Cmd
+	// Updatable to be able to update a focusable widget.
+	Updatable
 
 	// OnFocus is called when the widget gains the focus.
 	OnFocus()

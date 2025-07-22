@@ -8,7 +8,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/model"
-	"farental/model/widget/filterselectionlist"
+	"farental/model/widgetmodel/filterselectionlist"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"

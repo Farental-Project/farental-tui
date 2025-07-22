@@ -44,7 +44,9 @@ func Render() string {
 		return "Orvyn : No Current Screen"
 	}
 
-	return screens[currentScreenID].Render()
+	layout := screens[currentScreenID].Render()
+
+	return layout.Render(WindowSize)
 }
 
 // Screen management

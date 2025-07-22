@@ -5,8 +5,8 @@ import (
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
 	"farental/model"
-	"farental/model/widget/maildetaileditor"
-	"farental/model/widget/mailwriter"
+	"farental/model/widgetmodel/maildetaileditor"
+	"farental/model/widgetmodel/mailwriter"
 	"farental/style"
 	"strings"
 
