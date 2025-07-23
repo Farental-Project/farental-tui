@@ -34,8 +34,6 @@ func New() *Screen {
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	s.BaseScreen.Update(msg)
 
-	s.layout.Update(msg)
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {

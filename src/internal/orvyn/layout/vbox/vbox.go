@@ -17,7 +17,7 @@ func New(elements []orvyn.Renderable) *Layout {
 	return l
 }
 
-func (l *Layout) ResizeLayout(size *orvyn.Size) {
+func (l *Layout) Render(size *orvyn.Size) string {
 	var b strings.Builder
 
 	for i, e := range l.GetElements() {
@@ -27,6 +27,8 @@ func (l *Layout) ResizeLayout(size *orvyn.Size) {
 
 		b.WriteString(e.Render(orvyn.NewSize(l.GetMinSize().Width, e.GetMinSize().Height)))
 	}
+
+	return b.String()
 }
 
 func (l *Layout) GetMinSize() orvyn.Size {
