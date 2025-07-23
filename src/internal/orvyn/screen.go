@@ -25,36 +25,9 @@ type Screen interface {
 }
 
 type BaseScreen struct {
-	ID      ScreenID
-	Widgets []Widget
+	ID ScreenID
 }
 
 func (b *BaseScreen) GetID() ScreenID {
 	return b.ID
-}
-
-// OnEnter default behaviour init every Widget.
-func (b *BaseScreen) OnEnter(_ interface{}) tea.Cmd {
-	var cmds []tea.Cmd
-
-	for _, w := range b.Widgets {
-		cmds = append(cmds, w.Init())
-	}
-
-	return tea.Batch(cmds...)
-}
-
-// Update default behaviour updates every Widget.
-func (b *BaseScreen) Update(msg tea.Msg) tea.Cmd {
-	var cmds []tea.Cmd
-
-	for _, w := range b.Widgets {
-		cmds = append(cmds, w.Update(msg))
-	}
-
-	return tea.Batch(cmds...)
-}
-
-func (b *BaseScreen) AddWidget(w Widget) {
-	b.Widgets = append(b.Widgets, w)
 }

@@ -21,7 +21,7 @@ func (l *CenterLayout) Render(size orvyn.Size) string {
 	return lipgloss.Place(
 		size.Width, size.Height,
 		lipgloss.Center, lipgloss.Center,
-		l.GetElements()[0].Render(l.GetMinSize()),
+		l.GetElements()[0].Render(size),
 	)
 }
 

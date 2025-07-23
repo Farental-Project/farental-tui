@@ -20,8 +20,22 @@ func NewVBoxLayout(elements []orvyn.Renderable) *VBoxLayout {
 func (l *VBoxLayout) Render(size orvyn.Size) string {
 	var b strings.Builder
 	var s orvyn.Size
+	var minSize orvyn.Size
+	var prefSize orvyn.Size
+	var margin int
 
-	s.Width = l.GetMinSize().Width
+	margin = 10
+
+	s = orvyn.NewSize(size.Width-margin, 0)
+
+	minSize = l.GetMinSize()
+	prefSize = l.GetPreferredSize()
+
+	if s.Width <= minSize.Width {
+		s.Width = minSize.Width - margin
+	} else if s.Width >= prefSize.Width {
+		s.Width = prefSize.Width - margin
+	}
 
 	for i, e := range l.GetElements() {
 		if i > 0 {
