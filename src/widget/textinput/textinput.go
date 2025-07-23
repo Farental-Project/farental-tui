@@ -43,7 +43,7 @@ func (m *Widget) OnBlur() {
 	m.Model.Blur()
 }
 
-func (m *Widget) Render(size *orvyn.Size) string {
+func (m *Widget) Render(size orvyn.Size) string {
 	var border lipgloss.Style
 
 	if m.IsFocused() {
@@ -52,18 +52,32 @@ func (m *Widget) Render(size *orvyn.Size) string {
 		border = style.BlurredStyle
 	}
 
-	return border.Width(size.Width).
-		Height(size.Height).Render(m.Model.View())
+	return border.Render(m.Model.View())
+}
+
+func (m *Widget) Resize(size orvyn.Size) {
+	// Take borders into account
+	m.Model.Width = size.Width - 2
+	m.Model.CharLimit = size.Width - 2 // For the caret
+}
+
+func (m *Widget) GetSize() orvyn.Size {
+	// Take borders into account
+	return orvyn.NewSize(m.Model.Width+2, 3)
 }
 
 func (m *Widget) GetMinSize() orvyn.Size {
-	return *orvyn.NewSize(20, 1)
+	return orvyn.NewSize(20, 1)
 }
 
 func (m *Widget) GetPreferredSize() orvyn.Size {
-	return *orvyn.NewSize(20, 1)
+	return orvyn.NewSize(20, 1)
 }
 
 func (m *Widget) GetMaxSize() orvyn.Size {
-	return *orvyn.NewSize(20, 1)
+	return orvyn.NewSize(20, 1)
 }
+
+func (m *Widget) OnEnterInput() {}
+
+func (m *Widget) OnExitInput() {}

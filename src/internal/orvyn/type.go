@@ -5,7 +5,9 @@ import (
 )
 
 type Renderable interface {
-	Render(*Size) string
+	Render(Size) string
+	Resize(Size)
+	GetSize() Size
 	GetMinSize() Size
 	GetPreferredSize() Size
 	GetMaxSize() Size
@@ -21,7 +23,7 @@ type Size struct {
 	Height int
 }
 
-// NewSize returns a new *Size.
-func NewSize(width, height int) *Size {
-	return &Size{width, height}
+// NewSize returns a new Size.
+func NewSize(width, height int) Size {
+	return Size{width, height}
 }

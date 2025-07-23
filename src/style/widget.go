@@ -8,4 +8,5 @@ func SetTextInputStyle(ti *textinput.Model) {
 	ti.TextStyle = NormalStyle
 	ti.Cursor.Style = HighlightStyle
 	ti.Cursor.TextStyle = NormalStyle
+	ti.Prompt = ""
 }

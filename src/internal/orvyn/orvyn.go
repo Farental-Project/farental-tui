@@ -8,7 +8,7 @@ import (
 
 var (
 	// WindowSize hold the size of the Window.
-	WindowSize *Size
+	WindowSize Size
 
 	// screens is the map holding all Screen that are registered in orvyn.
 	screens map[ScreenID]Screen

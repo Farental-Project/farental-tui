@@ -1,37 +1,43 @@
-package vbox
+package layout
 
 import (
 	"farental/internal/orvyn"
 	"strings"
 )
 
-type Layout struct {
+type VBoxLayout struct {
 	orvyn.BaseLayout
 }
 
-func New(elements []orvyn.Renderable) *Layout {
-	l := new(Layout)
+func NewVBoxLayout(elements []orvyn.Renderable) *VBoxLayout {
+	l := new(VBoxLayout)
 
-	l.BaseLayout = *orvyn.NewBaseLayout(elements)
+	l.BaseLayout = orvyn.NewBaseLayout(elements)
 
 	return l
 }
 
-func (l *Layout) Render(size *orvyn.Size) string {
+func (l *VBoxLayout) Render(size orvyn.Size) string {
 	var b strings.Builder
+	var s orvyn.Size
+
+	s.Width = l.GetMinSize().Width
 
 	for i, e := range l.GetElements() {
 		if i > 0 {
 			b.WriteString("\n")
 		}
 
-		b.WriteString(e.Render(orvyn.NewSize(l.GetMinSize().Width, e.GetMinSize().Height)))
+		s.Height = e.GetMinSize().Height
+
+		e.Resize(s)
+		b.WriteString(e.Render(s))
 	}
 
 	return b.String()
 }
 
-func (l *Layout) GetMinSize() orvyn.Size {
+func (l *VBoxLayout) GetMinSize() orvyn.Size {
 	var size orvyn.Size
 
 	for _, e := range l.GetElements() {
@@ -46,7 +52,7 @@ func (l *Layout) GetMinSize() orvyn.Size {
 	return size
 }
 
-func (l *Layout) GetPreferredSize() orvyn.Size {
+func (l *VBoxLayout) GetPreferredSize() orvyn.Size {
 	var size orvyn.Size
 
 	for _, e := range l.GetElements() {
@@ -61,7 +67,7 @@ func (l *Layout) GetPreferredSize() orvyn.Size {
 	return size
 }
 
-func (l *Layout) GetMaxSize() orvyn.Size {
+func (l *VBoxLayout) GetMaxSize() orvyn.Size {
 	var size orvyn.Size
 
 	for _, e := range l.GetElements() {

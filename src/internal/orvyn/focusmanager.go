@@ -29,11 +29,11 @@ func NewFocusManager() *FocusManager {
 
 	f.NextFocusKeybind = key.NewBinding(
 		key.WithKeys("tab"),
-		key.WithKeys("next focus"),
+		key.WithHelp("tab", "next focus"),
 	)
 	f.PreviousFocusKeybind = key.NewBinding(
 		key.WithKeys("shift+tab"),
-		key.WithKeys("previous focus"),
+		key.WithHelp("shift+tab", "previous focus"),
 	)
 
 	return f
@@ -140,7 +140,7 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 		for i, widget := range f.widgets {
 			keybind := widget.GetFocusKeybind()
 
-			if keybind != nil {
+			if keybind == nil {
 				continue
 			}
 
