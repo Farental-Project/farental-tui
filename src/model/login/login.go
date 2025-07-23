@@ -5,7 +5,6 @@ import (
 	"farental/art"
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
@@ -28,8 +27,6 @@ type Model struct {
 	Inputs [2]textinput.Model
 	Focus  int
 	Title  string
-
-	Keymap config.ModularKeyMap
 }
 
 func New() Model {

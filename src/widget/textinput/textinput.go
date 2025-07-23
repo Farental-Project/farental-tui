@@ -24,7 +24,8 @@ func New() *Widget {
 }
 
 func (m *Widget) Init() tea.Cmd {
-	return nil
+	m.Model.SetValue("")
+	return textinput.Blink
 }
 
 func (m *Widget) Update(msg tea.Msg) tea.Cmd {
@@ -57,25 +58,36 @@ func (m *Widget) Render(size orvyn.Size) string {
 
 func (m *Widget) Resize(size orvyn.Size) {
 	// Take borders into account
-	m.Model.Width = size.Width - 2
-	m.Model.CharLimit = size.Width - 2 // For the caret
+	m.Model.Width = size.Width - 1
+
+	// For the Bubbles textinput to process the update
+	focused := m.Model.Focused()
+	if !focused {
+		m.Model.Focus()
+	}
+
+	m.Model, _ = m.Model.Update(nil)
+
+	if !focused {
+		m.Model.Blur()
+	}
 }
 
 func (m *Widget) GetSize() orvyn.Size {
 	// Take borders into account
-	return orvyn.NewSize(m.Model.Width+2, 3)
+	return orvyn.NewSize(m.Model.Width+1, 3)
 }
 
 func (m *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(20, 1)
+	return orvyn.NewSize(26, 3)
 }
 
 func (m *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(20, 1)
+	return orvyn.NewSize(46, 3)
 }
 
 func (m *Widget) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(20, 1)
+	return orvyn.NewSize(95, 3)
 }
 
 func (m *Widget) OnEnterInput() {}

@@ -2,14 +2,28 @@ package login
 
 import (
 	"farental/art"
+	"farental/core/data/api"
+	"farental/core/request"
+	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
+	"farental/model"
+	"farental/screen/characterselection"
+	"farental/style"
+	"farental/widget/errormessage"
+	"farental/widget/help"
 	"farental/widget/textinput"
+	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	teatextinput "github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
+	"github.com/spf13/viper"
+	"log"
+	"net/http"
 )
 
 const ID orvyn.ScreenID = "login"
@@ -17,8 +31,14 @@ const ID orvyn.ScreenID = "login"
 type Screen struct {
 	orvyn.BaseScreen
 
+	title *orvyn.StaticRenderable
+
 	tiEmail    *textinput.Widget
 	tiPassword *textinput.Widget
+
+	error *errormessage.Widget
+
+	help *help.Widget
 
 	layout *layout.CenterLayout
 
@@ -28,6 +48,11 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	s.title = orvyn.NewStaticRenderable(fmt.Sprintf("%s",
+		style.TitleStyle.Render(art.CreateASCIIArtBrokenTitle("farental"))))
+
+	gap := orvyn.NewStaticRenderable("\n")
+
 	s.tiEmail = textinput.New()
 	s.tiEmail.Placeholder = lang.L("Email")
 
@@ -36,7 +61,24 @@ func New() *Screen {
 	s.tiPassword.EchoMode = teatextinput.EchoPassword
 	s.tiPassword.EchoCharacter = art.CharBullet
 
-	s.layout = layout.NewCenterLayout(layout.NewVBoxLayout([]orvyn.Renderable{s.tiEmail, s.tiPassword}))
+	s.error = errormessage.New()
+
+	s.help = help.New()
+
+	s.layout = layout.NewCenterLayout(
+		layout.NewVBoxLayout(
+			[]orvyn.Renderable{
+				s.title,
+				gap,
+				gap,
+				s.tiEmail,
+				s.tiPassword,
+				gap,
+				s.error,
+				gap,
+				s.help},
+		),
+	)
 
 	s.focusManager = orvyn.NewFocusManager()
 	s.focusManager.Add(s.tiEmail)
@@ -47,13 +89,23 @@ func New() *Screen {
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
-	s.BaseScreen.Update(msg)
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
+
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+
+			return nil
+
+		case key.Matches(msg, keybind.Enter):
+			if s.submit() {
+				return s.nextScreen()
+			}
+
+			return nil
 		}
 	}
 
@@ -63,7 +115,38 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
-	return s.BaseScreen.OnEnter(s)
+	var cmds []tea.Cmd
+
+	cmds = append(cmds, s.tiEmail.Init())
+	cmds = append(cmds, s.tiPassword.Init())
+
+	bubblehelp.SwitchContext(model.ContextLogin)
+
+	context.Client.Cookies = make([]*http.Cookie, 0)
+
+	loginToken := viper.GetString("logintoken")
+
+	if loginToken != "" {
+		ok := s.skipLogin(loginToken)
+
+		if ok {
+			return s.nextScreen()
+		}
+
+		// Expired token
+		viper.Set("logintoken", "")
+	}
+
+	lastUsedEmail := viper.GetString("lastusedemail")
+
+	if lastUsedEmail != "" {
+		s.tiEmail.SetValue(lastUsedEmail)
+		s.focusManager.Focus(1)
+	} else {
+		s.focusManager.Focus(0)
+	}
+
+	return tea.Batch(cmds...)
 }
 
 func (s *Screen) OnExit() interface{} {
@@ -72,4 +155,95 @@ func (s *Screen) OnExit() interface{} {
 
 func (s *Screen) Render() orvyn.Layout {
 	return s.layout
+}
+
+func (s *Screen) submit() bool {
+	email := s.tiEmail.Value()
+	password := s.tiPassword.Value()
+
+	if len(email) == 0 || len(password) == 0 {
+		s.error.SetErrorMsg(
+			lang.L("Please input e-mail and password"))
+		return false
+	}
+
+	req := request.Login()
+
+	req.SetBody(
+		api.AuthLoginBody{
+			Email:    email,
+			Password: password,
+		})
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		s.error.SetError(err)
+		return false
+	}
+
+	data := resp.Result().(*api.AuthSuccessResponse)
+
+	viper.Set("logintoken", data.Data)
+
+	context.Client.SetCookie(resp.Cookies()[0])
+
+	viper.Set("lastusedemail", email)
+	err = viper.WriteConfig()
+
+	if err != nil {
+		log.Println(lang.L("could not save config : "), err)
+	}
+
+	s.getActiveCharacter()
+
+	// Avoid keeping the password in the RAM
+	s.tiPassword.SetValue("")
+
+	return true
+}
+
+func (s *Screen) skipLogin(token string) bool {
+	cookie := http.Cookie{
+		Name:   "jwt",
+		Value:  token,
+		Secure: true,
+	}
+
+	context.Client.SetCookie(&cookie)
+
+	ok := s.getActiveCharacter()
+
+	if !ok {
+		// Clear the bad cookie
+		context.Client.Cookies = make([]*http.Cookie, 0)
+	}
+
+	return ok
+}
+
+func (s *Screen) getActiveCharacter() bool {
+	resp, err := helper.SendRequest(request.CharacterGetActive())
+
+	if err != nil {
+		s.error.SetError(err)
+		return false
+	}
+
+	context.CharacterID = 0
+
+	if resp.StatusCode() == 200 {
+		character, ok := resp.Result().(*api.CharacterBasicResponse)
+
+		if ok {
+			context.CharacterID = character.ID
+			return true
+		}
+	}
+
+	return false
+}
+
+func (s *Screen) nextScreen() tea.Cmd {
+	return orvyn.SwitchScreen(characterselection.ID)
 }
