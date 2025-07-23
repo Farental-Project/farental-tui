@@ -76,7 +76,8 @@ func New() *Screen {
 				gap,
 				s.error,
 				gap,
-				s.help},
+				s.help,
+			},
 		),
 	)
 
