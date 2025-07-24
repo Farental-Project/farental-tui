@@ -11,7 +11,7 @@ import (
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
 	"farental/model"
-	"farental/screen/characterselection"
+	"farental/screen"
 	"farental/style"
 	"farental/widget/errormessage"
 	"farental/widget/help"
@@ -26,12 +26,10 @@ import (
 	"net/http"
 )
 
-const ID orvyn.ScreenID = "login"
-
 type Screen struct {
 	orvyn.BaseScreen
 
-	title *orvyn.StaticRenderable
+	title *orvyn.SimpleRenderable
 
 	tiEmail    *textinput.Widget
 	tiPassword *textinput.Widget
@@ -48,10 +46,8 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewStaticRenderable(fmt.Sprintf("%s",
+	s.title = orvyn.NewSimpleRenderable(fmt.Sprintf("%s",
 		style.TitleStyle.Render(art.CreateASCIIArtBrokenTitle("farental"))))
-
-	gap := orvyn.NewStaticRenderable("\n")
 
 	s.tiEmail = textinput.New()
 	s.tiEmail.Placeholder = lang.L("Email")
@@ -69,13 +65,13 @@ func New() *Screen {
 		layout.NewVBoxLayout(
 			[]orvyn.Renderable{
 				s.title,
-				gap,
-				gap,
+				orvyn.VGap,
+				orvyn.VGap,
 				s.tiEmail,
 				s.tiPassword,
-				gap,
+				orvyn.VGap,
 				s.error,
-				gap,
+				orvyn.VGap,
 				s.help,
 			},
 		),
@@ -246,5 +242,5 @@ func (s *Screen) getActiveCharacter() bool {
 }
 
 func (s *Screen) nextScreen() tea.Cmd {
-	return orvyn.SwitchScreen(characterselection.ID)
+	return orvyn.SwitchScreen(screen.IDCharacterSelection)
 }

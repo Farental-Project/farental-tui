@@ -9,6 +9,8 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/model"
+	"farental/screen"
+	"farental/screen/charactercreation"
 	"farental/screen/characterselection"
 	"farental/screen/login"
 	"farental/style"
@@ -55,10 +57,11 @@ func main() {
 	// Orvyn
 	orvyn.Init()
 
-	orvyn.RegisterScreen(login.ID, login.New())
-	orvyn.RegisterScreen(characterselection.ID, characterselection.New())
+	orvyn.RegisterScreen(screen.IDLogin, login.New())
+	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
+	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
 
-	orvyn.SwitchScreen(login.ID)
+	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
@@ -101,20 +104,18 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.Style = mainHelpStyle
 	characterSelectionKeymap.NewKeyBinding(keybind.Up, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Down, false)
-	characterSelectionKeymap.NewKeyBinding(keybind.Enter, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.NKey, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.Enter, true)
 	characterSelectionKeymap.SetHelpDesc(keybind.NKey, lang.L("new character"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSelectionKeymap.SetHelpDesc(keybind.Esc, lang.L("logout"))
-	characterSelectionKeymap.NewKeyBinding(keybind.Quit, true)
+	characterSelectionKeymap.NewKeyBinding(keybind.Quit, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(model.ContextCharacterSel, characterSelectionKeymap)
 
 	characterCreationKeymap := bubblehelp.NewKeymap(2)
 	characterCreationKeymap.Style = mainHelpStyle
-	characterCreationKeymap.NewKeyBinding(keybind.Tab, true)
-	characterCreationKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	characterCreationKeymap.NewKeyBinding(keybind.Enter, true)
 	characterCreationKeymap.NewKeyBinding(keybind.Esc, true)
 	characterCreationKeymap.NewKeyBinding(keybind.Quit, true)

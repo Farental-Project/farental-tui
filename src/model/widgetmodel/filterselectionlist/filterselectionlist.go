@@ -13,10 +13,8 @@ import (
 )
 
 type Model struct {
-	List                 list.Model
-	Items                []list.Item
-	showIncreaseDecrease bool
-	showPageUpDown       bool
+	List  list.Model
+	Items []list.Item
 
 	Width int
 
@@ -48,18 +46,10 @@ func New(title string, listItemDelegate list.ItemDelegate, loadData func(m *Mode
 	m.CustomEnterDesc = ""
 	m.loadData = loadData
 	m.submit = submit
-	m.showIncreaseDecrease = false
-	m.showPageUpDown = false
 
 	m.updateKeymap()
 
 	return m
-}
-
-func (m *Model) SetShowExtraKeybinds(showIncreaseDecrease, showPageUpDown bool) {
-	m.showIncreaseDecrease = showIncreaseDecrease
-	m.showPageUpDown = showPageUpDown
-	m.updateKeymap()
 }
 
 func (m Model) Init() tea.Cmd {
