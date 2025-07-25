@@ -1,6 +1,7 @@
 package runningtask
 
 import (
+	"farental/art"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/lang"
@@ -32,24 +33,8 @@ func New(width int) Model {
 	m.spinner = spinner.New()
 	m.spinner.Style = style.TitleStyle
 	m.spinner.Spinner = spinner.Spinner{
-		Frames: []string{
-			"░░░░░░░░░░",
-			"▒░░░░░░░░░",
-			"▓▒░░░░░░░░",
-			"█▓▒░░░░░░░",
-			"▓█▓▒░░░░░░",
-			"▒▓█▓▒░░░░░",
-			"░▒▓█▓▒░░░░",
-			"░░▒▓█▓▒░░░",
-			"░░░▒▓█▓▒░░",
-			"░░░░▒▓█▓▒░",
-			"░░░░░▒▓█▓▒",
-			"░░░░░░▒▓█▓",
-			"░░░░░░░▒▓█",
-			"░░░░░░░░▒▓",
-			"░░░░░░░░░▒",
-		},
-		FPS: time.Second / 9, //nolint:mnd
+		Frames: art.WaitSpinner,
+		FPS:    time.Second / 9, //nolint:mnd
 	}
 
 	return m

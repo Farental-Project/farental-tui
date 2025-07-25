@@ -1,0 +1,114 @@
+package runningtask
+
+import (
+	"farental/art"
+	"farental/internal/context"
+	"farental/internal/helper"
+	"farental/internal/lang"
+	"farental/internal/orvyn"
+	"farental/style"
+	"fmt"
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"strings"
+	"time"
+)
+
+type Style struct {
+	Widget        lipgloss.Style
+	NoTask        lipgloss.Style
+	TaskRunning   lipgloss.Style
+	SpinnerWidget lipgloss.Style
+	Spinner       lipgloss.Style
+}
+
+type Widget struct {
+	Style Style
+
+	spinner spinner.Model
+}
+
+func New() *Widget {
+	w := new(Widget)
+
+	w.Style = Style{
+		Widget: style.ContainerStyle.
+			AlignHorizontal(lipgloss.Center),
+		NoTask:        style.DimTextStyle,
+		TaskRunning:   style.TitleStyle,
+		SpinnerWidget: style.ContainerStyle,
+		Spinner:       style.TitleStyle,
+	}
+
+	w.spinner = spinner.New()
+	w.spinner.Spinner = spinner.Spinner{
+		Frames: art.WaitSpinner,
+		FPS:    time.Second / 9,
+	}
+
+	return w
+}
+
+func (w *Widget) Init() tea.Cmd {
+	return w.spinner.Tick
+}
+
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case spinner.TickMsg:
+		w.spinner, cmd = w.spinner.Update(msg)
+
+		return cmd
+	}
+
+	return nil
+}
+
+func (w *Widget) Render(size orvyn.Size) string {
+	var b strings.Builder
+
+	w.Style.Widget = w.Style.Widget.Width(size.Width - 2)
+
+	if context.RunningTask != nil {
+		b.WriteString(w.Style.TaskRunning.Render(
+			context.RunningTask.Title,
+		))
+		b.WriteString("\n")
+
+		if context.RunningTask.RemainingTimeHours > 0 {
+			b.WriteString(fmt.Sprintf("%s : %s", lang.L("Remaining time"),
+				helper.HoursDecFormat(context.RunningTask.RemainingTimeHours)))
+			b.WriteString("\n")
+			b.WriteString(w.Style.SpinnerWidget.Render(w.spinner.View()))
+		} else {
+			b.WriteString(lang.L("Completed! Waiting for claim!"))
+		}
+	} else {
+		b.WriteString(w.Style.NoTask.Render(
+			lang.L("No running task")),
+		)
+	}
+
+	return w.Style.Widget.Render(b.String())
+}
+
+func (w *Widget) Resize(size orvyn.Size) {}
+
+func (w *Widget) GetSize() orvyn.Size {
+	return orvyn.NewSize(0, 0)
+}
+
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(0, 0)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return orvyn.NewSize(0, 0)
+}
+
+func (w *Widget) GetMaxSize() orvyn.Size {
+	return orvyn.NewSize(0, 0)
+}

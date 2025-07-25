@@ -1,0 +1,160 @@
+package simplelogviewer
+
+import (
+	"farental/internal/orvyn"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"strings"
+)
+
+type Style struct {
+	FocusedWidget lipgloss.Style
+	BlurredWidget lipgloss.Style
+	FocusedTitle  lipgloss.Style
+	BlurredTitle  lipgloss.Style
+	line          lipgloss.Style
+}
+
+type Keybind struct {
+	ScrollUp   key.Binding
+	ScrollDown key.Binding
+}
+
+type Widget struct {
+	orvyn.BaseFocusable
+
+	Style   Style
+	Keybind Keybind
+
+	title    string
+	content  []string
+	viewport viewport.Model
+
+	widgetStyle lipgloss.Style
+	titleStyle  lipgloss.Style
+
+	titleHeight int
+
+	focusKeybind key.Binding
+}
+
+func New(title string) *Widget {
+	w := new(Widget)
+
+	w.title = title
+	w.content = make([]string, 0)
+
+	w.viewport = viewport.New(0, 0)
+
+	w.Style = Style{
+		FocusedWidget: lipgloss.NewStyle().
+			BorderStyle(lipgloss.NormalBorder()),
+		BlurredWidget: lipgloss.NewStyle().
+			BorderStyle(lipgloss.HiddenBorder()),
+		FocusedTitle: lipgloss.NewStyle().
+			Bold(true),
+		BlurredTitle: lipgloss.NewStyle().
+			Italic(true),
+		line: lipgloss.NewStyle(),
+	}
+
+	w.Keybind = Keybind{
+		ScrollUp: key.NewBinding(
+			key.WithKeys("up"),
+		),
+		ScrollDown: key.NewBinding(
+			key.WithKeys("down"),
+		),
+	}
+
+	return w
+}
+
+func (w *Widget) OnFocus() {
+	w.widgetStyle = w.Style.FocusedWidget
+	w.titleStyle = w.Style.FocusedTitle
+	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
+}
+
+func (w *Widget) OnBlur() {
+	w.widgetStyle = w.Style.BlurredWidget
+	w.titleStyle = w.Style.BlurredTitle
+	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
+}
+
+func (w *Widget) OnEnterInput() {}
+
+func (w *Widget) OnExitInput() {}
+
+func (w *Widget) Init() tea.Cmd {
+	return nil
+}
+
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, w.Keybind.ScrollUp):
+			w.viewport.ScrollUp(1)
+
+		case key.Matches(msg, w.Keybind.ScrollDown):
+			w.viewport.ScrollDown(1)
+
+		}
+	}
+
+	return nil
+}
+
+func (w *Widget) Render(size orvyn.Size) string {
+	var b strings.Builder
+
+	b.WriteString(w.titleStyle.Render(w.title))
+	b.WriteString("\n")
+	b.WriteString(w.viewport.View())
+
+	return w.widgetStyle.Render(b.String())
+}
+
+func (w *Widget) Resize(size orvyn.Size) {
+	w.viewport.Width = size.Width
+	w.viewport.Height = size.Height - w.titleHeight
+}
+
+func (w *Widget) GetSize() orvyn.Size {
+	return orvyn.NewSize(w.viewport.Width,
+		w.viewport.Height+w.titleHeight)
+}
+
+func (w *Widget) GetMinSize() orvyn.Size {
+
+	return orvyn.NewSize(10, w.titleHeight+1)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return orvyn.NewSize(25, w.titleHeight+15)
+}
+
+func (w *Widget) GetMaxSize() orvyn.Size {
+	return orvyn.NewSize(100, 100)
+}
+
+func (w *Widget) SetContent(content []string) {
+	w.content = content
+	w.refresh()
+}
+
+func (w *Widget) AppendContent(content string) {
+	w.content = append(w.content, content)
+	w.refresh()
+}
+
+func (w *Widget) refresh() {
+	w.viewport.SetContent(w.Style.line.
+		Width(w.viewport.Width).Render(
+		strings.Join(w.content, "\n")))
+
+	w.viewport.GotoBottom()
+}

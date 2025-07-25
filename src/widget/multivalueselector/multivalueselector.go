@@ -133,9 +133,14 @@ func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 
 func (w *Widget[T]) Render(size orvyn.Size) string {
 	var b strings.Builder
+	var margin int
+
+	margin += w.widgetStyle.GetBorderLeftSize()
+	margin += w.widgetStyle.GetBorderRightSize()
+	margin += 4 // "< " & " >"
 
 	b.WriteString(w.controlStyle.Render("< "))
-	b.WriteString(w.valueStyle.Width(size.Width - 6).
+	b.WriteString(w.valueStyle.Width(size.Width - margin).
 		AlignHorizontal(lipgloss.Center).
 		Render(w.GetSelectedValue().RenderValue()))
 	b.WriteString(w.controlStyle.Render(" >"))
