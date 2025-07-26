@@ -12,9 +12,9 @@ import (
 	"farental/model"
 	"farental/screen"
 	"farental/style"
-	"farental/widget/errormessage"
 	"farental/widget/help"
 	"farental/widget/list"
+	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,7 +31,7 @@ type Screen struct {
 	characters []tealist.Item
 	list       *list.Widget
 
-	error *errormessage.Widget
+	statusMessage *statusmessage.Widget
 
 	help *help.Widget
 
@@ -59,7 +59,7 @@ func New() *Screen {
 	s.list.PreferredSize.Width = 45
 	s.list.MinSize.Height = 13
 
-	s.error = errormessage.New()
+	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
 	s.layout = layout.NewCenterLayout(
@@ -68,7 +68,7 @@ func New() *Screen {
 				s.title,
 				orvyn.VGap,
 				s.list,
-				s.error,
+				s.statusMessage,
 				orvyn.VGap,
 				s.help,
 			},
@@ -151,7 +151,7 @@ func (s *Screen) submit() bool {
 	resp, err := helper.SendRequest(req)
 
 	if err != nil {
-		s.error.SetError(err)
+		s.statusMessage.SetError(err)
 		return false
 	}
 
@@ -172,7 +172,7 @@ func (s *Screen) loadCharacters() {
 	resp, err := helper.SendRequest(request.CharacterGetAll())
 
 	if err != nil {
-		s.error.SetError(err)
+		s.statusMessage.SetError(err)
 		return
 	}
 

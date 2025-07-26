@@ -12,6 +12,7 @@ import (
 	"farental/screen"
 	"farental/screen/charactercreation"
 	"farental/screen/characterselection"
+	"farental/screen/dashboard"
 	"farental/screen/login"
 	"farental/style"
 	"github.com/halsten-dev/bubblehelp"
@@ -60,6 +61,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDLogin, login.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
+	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
 
 	orvyn.SwitchScreen(screen.IDLogin)
 

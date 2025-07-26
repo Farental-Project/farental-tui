@@ -10,17 +10,21 @@ import (
 )
 
 type Widget struct {
+	orvyn.BaseWidget
 	orvyn.BaseFocusable
+
 	textinput.Model
 }
 
 func New() *Widget {
-	m := new(Widget)
+	w := new(Widget)
 
-	m.Model = textinput.New()
-	style.SetTextInputStyle(&m.Model)
+	w.BaseWidget = *orvyn.NewBaseWidget()
 
-	return m
+	w.Model = textinput.New()
+	style.SetTextInputStyle(&w.Model)
+
+	return w
 }
 
 func (m *Widget) Init() tea.Cmd {

@@ -27,6 +27,7 @@ type Keybind struct {
 }
 
 type Widget[T Value] struct {
+	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
 	Style   Style
@@ -46,6 +47,8 @@ type Widget[T Value] struct {
 
 func New[T Value]() *Widget[T] {
 	w := new(Widget[T])
+
+	w.BaseWidget = *orvyn.NewBaseWidget()
 
 	w.values = make(map[string]T)
 	w.keys = make([]string, 0)
@@ -94,10 +97,6 @@ func (w *Widget[T]) OnBlur() {
 func (w *Widget[T]) OnEnterInput() {}
 
 func (w *Widget[T]) OnExitInput() {}
-
-func (w *Widget[T]) Init() tea.Cmd {
-	return nil
-}
 
 func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
@@ -149,24 +148,6 @@ func (w *Widget[T]) Render(size orvyn.Size) string {
 		Width(size.Width).
 		AlignHorizontal(lipgloss.Center).
 		Render(b.String())
-}
-
-func (w *Widget[T]) Resize(size orvyn.Size) {}
-
-func (w *Widget[T]) GetSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
-}
-
-func (w *Widget[T]) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
-}
-
-func (w *Widget[T]) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
-}
-
-func (w *Widget[T]) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
 }
 
 func (w *Widget[T]) SetValues(keys []string, values map[string]T) {

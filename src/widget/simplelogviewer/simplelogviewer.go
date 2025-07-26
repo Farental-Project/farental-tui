@@ -23,6 +23,7 @@ type Keybind struct {
 }
 
 type Widget struct {
+	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
 	Style   Style
@@ -42,6 +43,8 @@ type Widget struct {
 
 func New(title string) *Widget {
 	w := new(Widget)
+
+	w.BaseWidget = *orvyn.NewBaseWidget()
 
 	w.title = title
 	w.content = make([]string, 0)
@@ -88,10 +91,6 @@ func (w *Widget) OnEnterInput() {}
 
 func (w *Widget) OnExitInput() {}
 
-func (w *Widget) Init() tea.Cmd {
-	return nil
-}
-
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -129,7 +128,6 @@ func (w *Widget) GetSize() orvyn.Size {
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
-
 	return orvyn.NewSize(10, w.titleHeight+1)
 }
 

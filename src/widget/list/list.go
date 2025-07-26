@@ -7,6 +7,8 @@ import (
 )
 
 type Widget struct {
+	orvyn.BaseWidget
+
 	list.Model
 
 	MinSize       orvyn.Size
@@ -17,14 +19,12 @@ type Widget struct {
 func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	w := new(Widget)
 
+	w.BaseWidget = *orvyn.NewBaseWidget()
+
 	w.Model = list.New(items, delegate, 0, 0)
 	w.Model.DisableQuitKeybindings()
 
 	return w
-}
-
-func (w *Widget) Init() tea.Cmd {
-	return nil
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {

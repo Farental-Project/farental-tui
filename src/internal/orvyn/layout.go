@@ -8,6 +8,7 @@ type Layout interface {
 
 type BaseLayout struct {
 	elements []Renderable
+	visible  bool
 }
 
 func NewBaseLayout(elements []Renderable) BaseLayout {
@@ -26,4 +27,12 @@ func (b *BaseLayout) GetSize() Size {
 
 func (b *BaseLayout) GetElements() []Renderable {
 	return b.elements
+}
+
+func (b *BaseLayout) SetVisible(visible bool) {
+	b.visible = visible
+}
+
+func (b *BaseLayout) IsVisible() bool {
+	return b.visible
 }

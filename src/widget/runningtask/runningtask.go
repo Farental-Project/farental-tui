@@ -24,6 +24,8 @@ type Style struct {
 }
 
 type Widget struct {
+	orvyn.BaseWidget
+
 	Style Style
 
 	spinner spinner.Model
@@ -31,6 +33,8 @@ type Widget struct {
 
 func New() *Widget {
 	w := new(Widget)
+
+	w.BaseWidget = *orvyn.NewBaseWidget()
 
 	w.Style = Style{
 		Widget: style.ContainerStyle.
@@ -93,22 +97,4 @@ func (w *Widget) Render(size orvyn.Size) string {
 	}
 
 	return w.Style.Widget.Render(b.String())
-}
-
-func (w *Widget) Resize(size orvyn.Size) {}
-
-func (w *Widget) GetSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
-}
-
-func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
-}
-
-func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
-}
-
-func (w *Widget) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(0, 0)
 }

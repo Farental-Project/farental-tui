@@ -11,6 +11,8 @@ type Renderable interface {
 	GetMinSize() Size
 	GetPreferredSize() Size
 	GetMaxSize() Size
+	SetVisible(bool)
+	IsVisible() bool
 }
 
 type Updatable interface {

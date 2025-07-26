@@ -10,10 +10,10 @@ import (
 	"farental/internal/orvyn/layout"
 	"farental/model"
 	"farental/style"
-	"farental/widget/errormessage"
 	"farental/widget/help"
 	"farental/widget/label"
 	"farental/widget/multivalueselector"
+	"farental/widget/statusmessage"
 	"farental/widget/textinput"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -40,7 +40,7 @@ type Screen struct {
 
 	raceDescription *label.Widget
 
-	error *errormessage.Widget
+	statusMessage *statusmessage.Widget
 
 	help *help.Widget
 
@@ -77,7 +77,7 @@ func New() *Screen {
 	s.raceDescription.Style = style.DimTextStyle.
 		AlignHorizontal(lipgloss.Center)
 
-	s.error = errormessage.New()
+	s.statusMessage = statusmessage.New()
 
 	s.help = help.New()
 
@@ -91,7 +91,7 @@ func New() *Screen {
 				s.mvsRace,
 				s.raceDescription,
 				orvyn.VGap,
-				s.error,
+				s.statusMessage,
 				orvyn.VGap,
 				s.help,
 			},
@@ -174,7 +174,7 @@ func (s *Screen) submit() bool {
 	_, err := helper.SendRequest(req)
 
 	if err != nil {
-		s.error.SetError(err)
+		s.statusMessage.SetError(err)
 		return false
 	}
 
@@ -186,7 +186,7 @@ func (s *Screen) loadRaces() {
 	resp, err := helper.SendRequest(request.DataGetAllRace())
 
 	if err != nil {
-		s.error.SetError(err)
+		s.statusMessage.SetError(err)
 		return
 	}
 

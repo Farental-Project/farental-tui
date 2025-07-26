@@ -13,8 +13,8 @@ import (
 	"farental/model"
 	"farental/screen"
 	"farental/style"
-	"farental/widget/errormessage"
 	"farental/widget/help"
+	"farental/widget/statusmessage"
 	"farental/widget/textinput"
 	"fmt"
 	"github.com/charmbracelet/bubbles/key"
@@ -34,7 +34,7 @@ type Screen struct {
 	tiEmail    *textinput.Widget
 	tiPassword *textinput.Widget
 
-	error *errormessage.Widget
+	statusMessage *statusmessage.Widget
 
 	help *help.Widget
 
@@ -57,7 +57,7 @@ func New() *Screen {
 	s.tiPassword.EchoMode = teatextinput.EchoPassword
 	s.tiPassword.EchoCharacter = art.CharBullet
 
-	s.error = errormessage.New()
+	s.statusMessage = statusmessage.New()
 
 	s.help = help.New()
 
@@ -70,7 +70,7 @@ func New() *Screen {
 				s.tiEmail,
 				s.tiPassword,
 				orvyn.VGap,
-				s.error,
+				s.statusMessage,
 				orvyn.VGap,
 				s.help,
 			},
@@ -159,8 +159,9 @@ func (s *Screen) submit() bool {
 	password := s.tiPassword.Value()
 
 	if len(email) == 0 || len(password) == 0 {
-		s.error.SetErrorMsg(
-			lang.L("Please input e-mail and password"))
+		s.statusMessage.SetMessage(
+			lang.L("Please input e-mail and password"),
+			statusmessage.ErrorMessage)
 		return false
 	}
 
@@ -175,7 +176,7 @@ func (s *Screen) submit() bool {
 	resp, err := helper.SendRequest(req)
 
 	if err != nil {
-		s.error.SetError(err)
+		s.statusMessage.SetError(err)
 		return false
 	}
 
@@ -223,7 +224,7 @@ func (s *Screen) getActiveCharacter() bool {
 	resp, err := helper.SendRequest(request.CharacterGetActive())
 
 	if err != nil {
-		s.error.SetError(err)
+		s.statusMessage.SetError(err)
 		return false
 	}
 

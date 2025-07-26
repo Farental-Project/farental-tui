@@ -5,7 +5,8 @@ import (
 )
 
 type SimpleRenderable struct {
-	view string
+	view    string
+	visible bool
 }
 
 var VGap = NewSimpleRenderable("\n")
@@ -38,4 +39,12 @@ func (s *SimpleRenderable) GetPreferredSize() Size {
 
 func (s *SimpleRenderable) GetMaxSize() Size {
 	return NewSize(0, 0)
+}
+
+func (s *SimpleRenderable) SetVisible(visible bool) {
+	s.visible = visible
+}
+
+func (s *SimpleRenderable) IsVisible() bool {
+	return s.visible
 }
