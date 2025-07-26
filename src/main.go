@@ -62,7 +62,6 @@ func main() {
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
 	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
-
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())

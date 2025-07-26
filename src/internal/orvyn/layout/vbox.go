@@ -17,12 +17,14 @@ func NewVBoxLayout(elements []orvyn.Renderable) *VBoxLayout {
 	return l
 }
 
-func (l *VBoxLayout) Render(size orvyn.Size) string {
+func (l *VBoxLayout) Render() string {
 	var b strings.Builder
 	var s orvyn.Size
 	var minSize orvyn.Size
 	var prefSize orvyn.Size
 	var margin int
+
+	size := l.GetSize()
 
 	margin = 10
 
@@ -45,7 +47,7 @@ func (l *VBoxLayout) Render(size orvyn.Size) string {
 		s.Height = e.GetMinSize().Height
 
 		e.Resize(s)
-		b.WriteString(e.Render(s))
+		b.WriteString(e.Render())
 	}
 
 	return b.String()

@@ -19,7 +19,7 @@ type Widget struct {
 func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	w.Model = list.New(items, delegate, 0, 0)
 	w.Model.DisableQuitKeybindings()
@@ -35,17 +35,15 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-func (w *Widget) Render(size orvyn.Size) string {
+func (w *Widget) Render() string {
 	return w.Model.View()
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	w.BaseWidget.Resize(size)
+
 	w.Model.SetWidth(size.Width)
 	w.Model.SetHeight(size.Height)
-}
-
-func (w *Widget) GetSize() orvyn.Size {
-	return orvyn.NewSize(w.Model.Width(), w.Model.Height())
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

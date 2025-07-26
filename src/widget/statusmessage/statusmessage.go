@@ -37,7 +37,7 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	baseStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 
@@ -62,7 +62,9 @@ func (w *Widget) Init() tea.Cmd {
 	return nil
 }
 
-func (w *Widget) Render(size orvyn.Size) string {
+func (w *Widget) Render() string {
+	size := w.GetSize()
+
 	s := ""
 
 	if w.message != "" {
@@ -72,11 +74,6 @@ func (w *Widget) Render(size orvyn.Size) string {
 	}
 
 	return s
-}
-
-func (w *Widget) GetSize() orvyn.Size {
-	width, height := lipgloss.Size(w.messageStyle.Render(w.message))
-	return orvyn.NewSize(width, height)
 }
 
 func (w *Widget) SetMessage(msg string, msgType messageType) {

@@ -19,7 +19,7 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	w.Model = textinput.New()
 	style.SetTextInputStyle(&w.Model)
@@ -27,73 +27,70 @@ func New() *Widget {
 	return w
 }
 
-func (m *Widget) Init() tea.Cmd {
-	m.Model.SetValue("")
+func (w *Widget) Init() tea.Cmd {
+	w.Model.SetValue("")
 	return textinput.Blink
 }
 
-func (m *Widget) Update(msg tea.Msg) tea.Cmd {
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
-	m.Model, cmd = m.Model.Update(msg)
+	w.Model, cmd = w.Model.Update(msg)
 
 	return cmd
 }
 
-func (m *Widget) OnFocus() {
-	m.Model.Focus()
+func (w *Widget) OnFocus() {
+	w.Model.Focus()
 }
 
-func (m *Widget) OnBlur() {
-	m.Model.Blur()
+func (w *Widget) OnBlur() {
+	w.Model.Blur()
 }
 
-func (m *Widget) Render(size orvyn.Size) string {
+func (w *Widget) Render() string {
 	var border lipgloss.Style
 
-	if m.IsFocused() {
+	if w.IsFocused() {
 		border = style.FocusedStyle
 	} else {
 		border = style.BlurredStyle
 	}
 
-	return border.Render(m.Model.View())
+	return border.Render(w.Model.View())
 }
 
-func (m *Widget) Resize(size orvyn.Size) {
+func (w *Widget) Resize(size orvyn.Size) {
 	// Take borders into account
-	m.Model.Width = size.Width - 1
+	w.Model.Width = size.Width - 1
 
 	// For the Bubbles textinput to process the update
-	focused := m.Model.Focused()
+	focused := w.Model.Focused()
 	if !focused {
-		m.Model.Focus()
+		w.Model.Focus()
 	}
 
-	m.Model, _ = m.Model.Update(nil)
+	w.Model, _ = w.Model.Update(nil)
 
 	if !focused {
-		m.Model.Blur()
+		w.Model.Blur()
 	}
+
+	w.BaseWidget.Resize(orvyn.NewSize(w.Model.Width, 1))
 }
 
-func (m *Widget) GetSize() orvyn.Size {
-	// Take borders into account
-	return orvyn.NewSize(m.Model.Width+1, 3)
-}
-
-func (m *Widget) GetMinSize() orvyn.Size {
+func (w *Widget) GetMinSize() orvyn.Size {
 	return orvyn.NewSize(26, 3)
 }
 
-func (m *Widget) GetPreferredSize() orvyn.Size {
+func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(46, 3)
 }
 
-func (m *Widget) GetMaxSize() orvyn.Size {
+func (w *Widget) GetMaxSize() orvyn.Size {
 	return orvyn.NewSize(95, 3)
 }
 
-func (m *Widget) OnEnterInput() {}
+func (w *Widget) OnEnterInput() {}
 
-func (m *Widget) OnExitInput() {}
+func (w *Widget) OnExitInput() {}

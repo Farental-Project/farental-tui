@@ -34,7 +34,7 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	w.Style = Style{
 		Widget: style.ContainerStyle.
@@ -71,8 +71,10 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget) Render(size orvyn.Size) string {
+func (w *Widget) Render() string {
 	var b strings.Builder
+
+	size := w.GetSize()
 
 	w.Style.Widget = w.Style.Widget.Width(size.Width - 2)
 

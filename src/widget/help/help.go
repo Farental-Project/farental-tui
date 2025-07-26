@@ -12,11 +12,11 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	return w
 }
 
-func (w *Widget) Render(size orvyn.Size) string {
-	return bubblehelp.View(size.Width)
+func (w *Widget) Render() string {
+	return bubblehelp.View(w.GetSize().Width)
 }

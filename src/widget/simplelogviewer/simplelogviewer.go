@@ -44,7 +44,7 @@ type Widget struct {
 func New(title string) *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	w.title = title
 	w.content = make([]string, 0)
@@ -107,7 +107,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget) Render(size orvyn.Size) string {
+func (w *Widget) Render() string {
 	var b strings.Builder
 
 	b.WriteString(w.titleStyle.Render(w.title))
@@ -118,13 +118,9 @@ func (w *Widget) Render(size orvyn.Size) string {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	w.titleStyle = w.titleStyle.Width(size.Width)
 	w.viewport.Width = size.Width
 	w.viewport.Height = size.Height - w.titleHeight
-}
-
-func (w *Widget) GetSize() orvyn.Size {
-	return orvyn.NewSize(w.viewport.Width,
-		w.viewport.Height+w.titleHeight)
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

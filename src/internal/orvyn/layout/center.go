@@ -17,11 +17,15 @@ func NewCenterLayout(element orvyn.Renderable) *CenterLayout {
 	return l
 }
 
-func (l *CenterLayout) Render(size orvyn.Size) string {
+func (l *CenterLayout) Render() string {
+	size := l.GetSize()
+
+	l.GetElements()[0].Resize(size)
+
 	return lipgloss.Place(
 		size.Width, size.Height,
 		lipgloss.Center, lipgloss.Center,
-		l.GetElements()[0].Render(size),
+		l.GetElements()[0].Render(),
 	)
 }
 

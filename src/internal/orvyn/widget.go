@@ -16,13 +16,16 @@ type Widget interface {
 }
 
 type BaseWidget struct {
-	visible bool
+	BaseRenderable
+
+	renderCallback func() string
 }
 
-func NewBaseWidget() *BaseWidget {
+func NewBaseWidget(renderCallback func() string) *BaseWidget {
 	w := new(BaseWidget)
 
 	w.visible = true
+	w.renderCallback = renderCallback
 
 	return w
 }
@@ -33,30 +36,4 @@ func (b *BaseWidget) Init() tea.Cmd {
 
 func (b *BaseWidget) Update(msg tea.Msg) tea.Cmd {
 	return nil
-}
-
-func (b *BaseWidget) Resize(size Size) {}
-
-func (b *BaseWidget) GetSize() Size {
-	return NewSize(0, 0)
-}
-
-func (b *BaseWidget) GetMinSize() Size {
-	return NewSize(0, 0)
-}
-
-func (b *BaseWidget) GetPreferredSize() Size {
-	return NewSize(0, 0)
-}
-
-func (b *BaseWidget) GetMaxSize() Size {
-	return NewSize(0, 0)
-}
-
-func (b *BaseWidget) SetVisible(visible bool) {
-	b.visible = visible
-}
-
-func (b *BaseWidget) IsVisible() bool {
-	return b.visible
 }

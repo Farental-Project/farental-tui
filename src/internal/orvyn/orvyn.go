@@ -46,7 +46,8 @@ func Render() string {
 
 	layout := screens[currentScreenID].Render()
 
-	return layout.Render(WindowSize)
+	layout.Resize(WindowSize)
+	return layout.Render()
 }
 
 // Screen management

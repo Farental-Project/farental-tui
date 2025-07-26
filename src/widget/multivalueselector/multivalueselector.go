@@ -48,7 +48,7 @@ type Widget[T Value] struct {
 func New[T Value]() *Widget[T] {
 	w := new(Widget[T])
 
-	w.BaseWidget = *orvyn.NewBaseWidget()
+	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	w.values = make(map[string]T)
 	w.keys = make([]string, 0)
@@ -130,9 +130,11 @@ func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget[T]) Render(size orvyn.Size) string {
+func (w *Widget[T]) Render() string {
 	var b strings.Builder
 	var margin int
+
+	size := w.GetSize()
 
 	margin += w.widgetStyle.GetBorderLeftSize()
 	margin += w.widgetStyle.GetBorderRightSize()

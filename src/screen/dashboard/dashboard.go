@@ -5,6 +5,7 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
+	"farental/style"
 	"farental/widget/help"
 	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
@@ -48,14 +49,18 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewVBoxLayout([]orvyn.Renderable{
-			s.runningTask,
-			s.logEvent,
-			s.logChat,
-			s.logCharacters,
-			s.statusMessage,
-			s.help,
-		}),
+		layout.NewDefinedWidthVerticalLayout(
+			35,
+			style.LayoutWidth,
+			10,
+			[]orvyn.Renderable{
+				s.runningTask,
+				s.logEvent,
+				s.logChat,
+				s.logCharacters,
+				s.statusMessage,
+				s.help,
+			}),
 	)
 
 	return s
