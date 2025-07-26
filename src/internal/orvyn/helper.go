@@ -4,8 +4,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func GetRenderSize(value string) Size {
-	width, height := lipgloss.Size(value)
+func GetRenderSize(style lipgloss.Style, value string) Size {
+	width, height := lipgloss.Size(style.Render(value))
 
 	return NewSize(width, height)
 }

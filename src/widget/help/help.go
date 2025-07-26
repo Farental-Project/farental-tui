@@ -2,6 +2,7 @@ package help
 
 import (
 	"farental/internal/orvyn"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 )
 
@@ -19,4 +20,12 @@ func New() *Widget {
 
 func (w *Widget) Render() string {
 	return bubblehelp.View(w.GetSize().Width)
+}
+
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(10, 1)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return orvyn.GetRenderSize(lipgloss.NewStyle(), bubblehelp.View(50))
 }

@@ -76,6 +76,14 @@ func (w *Widget) Render() string {
 	return s
 }
 
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.GetRenderSize(w.Style.Neutral, w.message)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return w.GetMinSize()
+}
+
 func (w *Widget) SetMessage(msg string, msgType messageType) {
 	w.message = msg
 	w.messageType = msgType

@@ -100,3 +100,11 @@ func (w *Widget) Render() string {
 
 	return w.Style.Widget.Render(b.String())
 }
+
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.GetRenderSize(w.Style.Widget, " ")
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return w.GetMinSize()
+}
