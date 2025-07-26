@@ -128,6 +128,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.titleStyle = w.titleStyle.Width(size.Width - marginW)
 	w.viewport.Width = size.Width - marginW
 	w.viewport.Height = size.Height - w.titleHeight - marginH
+
+	w.viewport.GotoBottom()
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
@@ -150,6 +152,10 @@ func (w *Widget) SetContent(content []string) {
 func (w *Widget) AppendContent(content string) {
 	w.content = append(w.content, content)
 	w.refresh()
+}
+
+func (w *Widget) GetContent() []string {
+	return w.content
 }
 
 func (w *Widget) refresh() {

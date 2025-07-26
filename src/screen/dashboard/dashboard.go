@@ -15,8 +15,14 @@ import (
 	"time"
 )
 
+const (
+	tick time.Duration = 15
+)
+
 type Screen struct {
 	orvyn.BaseScreen
+
+	tickTag uint
 
 	runningTask *runningtask.Widget
 
@@ -82,7 +88,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
-	return nil
+	return orvyn.TickCmd(tick, s.tickTag)
 }
 
 func (s *Screen) OnExit() interface{} {
@@ -92,10 +98,24 @@ func (s *Screen) OnExit() interface{} {
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		s.statusMessage.Reset()
+
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
 		}
+	case orvyn.TickMsg:
+		if msg.Tag != s.tickTag {
+			return nil
+		}
+
+		// TODO : Update data
+		s.updateChat()
+		s.updateEventLog()
+		s.updateVisibleCharacters()
+
+		s.tickTag++
+		return orvyn.TickCmd(tick, s.tickTag)
 	}
 
 	return nil
