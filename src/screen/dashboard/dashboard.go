@@ -40,9 +40,24 @@ func New() *Screen {
 
 	s.runningTask = runningtask.New()
 
+	logStyle := simplelogviewer.Style{
+		FocusedWidget: style.FocusedStyle,
+		BlurredWidget: style.BlurredStyle,
+		FocusedTitle:  style.TitleStyle,
+		BlurredTitle:  style.DimBottomBorderStyle,
+	}
+
 	s.logEvent = simplelogviewer.New(lang.L("Events"))
+	s.logEvent.Style = logStyle
+	s.logEvent.OnBlur()
+
 	s.logChat = simplelogviewer.New(lang.L("Chat"))
+	s.logChat.Style = logStyle
+	s.logChat.OnBlur()
+
 	s.logCharacters = simplelogviewer.New(lang.L("Characters"))
+	s.logCharacters.Style = logStyle
+	s.logCharacters.OnBlur()
 
 	s.help = help.New()
 

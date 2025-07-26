@@ -118,9 +118,16 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	w.titleStyle = w.titleStyle.Width(size.Width)
-	w.viewport.Width = size.Width
-	w.viewport.Height = size.Height - w.titleHeight
+	var marginW, marginH int
+
+	marginW += w.widgetStyle.GetBorderLeftSize()
+	marginW += w.widgetStyle.GetBorderRightSize()
+
+	marginH += w.widgetStyle.GetBorderTopSize()
+
+	w.titleStyle = w.titleStyle.Width(size.Width - marginW)
+	w.viewport.Width = size.Width - marginW
+	w.viewport.Height = size.Height - w.titleHeight - marginH
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
