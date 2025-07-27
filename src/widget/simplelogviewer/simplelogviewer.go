@@ -129,6 +129,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.viewport.Width = size.Width - marginW
 	w.viewport.Height = size.Height - w.titleHeight - marginH
 
+	// TODO: Find a way to let the user explore the log
 	w.viewport.GotoBottom()
 }
 
@@ -163,5 +164,6 @@ func (w *Widget) refresh() {
 		Width(w.viewport.Width).Render(
 		strings.Join(w.content, "\n")))
 
+	// TODO: Find a way to let the user explore the log
 	w.viewport.GotoBottom()
 }

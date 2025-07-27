@@ -37,11 +37,11 @@ func New() *Widget {
 	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
 
 	w.Style = Style{
-		Widget: style.ContainerStyle.
+		Widget: style.BlurredStyle.
 			AlignHorizontal(lipgloss.Center),
 		NoTask:        style.DimTextStyle,
 		TaskRunning:   style.TitleStyle,
-		SpinnerWidget: style.ContainerStyle,
+		SpinnerWidget: style.FocusedStyle,
 		Spinner:       style.TitleStyle,
 	}
 

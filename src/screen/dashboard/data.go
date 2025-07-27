@@ -13,6 +13,50 @@ import (
 	"time"
 )
 
+// updateErr used as defer to replace the error message only when necessary.
+func (s *Screen) updateErr(err *error) {
+	if *err != nil {
+		s.statusMessage.SetError(*err)
+	}
+}
+
+func (s *Screen) updateData() {
+	var err error
+
+	defer s.updateErr(&err)
+
+	resp, err := helper.SendRequest(request.CharacterGetInfo())
+
+	if err != nil {
+		return
+	}
+
+	characterInfo := resp.Result().(*api.CharacterInfoResponse)
+
+	// If the character changed of location
+	if context.CharacterInfo == nil ||
+		context.CharacterInfo.Location.ID != characterInfo.Location.ID {
+		context.ChatContent = make([]string, 0)
+	}
+
+	context.CharacterID = characterInfo.ID
+	context.CharacterInfo = characterInfo
+
+	resp, err = helper.SendRequest(
+		request.CharacterGetCurrencyAmount(api.Grynars))
+
+	if err != nil {
+		return
+	}
+
+	currencyResp := resp.Result().(*api.CurrencyResponse)
+
+	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+	s.updateEventLog()
+	s.updateChat()
+	s.updateVisibleCharacters()
+}
+
 func (s *Screen) updateEventLog() {
 	var req *resty.Request
 	var queryParam string

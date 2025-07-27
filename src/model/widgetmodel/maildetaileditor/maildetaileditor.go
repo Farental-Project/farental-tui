@@ -119,10 +119,10 @@ func (m *Model) View() string {
 	var containerStyle lipgloss.Style
 	var moneyAmountField strings.Builder
 
-	containerStyle = style.BlurContainerStyle
+	containerStyle = style.BlurredStyle
 
 	if m.Focused {
-		containerStyle = style.ContainerStyle
+		containerStyle = style.FocusedStyle
 	}
 
 	moneyAmountField.WriteString(m.TIMoneyAmount.View())

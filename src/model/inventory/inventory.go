@@ -120,7 +120,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var b strings.Builder
 
-	itemDetail := style.ContainerStyle.Width(m.ItemDetail.GetWidth()).
+	itemDetail := style.FocusedStyle.Width(m.ItemDetail.GetWidth()).
 		Render(m.ItemDetail.View())
 
 	b.WriteString(m.FilterSelectionList.ViewTitle())

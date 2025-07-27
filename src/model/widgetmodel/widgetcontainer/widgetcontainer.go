@@ -43,7 +43,7 @@ func (m Model) View() string {
 		b.WriteString(m.Content.View())
 	}
 
-	return style.ContainerStyle.
+	return style.FocusedStyle.
 		Width(m.Width).Height(m.Height).Render(b.String())
 }
 
@@ -61,7 +61,7 @@ func (m Model) ViewContent(s string, alignH, alignV lipgloss.Position) string {
 	b.WriteString(style.TextStyle.Width(m.Width).Height(height).
 		Align(alignH, alignV).Render(s))
 
-	return style.ContainerStyle.
+	return style.FocusedStyle.
 		Width(m.Width).Height(m.Height).Render(b.String())
 }
 

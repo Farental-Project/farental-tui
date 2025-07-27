@@ -98,7 +98,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return style.ContainerStyle.Width(m.Width).Render(m.List.View())
+	return style.FocusedStyle.Width(m.Width).Render(m.List.View())
 }
 
 func (m Model) ViewTitle() string {

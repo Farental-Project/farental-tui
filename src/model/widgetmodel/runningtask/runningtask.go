@@ -66,7 +66,7 @@ func (m Model) View() string {
 			b.WriteString(fmt.Sprintf("%s : %s", lang.L("Remaining time"),
 				helper.HoursDecFormat(context.RunningTask.RemainingTimeHours)))
 			b.WriteString("\n")
-			b.WriteString(style.ContainerStyle.Render(m.spinner.View()))
+			b.WriteString(style.FocusedStyle.Render(m.spinner.View()))
 		} else {
 			b.WriteString(lang.L("Completed! Waiting for claim!"))
 		}

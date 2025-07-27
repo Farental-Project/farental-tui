@@ -133,10 +133,10 @@ func (m *Model) normalModeUpdate(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var containerStyle lipgloss.Style
 
-	containerStyle = style.BlurContainerStyle
+	containerStyle = style.BlurredStyle
 
 	if m.Focused {
-		containerStyle = style.ContainerStyle
+		containerStyle = style.FocusedStyle
 	}
 
 	tui := lipgloss.JoinVertical(lipgloss.Top,

@@ -11,6 +11,8 @@ var (
 	ColorNeutralDim       = "#707070"
 	ColorError            = "#dd7302"
 	ColorSpecialHighlight = "#75f902"
+	ColorHpBar            = "#c90000"
+	ColorMpBar            = "#272de8"
 )
 
 func RaceStyle(name string) lipgloss.Style {

@@ -6,6 +6,7 @@ import (
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
 	"farental/style"
+	"farental/widget/characterinfo"
 	"farental/widget/help"
 	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
@@ -26,6 +27,8 @@ type Screen struct {
 
 	runningTask *runningtask.Widget
 
+	characterInfo *characterinfo.Widget
+
 	logEvent *simplelogviewer.Widget
 
 	logChat *simplelogviewer.Widget
@@ -38,6 +41,8 @@ type Screen struct {
 
 	lastEventLogTimestamp time.Time
 
+	focusManager *orvyn.FocusManager
+
 	layout *layout.CenterLayout
 }
 
@@ -46,11 +51,13 @@ func New() *Screen {
 
 	s.runningTask = runningtask.New()
 
+	s.characterInfo = characterinfo.New()
+
 	logStyle := simplelogviewer.Style{
 		FocusedWidget: style.FocusedStyle,
 		BlurredWidget: style.BlurredStyle,
-		FocusedTitle:  style.TitleStyle,
-		BlurredTitle:  style.DimBottomBorderStyle,
+		FocusedTitle:  style.HighlightUnderlinedTitleStyle,
+		BlurredTitle:  style.DimUnderlinedTitleStyle,
 	}
 
 	s.logEvent = simplelogviewer.New(lang.L("Events"))
@@ -76,18 +83,30 @@ func New() *Screen {
 			10,
 			[]orvyn.Renderable{
 				s.runningTask,
+				s.characterInfo,
 				s.logEvent,
-				s.logChat,
-				s.logCharacters,
+				layout.NewGrowHBoxLayout(1,
+					[]orvyn.Renderable{
+						s.logChat, s.logCharacters,
+					}),
 				s.statusMessage,
 				s.help,
 			}),
 	)
 
+	s.focusManager = orvyn.NewFocusManager()
+	s.focusManager.Add(s.logEvent)
+	s.focusManager.Add(s.logChat)
+	s.focusManager.Add(s.logCharacters)
+
 	return s
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+	s.updateData()
+
+	s.focusManager.Focus(0)
+
 	return orvyn.TickCmd(tick, s.tickTag)
 }
 
@@ -109,14 +128,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return nil
 		}
 
-		// TODO : Update data
-		s.updateChat()
-		s.updateEventLog()
-		s.updateVisibleCharacters()
+		s.updateData()
 
 		s.tickTag++
 		return orvyn.TickCmd(tick, s.tickTag)
 	}
+
+	s.focusManager.Update(msg)
 
 	return nil
 }

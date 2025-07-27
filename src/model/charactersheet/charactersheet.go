@@ -90,7 +90,7 @@ func (m Model) View() string {
 		m.SkillSummaryContainer.View())
 
 	tui := lipgloss.JoinVertical(lipgloss.Center,
-		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
+		style.FocusedStyle.Render(m.CharacterVitalInfo.View()),
 		m.EquipmentSummaryContainer.View(),
 		skillStat,
 		bubblehelp.View(style.LayoutWidth))

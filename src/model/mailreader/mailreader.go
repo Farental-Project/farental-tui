@@ -179,8 +179,8 @@ func (m Model) View() string {
 	}
 
 	tui.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
-		style.ContainerStyle.Width(m.widthLeft).Render(left.String()),
-		style.ContainerStyle.Width(m.widthRight).Render(right.String())))
+		style.FocusedStyle.Width(m.widthLeft).Render(left.String()),
+		style.FocusedStyle.Width(m.widthRight).Render(right.String())))
 
 	tui.WriteString("\n")
 

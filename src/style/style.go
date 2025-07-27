@@ -22,63 +22,70 @@ var (
 	}
 
 	FocusedStyle = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color(ColorSpecialHighlight))
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(ColorSpecialHighlight))
 
 	BlurredStyle = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color(ColorHighlightDim))
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(ColorHighlightDim))
+
+	DimBottomBorderStyle = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(ColorHighlightDim)).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
+
+	HighlightBottomBorderStyle = lipgloss.NewStyle().
+		Inherit(DimBottomBorderStyle).
+		BorderForeground(lipgloss.Color(ColorHighlight))
 
 	NormalStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(ColorHighlight))
+		Foreground(lipgloss.Color(ColorHighlight))
 
 	TitleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(ColorHighlight)).
-			Bold(true)
+		Foreground(lipgloss.Color(ColorHighlight)).
+		Bold(true)
+
+	SpecialHighlightStyle = lipgloss.NewStyle().
+		Foreground(lipgloss.Color(ColorSpecialHighlight))
+
+	DimUnderlinedTitleStyle = lipgloss.NewStyle().
+		Inherit(DimBottomBorderStyle).
+		Foreground(lipgloss.Color(ColorHighlightDim))
+
+	HighlightUnderlinedTitleStyle = lipgloss.NewStyle().
+		Inherit(HighlightBottomBorderStyle).
+		Foreground(lipgloss.Color(ColorHighlight))
 
 	DimTextStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(ColorHighlightDim)).
-			Italic(true)
+		Foreground(lipgloss.Color(ColorHighlightDim)).
+		Italic(true)
 
 	NeutralLessDimTextStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color(ColorNeutralLessDim)).
-				Italic(true)
+		Foreground(lipgloss.Color(ColorNeutralLessDim)).
+		Italic(true)
 
 	NeutralDimTextStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color(ColorNeutralDim)).
-				Italic(true)
+		Foreground(lipgloss.Color(ColorNeutralDim)).
+		Italic(true)
 
 	BoldTextStyle = lipgloss.NewStyle().Bold(true)
 
 	ItalicTextStyle = lipgloss.NewStyle().Italic(true)
 
-	ContainerStyle = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color(ColorHighlight))
-
-	BlurContainerStyle = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color(ColorHighlightDim))
-
 	ContainerTitleStyle = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color(ColorHighlightDim)).
-				Foreground(lipgloss.Color(ColorHighlightDim)).
-				Italic(true).
-				BorderTop(false).BorderRight(false).BorderLeft(false)
-
-	DimBottomBorderStyle = lipgloss.NewStyle().
-				Border(lipgloss.NormalBorder()).
-				BorderForeground(lipgloss.Color(ColorHighlightDim)).
-				BorderTop(false).BorderRight(false).BorderLeft(false)
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(ColorHighlightDim)).
+		Foreground(lipgloss.Color(ColorHighlightDim)).
+		Italic(true).
+		BorderTop(false).BorderRight(false).BorderLeft(false)
 
 	ErrorStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(ColorError)).
-			Bold(true)
+		Foreground(lipgloss.Color(ColorError)).
+		Bold(true)
 
 	TextStyle = lipgloss.NewStyle()
 
 	HighlightStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(ColorSpecialHighlight)).
-			Bold(true)
+		Foreground(lipgloss.Color(ColorSpecialHighlight)).
+		Bold(true)
 )

@@ -163,9 +163,9 @@ func (m Model) View() string {
 	}
 
 	tui = lipgloss.JoinVertical(lipgloss.Center,
-		style.ContainerStyle.Render(m.RunningTask.View()),
-		style.ContainerStyle.Render(m.CharacterVitalInfo.View()),
-		style.ContainerStyle.Render(m.LocationInfo.View()),
+		style.FocusedStyle.Render(m.RunningTask.View()),
+		style.FocusedStyle.Render(m.CharacterVitalInfo.View()),
+		style.FocusedStyle.Render(m.LocationInfo.View()),
 		m.EventLogViewerContainer.View(),
 		bottom.String())
 

@@ -52,7 +52,7 @@ func New() Model {
 	m.Input.Focus()
 	m.Input.Prompt = ""
 	m.Input.ShowLineNumbers = false
-	m.Input.FocusedStyle.Base = style.ContainerStyle.Inherit(style.NormalStyle)
+	m.Input.FocusedStyle.Base = style.FocusedStyle.Inherit(style.NormalStyle)
 	m.Input.FocusedStyle.Text = style.NormalStyle
 	m.Input.Cursor.TextStyle = style.NormalStyle
 	m.Input.Cursor.Style = style.HighlightStyle
