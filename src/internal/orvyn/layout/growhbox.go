@@ -6,14 +6,23 @@ import (
 	"math"
 )
 
+// GrowHBoxLayout is a layout that uniformize the height of all the elements
+// and calculate the width of each element.
 type GrowHBoxLayout struct {
 	orvyn.BaseLayout
 
+	// gap defines the space between every element.
 	gap int
 
+	// compensatorIndex is the index of the widget that will be responsible to compensate
+	// the possible calculation precision loss.
 	compensatorIndex int
 }
 
+// NewGrowHBoxLayout creates a new instance of this widget.
+// gap : defines the space between every element.
+// compensatorIndex : specify which element of the layout will take the compensation size
+// to match the layout size.
 func NewGrowHBoxLayout(gap, compensatorIndex int, elements []orvyn.Renderable) *GrowHBoxLayout {
 	l := new(GrowHBoxLayout)
 
@@ -26,39 +35,26 @@ func NewGrowHBoxLayout(gap, compensatorIndex int, elements []orvyn.Renderable) *
 
 func (l *GrowHBoxLayout) Render() string {
 	var view []string
-	var s orvyn.Size
+	var elementSize orvyn.Size
 
-	size := l.GetSize()
+	layoutSize := l.GetSize()
 
 	minSize := l.GetMinSize()
 	prefSize := l.GetPreferredSize()
 
-	s.Height = size.Height
+	elementSize.Height = layoutSize.Height
 
-	if size.Height <= minSize.Height {
-		s.Height = minSize.Height
-	} else if size.Height >= prefSize.Height {
-		s.Height = prefSize.Height
+	if layoutSize.Height <= minSize.Height {
+		elementSize.Height = minSize.Height
+	} else if layoutSize.Height >= prefSize.Height {
+		elementSize.Height = prefSize.Height
 	}
 
-	availableWidth := size.Width - (l.gap*len(l.GetElements()) - 1)
-	s.Width = int(math.Floor(float64(availableWidth / len(l.GetElements()))))
+	availableWidth := layoutSize.Width - (l.gap*len(l.GetElements()) - 1)
+	elementSize.Width = int(math.Floor(float64(availableWidth / len(l.GetElements()))))
 
 	// calculate the compensation
-	compensatorSize := orvyn.NewSize(s.Width, s.Height)
-	totalWidth := 0
-
-	for i := range l.GetElements() {
-		if i > 0 {
-			totalWidth += l.gap
-		}
-
-		totalWidth += s.Width
-	}
-
-	compensation := size.Width - totalWidth
-
-	compensatorSize.Width += compensation
+	compensatorSize := l.calculateCompensatorSize(elementSize, layoutSize)
 
 	view = make([]string, 0)
 
@@ -70,13 +66,32 @@ func (l *GrowHBoxLayout) Render() string {
 		if i == l.compensatorIndex {
 			e.Resize(compensatorSize)
 		} else {
-			e.Resize(s)
+			e.Resize(elementSize)
 		}
+
 		view = append(view, e.Render())
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Center,
 		view...)
+}
+
+func (l *GrowHBoxLayout) calculateCompensatorSize(baseElementSize, layoutSize orvyn.Size) orvyn.Size {
+	totalWidth := 0
+
+	for i := range l.GetElements() {
+		if i > 0 {
+			totalWidth += l.gap
+		}
+
+		totalWidth += baseElementSize.Width
+	}
+
+	compensation := layoutSize.Width - totalWidth
+
+	baseElementSize.Width += compensation
+
+	return baseElementSize
 }
 
 func (l *GrowHBoxLayout) GetMinSize() orvyn.Size {

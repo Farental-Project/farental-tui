@@ -5,14 +5,17 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
+	"farental/model"
 	"farental/style"
 	"farental/widget/characterinfo"
 	"farental/widget/help"
+	"farental/widget/locationinfo"
 	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
 	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"time"
 )
 
@@ -28,6 +31,8 @@ type Screen struct {
 	runningTask *runningtask.Widget
 
 	characterInfo *characterinfo.Widget
+
+	locationInfo *locationinfo.Widget
 
 	logEvent *simplelogviewer.Widget
 
@@ -52,6 +57,8 @@ func New() *Screen {
 	s.runningTask = runningtask.New()
 
 	s.characterInfo = characterinfo.New()
+
+	s.locationInfo = locationinfo.New()
 
 	logStyle := simplelogviewer.Style{
 		FocusedWidget: style.FocusedStyle,
@@ -84,6 +91,7 @@ func New() *Screen {
 			[]orvyn.Renderable{
 				s.runningTask,
 				s.characterInfo,
+				s.locationInfo,
 				s.logEvent,
 				layout.NewGrowHBoxLayout(1, 0,
 					[]orvyn.Renderable{
@@ -103,6 +111,8 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+	bubblehelp.SwitchContext(model.ContextGameDashboard)
+
 	s.updateData()
 
 	s.focusManager.Focus(0)

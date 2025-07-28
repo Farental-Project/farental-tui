@@ -52,6 +52,7 @@ func (s *Screen) updateData() {
 	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+	s.locationInfo.UpdateData(&characterInfo.Location)
 	s.updateEventLog()
 	s.updateChat()
 	s.updateVisibleCharacters()

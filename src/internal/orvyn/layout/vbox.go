@@ -7,12 +7,29 @@ import (
 
 type VBoxLayout struct {
 	orvyn.BaseLayout
+
+	margin int
+
+	// maxWidth defines if element should take the whole available width.
+	maxWidth bool
 }
 
-func NewVBoxLayout(elements []orvyn.Renderable) *VBoxLayout {
+func NewVBoxLayout(margin int, elements []orvyn.Renderable) *VBoxLayout {
 	l := new(VBoxLayout)
 
 	l.BaseLayout = orvyn.NewBaseLayout(elements)
+	l.margin = margin
+	l.maxWidth = false
+
+	return l
+}
+
+func NewMaxWidthVBoxLayout(margin int, elements []orvyn.Renderable) *VBoxLayout {
+	l := new(VBoxLayout)
+
+	l.BaseLayout = orvyn.NewBaseLayout(elements)
+	l.margin = margin
+	l.maxWidth = true
 
 	return l
 }
@@ -22,21 +39,20 @@ func (l *VBoxLayout) Render() string {
 	var s orvyn.Size
 	var minSize orvyn.Size
 	var prefSize orvyn.Size
-	var margin int
 
-	size := l.GetSize()
+	layoutSize := l.GetSize()
 
-	margin = 10
+	s = orvyn.NewSize(layoutSize.Width-l.margin, 0)
 
-	s = orvyn.NewSize(size.Width-margin, 0)
+	if !l.maxWidth {
+		minSize = l.GetMinSize()
+		prefSize = l.GetPreferredSize()
 
-	minSize = l.GetMinSize()
-	prefSize = l.GetPreferredSize()
-
-	if s.Width <= minSize.Width {
-		s.Width = minSize.Width - margin
-	} else if s.Width >= prefSize.Width {
-		s.Width = prefSize.Width - margin
+		if s.Width <= minSize.Width {
+			s.Width = minSize.Width - l.margin
+		} else if s.Width >= prefSize.Width {
+			s.Width = prefSize.Width - l.margin
+		}
 	}
 
 	for i, e := range l.GetElements() {

@@ -82,7 +82,7 @@ func New() *Screen {
 	s.help = help.New()
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewVBoxLayout(
+		layout.NewVBoxLayout(10,
 			[]orvyn.Renderable{
 				s.title,
 				orvyn.VGap,
