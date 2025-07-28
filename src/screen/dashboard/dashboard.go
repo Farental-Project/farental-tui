@@ -85,7 +85,7 @@ func New() *Screen {
 				s.runningTask,
 				s.characterInfo,
 				s.logEvent,
-				layout.NewGrowHBoxLayout(1,
+				layout.NewGrowHBoxLayout(1, 0,
 					[]orvyn.Renderable{
 						s.logChat, s.logCharacters,
 					}),

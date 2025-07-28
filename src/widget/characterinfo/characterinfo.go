@@ -10,6 +10,7 @@ import (
 	"farental/widget/characterbar"
 	"farental/widget/label"
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
 	"strings"
 )
 
@@ -27,10 +28,12 @@ func New() *Widget {
 	w := new(Widget)
 
 	w.info = label.New("")
+	w.info.Style = lipgloss.NewStyle().
+		AlignHorizontal(lipgloss.Center)
 	w.barHp = characterbar.New(style.ColorHpBar)
 	w.barMp = characterbar.New(style.ColorMpBar)
 
-	w.layout = layout.NewGrowHBoxLayout(2,
+	w.layout = layout.NewGrowHBoxLayout(1, 1,
 		[]orvyn.Renderable{
 			w.barHp,
 			w.info,
@@ -41,11 +44,14 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return w.layout.Render()
+	return style.BlurredStyle.Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
+
+	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
+	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
 
 	w.layout.Resize(size)
 }

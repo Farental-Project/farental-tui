@@ -3,20 +3,23 @@ package layout
 import (
 	"farental/internal/orvyn"
 	"github.com/charmbracelet/lipgloss"
-	"strings"
+	"math"
 )
 
 type GrowHBoxLayout struct {
 	orvyn.BaseLayout
 
 	gap int
+
+	compensatorIndex int
 }
 
-func NewGrowHBoxLayout(gap int, elements []orvyn.Renderable) *GrowHBoxLayout {
+func NewGrowHBoxLayout(gap, compensatorIndex int, elements []orvyn.Renderable) *GrowHBoxLayout {
 	l := new(GrowHBoxLayout)
 
 	l.BaseLayout = orvyn.NewBaseLayout(elements)
 	l.gap = gap
+	l.compensatorIndex = compensatorIndex
 
 	return l
 }
@@ -38,18 +41,37 @@ func (l *GrowHBoxLayout) Render() string {
 		s.Height = prefSize.Height
 	}
 
-	size.Width -= l.gap * (len(l.GetElements()) - 1)
+	availableWidth := size.Width - (l.gap*len(l.GetElements()) - 1)
+	s.Width = int(math.Floor(float64(availableWidth / len(l.GetElements()))))
 
-	s.Width = size.Width / len(l.GetElements())
+	// calculate the compensation
+	compensatorSize := orvyn.NewSize(s.Width, s.Height)
+	totalWidth := 0
+
+	for i := range l.GetElements() {
+		if i > 0 {
+			totalWidth += l.gap
+		}
+
+		totalWidth += s.Width
+	}
+
+	compensation := size.Width - totalWidth
+
+	compensatorSize.Width += compensation
 
 	view = make([]string, 0)
 
 	for i, e := range l.GetElements() {
 		if i > 0 {
-			view = append(view, strings.Repeat(" ", l.gap))
+			view = append(view, " ")
 		}
 
-		e.Resize(s)
+		if i == l.compensatorIndex {
+			e.Resize(compensatorSize)
+		} else {
+			e.Resize(s)
+		}
 		view = append(view, e.Render())
 	}
 
