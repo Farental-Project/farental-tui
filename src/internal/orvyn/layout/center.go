@@ -19,6 +19,10 @@ func NewCenterLayout(element orvyn.Renderable) *CenterLayout {
 }
 
 func (l *CenterLayout) Render() string {
+	if len(l.GetElements()) == 0 {
+		return ""
+	}
+
 	size := l.GetSize()
 
 	l.GetElements()[0].Resize(size)

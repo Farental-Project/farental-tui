@@ -71,6 +71,10 @@ func (l *DefinedWidthVerticalLayout) Render() string {
 	var minSize orvyn.Size
 	var prefSize orvyn.Size
 
+	if len(l.GetElements()) == 0 {
+		return ""
+	}
+
 	l.calculateHeightRatio()
 
 	size := l.GetSize()

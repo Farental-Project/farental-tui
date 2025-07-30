@@ -33,6 +33,7 @@ func New() *Widget {
 	w.title = lang.L("Help")
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	
 	w.Style = Style{
 		Widget: style.BlurredStyle,
 		Title:  style.DimUnderlinedTitleStyle,

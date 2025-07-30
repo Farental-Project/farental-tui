@@ -37,6 +37,10 @@ func (l *GrowHBoxLayout) Render() string {
 	var view []string
 	var elementSize orvyn.Size
 
+	if len(l.GetElements()) == 0 {
+		return ""
+	}
+
 	layoutSize := l.GetSize()
 
 	minSize := l.GetMinSize()

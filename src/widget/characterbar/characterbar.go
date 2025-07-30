@@ -19,6 +19,8 @@ type Widget struct {
 func New(color string) *Widget {
 	w := new(Widget)
 
+	w.BaseWidget = orvyn.NewBaseWidget()
+
 	w.Model = progress.New(progress.WithSolidFill(color))
 	w.Model.ShowPercentage = false
 

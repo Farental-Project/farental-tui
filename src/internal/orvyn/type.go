@@ -4,20 +4,54 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type Activable interface {
+	SetActive(bool)
+	IsActive() bool
+}
+
+type BaseActivable struct {
+	active bool
+}
+
+func (b *BaseActivable) SetActive(active bool) {
+	b.active = active
+}
+
+func (b *BaseActivable) IsActive() bool {
+	return b.active
+}
+
+func NewBaseActivable() BaseActivable {
+	a := BaseActivable{}
+
+	a.active = true
+
+	return a
+}
+
 type Renderable interface {
+	Activable
+
 	Render() string
 	Resize(Size)
 	GetSize() Size
 	GetMinSize() Size
 	GetPreferredSize() Size
 	GetMaxSize() Size
-	SetVisible(bool)
-	IsVisible() bool
 }
 
 type BaseRenderable struct {
-	size    Size
-	visible bool
+	BaseActivable
+
+	size Size
+}
+
+func NewBaseRenderable() BaseRenderable {
+	b := BaseRenderable{}
+
+	b.BaseActivable = NewBaseActivable()
+
+	return b
 }
 
 func (b *BaseRenderable) Resize(size Size) {
@@ -38,14 +72,6 @@ func (b *BaseRenderable) GetPreferredSize() Size {
 
 func (b *BaseRenderable) GetMaxSize() Size {
 	return NewSize(0, 0)
-}
-
-func (b *BaseRenderable) SetVisible(visible bool) {
-	b.visible = visible
-}
-
-func (b *BaseRenderable) IsVisible() bool {
-	return b.visible
 }
 
 type Updatable interface {

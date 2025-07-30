@@ -87,7 +87,7 @@ func New() *Screen {
 	s.help = help.New()
 
 	s.fullHelp = fullhelp.New()
-	s.fullHelp.SetVisible(false)
+	s.fullHelp.SetActive(false)
 
 	s.statusMessage = statusmessage.New()
 
@@ -172,7 +172,7 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) showHelp(b bool) {
-	s.help.SetVisible(!b)
-	s.socialLayout.SetVisible(!b)
-	s.fullHelp.SetVisible(b)
+	s.help.SetActive(!b)
+	s.socialLayout.SetActive(!b)
+	s.fullHelp.SetActive(b)
 }

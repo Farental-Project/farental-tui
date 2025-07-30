@@ -20,6 +20,10 @@ func NewPileLayout(elements []orvyn.Renderable) *PileLayout {
 func (l *PileLayout) Render() string {
 	var view string
 
+	if len(l.GetElements()) == 0 {
+		return ""
+	}
+
 	layoutSize := l.GetSize()
 
 	for _, e := range l.GetElements() {

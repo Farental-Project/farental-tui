@@ -22,7 +22,7 @@ type BaseWidget struct {
 func NewBaseWidget() BaseWidget {
 	w := BaseWidget{}
 
-	w.visible = true
+	w.BaseRenderable = NewBaseRenderable()
 
 	return w
 }

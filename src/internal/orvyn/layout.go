@@ -15,8 +15,8 @@ type BaseLayout struct {
 func NewBaseLayout(elements []Renderable) BaseLayout {
 	b := BaseLayout{}
 
+	b.BaseRenderable = NewBaseRenderable()
 	b.elements = elements
-	b.visible = true
 
 	return b
 }
@@ -25,7 +25,7 @@ func (b *BaseLayout) GetElements() []Renderable {
 	var visibleElements []Renderable
 
 	for _, e := range b.elements {
-		if !e.IsVisible() {
+		if !e.IsActive() {
 			continue
 		}
 

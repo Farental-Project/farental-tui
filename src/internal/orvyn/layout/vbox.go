@@ -42,6 +42,10 @@ func (l *VBoxLayout) Render() string {
 	var minSize orvyn.Size
 	var prefSize orvyn.Size
 
+	if len(l.GetElements()) == 0 {
+		return ""
+	}
+
 	layoutSize := l.GetSize()
 
 	s = orvyn.NewSize(layoutSize.Width-l.margin, 0)

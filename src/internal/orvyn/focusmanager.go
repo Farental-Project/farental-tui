@@ -101,11 +101,8 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 			if f.widgets[f.tabIndex].IsFocused() {
 				f.blur(f.tabIndex)
 			}
-		
-			f.tabIndex++
-			if f.tabIndex >= len(f.widgets) {
-				f.tabIndex = 0
-			}
+
+			f.tabIndex = f.getNextIndex()
 
 			f.focus(f.tabIndex)
 
@@ -116,10 +113,7 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 				f.blur(f.tabIndex)
 			}
 
-			f.tabIndex--
-			if f.tabIndex < 0 {
-				f.tabIndex = len(f.widgets) - 1
-			}
+			f.tabIndex = f.getPreviousIndex()
 
 			f.focus(f.tabIndex)
 
@@ -190,4 +184,42 @@ func (f *FocusManager) enterInput(index int) {
 func (f *FocusManager) exitInput(index int) {
 	f.widgets[index].setInputting(false)
 	f.widgets[index].OnExitInput()
+}
+
+func (f *FocusManager) getNextIndex() int {
+	var index int
+
+	index = f.tabIndex + 1
+
+	for {
+		if index > len(f.widgets)-1 {
+			index = 0
+		}
+
+		if !f.widgets[index].IsActive() {
+			index++
+			continue
+		}
+
+		return index
+	}
+}
+
+func (f *FocusManager) getPreviousIndex() int {
+	var index int
+
+	index = f.tabIndex - 1
+
+	for {
+		if index < 0 {
+			index = len(f.widgets) - 1
+		}
+
+		if !f.widgets[index].IsActive() {
+			index--
+			continue
+		}
+
+		return index
+	}
 }

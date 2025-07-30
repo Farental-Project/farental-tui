@@ -8,6 +8,9 @@ type Focusable interface {
 	// Updatable to be able to update a focusable widget.
 	Updatable
 
+	// Activable to be able to activate or deactivate widget.
+	Activable
+
 	// OnFocus is called when the widget gains the focus.
 	OnFocus()
 

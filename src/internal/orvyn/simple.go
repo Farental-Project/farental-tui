@@ -11,8 +11,8 @@ var VGap = NewSimpleRenderable("\n")
 func NewSimpleRenderable(view string) *SimpleRenderable {
 	s := new(SimpleRenderable)
 
+	s.BaseRenderable = NewBaseRenderable()
 	s.view = view
-	s.visible = true
 
 	return s
 }
