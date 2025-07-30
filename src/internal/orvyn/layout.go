@@ -16,10 +16,21 @@ func NewBaseLayout(elements []Renderable) BaseLayout {
 	b := BaseLayout{}
 
 	b.elements = elements
+	b.visible = true
 
 	return b
 }
 
 func (b *BaseLayout) GetElements() []Renderable {
-	return b.elements
+	var visibleElements []Renderable
+
+	for _, e := range b.elements {
+		if !e.IsVisible() {
+			continue
+		}
+
+		visibleElements = append(visibleElements, e)
+	}
+
+	return visibleElements
 }

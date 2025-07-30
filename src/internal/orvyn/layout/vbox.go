@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// VBoxLayout arranges elements vertically with flexible width (base on the largest width).
+// All heights are the minimal for each elements.
 type VBoxLayout struct {
 	orvyn.BaseLayout
 

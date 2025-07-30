@@ -19,7 +19,7 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
+	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.Model = textinput.New()
 	style.SetTextInputStyle(&w.Model)

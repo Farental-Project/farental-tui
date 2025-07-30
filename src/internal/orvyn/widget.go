@@ -17,15 +17,12 @@ type Widget interface {
 
 type BaseWidget struct {
 	BaseRenderable
-
-	renderCallback func() string
 }
 
-func NewBaseWidget(renderCallback func() string) *BaseWidget {
-	w := new(BaseWidget)
+func NewBaseWidget() BaseWidget {
+	w := BaseWidget{}
 
 	w.visible = true
-	w.renderCallback = renderCallback
 
 	return w
 }

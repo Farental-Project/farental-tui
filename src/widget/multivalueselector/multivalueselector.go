@@ -48,7 +48,7 @@ type Widget[T Value] struct {
 func New[T Value]() *Widget[T] {
 	w := new(Widget[T])
 
-	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
+	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.values = make(map[string]T)
 	w.keys = make([]string, 0)

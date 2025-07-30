@@ -101,7 +101,7 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 			if f.widgets[f.tabIndex].IsFocused() {
 				f.blur(f.tabIndex)
 			}
-
+		
 			f.tabIndex++
 			if f.tabIndex >= len(f.widgets) {
 				f.tabIndex = 0

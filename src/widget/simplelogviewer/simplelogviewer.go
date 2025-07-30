@@ -44,7 +44,7 @@ type Widget struct {
 func New(title string) *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
+	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.title = title
 	w.content = make([]string, 0)

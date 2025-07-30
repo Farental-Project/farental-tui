@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// CenterLayout centers the given element in the available size.
 type CenterLayout struct {
 	orvyn.BaseLayout
 }

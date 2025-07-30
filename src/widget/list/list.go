@@ -19,7 +19,7 @@ type Widget struct {
 func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
+	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.Model = list.New(items, delegate, 0, 0)
 	w.Model.DisableQuitKeybindings()

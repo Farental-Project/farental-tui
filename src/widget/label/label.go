@@ -16,7 +16,7 @@ type Widget struct {
 func New(value string) *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
+	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.Style = lipgloss.NewStyle().Italic(true)
 	w.value = value

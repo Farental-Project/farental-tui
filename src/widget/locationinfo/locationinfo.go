@@ -25,6 +25,8 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
+	w.BaseWidget = orvyn.NewBaseWidget()
+
 	w.title = label.New("")
 	w.title.Style = style.DimBottomBorderStyle.
 		AlignHorizontal(lipgloss.Center)

@@ -8,6 +8,7 @@ import (
 	"farental/model"
 	"farental/style"
 	"farental/widget/characterinfo"
+	"farental/widget/fullhelp"
 	"farental/widget/help"
 	"farental/widget/locationinfo"
 	"farental/widget/runningtask"
@@ -42,6 +43,8 @@ type Screen struct {
 
 	help *help.Widget
 
+	fullHelp *fullhelp.Widget
+
 	statusMessage *statusmessage.Widget
 
 	lastEventLogTimestamp time.Time
@@ -49,6 +52,8 @@ type Screen struct {
 	focusManager *orvyn.FocusManager
 
 	layout *layout.CenterLayout
+
+	socialLayout *layout.GrowHBoxLayout
 }
 
 func New() *Screen {
@@ -81,7 +86,15 @@ func New() *Screen {
 
 	s.help = help.New()
 
+	s.fullHelp = fullhelp.New()
+	s.fullHelp.SetVisible(false)
+
 	s.statusMessage = statusmessage.New()
+
+	s.socialLayout = layout.NewGrowHBoxLayout(1, 0,
+		[]orvyn.Renderable{
+			s.logChat, s.logCharacters,
+		})
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(
@@ -93,10 +106,10 @@ func New() *Screen {
 				s.characterInfo,
 				s.locationInfo,
 				s.logEvent,
-				layout.NewGrowHBoxLayout(1, 0,
-					[]orvyn.Renderable{
-						s.logChat, s.logCharacters,
-					}),
+				layout.NewPileLayout([]orvyn.Renderable{
+					s.socialLayout,
+					s.fullHelp,
+				}),
 				s.statusMessage,
 				s.help,
 			}),
@@ -132,6 +145,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+			s.showHelp(bubblehelp.ShowAll)
+
+			return nil
 		}
 	case orvyn.TickMsg:
 		if msg.Tag != s.tickTag {
@@ -151,4 +169,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 func (s *Screen) Render() orvyn.Layout {
 	return s.layout
+}
+
+func (s *Screen) showHelp(b bool) {
+	s.help.SetVisible(!b)
+	s.socialLayout.SetVisible(!b)
+	s.fullHelp.SetVisible(b)
 }

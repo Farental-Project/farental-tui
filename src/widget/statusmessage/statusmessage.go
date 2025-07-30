@@ -37,7 +37,7 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.BaseWidget = *orvyn.NewBaseWidget(w.Render)
+	w.BaseWidget = orvyn.NewBaseWidget()
 
 	baseStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 

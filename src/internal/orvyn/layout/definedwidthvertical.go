@@ -11,6 +11,9 @@ type flexibleHeightElement struct {
 	heightRatio float64
 }
 
+// DefinedWidthVerticalLayout arranges vertically elements within the given width values.
+// The height of each elements will be defined between the min and the preferred size.
+// Widgets that return 0,0 or the same min and preferred size are considered as fixed size widgets.
 type DefinedWidthVerticalLayout struct {
 	orvyn.BaseLayout
 
