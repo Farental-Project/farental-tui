@@ -34,3 +34,15 @@ func (b *BaseLayout) GetElements() []Renderable {
 
 	return visibleElements
 }
+
+func (b *BaseLayout) SetActive(active bool) {
+	for _, e := range b.elements {
+		e.SetActive(active)
+	}
+
+	b.active = active
+}
+
+func (b *BaseLayout) IsActive() bool {
+	return b.active
+}
