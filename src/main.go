@@ -14,6 +14,7 @@ import (
 	"farental/screen/characterselection"
 	"farental/screen/dashboard"
 	"farental/screen/login"
+	"farental/screen/travel"
 	"farental/style"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
@@ -62,6 +63,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
 	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
+	orvyn.RegisterScreen(screen.IDTravel, travel.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())

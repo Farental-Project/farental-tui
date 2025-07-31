@@ -9,4 +9,5 @@ const (
 	IDCharacterSelection orvyn.ScreenID = "characterselection"
 	IDCharacterCreation  orvyn.ScreenID = "charactercreation"
 	IDDashBoard          orvyn.ScreenID = "dashboard"
+	IDTravel             orvyn.ScreenID = "travel"
 )

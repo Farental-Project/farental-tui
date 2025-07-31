@@ -6,6 +6,7 @@ import (
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
 	"farental/model"
+	"farental/screen"
 	"farental/style"
 	"farental/widget/characterinfo"
 	"farental/widget/fullhelp"
@@ -150,6 +151,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			s.showHelp(bubblehelp.ShowAll)
 
 			return nil
+
+		case key.Matches(msg, keybind.TKey):
+			return orvyn.SwitchScreen(screen.IDTravel)
 		}
 	case orvyn.TickMsg:
 		if msg.Tag != s.tickTag {
