@@ -53,6 +53,7 @@ func (s *Screen) updateData() {
 
 	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
 	s.locationInfo.UpdateData(&characterInfo.Location)
+	s.updateRunningTask()
 	s.updateEventLog()
 	s.updateChat()
 	s.updateVisibleCharacters()

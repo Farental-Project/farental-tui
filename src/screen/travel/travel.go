@@ -49,7 +49,7 @@ func New() *Screen {
 	s.list.SetShowTitle(false)
 	s.list.SetShowPagination(false)
 
-	s.list.PreferredSize.Width = 45
+	s.list.PreferredSize.Width = style.LayoutWidth - 2 // items borders
 	s.list.MinSize.Height = 13
 
 	s.statusMessage = statusmessage.New()
@@ -87,20 +87,54 @@ func (s *Screen) OnExit() interface{} {
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		s.statusMessage.Reset()
+
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
 
 		case key.Matches(msg, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
+
+		case key.Matches(msg, keybind.Enter):
+			if s.submit() {
+				return orvyn.SwitchToPreviousScreen()
+			}
+
+			return nil
 		}
 	}
+
+	s.list.Update(msg)
 
 	return nil
 }
 
 func (s *Screen) Render() orvyn.Layout {
 	return s.layout
+}
+
+func (s *Screen) submit() bool {
+	i, ok := s.list.SelectedItem().(Item)
+
+	if !ok {
+		return false
+	}
+
+	req := request.TravelStart(i.ID)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return false
+	}
+
+	if resp.StatusCode() != 200 {
+		return false
+	}
+
+	return true
 }
 
 func (s *Screen) loadTravels() {

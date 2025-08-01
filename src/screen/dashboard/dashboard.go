@@ -131,7 +131,9 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 
 	s.focusManager.Focus(0)
 
-	return orvyn.TickCmd(tick, s.tickTag)
+	cmd := s.runningTask.Init()
+
+	return tea.Batch(cmd, orvyn.TickCmd(tick, s.tickTag))
 }
 
 func (s *Screen) OnExit() interface{} {
@@ -146,9 +148,15 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
+
 		case key.Matches(msg, keybind.Help):
 			bubblehelp.ShowAll = !bubblehelp.ShowAll
 			s.showHelp(bubblehelp.ShowAll)
+
+			return nil
+
+		case key.Matches(msg, keybind.Space):
+			s.claim()
 
 			return nil
 
@@ -167,8 +175,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	s.focusManager.Update(msg)
+	
+	cmd := s.runningTask.Update(msg)
 
-	return nil
+	return cmd
 }
 
 func (s *Screen) Render() orvyn.Layout {

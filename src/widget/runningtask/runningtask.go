@@ -50,6 +50,7 @@ func New() *Widget {
 		Frames: art.WaitSpinner,
 		FPS:    time.Second / 9,
 	}
+	w.spinner.Style = w.Style.Spinner
 
 	return w
 }

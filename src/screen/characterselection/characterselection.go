@@ -56,7 +56,7 @@ func New() *Screen {
 	s.list.SetShowTitle(false)
 	s.list.SetShowPagination(false)
 
-	s.list.PreferredSize.Width = 45
+	s.list.PreferredSize.Width = style.LayoutWidth - 2 // items border
 	s.list.MinSize.Height = 13
 
 	s.statusMessage = statusmessage.New()
