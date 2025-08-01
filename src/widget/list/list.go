@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// Widget is a very simple list without filter or any feature.
 type Widget struct {
 	orvyn.BaseWidget
 
@@ -22,6 +23,12 @@ func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 
 	w.Model = list.New(items, delegate, 0, 0)
 	w.Model.DisableQuitKeybindings()
+
+	w.Model.SetShowStatusBar(false)
+	w.Model.SetShowFilter(false)
+	w.Model.SetShowHelp(false)
+	w.Model.SetShowTitle(false)
+	w.Model.SetShowPagination(false)
 
 	return w
 }

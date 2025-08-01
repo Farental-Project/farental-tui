@@ -44,11 +44,6 @@ func New() *Screen {
 	s.list = list.New(ItemDelegate{},
 		[]tealist.Item{})
 
-	s.list.SetShowStatusBar(false)
-	s.list.SetShowHelp(false)
-	s.list.SetShowTitle(false)
-	s.list.SetShowPagination(false)
-
 	s.list.PreferredSize.Width = style.LayoutWidth - 2 // items borders
 	s.list.MinSize.Height = 13
 
