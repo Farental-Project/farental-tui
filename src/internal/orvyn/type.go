@@ -62,11 +62,11 @@ func (b *BaseRenderable) GetSize() Size {
 }
 
 func (b *BaseRenderable) GetMinSize() Size {
-	return NewSize(0, 0)
+	return NewSize(1, 1)
 }
 
 func (b *BaseRenderable) GetPreferredSize() Size {
-	return NewSize(0, 0)
+	return NewSize(1, 1)
 }
 
 type Updatable interface {

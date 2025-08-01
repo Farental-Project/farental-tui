@@ -23,9 +23,9 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(10, 1)
+	return orvyn.GetRenderSize(lipgloss.NewStyle(), bubblehelp.View(w.GetSize().Width))
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.GetRenderSize(lipgloss.NewStyle(), bubblehelp.View(50))
+	return orvyn.GetRenderSize(lipgloss.NewStyle(), bubblehelp.View(w.GetSize().Width))
 }

@@ -82,9 +82,7 @@ func (l *VBoxLayout) GetMinSize() orvyn.Size {
 		eSize := e.GetMinSize()
 		size.Height += eSize.Height
 
-		if eSize.Width > size.Width {
-			size.Width = eSize.Width
-		}
+		size.Width = max(size.Width, eSize.Width)
 	}
 
 	return size
@@ -97,9 +95,7 @@ func (l *VBoxLayout) GetPreferredSize() orvyn.Size {
 		eSize := e.GetPreferredSize()
 		size.Height += eSize.Height
 
-		if eSize.Width > size.Width {
-			size.Width = eSize.Width
-		}
+		size.Width = max(size.Width, eSize.Width)
 	}
 
 	return size
