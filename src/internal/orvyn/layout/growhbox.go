@@ -135,22 +135,3 @@ func (l *GrowHBoxLayout) GetPreferredSize() orvyn.Size {
 
 	return size
 }
-
-func (l *GrowHBoxLayout) GetMaxSize() orvyn.Size {
-	var size orvyn.Size
-
-	for _, e := range l.GetElements() {
-		eSize := e.GetMaxSize()
-
-		if eSize.Width == 0 && eSize.Height == 0 {
-			eSize = e.GetSize()
-		}
-
-		size.Width = max(eSize.Width, size.Width)
-		size.Height = max(eSize.Height, size.Height)
-	}
-
-	size.Width *= len(l.GetElements())
-
-	return size
-}

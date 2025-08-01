@@ -87,10 +87,6 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(46, 3)
 }
 
-func (w *Widget) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(95, 3)
-}
-
 func (w *Widget) OnEnterInput() {}
 
 func (w *Widget) OnExitInput() {}

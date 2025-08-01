@@ -65,10 +65,6 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(45, 12)
 }
 
-func (w *Widget) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(100, 10)
-}
-
 func (w *Widget) UpdateData(location *api.LocationResponse) {
 	w.constructTitle(location)
 

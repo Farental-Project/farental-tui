@@ -104,18 +104,3 @@ func (l *VBoxLayout) GetPreferredSize() orvyn.Size {
 
 	return size
 }
-
-func (l *VBoxLayout) GetMaxSize() orvyn.Size {
-	var size orvyn.Size
-
-	for _, e := range l.GetElements() {
-		eSize := e.GetPreferredSize()
-		size.Height += eSize.Height
-
-		if eSize.Width > size.Width {
-			size.Width = eSize.Width
-		}
-	}
-
-	return size
-}

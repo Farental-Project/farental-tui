@@ -13,7 +13,6 @@ type Widget struct {
 
 	MinSize       orvyn.Size
 	PreferredSize orvyn.Size
-	MaxSize       orvyn.Size
 }
 
 func New(delegate list.ItemDelegate, items []list.Item) *Widget {
@@ -52,8 +51,4 @@ func (w *Widget) GetMinSize() orvyn.Size {
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
 	return w.PreferredSize
-}
-
-func (w *Widget) GetMaxSize() orvyn.Size {
-	return w.MaxSize
 }

@@ -37,7 +37,6 @@ type Renderable interface {
 	GetSize() Size
 	GetMinSize() Size
 	GetPreferredSize() Size
-	GetMaxSize() Size
 }
 
 type BaseRenderable struct {
@@ -67,10 +66,6 @@ func (b *BaseRenderable) GetMinSize() Size {
 }
 
 func (b *BaseRenderable) GetPreferredSize() Size {
-	return NewSize(0, 0)
-}
-
-func (b *BaseRenderable) GetMaxSize() Size {
 	return NewSize(0, 0)
 }
 

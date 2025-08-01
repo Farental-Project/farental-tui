@@ -41,7 +41,3 @@ func (l *CenterLayout) GetMinSize() orvyn.Size {
 func (l *CenterLayout) GetPreferredSize() orvyn.Size {
 	return l.GetElements()[0].GetPreferredSize()
 }
-
-func (l *CenterLayout) GetMaxSize() orvyn.Size {
-	return l.GetElements()[0].GetMaxSize()
-}

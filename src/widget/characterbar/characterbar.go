@@ -56,7 +56,3 @@ func (w *Widget) GetMinSize() orvyn.Size {
 func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(6, 4)
 }
-
-func (w *Widget) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(6, 6)
-}

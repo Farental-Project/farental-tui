@@ -66,10 +66,6 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(45, 4)
 }
 
-func (w *Widget) GetMaxSize() orvyn.Size {
-	return orvyn.NewSize(100, 5)
-}
-
 func (w *Widget) UpdateData(info *api.CharacterInfoResponse, money int) {
 	w.constructInfo(info, money)
 

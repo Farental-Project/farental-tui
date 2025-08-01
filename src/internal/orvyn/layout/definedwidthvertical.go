@@ -155,24 +155,6 @@ func (l *DefinedWidthVerticalLayout) GetPreferredSize() orvyn.Size {
 	return size
 }
 
-func (l *DefinedWidthVerticalLayout) GetMaxSize() orvyn.Size {
-	var size orvyn.Size
-
-	size.Width = l.PreferredWidth
-
-	for _, e := range l.GetElements() {
-		height := e.GetMaxSize().Height
-
-		if height == 0 {
-			height = e.GetSize().Height
-		}
-
-		size.Height += height
-	}
-
-	return size
-}
-
 func (l *DefinedWidthVerticalLayout) calculateHeightRatio() {
 	maxHeight := l.GetPreferredSize().Height
 
