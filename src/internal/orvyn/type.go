@@ -83,3 +83,11 @@ type Size struct {
 func NewSize(width, height int) Size {
 	return Size{width, height}
 }
+
+func SameSize(s1, s2 Size) bool {
+	if s1 == s2 {
+		return true
+	}
+
+	return false
+}

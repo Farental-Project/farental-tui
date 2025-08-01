@@ -125,12 +125,18 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 	marginH += w.widgetStyle.GetBorderTopSize()
 
-	w.titleStyle = w.titleStyle.Width(size.Width - marginW)
-	w.viewport.Width = size.Width - marginW
-	w.viewport.Height = size.Height - w.titleHeight - marginH
+	size.Width -= marginW
+	size.Height -= w.titleHeight - marginH
 
-	// TODO: Find a way to let the user explore the log
-	w.viewport.GotoBottom()
+	w.titleStyle = w.titleStyle.Width(size.Width)
+	w.viewport.Width = size.Width
+	w.viewport.Height = size.Height
+
+	if !orvyn.SameSize(size, w.GetSize()) {
+		w.viewport.GotoBottom()
+	}
+
+	w.BaseWidget.Resize(size)
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
