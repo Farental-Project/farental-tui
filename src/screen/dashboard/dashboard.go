@@ -131,6 +131,8 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 
 	s.focusManager.Focus(0)
 
+	s.showHelp(false)
+
 	cmd := s.runningTask.Init()
 
 	return tea.Batch(cmd, orvyn.TickCmd(tick, s.tickTag))
@@ -162,7 +164,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(msg, keybind.TKey):
 			return orvyn.SwitchScreen(screen.IDTravel)
+
+		case key.Matches(msg, keybind.Esc):
+			return orvyn.SwitchScreen(screen.IDCharacterSelection)
+
 		}
+
 	case orvyn.TickMsg:
 		if msg.Tag != s.tickTag {
 			return nil
@@ -175,7 +182,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	s.focusManager.Update(msg)
-	
+
 	cmd := s.runningTask.Update(msg)
 
 	return cmd
