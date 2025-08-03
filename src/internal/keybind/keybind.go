@@ -23,7 +23,6 @@ var (
 	Travels          key.Binding
 	Activities       key.Binding
 	Crafts           key.Binding
-	Fights           key.Binding
 	Npcs             key.Binding
 	Scripts          key.Binding
 	CharacterSheet   key.Binding
@@ -39,6 +38,7 @@ var (
 	AKey             key.Binding
 	DKey             key.Binding
 	EKey             key.Binding
+	FKey             key.Binding
 	MKey             key.Binding
 	NKey             key.Binding
 	PKey             key.Binding
@@ -99,9 +99,6 @@ func Init() {
 	Crafts = key.NewBinding(
 		key.WithKeys("c"),
 		key.WithHelp("c", lang.L("crafts")))
-	Fights = key.NewBinding(
-		key.WithKeys("f"),
-		key.WithHelp("f", lang.L("fights")))
 	Npcs = key.NewBinding(
 		key.WithKeys("n"),
 		key.WithHelp("n", lang.L("npcs")))
@@ -147,6 +144,9 @@ func Init() {
 	EKey = key.NewBinding(
 		key.WithKeys("e"),
 		key.WithHelp("e", "e key"))
+	FKey = key.NewBinding(
+		key.WithKeys("f"),
+		key.WithHelp("f", "f key"))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))

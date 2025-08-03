@@ -11,4 +11,5 @@ const (
 	IDDashBoard          orvyn.ScreenID = "dashboard"
 	IDTravel             orvyn.ScreenID = "travel"
 	IDActivity           orvyn.ScreenID = "activity"
+	IDFight              orvyn.ScreenID = "fight"
 )

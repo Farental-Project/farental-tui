@@ -168,6 +168,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.AKey):
 			return orvyn.SwitchScreen(screen.IDActivity)
 
+		case key.Matches(msg, keybind.FKey):
+			return orvyn.SwitchScreen(screen.IDFight)
+
 		case key.Matches(msg, keybind.Esc):
 			return orvyn.SwitchScreen(screen.IDCharacterSelection)
 
