@@ -1,5 +1,5 @@
 package style
 
 const (
-	LayoutWidth = 75
+	LayoutWidth = 120
 )
