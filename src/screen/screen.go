@@ -10,4 +10,5 @@ const (
 	IDCharacterCreation  orvyn.ScreenID = "charactercreation"
 	IDDashBoard          orvyn.ScreenID = "dashboard"
 	IDTravel             orvyn.ScreenID = "travel"
+	IDActivity           orvyn.ScreenID = "activity"
 )

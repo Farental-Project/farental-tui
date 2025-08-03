@@ -10,6 +10,7 @@ import (
 	"farental/internal/orvyn"
 	"farental/model"
 	"farental/screen"
+	"farental/screen/activity"
 	"farental/screen/charactercreation"
 	"farental/screen/characterselection"
 	"farental/screen/dashboard"
@@ -64,6 +65,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
 	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
 	orvyn.RegisterScreen(screen.IDTravel, travel.New())
+	orvyn.RegisterScreen(screen.IDActivity, activity.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
