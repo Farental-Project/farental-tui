@@ -28,7 +28,7 @@ func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	w.Model.SetShowFilter(false)
 	w.Model.SetShowHelp(false)
 	w.Model.SetShowTitle(false)
-	w.Model.SetShowPagination(false)
+	w.Model.SetShowPagination(true)
 
 	return w
 }
