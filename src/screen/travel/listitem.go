@@ -46,20 +46,14 @@ func (i Item) FilterValue() string {
 	var b strings.Builder
 
 	b.WriteString(i.DestLocation.Name)
-	b.WriteString("\n")
+	b.WriteString("-")
 	b.WriteString(i.DestLocation.Continent.Name)
-	b.WriteString("\n")
+	b.WriteString("-")
 	b.WriteString(i.DestLocation.Biome.Name)
-	b.WriteString("\n")
+	b.WriteString("-")
 	b.WriteString(i.DestLocation.Type.Name)
-
-	for i, f := range i.DestLocation.Features {
-		if i > 0 {
-			b.WriteString("\n")
-		}
-
-		b.WriteString(f.Name)
-	}
+	b.WriteString("-")
+	b.WriteString(i.featuresList)
 
 	return b.String()
 }
@@ -84,7 +78,7 @@ func (c ItemDelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 	str := s.Width(m.Width()).Render(
 		fmt.Sprintf("%s\n%s\n%s\n%s",
 			style.HighlightStyle.Render(fmt.Sprintf("%s", i.DestLocation.Name)),
-			style.LocationBiomeStyle(i.DestLocation.Biome.Name).
+			style.LocationBiomeStyle(i.DestLocation.Biome.Code).
 				Render(i.DestLocation.Biome.Name),
 			style.NeutralDimTextStyle.Render(i.DestLocation.Type.Name),
 			style.DimTextStyle.Render(i.featuresList),

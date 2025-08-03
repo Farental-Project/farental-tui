@@ -10,8 +10,8 @@ import (
 	"farental/internal/orvyn/layout"
 	"farental/model"
 	"farental/style"
+	"farental/widget/filterablelist"
 	"farental/widget/help"
-	"farental/widget/list"
 	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tealist "github.com/charmbracelet/bubbles/list"
@@ -25,7 +25,7 @@ type Screen struct {
 	title *orvyn.SimpleRenderable
 
 	travels []tealist.Item
-	list    *list.Widget
+	list    *filterablelist.Widget
 
 	statusMessage *statusmessage.Widget
 
@@ -41,7 +41,7 @@ func New() *Screen {
 		style.TitleStyle.Render(lang.L("Travels")),
 	)
 
-	s.list = list.New(ItemDelegate{},
+	s.list = filterablelist.New(ItemDelegate{},
 		[]tealist.Item{})
 
 	s.list.PreferredSize.Width = style.LayoutWidth - 2 // items borders
@@ -89,20 +89,24 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return tea.Quit
 
 		case key.Matches(msg, keybind.Esc):
-			return orvyn.SwitchToPreviousScreen()
-
-		case key.Matches(msg, keybind.Enter):
-			if s.submit() {
+			if s.list.FilterState() == tealist.Unfiltered {
 				return orvyn.SwitchToPreviousScreen()
 			}
 
-			return nil
+		case key.Matches(msg, keybind.Enter):
+			if s.list.FilterState() != tealist.Filtering {
+				if s.submit() {
+					return orvyn.SwitchToPreviousScreen()
+				}
+
+				return nil
+			}
 		}
 	}
 
-	s.list.Update(msg)
+	cmd := s.list.Update(msg)
 
-	return nil
+	return cmd
 }
 
 func (s *Screen) Render() orvyn.Layout {

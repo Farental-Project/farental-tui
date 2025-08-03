@@ -81,7 +81,7 @@ func (w *Widget) constructTitle(location *api.LocationResponse) {
 	b.WriteString("\n")
 	b.WriteString(fmt.Sprintf("%s | %s",
 		style.NeutralDimTextStyle.Render(location.Type.Name),
-		style.LocationBiomeStyle(location.Biome.Name).Render(location.Biome.Name)),
+		style.LocationBiomeStyle(location.Biome.Code).Render(location.Biome.Name)),
 	)
 
 	if len(location.Features) > 0 {
