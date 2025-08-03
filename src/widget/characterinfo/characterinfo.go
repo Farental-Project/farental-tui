@@ -32,8 +32,8 @@ func New() *Widget {
 	w.info = label.New("")
 	w.info.Style = lipgloss.NewStyle().
 		AlignHorizontal(lipgloss.Center)
-	w.barHp = characterbar.New(style.ColorHpBar)
-	w.barMp = characterbar.New(style.ColorMpBar)
+	w.barHp = characterbar.New(lang.L("HP"), style.ColorHpBar)
+	w.barMp = characterbar.New(lang.L("MP"), style.ColorMpBar)
 
 	w.layout = layout.NewGrowHBoxLayout(1, 1,
 		[]orvyn.Renderable{
