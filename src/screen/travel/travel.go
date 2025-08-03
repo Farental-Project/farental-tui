@@ -4,117 +4,37 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
-	"farental/internal/keybind"
 	"farental/internal/lang"
-	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
 	"farental/model"
-	"farental/style"
-	"farental/widget/filterablelist"
-	"farental/widget/help"
-	"farental/widget/statusmessage"
-	"github.com/charmbracelet/bubbles/key"
+	"farental/screen/generic/selectionlist"
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
-	title *orvyn.SimpleRenderable
-
-	travels []tealist.Item
-	list    *filterablelist.Widget
-
-	statusMessage *statusmessage.Widget
-
-	help *help.Widget
-
-	layout *layout.CenterLayout
+	selectionlist.Screen
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lang.L("Travels")),
-	)
-
-	s.list = filterablelist.New(ItemDelegate{},
-		[]tealist.Item{})
-
-	s.list.PreferredSize.Width = style.LayoutWidth - 2 // items borders
-	s.list.MinSize.Height = 13
-
-	s.statusMessage = statusmessage.New()
-	s.help = help.New()
-
-	s.layout = layout.NewCenterLayout(
-		layout.NewVBoxFullLayout(10, 2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.list,
-				s.statusMessage,
-				orvyn.VGap,
-				s.help,
-			},
-		),
-	)
+	s.Screen = selectionlist.New(lang.L("Travels"), ItemDelegate{},
+		s.loadTravels, s.submit)
 
 	return s
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+	s.Screen.OnEnter(i)
+
 	bubblehelp.SwitchContext(model.ContextFilterSelectionListBasic)
 
-	s.loadTravels()
-	s.list.Select(0)
-
 	return nil
-}
-
-func (s *Screen) OnExit() interface{} {
-	return nil
-}
-
-func (s *Screen) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		s.statusMessage.Reset()
-
-		switch {
-		case key.Matches(msg, keybind.Quit):
-			return tea.Quit
-
-		case key.Matches(msg, keybind.Esc):
-			if s.list.FilterState() == tealist.Unfiltered {
-				return orvyn.SwitchToPreviousScreen()
-			}
-
-		case key.Matches(msg, keybind.Enter):
-			if s.list.FilterState() != tealist.Filtering {
-				if s.submit() {
-					return orvyn.SwitchToPreviousScreen()
-				}
-
-				return nil
-			}
-		}
-	}
-
-	cmd := s.list.Update(msg)
-
-	return cmd
-}
-
-func (s *Screen) Render() orvyn.Layout {
-	return s.layout
 }
 
 func (s *Screen) submit() bool {
-	i, ok := s.list.SelectedItem().(Item)
+	i, ok := s.GetSelectedItem().(Item)
 
 	if !ok {
 		return false
@@ -125,7 +45,7 @@ func (s *Screen) submit() bool {
 	resp, err := helper.SendRequest(req)
 
 	if err != nil {
-		s.statusMessage.SetError(err)
+		s.SetStatusError(err)
 		return false
 	}
 
@@ -143,7 +63,7 @@ func (s *Screen) loadTravels() {
 	resp, err := helper.SendRequest(request.TravelGetAvailable())
 
 	if err != nil {
-		s.statusMessage.SetError(err)
+		s.SetStatusError(err)
 		return
 	}
 
@@ -153,11 +73,11 @@ func (s *Screen) loadTravels() {
 		return
 	}
 
-	s.travels = make([]tealist.Item, 0)
+	items := make([]tealist.Item, 0)
 
 	for _, t := range *travels {
-		s.travels = append(s.travels, NewItem(&t))
+		items = append(items, NewItem(&t))
 	}
 
-	s.list.SetItems(s.travels)
+	s.SetItems(items)
 }
