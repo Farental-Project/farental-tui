@@ -14,12 +14,16 @@ type Widget struct {
 
 	MinSize       orvyn.Size
 	PreferredSize orvyn.Size
+
+	delegate list.ItemDelegate
 }
 
 func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+
+	w.delegate = delegate
 
 	w.Model = list.New(items, delegate, 0, 0)
 	w.Model.DisableQuitKeybindings()
@@ -48,8 +52,12 @@ func (w *Widget) Render() string {
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
+	itemHeight := w.delegate.Height()
+	itemCount := size.Height / itemHeight
+	itemCount -= 2
+
 	w.Model.SetWidth(size.Width)
-	w.Model.SetHeight(size.Height)
+	w.Model.SetHeight(itemCount * itemHeight)
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
