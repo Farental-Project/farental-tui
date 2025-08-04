@@ -75,6 +75,7 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 func (w *Widget) updateHelp() {
 	switch w.FilterState() {
 	case list.Filtering:
+		bubblehelp.ShowAll = false
 		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lang.L("cancel"))
 		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, lang.L("apply"))
 		bubblehelp.SetKeybindVisible(keybind.Filter, false)

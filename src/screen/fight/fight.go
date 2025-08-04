@@ -5,8 +5,11 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/lang"
+	"farental/model"
 	"farental/screen/generic/selectionlist"
 	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"log"
 )
 
@@ -21,6 +24,14 @@ func New() *Screen {
 		s.loadFights, s.submit)
 
 	return s
+}
+
+func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+	s.Screen.OnEnter(i)
+
+	bubblehelp.SwitchContext(model.ContextFilterSelectionListPage)
+
+	return nil
 }
 
 func (s *Screen) loadFights() {

@@ -32,8 +32,8 @@ func NewListItem(f api.FightCompositionResponse) ListItem {
 	li.Paginator.ActiveDot = style.TitleStyle.Render("•")
 	li.Paginator.InactiveDot = style.DimTextStyle.Render("•")
 	li.Paginator.SetTotalPages(len(f.Actors))
-	li.Paginator.KeyMap.NextPage = keybind.NextPage
-	li.Paginator.KeyMap.PrevPage = keybind.PrevPage
+	li.Paginator.KeyMap.NextPage = keybind.Right
+	li.Paginator.KeyMap.PrevPage = keybind.Left
 
 	for _, a := range f.Actors {
 		li.TotalPower += a.Power

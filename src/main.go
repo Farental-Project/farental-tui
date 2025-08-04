@@ -185,8 +185,10 @@ func registerKeymapContexts() {
 	filterSelListPageKeymap.Style = mainHelpStyle
 	filterSelListPageKeymap.NewKeyBinding(keybind.Up, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Down, false)
-	filterSelListPageKeymap.NewKeyBinding(keybind.PrevPage, false)
-	filterSelListPageKeymap.NewKeyBinding(keybind.NextPage, false)
+	filterSelListPageKeymap.NewKeyBinding(keybind.Right, false)
+	filterSelListPageKeymap.SetHelpDesc(keybind.Right, lang.L("next page"))
+	filterSelListPageKeymap.NewKeyBinding(keybind.Left, false)
+	filterSelListPageKeymap.SetHelpDesc(keybind.Left, lang.L("previous page"))
 	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListStart, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListEnd, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Filter, true)

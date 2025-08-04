@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 type Screen struct {
@@ -99,6 +100,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				return nil
 			}
 
+		case key.Matches(msg, keybind.Help):
+			if s.list.FilterState() != tealist.Filtering {
+				bubblehelp.ShowAll = !bubblehelp.ShowAll
+
+				return nil
+			}
 		}
 	}
 
