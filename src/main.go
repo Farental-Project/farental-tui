@@ -13,6 +13,7 @@ import (
 	"farental/screen/activity"
 	"farental/screen/charactercreation"
 	"farental/screen/characterselection"
+	"farental/screen/chat"
 	"farental/screen/craft"
 	"farental/screen/dashboard"
 	"farental/screen/fight"
@@ -70,6 +71,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDActivity, activity.New())
 	orvyn.RegisterScreen(screen.IDFight, fight.New())
 	orvyn.RegisterScreen(screen.IDCraft, craft.New())
+	orvyn.RegisterScreen(screen.IDChat, chat.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -264,10 +266,10 @@ func registerKeymapContexts() {
 	chatKeymap.Style = mainHelpStyle
 	chatKeymap.NewKeyBinding(keybind.Enter, true)
 	chatKeymap.SetHelpDesc(keybind.Enter, lang.L("send message"))
-	chatKeymap.NewKeyBinding(keybind.NewLine, true)
+	chatKeymap.NewKeyBinding(keybind.YKeyCtrl, true)
+	chatKeymap.SetHelpDesc(keybind.YKeyCtrl, lang.L("new line"))
 	chatKeymap.NewKeyBinding(keybind.Esc, true)
 	chatKeymap.NewKeyBinding(keybind.Quit, true)
-	chatKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(model.ContextChat, chatKeymap)
 

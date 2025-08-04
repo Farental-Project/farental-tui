@@ -60,7 +60,11 @@ func (l *VBoxFullLayout) Render() string {
 		}
 	}
 
-	for _, e := range l.GetElements() {
+	for i, e := range l.GetElements() {
+		if i == l.growIndex {
+			continue
+		}
+		
 		elementSize.Height = e.GetMinSize().Height
 
 		e.Resize(elementSize)

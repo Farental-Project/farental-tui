@@ -101,8 +101,21 @@ func (s *Screen) updateEventLog() {
 func (s *Screen) updateChat() {
 	context.UpdateChat()
 
-	if len(context.ChatContent) > len(s.logChat.GetContent()) {
-		s.logChat.SetContent(context.ChatContent)
+	ctxContent := context.ChatContent
+	content := s.logChat.GetContent()
+
+	if len(ctxContent) == 0 {
+		s.logChat.SetContent(ctxContent)
+		return
+	}
+
+	if len(content) == 0 {
+		s.logChat.SetContent(ctxContent)
+		return
+	}
+
+	if ctxContent[len(ctxContent)-1] != content[len(content)-1] {
+		s.logChat.SetContent(ctxContent)
 	}
 }
 

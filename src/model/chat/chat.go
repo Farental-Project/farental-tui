@@ -57,7 +57,7 @@ func New() Model {
 	m.Input.Cursor.TextStyle = style.NormalStyle
 	m.Input.Cursor.Style = style.HighlightStyle
 
-	m.Input.KeyMap.InsertNewline = keybind.NewLine
+	m.Input.KeyMap.InsertNewline = keybind.YKeyCtrl
 
 	return m
 }

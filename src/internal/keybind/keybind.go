@@ -25,8 +25,6 @@ var (
 	Npcs             key.Binding
 	Scripts          key.Binding
 	CharacterSheet   key.Binding
-	Chat             key.Binding
-	NewLine          key.Binding
 	LocationServices key.Binding
 	Inventory        key.Binding
 	GotoListStart    key.Binding
@@ -45,6 +43,8 @@ var (
 	RKey             key.Binding
 	TKey             key.Binding
 	WKey             key.Binding
+	YKey             key.Binding
+	YKeyCtrl         key.Binding
 )
 
 func Init() {
@@ -105,12 +105,6 @@ func Init() {
 	CharacterSheet = key.NewBinding(
 		key.WithKeys("h"),
 		key.WithHelp("h", lang.L("character sheet")))
-	Chat = key.NewBinding(
-		key.WithKeys("y"),
-		key.WithHelp("y", lang.L("chat")))
-	NewLine = key.NewBinding(
-		key.WithKeys("ctrl+y"),
-		key.WithHelp("ctrl+y", lang.L("new line")))
 	LocationServices = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", lang.L("location services")))
@@ -165,4 +159,10 @@ func Init() {
 	WKey = key.NewBinding(
 		key.WithKeys("w"),
 		key.WithHelp("w", "w key"))
+	YKey = key.NewBinding(
+		key.WithKeys("y"),
+		key.WithHelp("y", lang.L("y key")))
+	YKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+y"),
+		key.WithHelp("ctrl+y", lang.L("ctrl+y key")))
 }

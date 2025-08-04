@@ -126,14 +126,14 @@ func (w *Widget) Resize(size orvyn.Size) {
 	marginH += w.widgetStyle.GetBorderTopSize()
 
 	size.Width -= marginW
-	size.Height -= w.titleHeight - marginH
+	size.Height -= w.titleHeight + marginH
 
 	w.titleStyle = w.titleStyle.Width(size.Width)
 	w.viewport.Width = size.Width
 	w.viewport.Height = size.Height
 
 	if !orvyn.SameSize(size, w.GetSize()) {
-		w.viewport.GotoBottom()
+		w.refresh()
 	}
 
 	w.BaseWidget.Resize(size)
@@ -159,6 +159,14 @@ func (w *Widget) AppendContent(content string) {
 
 func (w *Widget) GetContent() []string {
 	return w.content
+}
+
+func (w *Widget) ScrollUp(n int) {
+	w.viewport.ScrollUp(n)
+}
+
+func (w *Widget) ScrollDown(n int) {
+	w.viewport.ScrollDown(n)
 }
 
 func (w *Widget) refresh() {
