@@ -4,8 +4,10 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
+	"farental/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 )
 
@@ -50,7 +52,16 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) Render() string {
+	if len(w.Model.Items()) == 0 {
+		return style.DimTextStyle.
+			Width(w.GetSize().Width).
+			Height(w.GetSize().Height).
+			Align(lipgloss.Center, lipgloss.Center).
+			Render(lang.L("Nothing to show"))
+	}
+
 	return w.Model.View()
+
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
