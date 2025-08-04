@@ -21,6 +21,8 @@ type Widget struct {
 	MinSize         orvyn.Size
 	PreferredSize   orvyn.Size
 	CustomEnterDesc string
+
+	NoContentStyle lipgloss.Style
 }
 
 func New(delegate list.ItemDelegate, items []list.Item) *Widget {
@@ -38,6 +40,8 @@ func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	w.Model.SetShowTitle(false)
 	w.Model.SetShowPagination(true)
 
+	w.NoContentStyle = style.DimTextStyle.Align(lipgloss.Center, lipgloss.Center)
+
 	return w
 }
 
@@ -53,10 +57,10 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 func (w *Widget) Render() string {
 	if len(w.Model.Items()) == 0 {
-		return style.DimTextStyle.
-			Width(w.GetSize().Width).
-			Height(w.GetSize().Height).
-			Align(lipgloss.Center, lipgloss.Center).
+		size := w.GetSize()
+		return w.NoContentStyle.
+			Width(size.Width).
+			Height(size.Height).
 			Render(lang.L("Nothing to show"))
 	}
 
