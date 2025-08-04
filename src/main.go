@@ -13,6 +13,7 @@ import (
 	"farental/screen/activity"
 	"farental/screen/charactercreation"
 	"farental/screen/characterselection"
+	"farental/screen/craft"
 	"farental/screen/dashboard"
 	"farental/screen/fight"
 	"farental/screen/login"
@@ -68,6 +69,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDTravel, travel.New())
 	orvyn.RegisterScreen(screen.IDActivity, activity.New())
 	orvyn.RegisterScreen(screen.IDFight, fight.New())
+	orvyn.RegisterScreen(screen.IDCraft, craft.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -133,8 +135,10 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.Style = mainHelpStyle
 	gameDashboardKeymap.NewKeyBinding(keybind.TKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.TKey, lang.L("travels"))
-	gameDashboardKeymap.NewKeyBinding(keybind.Activities, false)
-	gameDashboardKeymap.NewKeyBinding(keybind.Crafts, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.AKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.AKey, lang.L("activities"))
+	gameDashboardKeymap.NewKeyBinding(keybind.CKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.CKey, lang.L("crafts"))
 	gameDashboardKeymap.NewKeyBinding(keybind.FKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.FKey, lang.L("fights"))
 	gameDashboardKeymap.NewKeyBinding(keybind.LocationServices, false)

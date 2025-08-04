@@ -22,7 +22,6 @@ var (
 	ShiftTab         key.Binding
 	Travels          key.Binding
 	Activities       key.Binding
-	Crafts           key.Binding
 	Npcs             key.Binding
 	Scripts          key.Binding
 	CharacterSheet   key.Binding
@@ -36,6 +35,7 @@ var (
 	NextPage         key.Binding
 	Use              key.Binding
 	AKey             key.Binding
+	CKey             key.Binding
 	DKey             key.Binding
 	EKey             key.Binding
 	FKey             key.Binding
@@ -96,9 +96,6 @@ func Init() {
 	Activities = key.NewBinding(
 		key.WithKeys("a"),
 		key.WithHelp("a", lang.L("activities")))
-	Crafts = key.NewBinding(
-		key.WithKeys("c"),
-		key.WithHelp("c", lang.L("crafts")))
 	Npcs = key.NewBinding(
 		key.WithKeys("n"),
 		key.WithHelp("n", lang.L("npcs")))
@@ -138,6 +135,9 @@ func Init() {
 	AKey = key.NewBinding(
 		key.WithKeys("a"),
 		key.WithHelp("a", "a key"))
+	CKey = key.NewBinding(
+		key.WithKeys("c"),
+		key.WithHelp("c", lang.L("c key")))
 	DKey = key.NewBinding(
 		key.WithKeys("d"),
 		key.WithHelp("d", "d key"))
