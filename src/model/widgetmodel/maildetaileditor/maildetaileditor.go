@@ -1,6 +1,7 @@
 package maildetaileditor
 
 import (
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
@@ -48,7 +49,7 @@ func New(width int) *Model {
 	m.TIMoneyAmount.Placeholder = lang.L("Money amount")
 	m.TIMoneyAmount.Prompt = ""
 	m.TIMoneyAmount.Width = m.Width - 3
-	m.TIMoneyAmount.Validate = model.NumericalValidate
+	m.TIMoneyAmount.Validate = helper.NumericalValidate
 
 	m.ListAttachments = NewListAttachment(width-2, 5)
 
