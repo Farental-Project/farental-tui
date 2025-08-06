@@ -121,6 +121,8 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.SetHelpDesc(keybind.CKey, lang.L("crafts"))
 	gameDashboardKeymap.NewKeyBinding(keybind.FKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.FKey, lang.L("fights"))
+	gameDashboardKeymap.NewKeyBinding(keybind.YKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.YKey, lang.L("chat"))
 	gameDashboardKeymap.NewKeyBinding(keybind.LocationServices, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Scripts, false)
