@@ -76,7 +76,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case model.InitMsg:
 		m.UpdateData()
 
-		bubblehelp.SwitchContext(model.ContextCharacterSheet)
+		bubblehelp.SwitchContext(keybind.ContextCharacterSheet)
 	}
 
 	context.ContentManager.Update(msg)

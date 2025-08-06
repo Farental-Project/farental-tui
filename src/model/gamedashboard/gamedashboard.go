@@ -93,14 +93,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.resetMsg()
 
 		switch bubblehelp.CurrentContext {
-		case model.ContextGameDashboard:
+		case keybind.ContextGameDashboard:
 			mod, mes := m.gameKeyHandler(msg)
 
 			if mod != nil {
 				return mod, mes
 			}
 
-		case model.ContextLocationServices:
+		case keybind.ContextLocationServices:
 			mod, mes := m.servicesKeyHandler(msg)
 
 			if mod != nil {
@@ -122,7 +122,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		cmd = m.RunningTask.Init()
 
-		bubblehelp.SwitchContext(model.ContextGameDashboard)
+		bubblehelp.SwitchContext(keybind.ContextGameDashboard)
 
 		return m, cmd
 	}
@@ -223,7 +223,7 @@ func (m *Model) claim() {
 }
 
 func (m *Model) showLocationService() {
-	bubblehelp.SwitchContext(model.ContextLocationServices)
+	bubblehelp.SwitchContext(keybind.ContextLocationServices)
 	bubblehelp.ShowAll = true
 
 	m.HelpContainer.Title = lang.L("Location services")
@@ -236,7 +236,7 @@ func (m *Model) showLocationService() {
 }
 
 func (m *Model) hideLocationService() {
-	bubblehelp.SwitchContext(model.ContextGameDashboard)
+	bubblehelp.SwitchContext(keybind.ContextGameDashboard)
 	bubblehelp.ShowAll = false
 
 	m.HelpContainer.Title = lang.L("Help")

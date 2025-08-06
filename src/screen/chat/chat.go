@@ -10,7 +10,6 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
-	"farental/model"
 	"farental/style"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
@@ -82,7 +81,6 @@ func New() *Screen {
 				s.logChat,
 				s.input,
 				s.statusMessage,
-				orvyn.VGap,
 				s.help,
 			},
 		),
@@ -92,7 +90,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
-	bubblehelp.SwitchContext(model.ContextChat)
+	bubblehelp.SwitchContext(keybind.ContextChat)
 
 	cmd := s.input.Init()
 

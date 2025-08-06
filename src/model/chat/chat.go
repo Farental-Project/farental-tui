@@ -81,7 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.LogContainer.Title = fmt.Sprintf("%s - %s",
 			lang.L("Chat"), context.CharacterInfo.Location.Name)
 
-		bubblehelp.SwitchContext(model.ContextChat)
+		bubblehelp.SwitchContext(keybind.ContextChat)
 	case model.TickMsg:
 		if msg.Tag != m.tickTag {
 			return m, nil

@@ -10,7 +10,6 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
-	"farental/model"
 	"farental/screen"
 	"farental/style"
 	"farental/widget/help"
@@ -117,7 +116,7 @@ func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
 	cmds = append(cmds, s.tiEmail.Init())
 	cmds = append(cmds, s.tiPassword.Init())
 
-	bubblehelp.SwitchContext(model.ContextLogin)
+	bubblehelp.SwitchContext(keybind.ContextLogin)
 
 	context.Client.Cookies = make([]*http.Cookie, 0)
 

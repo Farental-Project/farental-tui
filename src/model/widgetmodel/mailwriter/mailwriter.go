@@ -38,7 +38,7 @@ func New(width int) *Model {
 	editModeKeymap.NewKeyBinding(keybind.Quit, false)
 	editModeKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextMailWriterEditMode, editModeKeymap)
+	bubblehelp.RegisterContext(keybind.ContextMailWriterEditMode, editModeKeymap)
 
 	m := &Model{width: width}
 
@@ -75,7 +75,7 @@ func (m Model) Init() tea.Cmd {
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
+		bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
 		m.EditMode = false
 		m.focusManager.BlurCurrent()
 
@@ -151,7 +151,7 @@ func (m Model) View() string {
 
 func (m *Model) Focus() {
 	m.BaseFocusableWidget.Focus()
-	bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
 }
 
 func (m *Model) Blur() {
@@ -165,11 +165,11 @@ func (m *Model) GetEditModeKeybind() *key.Binding {
 func (m *Model) EnterEditMode() {
 	m.BaseFocusableWidget.EnterEditMode()
 	m.focusManager.Focus(0)
-	bubblehelp.SwitchContext(model.ContextMailWriterEditMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWriterEditMode)
 }
 
 func (m *Model) ExitEditMode() {
 	m.BaseFocusableWidget.ExitEditMode()
 	m.focusManager.BlurCurrent()
-	bubblehelp.SwitchContext(model.ContextMailWidgetNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
 }

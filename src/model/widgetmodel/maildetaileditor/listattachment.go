@@ -4,7 +4,6 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/widgetfocusmanager"
-	"farental/model"
 	"farental/model/widgetmodel/list"
 	"farental/style"
 
@@ -30,7 +29,7 @@ func NewListAttachment(width int, height int) *ListAttachmentModel {
 	keymapContext.NewKeyBinding(keybind.AKey, true)
 	keymapContext.SetHelpDesc(keybind.AKey, lang.L("add"))
 
-	bubblehelp.RegisterContext(model.ContextMailDetailEditorAttachmentList, keymapContext)
+	bubblehelp.RegisterContext(keybind.ContextMailDetailEditorAttachmentList, keymapContext)
 
 	m := new(ListAttachmentModel)
 
@@ -90,7 +89,7 @@ func (m *ListAttachmentModel) View() string {
 func (m *ListAttachmentModel) Focus() {
 	m.BaseFocusableWidget.Focus()
 	m.List.Focus()
-	bubblehelp.SwitchContext(model.ContextMailDetailEditorAttachmentList)
+	bubblehelp.SwitchContext(keybind.ContextMailDetailEditorAttachmentList)
 }
 
 func (m *ListAttachmentModel) Blur() {

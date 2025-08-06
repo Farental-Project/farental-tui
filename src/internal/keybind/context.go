@@ -1,4 +1,4 @@
-package model
+package keybind
 
 import (
 	"github.com/halsten-dev/bubblehelp"

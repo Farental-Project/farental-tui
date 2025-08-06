@@ -8,7 +8,6 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
-	"farental/model"
 	"farental/style"
 	"farental/widget/help"
 	"farental/widget/label"
@@ -108,7 +107,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
-	bubblehelp.SwitchContext(model.ContextCharacterCreation)
+	bubblehelp.SwitchContext(keybind.ContextCharacterCreation)
 
 	s.tiFirstname.SetValue("")
 	s.tiLastname.SetValue("")

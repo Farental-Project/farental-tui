@@ -52,7 +52,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		bubblehelp.SwitchContext(model.ContextMailReader)
+		bubblehelp.SwitchContext(keybind.ContextMailReader)
 
 		content := context.ContentManager.GetContent(model.ContentMailbox)
 

@@ -55,7 +55,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msgType := msg.(type) {
 	case model.InitMsg:
-		bubblehelp.SwitchContext(model.ContextInventory)
+		bubblehelp.SwitchContext(keybind.ContextInventory)
 
 		m.FilterSelectionList.UpdateData()
 		m.ItemDetail.UpdateData(nil)

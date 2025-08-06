@@ -5,7 +5,6 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
-	"farental/model"
 	"farental/screen"
 	"farental/style"
 	"farental/widget/characterinfo"
@@ -125,7 +124,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
-	bubblehelp.SwitchContext(model.ContextGameDashboard)
+	bubblehelp.SwitchContext(keybind.ContextGameDashboard)
 
 	s.updateData()
 

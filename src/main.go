@@ -8,7 +8,6 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	"farental/model"
 	"farental/screen"
 	"farental/screen/activity"
 	"farental/screen/charactercreation"
@@ -54,11 +53,7 @@ func main() {
 
 	bubblehelp.Init()
 
-	// registerContents()
-
 	registerKeymapContexts()
-
-	// context.ContentManager.SwitchContent(nil, model.ContentLogin) // ContentLogin
 
 	// Orvyn
 	orvyn.Init()
@@ -81,23 +76,6 @@ func main() {
 	}
 }
 
-// func registerContents() {
-// 	context.ContentManager.RegisterContent(model.ContentLogin, login.New())
-// 	context.ContentManager.RegisterContent(model.ContentCharacterSelection, characterselection.New())
-// 	context.ContentManager.RegisterContent(model.ContentCharacterCreation, charactercreation.New())
-// 	context.ContentManager.RegisterContent(model.ContentGameDashboard, gamedashboard.New())
-// 	context.ContentManager.RegisterContent(model.ContentActivitySelection, activityselection.New())
-// 	context.ContentManager.RegisterContent(model.ContentTravelSelection, travelselection.New())
-// 	context.ContentManager.RegisterContent(model.ContentFightSelection, fightselection.New())
-// 	context.ContentManager.RegisterContent(model.ContentCraftSelection, craftselection.New())
-// 	context.ContentManager.RegisterContent(model.ContentInventory, inventory.New())
-// 	context.ContentManager.RegisterContent(model.ContentChat, chat.New())
-// 	context.ContentManager.RegisterContent(model.ContentCharacterSheet, charactersheet.New())
-// 	context.ContentManager.RegisterContent(model.ContentMailbox, mailbox.New())
-// 	context.ContentManager.RegisterContent(model.ContentMailReader, mailreader.New())
-// 	context.ContentManager.RegisterContent(model.ContentMailEditor, maileditor.New())
-// }
-
 func registerKeymapContexts() {
 	mainHelpStyle := style.MainHelpStyle
 
@@ -109,7 +87,7 @@ func registerKeymapContexts() {
 	loginKeymap.NewKeyBinding(keybind.Quit, true)
 	loginKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextLogin, loginKeymap)
+	bubblehelp.RegisterContext(keybind.ContextLogin, loginKeymap)
 
 	characterSelectionKeymap := bubblehelp.NewKeymap(2)
 	characterSelectionKeymap.Style = mainHelpStyle
@@ -123,7 +101,7 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextCharacterSel, characterSelectionKeymap)
+	bubblehelp.RegisterContext(keybind.ContextCharacterSel, characterSelectionKeymap)
 
 	characterCreationKeymap := bubblehelp.NewKeymap(2)
 	characterCreationKeymap.Style = mainHelpStyle
@@ -131,7 +109,7 @@ func registerKeymapContexts() {
 	characterCreationKeymap.NewKeyBinding(keybind.Esc, true)
 	characterCreationKeymap.NewKeyBinding(keybind.Quit, true)
 
-	bubblehelp.RegisterContext(model.ContextCharacterCreation, characterCreationKeymap)
+	bubblehelp.RegisterContext(keybind.ContextCharacterCreation, characterCreationKeymap)
 
 	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle
@@ -153,7 +131,7 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.NewKeyBinding(keybind.Quit, true)
 	gameDashboardKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextGameDashboard, gameDashboardKeymap)
+	bubblehelp.RegisterContext(keybind.ContextGameDashboard, gameDashboardKeymap)
 
 	filterSelListBasicKeymap := bubblehelp.NewKeymap(3)
 	filterSelListBasicKeymap.Style = mainHelpStyle
@@ -167,7 +145,7 @@ func registerKeymapContexts() {
 	filterSelListBasicKeymap.NewKeyBinding(keybind.Quit, true)
 	filterSelListBasicKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextFilterSelectionListBasic, filterSelListBasicKeymap)
+	bubblehelp.RegisterContext(keybind.ContextFilterSelectionListBasic, filterSelListBasicKeymap)
 
 	filterSelListIncDecKeymap := bubblehelp.NewKeymap(3)
 	filterSelListIncDecKeymap.Style = mainHelpStyle
@@ -185,7 +163,7 @@ func registerKeymapContexts() {
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Quit, true)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextFilterSelectionListIncDec, filterSelListIncDecKeymap)
+	bubblehelp.RegisterContext(keybind.ContextFilterSelectionListIncDec, filterSelListIncDecKeymap)
 
 	filterSelListPageKeymap := bubblehelp.NewKeymap(3)
 	filterSelListPageKeymap.Style = mainHelpStyle
@@ -203,7 +181,7 @@ func registerKeymapContexts() {
 	filterSelListPageKeymap.NewKeyBinding(keybind.Quit, true)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextFilterSelectionListPage, filterSelListPageKeymap)
+	bubblehelp.RegisterContext(keybind.ContextFilterSelectionListPage, filterSelListPageKeymap)
 
 	filterSelListBasicKeymapWithNew := bubblehelp.NewKeymap(3)
 	filterSelListBasicKeymapWithNew.Style = mainHelpStyle
@@ -219,7 +197,7 @@ func registerKeymapContexts() {
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Quit, true)
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextFilterSelectionListWithNew, filterSelListBasicKeymapWithNew)
+	bubblehelp.RegisterContext(keybind.ContextFilterSelectionListWithNew, filterSelListBasicKeymapWithNew)
 
 	craftKeymap := bubblehelp.NewKeymap(3)
 	craftKeymap.Style = mainHelpStyle
@@ -243,7 +221,7 @@ func registerKeymapContexts() {
 	craftKeymap.NewKeyBinding(keybind.Quit, true)
 	craftKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextCraft, craftKeymap)
+	bubblehelp.RegisterContext(keybind.ContextCraft, craftKeymap)
 
 	inventoryKeymap := bubblehelp.NewKeymap(3)
 	inventoryKeymap.Style = mainHelpStyle
@@ -260,7 +238,7 @@ func registerKeymapContexts() {
 	inventoryKeymap.NewKeyBinding(keybind.Quit, true)
 	inventoryKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextInventory, inventoryKeymap)
+	bubblehelp.RegisterContext(keybind.ContextInventory, inventoryKeymap)
 
 	chatKeymap := bubblehelp.NewKeymap(3)
 	chatKeymap.Style = mainHelpStyle
@@ -271,7 +249,7 @@ func registerKeymapContexts() {
 	chatKeymap.NewKeyBinding(keybind.Esc, true)
 	chatKeymap.NewKeyBinding(keybind.Quit, true)
 
-	bubblehelp.RegisterContext(model.ContextChat, chatKeymap)
+	bubblehelp.RegisterContext(keybind.ContextChat, chatKeymap)
 
 	characterSheetKeymap := bubblehelp.NewKeymap(3)
 	characterSheetKeymap.Style = mainHelpStyle
@@ -280,7 +258,7 @@ func registerKeymapContexts() {
 	characterSheetKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSheetKeymap.NewKeyBinding(keybind.Quit, true)
 
-	bubblehelp.RegisterContext(model.ContextCharacterSheet, characterSheetKeymap)
+	bubblehelp.RegisterContext(keybind.ContextCharacterSheet, characterSheetKeymap)
 
 	locationServicesKeymap := bubblehelp.NewKeymap(2)
 	locationServicesKeymap.Style = mainHelpStyle
@@ -292,7 +270,7 @@ func registerKeymapContexts() {
 	locationServicesKeymap.SetHelpDesc(keybind.Esc, lang.L("close"))
 	locationServicesKeymap.NewKeyBinding(keybind.Quit, true)
 
-	bubblehelp.RegisterContext(model.ContextLocationServices, locationServicesKeymap)
+	bubblehelp.RegisterContext(keybind.ContextLocationServices, locationServicesKeymap)
 
 	mailReaderKeymap := bubblehelp.NewKeymap(3)
 	mailReaderKeymap.Style = mainHelpStyle
@@ -306,7 +284,7 @@ func registerKeymapContexts() {
 	mailReaderKeymap.NewKeyBinding(keybind.Quit, false)
 	mailReaderKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextMailReader, mailReaderKeymap)
+	bubblehelp.RegisterContext(keybind.ContextMailReader, mailReaderKeymap)
 
 	MailWidgetNormalModeKeymap := bubblehelp.NewKeymap(2)
 	MailWidgetNormalModeKeymap.Style = style.MainHelpStyle
@@ -318,5 +296,5 @@ func registerKeymapContexts() {
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Quit, false)
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(model.ContextMailWidgetNormalMode, MailWidgetNormalModeKeymap)
+	bubblehelp.RegisterContext(keybind.ContextMailWidgetNormalMode, MailWidgetNormalModeKeymap)
 }

@@ -50,7 +50,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		bubblehelp.SwitchContext(model.ContextFilterSelectionListWithNew)
+		bubblehelp.SwitchContext(keybind.ContextFilterSelectionListWithNew)
 
 	case tea.KeyMsg:
 		switch {

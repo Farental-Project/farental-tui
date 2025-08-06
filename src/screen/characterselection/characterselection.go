@@ -9,7 +9,6 @@ import (
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/internal/orvyn/layout"
-	"farental/model"
 	"farental/screen"
 	"farental/style"
 	"farental/widget/help"
@@ -72,7 +71,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
-	bubblehelp.SwitchContext(model.ContextCharacterSel)
+	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
 
 	s.loadCharacters()
 	s.list.Select(0)

@@ -4,8 +4,8 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
+	"farental/internal/keybind"
 	"farental/internal/lang"
-	"farental/model"
 	"farental/screen/generic/selectionlist"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -29,7 +29,7 @@ func New() *Screen {
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 	s.Screen.OnEnter(i)
 
-	bubblehelp.SwitchContext(model.ContextFilterSelectionListPage)
+	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListPage)
 
 	return nil
 }
