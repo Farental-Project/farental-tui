@@ -73,9 +73,19 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+	bubblehelp.SwitchContext(keybind.ContextInventory)
+
 	s.loadInventory()
 	s.list.Select(0)
-	s.updateInspector()
+
+	selectedItem, ok := s.list.SelectedItem().(ListItem)
+
+	if !ok {
+		return nil
+	}
+
+	s.updateInspector(&selectedItem)
+	s.updateKeybind(&selectedItem.Stack.Item)
 
 	return nil
 }
@@ -108,7 +118,36 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	cmd := s.list.Update(msg)
 
-	s.updateInspector()
+	index := s.list.GlobalIndex()
+	selectedItem, ok := s.list.SelectedItem().(ListItem)
+
+	if ok {
+		if s.inspector.GetCurrentStackItemID() != selectedItem.Stack.ItemID {
+			s.updateInspector(&selectedItem)
+			s.updateKeybind(&selectedItem.Stack.Item)
+		}
+	}
+
+	if s.list.FilterState() == tealist.Filtering {
+		return cmd
+	}
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.UKey):
+			if bubblehelp.IsKeybindVisible(keybind.UKey) {
+				s.useItem(index, &selectedItem)
+				return cmd
+			}
+
+		case key.Matches(msg, keybind.EKey):
+			if bubblehelp.IsKeybindVisible(keybind.EKey) {
+				s.equipItem(&selectedItem)
+				return cmd
+			}
+		}
+	}
 
 	return cmd
 }
@@ -147,12 +186,65 @@ func (s *Screen) submit() bool {
 	return false
 }
 
-func (s *Screen) updateInspector() {
-	item, ok := s.list.SelectedItem().(ListItem)
+func (s *Screen) updateInspector(item *ListItem) {
+	s.inspector.UpdateData(&item.Stack)
+}
 
-	if !ok {
+func (s *Screen) useItem(index int, item *ListItem) {
+	req := request.InventoryUseItem(item.Stack.ItemID)
+
+	_, err := helper.SendRequest(req)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
 		return
 	}
 
-	s.inspector.UpdateData(&item.Stack)
+	item.Stack.Count--
+
+	s.statusMessage.SetMessage(lang.L("Item used !"), statusmessage.SuccessMessage)
+
+	if item.Stack.Count == 0 {
+		s.list.RemoveItem(index)
+		return
+	}
+
+	s.list.SetItem(index, *item)
+}
+
+func (s *Screen) equipItem(item *ListItem) {
+	req := request.InventoryEquipItem(item.Stack.ItemID)
+
+	_, err := helper.SendRequest(req)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	item.Stack.Count--
+
+	s.statusMessage.SetMessage(lang.L("Item equipped !"), statusmessage.SuccessMessage)
+
+	s.loadInventory()
+}
+
+func (s *Screen) updateKeybind(item *api.ItemResponse) {
+	if item == nil {
+		bubblehelp.SetKeybindVisible(keybind.UKey, false)
+		bubblehelp.SetKeybindVisible(keybind.EKey, false)
+		return
+	}
+
+	if item.IsUsable {
+		bubblehelp.SetKeybindVisible(keybind.UKey, true)
+	} else {
+		bubblehelp.SetKeybindVisible(keybind.UKey, false)
+	}
+
+	if item.EquipmentSlot != nil {
+		bubblehelp.SetKeybindVisible(keybind.EKey, true)
+	} else {
+		bubblehelp.SetKeybindVisible(keybind.EKey, false)
+	}
 }

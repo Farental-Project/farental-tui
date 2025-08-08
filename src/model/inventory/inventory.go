@@ -103,7 +103,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch {
-		case key.Matches(msgType, keybind.Use):
+		case key.Matches(msgType, keybind.UKey):
 			if selectedItem.Stack.Item.IsUsable {
 				m.useItem(selectedItem, selectedIndex)
 			}
@@ -219,15 +219,15 @@ func (m *Model) equipItem(selectedItem ListItem, index int) {
 
 func (m *Model) updateKeybind(item *api.ItemResponse) {
 	if item == nil {
-		bubblehelp.SetKeybindVisible(keybind.Use, false)
+		bubblehelp.SetKeybindVisible(keybind.UKey, false)
 		bubblehelp.SetKeybindVisible(keybind.EKey, false)
 		return
 	}
 
 	if item.IsUsable {
-		bubblehelp.SetKeybindVisible(keybind.Use, true)
+		bubblehelp.SetKeybindVisible(keybind.UKey, true)
 	} else {
-		bubblehelp.SetKeybindVisible(keybind.Use, false)
+		bubblehelp.SetKeybindVisible(keybind.UKey, false)
 	}
 
 	if item.EquipmentSlot != nil {

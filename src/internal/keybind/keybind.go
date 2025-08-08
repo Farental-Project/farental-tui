@@ -30,7 +30,6 @@ var (
 	GotoListEnd      key.Binding
 	PrevPage         key.Binding
 	NextPage         key.Binding
-	Use              key.Binding
 	AKey             key.Binding
 	CKey             key.Binding
 	DKey             key.Binding
@@ -42,6 +41,7 @@ var (
 	PKey             key.Binding
 	RKey             key.Binding
 	TKey             key.Binding
+	UKey             key.Binding
 	WKey             key.Binding
 	YKey             key.Binding
 	YKeyCtrl         key.Binding
@@ -120,9 +120,6 @@ func Init() {
 	NextPage = key.NewBinding(
 		key.WithKeys("pgdown"),
 		key.WithHelp("page down", lang.L("next page")))
-	Use = key.NewBinding(
-		key.WithKeys("u"),
-		key.WithHelp("u", lang.L("use")))
 	AKey = key.NewBinding(
 		key.WithKeys("a"),
 		key.WithHelp("a", "a key"))
@@ -140,7 +137,7 @@ func Init() {
 		key.WithHelp("f", "f key"))
 	IKey = key.NewBinding(
 		key.WithKeys("i"),
-		key.WithHelp("i", lang.L("inventory")))
+		key.WithHelp("i", lang.L("i key")))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))
@@ -156,6 +153,9 @@ func Init() {
 	TKey = key.NewBinding(
 		key.WithKeys("t"),
 		key.WithHelp("t", "t key"))
+	UKey = key.NewBinding(
+		key.WithKeys("u"),
+		key.WithHelp("u", lang.L("u key")))
 	WKey = key.NewBinding(
 		key.WithKeys("w"),
 		key.WithHelp("w", "w key"))
