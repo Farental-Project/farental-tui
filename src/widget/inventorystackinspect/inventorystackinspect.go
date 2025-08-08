@@ -36,28 +36,36 @@ func New() *Widget {
 	titleStyle := style.DimBottomBorderStyle
 
 	w.srName = orvyn.NewSimpleRenderable("")
+	w.srName.Style = style.DimUnderlinedTitleStyle
+	w.srName.SizeConstraint = true
 	w.srUnique = orvyn.NewSimpleRenderable(lang.L("Unique"))
 	w.srUnique.Style = style.SpecialHighlightStyle
 	w.srUnique.SetActive(false)
 	w.srDescription = orvyn.NewSimpleRenderable("")
 	w.srDescription.SizeConstraint = true
 
-	w.srStatsTitle = orvyn.NewSimpleRenderable(lang.L("Stats"))
+	w.srStatsTitle = orvyn.NewSimpleRenderable(
+		fmt.Sprintf("\n%s", lang.L("Stats")))
 	w.srStatsTitle.Style = titleStyle
+	w.srStatsTitle.SizeConstraint = true
 	w.srStats = orvyn.NewSimpleRenderable("")
 	w.srStats.SizeConstraint = true
 	w.srStatsTitle.SetActive(false)
 	w.srStats.SetActive(false)
 
-	w.srConditionsTitle = orvyn.NewSimpleRenderable(lang.L("Equip conditions"))
+	w.srConditionsTitle = orvyn.NewSimpleRenderable(
+		fmt.Sprintf("\n%s", lang.L("Equip conditions")))
 	w.srConditionsTitle.Style = titleStyle
+	w.srConditionsTitle.SizeConstraint = true
 	w.srConditions = orvyn.NewSimpleRenderable("")
 	w.srConditions.SizeConstraint = true
 	w.srConditionsTitle.SetActive(false)
 	w.srConditions.SetActive(false)
 
-	w.srResultsTitle = orvyn.NewSimpleRenderable("Effects")
+	w.srResultsTitle = orvyn.NewSimpleRenderable(
+		fmt.Sprintf("\n%s", lang.L("Effects")))
 	w.srResultsTitle.Style = titleStyle
+	w.srResultsTitle.SizeConstraint = true
 	w.srResults = orvyn.NewSimpleRenderable("")
 	w.srResults.SizeConstraint = true
 	w.srResultsTitle.SetActive(false)
@@ -81,11 +89,16 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return w.layout.Render()
+	return style.BlurredStyle.
+		Height(w.layout.GetSize().Height).
+		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
+
+	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
+	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
 
 	w.layout.Resize(size)
 }

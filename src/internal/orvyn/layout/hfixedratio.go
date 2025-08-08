@@ -67,7 +67,7 @@ func (l *HBoxFixedRatio) Render() string {
 	elementSize := orvyn.NewSize(0, layoutSize.Height)
 
 	for i, e := range l.elements {
-		width := int(math.Round(float64(totalWidth) * e.ratio))
+		width := int(math.Floor(float64(totalWidth) * e.ratio))
 		l.elements[i].tempWidth = width
 		usedWidth += width
 	}
@@ -90,7 +90,7 @@ func (l *HBoxFixedRatio) Render() string {
 		view = append(view, e.element.Render())
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Center,
+	return lipgloss.JoinHorizontal(lipgloss.Top,
 		view...)
 }
 

@@ -37,6 +37,9 @@ func (s *SimpleRenderable) Render() string {
 
 	size := s.GetSize()
 
+	size.Width -= s.Style.GetHorizontalFrameSize()
+	size.Height -= s.Style.GetVerticalFrameSize()
+
 	return s.Style.Width(size.Width).
 		Height(size.Height).Render(s.value)
 }
