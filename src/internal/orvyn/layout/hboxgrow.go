@@ -4,11 +4,12 @@ import (
 	"farental/internal/orvyn"
 	"github.com/charmbracelet/lipgloss"
 	"math"
+	"strings"
 )
 
-// GrowHBoxLayout is a layout that uniformize the height of all the elements
+// HBoxGrowLayout is a layout that uniformize the height of all the elements
 // and calculate the width of each element.
-type GrowHBoxLayout struct {
+type HBoxGrowLayout struct {
 	orvyn.BaseLayout
 
 	// gap defines the space between every element.
@@ -19,12 +20,12 @@ type GrowHBoxLayout struct {
 	compensatorIndex int
 }
 
-// NewGrowHBoxLayout creates a new instance of this widget.
+// NewHBoxGrowLayout creates a new instance of this widget.
 // gap : defines the space between every element.
 // compensatorIndex : specify which element of the layout will take the compensation size
 // to match the layout size.
-func NewGrowHBoxLayout(gap, compensatorIndex int, elements []orvyn.Renderable) *GrowHBoxLayout {
-	l := new(GrowHBoxLayout)
+func NewHBoxGrowLayout(gap, compensatorIndex int, elements []orvyn.Renderable) *HBoxGrowLayout {
+	l := new(HBoxGrowLayout)
 
 	l.BaseLayout = orvyn.NewBaseLayout(elements)
 	l.gap = gap
@@ -33,7 +34,7 @@ func NewGrowHBoxLayout(gap, compensatorIndex int, elements []orvyn.Renderable) *
 	return l
 }
 
-func (l *GrowHBoxLayout) Render() string {
+func (l *HBoxGrowLayout) Render() string {
 	var view []string
 	var elementSize orvyn.Size
 
@@ -64,7 +65,7 @@ func (l *GrowHBoxLayout) Render() string {
 
 	for i, e := range l.GetElements() {
 		if i > 0 {
-			view = append(view, " ")
+			view = append(view, strings.Repeat(" ", l.gap))
 		}
 
 		if i == l.compensatorIndex {
@@ -80,7 +81,7 @@ func (l *GrowHBoxLayout) Render() string {
 		view...)
 }
 
-func (l *GrowHBoxLayout) calculateCompensatorSize(baseElementSize, layoutSize orvyn.Size) orvyn.Size {
+func (l *HBoxGrowLayout) calculateCompensatorSize(baseElementSize, layoutSize orvyn.Size) orvyn.Size {
 	totalWidth := 0
 
 	for i := range l.GetElements() {
@@ -98,7 +99,7 @@ func (l *GrowHBoxLayout) calculateCompensatorSize(baseElementSize, layoutSize or
 	return baseElementSize
 }
 
-func (l *GrowHBoxLayout) GetMinSize() orvyn.Size {
+func (l *HBoxGrowLayout) GetMinSize() orvyn.Size {
 	var size orvyn.Size
 
 	for _, e := range l.GetElements() {
@@ -117,7 +118,7 @@ func (l *GrowHBoxLayout) GetMinSize() orvyn.Size {
 	return size
 }
 
-func (l *GrowHBoxLayout) GetPreferredSize() orvyn.Size {
+func (l *HBoxGrowLayout) GetPreferredSize() orvyn.Size {
 	var size orvyn.Size
 
 	for _, e := range l.GetElements() {

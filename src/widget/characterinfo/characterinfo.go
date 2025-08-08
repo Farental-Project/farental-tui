@@ -21,7 +21,7 @@ type Widget struct {
 	barHp *characterbar.Widget
 	barMp *characterbar.Widget
 
-	layout *layout.GrowHBoxLayout
+	layout *layout.HBoxGrowLayout
 }
 
 func New() *Widget {
@@ -35,7 +35,7 @@ func New() *Widget {
 	w.barHp = characterbar.New(lang.L("HP"), style.ColorHpBar)
 	w.barMp = characterbar.New(lang.L("MP"), style.ColorMpBar)
 
-	w.layout = layout.NewGrowHBoxLayout(1, 1,
+	w.layout = layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
 			w.barHp,
 			w.info,

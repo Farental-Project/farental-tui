@@ -48,9 +48,11 @@ func New() *Screen {
 
 	s.help = help.New()
 
-	inventoryLayout := layout.NewGrowHBoxLayout(1, 0,
-		[]orvyn.Renderable{
-			s.list, s.inspector,
+	inventoryLayout := layout.NewHBoxFixedRatioLayout(0, 1,
+		0,
+		[]layout.FixedRatioRenderable{
+			layout.NewFixedRatioRenderable(0.60, s.list),
+			layout.NewFixedRatioRenderable(0.40, s.inspector),
 		},
 	)
 

@@ -1,0 +1,133 @@
+package layout
+
+import (
+	"farental/internal/orvyn"
+	"github.com/charmbracelet/lipgloss"
+	"log"
+	"math"
+	"strings"
+)
+
+type FixedRatioRenderable struct {
+	ratio     float64
+	element   orvyn.Renderable
+	tempWidth int
+}
+
+func NewFixedRatioRenderable(ratio float64, element orvyn.Renderable) FixedRatioRenderable {
+	return FixedRatioRenderable{
+		ratio:   ratio,
+		element: element,
+	}
+}
+
+type HBoxFixedRatio struct {
+	orvyn.BaseLayout
+
+	elements []FixedRatioRenderable
+
+	margin int
+
+	gap int
+
+	compensatorIndex int
+}
+
+func NewHBoxFixedRatioLayout(margin int, gap,
+	compensatorIndex int, elements []FixedRatioRenderable) *HBoxFixedRatio {
+	l := new(HBoxFixedRatio)
+
+	l.BaseLayout = orvyn.NewBaseLayout([]orvyn.Renderable{})
+
+	l.margin = margin
+	l.gap = gap
+	l.compensatorIndex = compensatorIndex
+	l.elements = elements
+
+	totalRatio := 0.0
+
+	for _, e := range l.elements {
+		totalRatio += e.ratio
+	}
+
+	if totalRatio != 1 {
+		log.Fatal("HBoxFixedRatioLayout : Total elements ratio not equals 1.")
+	}
+
+	return l
+}
+
+func (l *HBoxFixedRatio) Render() string {
+	layoutSize := l.GetSize()
+
+	totalWidth := layoutSize.Width - l.margin
+	totalWidth -= l.gap*len(l.elements) - 1
+	usedWidth := 0
+
+	elementSize := orvyn.NewSize(0, layoutSize.Height)
+
+	for i, e := range l.elements {
+		width := int(math.Round(float64(totalWidth) * e.ratio))
+		l.elements[i].tempWidth = width
+		usedWidth += width
+	}
+
+	compensationWidth := totalWidth - usedWidth
+
+	l.elements[l.compensatorIndex].tempWidth += compensationWidth
+
+	view := make([]string, 0)
+
+	for i, e := range l.elements {
+		if i > 0 {
+			view = append(view, strings.Repeat(" ", l.gap))
+		}
+
+		elementSize.Width = e.tempWidth
+
+		e.element.Resize(elementSize)
+
+		view = append(view, e.element.Render())
+	}
+
+	return lipgloss.JoinHorizontal(lipgloss.Center,
+		view...)
+}
+
+func (l *HBoxFixedRatio) GetMinSize() orvyn.Size {
+	var size orvyn.Size
+
+	for _, e := range l.GetElements() {
+		eSize := e.GetMinSize()
+
+		if eSize.Width == 0 && eSize.Height == 0 {
+			eSize = e.GetSize()
+		}
+
+		size.Width = max(eSize.Width, size.Width)
+		size.Height = max(eSize.Height, size.Height)
+	}
+
+	size.Width *= len(l.GetElements())
+
+	return size
+}
+
+func (l *HBoxFixedRatio) GetPreferredSize() orvyn.Size {
+	var size orvyn.Size
+
+	for _, e := range l.GetElements() {
+		eSize := e.GetPreferredSize()
+
+		if eSize.Width == 0 && eSize.Height == 0 {
+			eSize = e.GetSize()
+		}
+
+		size.Width = max(eSize.Width, size.Width)
+		size.Height = max(eSize.Height, size.Height)
+	}
+
+	size.Width *= len(l.GetElements())
+
+	return size
+}

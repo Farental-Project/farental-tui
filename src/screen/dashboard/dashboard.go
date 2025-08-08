@@ -53,7 +53,7 @@ type Screen struct {
 
 	layout *layout.CenterLayout
 
-	socialLayout *layout.GrowHBoxLayout
+	socialLayout *layout.HBoxGrowLayout
 }
 
 func New() *Screen {
@@ -91,7 +91,7 @@ func New() *Screen {
 
 	s.statusMessage = statusmessage.New()
 
-	s.socialLayout = layout.NewGrowHBoxLayout(1, 0,
+	s.socialLayout = layout.NewHBoxGrowLayout(1, 0,
 		[]orvyn.Renderable{
 			s.logChat, s.logCharacters,
 		})
