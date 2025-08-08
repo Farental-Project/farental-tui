@@ -51,7 +51,8 @@ func New(title string, delegate tealist.ItemDelegate,
 	s.help = help.New()
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewVBoxFullLayout(10, 2,
+		layout.NewVBoxFullLayout(orvyn.NewSize(10, 4),
+			2,
 			[]orvyn.Renderable{
 				s.title,
 				orvyn.VGap,
