@@ -2,6 +2,7 @@ package list
 
 import (
 	"farental/internal/orvyn"
+	"farental/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -52,12 +53,12 @@ func (w *Widget) Render() string {
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	itemHeight := w.delegate.Height()
+	listItemHeight := w.delegate.Height()
+	itemHeight := listItemHeight + style.FocusedStyle.GetVerticalFrameSize()
 	itemCount := size.Height / itemHeight
-	itemCount -= 2
 
 	w.Model.SetWidth(size.Width)
-	w.Model.SetHeight(itemCount * itemHeight)
+	w.Model.SetHeight(itemCount * listItemHeight)
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

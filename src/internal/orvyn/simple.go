@@ -7,7 +7,8 @@ import (
 type SimpleRenderable struct {
 	BaseRenderable
 
-	Style lipgloss.Style
+	Style          lipgloss.Style
+	SizeConstraint bool
 
 	value string
 }
@@ -20,6 +21,7 @@ func NewSimpleRenderable(value string) *SimpleRenderable {
 	s.BaseRenderable = NewBaseRenderable()
 	s.value = value
 	s.Style = lipgloss.NewStyle()
+	s.SizeConstraint = false
 
 	return s
 }
@@ -29,7 +31,14 @@ func (s *SimpleRenderable) SetValue(value string) {
 }
 
 func (s *SimpleRenderable) Render() string {
-	return s.Style.Render(s.value)
+	if !s.SizeConstraint {
+		return s.Style.Render(s.value)
+	}
+
+	size := s.GetSize()
+
+	return s.Style.Width(size.Width).
+		Height(size.Height).Render(s.value)
 }
 
 func (s *SimpleRenderable) GetMinSize() Size {

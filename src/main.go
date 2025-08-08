@@ -16,6 +16,7 @@ import (
 	"farental/screen/craft"
 	"farental/screen/dashboard"
 	"farental/screen/fight"
+	"farental/screen/inventory"
 	"farental/screen/login"
 	"farental/screen/travel"
 	"farental/style"
@@ -67,6 +68,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDFight, fight.New())
 	orvyn.RegisterScreen(screen.IDCraft, craft.New())
 	orvyn.RegisterScreen(screen.IDChat, chat.New())
+	orvyn.RegisterScreen(screen.IDInventory, inventory.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -126,7 +128,8 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.NewKeyBinding(keybind.LocationServices, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Scripts, false)
-	gameDashboardKeymap.NewKeyBinding(keybind.Inventory, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.IKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.IKey, lang.L("inventory"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Space, true)
 	gameDashboardKeymap.NewKeyBinding(keybind.Esc, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.Esc, lang.L("character selection"))

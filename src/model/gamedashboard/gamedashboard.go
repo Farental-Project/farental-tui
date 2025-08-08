@@ -277,7 +277,7 @@ func (m *Model) gameKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return context.ContentManager.
 			SwitchContent(m, model.ContentActivitySelection)
 
-	case key.Matches(msg, keybind.Inventory):
+	case key.Matches(msg, keybind.IKey):
 		return context.ContentManager.
 			SwitchContent(m, model.ContentInventory)
 

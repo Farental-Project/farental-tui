@@ -26,7 +26,6 @@ var (
 	Scripts          key.Binding
 	CharacterSheet   key.Binding
 	LocationServices key.Binding
-	Inventory        key.Binding
 	GotoListStart    key.Binding
 	GotoListEnd      key.Binding
 	PrevPage         key.Binding
@@ -37,6 +36,7 @@ var (
 	DKey             key.Binding
 	EKey             key.Binding
 	FKey             key.Binding
+	IKey             key.Binding
 	MKey             key.Binding
 	NKey             key.Binding
 	PKey             key.Binding
@@ -108,9 +108,6 @@ func Init() {
 	LocationServices = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", lang.L("location services")))
-	Inventory = key.NewBinding(
-		key.WithKeys("i"),
-		key.WithHelp("i", lang.L("inventory")))
 	GotoListStart = key.NewBinding(
 		key.WithKeys("g", "home"),
 		key.WithHelp("g/home", lang.L("goto list start")))
@@ -141,6 +138,9 @@ func Init() {
 	FKey = key.NewBinding(
 		key.WithKeys("f"),
 		key.WithHelp("f", "f key"))
+	IKey = key.NewBinding(
+		key.WithKeys("i"),
+		key.WithHelp("i", lang.L("inventory")))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))

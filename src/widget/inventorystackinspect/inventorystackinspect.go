@@ -40,22 +40,26 @@ func New() *Widget {
 	w.srUnique.Style = style.SpecialHighlightStyle
 	w.srUnique.SetActive(false)
 	w.srDescription = orvyn.NewSimpleRenderable("")
+	w.srDescription.SizeConstraint = true
 
 	w.srStatsTitle = orvyn.NewSimpleRenderable(lang.L("Stats"))
 	w.srStatsTitle.Style = titleStyle
 	w.srStats = orvyn.NewSimpleRenderable("")
+	w.srStats.SizeConstraint = true
 	w.srStatsTitle.SetActive(false)
 	w.srStats.SetActive(false)
 
 	w.srConditionsTitle = orvyn.NewSimpleRenderable(lang.L("Equip conditions"))
 	w.srConditionsTitle.Style = titleStyle
 	w.srConditions = orvyn.NewSimpleRenderable("")
+	w.srConditions.SizeConstraint = true
 	w.srConditionsTitle.SetActive(false)
 	w.srConditions.SetActive(false)
 
 	w.srResultsTitle = orvyn.NewSimpleRenderable("Effects")
 	w.srResultsTitle.Style = titleStyle
 	w.srResults = orvyn.NewSimpleRenderable("")
+	w.srResults.SizeConstraint = true
 	w.srResultsTitle.SetActive(false)
 	w.srResults.SetActive(false)
 

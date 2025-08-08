@@ -14,4 +14,5 @@ const (
 	IDFight              orvyn.ScreenID = "fight"
 	IDCraft              orvyn.ScreenID = "craft"
 	IDChat               orvyn.ScreenID = "chat"
+	IDInventory          orvyn.ScreenID = "inventory"
 )
