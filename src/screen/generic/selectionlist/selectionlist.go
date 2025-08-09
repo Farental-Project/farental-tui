@@ -3,7 +3,7 @@ package selectionlist
 import (
 	"farental/internal/keybind"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	layout2 "farental/layout"
 	"farental/style"
 	"farental/widget/filterablelist"
 	"farental/widget/help"
@@ -25,7 +25,7 @@ type Screen struct {
 
 	help *help.Widget
 
-	layout *layout.CenterLayout
+	layout *layout2.CenterLayout
 
 	submitScreenID orvyn.ScreenID
 
@@ -54,8 +54,8 @@ func New(title string, delegate tealist.ItemDelegate,
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
-	s.layout = layout.NewCenterLayout(
-		layout.NewVBoxFullLayout(orvyn.NewSize(10, 4),
+	s.layout = layout2.NewCenterLayout(
+		layout2.NewVBoxFullLayout(orvyn.NewSize(10, 4),
 			2,
 			[]orvyn.Renderable{
 				s.title,

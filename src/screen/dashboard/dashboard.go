@@ -6,7 +6,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	layout2 "farental/layout"
 	"farental/screen"
 	"farental/style"
 	"farental/widget/characterinfo"
@@ -53,9 +53,9 @@ type Screen struct {
 
 	focusManager *orvyn.FocusManager
 
-	layout *layout.CenterLayout
+	layout *layout2.CenterLayout
 
-	socialLayout *layout.HBoxGrowLayout
+	socialLayout *layout2.HBoxGrowLayout
 }
 
 func New() *Screen {
@@ -93,13 +93,13 @@ func New() *Screen {
 
 	s.statusMessage = statusmessage.New()
 
-	s.socialLayout = layout.NewHBoxGrowLayout(1, 0,
+	s.socialLayout = layout2.NewHBoxGrowLayout(1, 0,
 		[]orvyn.Renderable{
 			s.logChat, s.logCharacters,
 		})
 
-	s.layout = layout.NewCenterLayout(
-		layout.NewDefinedWidthVerticalLayout(
+	s.layout = layout2.NewCenterLayout(
+		layout2.NewDefinedWidthVerticalLayout(
 			35,
 			style.LayoutWidth,
 			10,
@@ -108,7 +108,7 @@ func New() *Screen {
 				s.characterInfo,
 				s.locationInfo,
 				s.logEvent,
-				layout.NewPileLayout([]orvyn.Renderable{
+				layout2.NewPileLayout([]orvyn.Renderable{
 					s.socialLayout,
 					s.fullHelp,
 				}),
@@ -279,7 +279,7 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 		if bubblehelp.IsKeybindVisible(keybind.MKey) {
 			return orvyn.SwitchScreen(screen.IDMailBox), true
 		}
-		
+
 	}
 
 	return nil, false

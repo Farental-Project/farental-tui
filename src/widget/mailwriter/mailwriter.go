@@ -4,7 +4,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	"farental/layout"
 	"farental/style"
 	"farental/widget/textarea"
 	"farental/widget/textinput"

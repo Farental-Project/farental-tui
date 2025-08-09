@@ -9,7 +9,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	layout2 "farental/layout"
 	"farental/style"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
@@ -40,7 +40,7 @@ type Screen struct {
 
 	help *help.Widget
 
-	layout *layout.CenterLayout
+	layout *layout2.CenterLayout
 }
 
 func New() *Screen {
@@ -73,8 +73,8 @@ func New() *Screen {
 
 	s.help = help.New()
 
-	s.layout = layout.NewCenterLayout(
-		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
+	s.layout = layout2.NewCenterLayout(
+		layout2.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
 			2,
 			[]orvyn.Renderable{
 				s.title,

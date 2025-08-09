@@ -3,7 +3,7 @@ package maileditor
 import (
 	"farental/internal/keybind"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	"farental/layout"
 	"farental/widget/mailwriter"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"

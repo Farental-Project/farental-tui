@@ -7,7 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	layout2 "farental/layout"
 	"farental/style"
 	"farental/widget/characterinfo"
 	"farental/widget/equipmentsummary"
@@ -35,9 +35,9 @@ type Screen struct {
 
 	help *help.Widget
 
-	statsSkillLayout *layout.HBoxFixedRatio
+	statsSkillLayout *layout2.HBoxFixedRatio
 
-	layout *layout.CenterLayout
+	layout *layout2.CenterLayout
 }
 
 func New() *Screen {
@@ -50,16 +50,16 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
-	s.statsSkillLayout = layout.NewHBoxFixedRatioLayout(0, 1,
+	s.statsSkillLayout = layout2.NewHBoxFixedRatioLayout(0, 1,
 		0,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.30, s.statsSummary),
-			layout.NewFixedRatioRenderable(0.70, s.skillsSummary),
+		[]layout2.FixedRatioRenderable{
+			layout2.NewFixedRatioRenderable(0.30, s.statsSummary),
+			layout2.NewFixedRatioRenderable(0.70, s.skillsSummary),
 		},
 	)
 
-	s.layout = layout.NewCenterLayout(
-		layout.NewDefinedWidthVerticalLayout(35,
+	s.layout = layout2.NewCenterLayout(
+		layout2.NewDefinedWidthVerticalLayout(35,
 			style.LayoutWidth,
 			10,
 			[]orvyn.Renderable{

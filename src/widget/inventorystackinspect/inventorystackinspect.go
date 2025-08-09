@@ -4,7 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	"farental/internal/orvyn/layout"
+	"farental/layout"
 	"farental/style"
 	"fmt"
 	"strings"
