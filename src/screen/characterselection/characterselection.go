@@ -62,7 +62,6 @@ func New() *Screen {
 				orvyn.VGap,
 				s.list,
 				s.statusMessage,
-				orvyn.VGap,
 				s.help,
 			},
 		),

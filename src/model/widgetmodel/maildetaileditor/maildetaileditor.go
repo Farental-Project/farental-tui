@@ -144,7 +144,7 @@ func (m *Model) View() string {
 
 func (m *Model) Focus() {
 	m.BaseFocusableWidget.Focus()
-	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
 }
 
 func (m *Model) Blur() {
@@ -164,5 +164,5 @@ func (m *Model) EnterEditMode() {
 func (m *Model) ExitEditMode() {
 	m.BaseFocusableWidget.ExitEditMode()
 	m.focusManager.BlurCurrent()
-	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
 }

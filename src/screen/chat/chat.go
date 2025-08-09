@@ -65,7 +65,7 @@ func New() *Screen {
 
 	s.input = textarea.New()
 	s.input.ShowLineNumbers = false
-	s.input.MinHeight = 3
+	s.input.MinHeight = 5
 	s.input.KeyMap.InsertNewline = keybind.YKeyCtrl
 	s.input.Focus()
 

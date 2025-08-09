@@ -21,6 +21,7 @@ import (
 	"farental/screen/inventory"
 	"farental/screen/login"
 	"farental/screen/mailbox"
+	"farental/screen/maileditor"
 	"farental/screen/mailreader"
 	"farental/screen/travel"
 	"farental/style"
@@ -77,6 +78,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDCharacterSheet, charactersheet.New())
 	orvyn.RegisterScreen(screen.IDMailBox, mailbox.New())
 	orvyn.RegisterScreen(screen.IDMailReader, mailreader.New())
+	orvyn.RegisterScreen(screen.IDMailEditor, maileditor.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -314,5 +316,5 @@ func registerKeymapContexts() {
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Quit, false)
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(keybind.ContextMailWidgetNormalMode, MailWidgetNormalModeKeymap)
+	bubblehelp.RegisterContext(keybind.ContextMailWriterNormalMode, MailWidgetNormalModeKeymap)
 }

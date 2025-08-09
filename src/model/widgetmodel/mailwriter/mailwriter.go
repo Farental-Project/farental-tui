@@ -75,7 +75,7 @@ func (m Model) Init() tea.Cmd {
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case model.InitMsg:
-		bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+		bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
 		m.EditMode = false
 		m.focusManager.BlurCurrent()
 
@@ -151,7 +151,7 @@ func (m Model) View() string {
 
 func (m *Model) Focus() {
 	m.BaseFocusableWidget.Focus()
-	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
 }
 
 func (m *Model) Blur() {
@@ -171,5 +171,5 @@ func (m *Model) EnterEditMode() {
 func (m *Model) ExitEditMode() {
 	m.BaseFocusableWidget.ExitEditMode()
 	m.focusManager.BlurCurrent()
-	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
 }

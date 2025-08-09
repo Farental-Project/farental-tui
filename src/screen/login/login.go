@@ -70,7 +70,6 @@ func New() *Screen {
 				s.tiPassword,
 				orvyn.VGap,
 				s.statusMessage,
-				orvyn.VGap,
 				s.help,
 			},
 		),

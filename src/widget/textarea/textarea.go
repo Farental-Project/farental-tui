@@ -24,6 +24,7 @@ func New() *Widget {
 
 	w.Model = textarea.New()
 	style.SetTextAreaStyle(&w.Model)
+	w.Model.Blur()
 
 	w.MinHeight = 1
 	w.PreferredHeight = 5
@@ -57,6 +58,11 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	w.BaseWidget.Resize(size)
+
+	// size.Width -= w.BlurredStyle.Base.GetHorizontalFrameSize()
+	size.Height -= w.BlurredStyle.Base.GetVerticalFrameSize()
+
 	w.Model.SetWidth(size.Width)
 	w.Model.SetHeight(size.Height)
 
@@ -70,8 +76,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 	if !focused {
 		w.Model.Blur()
 	}
-
-	w.BaseWidget.Resize(orvyn.NewSize(w.Model.Width(), w.Model.Height()))
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

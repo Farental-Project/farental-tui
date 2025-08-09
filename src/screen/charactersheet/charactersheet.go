@@ -67,7 +67,6 @@ func New() *Screen {
 				s.equipmentSummary,
 				s.statsSkillLayout,
 				s.statusMessage,
-				orvyn.VGap,
 				s.help,
 			},
 		),

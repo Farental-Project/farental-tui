@@ -9,6 +9,7 @@ import (
 	"farental/internal/orvyn"
 	"farental/screen"
 	"farental/screen/generic/selectionlist"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -27,6 +28,20 @@ func New() *Screen {
 		ListItemDelegate{}, s.loadData, s.submit)
 
 	return s
+}
+
+func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	cmd := s.Screen.Update(msg)
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.NKey):
+			return orvyn.SwitchScreen(screen.IDMailEditor)
+		}
+	}
+
+	return cmd
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {

@@ -91,7 +91,6 @@ func New() *Screen {
 				s.raceDescription,
 				orvyn.VGap,
 				s.statusMessage,
-				orvyn.VGap,
 				s.help,
 			},
 		),

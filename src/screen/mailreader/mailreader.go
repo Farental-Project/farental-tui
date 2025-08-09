@@ -55,7 +55,6 @@ func New() *Screen {
 			[]orvyn.Renderable{
 				s.layoutContent,
 				s.statusMessage,
-				orvyn.VGap,
 				s.help,
 			},
 		),

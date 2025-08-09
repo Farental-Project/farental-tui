@@ -61,8 +61,11 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	w.BaseWidget.Resize(size)
+
 	// Take borders into account
-	w.Model.Width = size.Width - 1
+	w.Model.Width = size.Width - style.BlurredStyle.GetHorizontalFrameSize()
+	w.Model.Width -= 1 // prompt
 
 	// For the Bubbles textinput to process the update
 	focused := w.Model.Focused()
@@ -75,8 +78,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 	if !focused {
 		w.Model.Blur()
 	}
-
-	w.BaseWidget.Resize(orvyn.NewSize(w.Model.Width, 1))
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
