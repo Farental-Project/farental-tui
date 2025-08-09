@@ -20,8 +20,6 @@ var (
 	Filter        key.Binding
 	Tab           key.Binding
 	ShiftTab      key.Binding
-	Travels       key.Binding
-	Activities    key.Binding
 	Npcs          key.Binding
 	Scripts       key.Binding
 	HKey          key.Binding
@@ -90,12 +88,6 @@ func Init() {
 	ShiftTab = key.NewBinding(
 		key.WithKeys("shift+tab"),
 		key.WithHelp(lang.L("shift+tab"), lang.L("prev. focus")))
-	Travels = key.NewBinding(
-		key.WithKeys("t"),
-		key.WithHelp("t", lang.L("travels")))
-	Activities = key.NewBinding(
-		key.WithKeys("a"),
-		key.WithHelp("a", lang.L("activities")))
 	Npcs = key.NewBinding(
 		key.WithKeys("n"),
 		key.WithHelp("n", lang.L("npcs")))

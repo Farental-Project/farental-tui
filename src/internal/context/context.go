@@ -3,7 +3,6 @@ package context
 import (
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal/contentmanager"
 	"farental/internal/helper"
 	"farental/style"
 	"fmt"
@@ -14,8 +13,7 @@ import (
 )
 
 var (
-	Client         *resty.Client
-	ContentManager *contentmanager.Manager
+	Client *resty.Client
 
 	CharacterID   uint
 	CharacterInfo *api.CharacterInfoResponse
@@ -29,7 +27,6 @@ var (
 func Init() {
 	Client = resty.New()
 	Client.SetBaseURL(viper.GetString("baseurl"))
-	ContentManager = contentmanager.New()
 
 	CharacterID = 0
 	RunningTask = nil
