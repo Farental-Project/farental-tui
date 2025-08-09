@@ -303,7 +303,7 @@ func (m *Model) gameKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return context.ContentManager.
 			SwitchContent(m, model.ContentChat)
 
-	case key.Matches(msg, keybind.CharacterSheet):
+	case key.Matches(msg, keybind.HKey):
 		return context.ContentManager.
 			SwitchContent(m, model.ContentCharacterSheet)
 

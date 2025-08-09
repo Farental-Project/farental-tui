@@ -97,18 +97,18 @@ func (l *HBoxFixedRatio) Render() string {
 func (l *HBoxFixedRatio) GetMinSize() orvyn.Size {
 	var size orvyn.Size
 
-	for _, e := range l.GetElements() {
-		eSize := e.GetMinSize()
+	for _, e := range l.elements {
+		eSize := e.element.GetMinSize()
 
 		if eSize.Width == 0 && eSize.Height == 0 {
-			eSize = e.GetSize()
+			eSize = e.element.GetSize()
 		}
 
 		size.Width = max(eSize.Width, size.Width)
 		size.Height = max(eSize.Height, size.Height)
 	}
 
-	size.Width *= len(l.GetElements())
+	size.Width *= len(l.elements)
 
 	return size
 }
@@ -116,18 +116,18 @@ func (l *HBoxFixedRatio) GetMinSize() orvyn.Size {
 func (l *HBoxFixedRatio) GetPreferredSize() orvyn.Size {
 	var size orvyn.Size
 
-	for _, e := range l.GetElements() {
-		eSize := e.GetPreferredSize()
+	for _, e := range l.elements {
+		eSize := e.element.GetPreferredSize()
 
 		if eSize.Width == 0 && eSize.Height == 0 {
-			eSize = e.GetSize()
+			eSize = e.element.GetSize()
 		}
 
 		size.Width = max(eSize.Width, size.Width)
 		size.Height = max(eSize.Height, size.Height)
 	}
 
-	size.Width *= len(l.GetElements())
+	size.Width *= len(l.elements)
 
 	return size
 }

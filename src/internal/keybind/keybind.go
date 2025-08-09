@@ -24,7 +24,7 @@ var (
 	Activities       key.Binding
 	Npcs             key.Binding
 	Scripts          key.Binding
-	CharacterSheet   key.Binding
+	HKey             key.Binding
 	LocationServices key.Binding
 	GotoListStart    key.Binding
 	GotoListEnd      key.Binding
@@ -102,9 +102,6 @@ func Init() {
 	Scripts = key.NewBinding(
 		key.WithKeys("s"),
 		key.WithHelp("s", lang.L("scripts")))
-	CharacterSheet = key.NewBinding(
-		key.WithKeys("h"),
-		key.WithHelp("h", lang.L("character sheet")))
 	LocationServices = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", lang.L("location services")))
@@ -135,6 +132,9 @@ func Init() {
 	FKey = key.NewBinding(
 		key.WithKeys("f"),
 		key.WithHelp("f", "f key"))
+	HKey = key.NewBinding(
+		key.WithKeys("h"),
+		key.WithHelp("h", "h key"))
 	IKey = key.NewBinding(
 		key.WithKeys("i"),
 		key.WithHelp("i", lang.L("i key")))
