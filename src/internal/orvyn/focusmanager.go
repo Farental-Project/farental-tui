@@ -77,7 +77,9 @@ func (f *FocusManager) Focus(index int) {
 
 // BlurCurrent simply blur the currently focused widget
 func (f *FocusManager) BlurCurrent() {
-	f.blur(f.tabIndex)
+	if f.tabIndex >= 0 && f.tabIndex <= len(f.widgets) {
+		f.blur(f.tabIndex)
+	}
 }
 
 func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
@@ -90,6 +92,13 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	if f.widgets[f.tabIndex].IsInputting() {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			if key.Matches(msg, f.widgets[f.tabIndex].GetExitInputKeybind()) {
+				f.exitInput(f.tabIndex)
+			}
+		}
+
 		cmd = f.widgets[f.tabIndex].Update(msg)
 		return cmd
 	}
@@ -120,7 +129,7 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 			return nil
 		}
 
-		inputtingKeybind := f.widgets[f.tabIndex].GetInputKeybind()
+		inputtingKeybind := f.widgets[f.tabIndex].GetEnterInputKeybind()
 
 		if inputtingKeybind != nil {
 			if key.Matches(msg, *inputtingKeybind) {

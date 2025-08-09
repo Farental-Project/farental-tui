@@ -85,3 +85,9 @@ func (w *Widget) GetMinSize() orvyn.Size {
 func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(50, w.PreferredHeight)
 }
+
+func (w *Widget) OnEnterInput() {
+}
+
+func (w *Widget) OnExitInput() {
+}

@@ -30,6 +30,16 @@ type Widget struct {
 }
 
 func New() *Widget {
+	editModeKeymap := bubblehelp.NewKeymap(2)
+	editModeKeymap.Style = style.MainHelpStyle
+	editModeKeymap.NewKeyBinding(keybind.Tab, true)
+	editModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
+	editModeKeymap.NewKeyBinding(keybind.Esc, true)
+	editModeKeymap.SetHelpDesc(keybind.Esc, lang.L("stop editing"))
+	editModeKeymap.NewKeyBinding(keybind.Quit, false)
+
+	bubblehelp.RegisterContext(keybind.ContextMailWriterEditMode, editModeKeymap)
+
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -46,6 +56,9 @@ func New() *Widget {
 	w.taContent.MinHeight = 3
 
 	w.focusManager = orvyn.NewFocusManager()
+	w.focusManager.Add(w.tiReceiver)
+	w.focusManager.Add(w.tiSubject)
+	w.focusManager.Add(w.taContent)
 
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
@@ -65,6 +78,8 @@ func (w *Widget) Init() tea.Cmd {
 	cmds = append(cmds, w.tiReceiver.Init())
 	cmds = append(cmds, w.tiSubject.Init())
 	cmds = append(cmds, w.taContent.Init())
+
+	w.focusManager.BlurCurrent()
 
 	return tea.Batch(cmds...)
 }
@@ -102,23 +117,13 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) inputUpdate(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keybind.Esc):
-			w.OnExitInput()
-
-			return nil
-		}
-	}
-
 	cmd := w.focusManager.Update(msg)
 
 	return cmd
 }
 
 func (w *Widget) OnFocus() {
-	bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
 }
 
 func (w *Widget) OnBlur() {}
@@ -130,5 +135,9 @@ func (w *Widget) OnEnterInput() {
 
 func (w *Widget) OnExitInput() {
 	w.focusManager.BlurCurrent()
-	bubblehelp.SwitchContext(keybind.ContextMailWriterNormalMode)
+	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+}
+
+func (w *Widget) GetEnterInputKeybind() *key.Binding {
+	return &keybind.EKey
 }

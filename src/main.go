@@ -310,11 +310,10 @@ func registerKeymapContexts() {
 	MailWidgetNormalModeKeymap.Style = style.MainHelpStyle
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.EKey, true)
 	MailWidgetNormalModeKeymap.SetHelpDesc(keybind.EKey, lang.L("edit"))
-	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Tab, false)
-	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.ShiftTab, false)
+	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Tab, true)
+	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Esc, true)
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Quit, false)
-	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(keybind.ContextMailWriterNormalMode, MailWidgetNormalModeKeymap)
+	bubblehelp.RegisterContext(keybind.ContextMailWidgetNormalMode, MailWidgetNormalModeKeymap)
 }

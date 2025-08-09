@@ -7,7 +7,8 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	layout2 "farental/layout"
+	"farental/layout"
+	"farental/style"
 	"farental/widget/help"
 	"farental/widget/mailcontentreader"
 	"farental/widget/maildetailinspect"
@@ -24,6 +25,7 @@ type Screen struct {
 	mail        *api.MailBasicResponse
 	attachments []api.MailAttachmentResponse
 
+	title     *orvyn.SimpleRenderable
 	content   *mailcontentreader.Widget
 	inspector *maildetailinspect.Widget
 
@@ -31,28 +33,33 @@ type Screen struct {
 
 	help *help.Widget
 
-	layoutContent *layout2.HBoxFixedRatio
-	layout        *layout2.CenterLayout
+	layoutContent *layout.HBoxFixedRatio
+	layout        *layout.CenterLayout
 }
 
 func New() *Screen {
 	s := new(Screen)
+
+	s.title = orvyn.NewSimpleRenderable(lang.L("Read mail"))
+	s.title.Style = style.TitleStyle
 
 	s.content = mailcontentreader.New()
 	s.inspector = maildetailinspect.New()
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
-	s.layoutContent = layout2.NewHBoxFixedRatioLayout(10, 1, 0,
-		[]layout2.FixedRatioRenderable{
-			layout2.NewFixedRatioRenderable(0.7, s.content),
-			layout2.NewFixedRatioRenderable(0.3, s.inspector),
+	s.layoutContent = layout.NewHBoxFixedRatioLayout(10, 1, 0,
+		[]layout.FixedRatioRenderable{
+			layout.NewFixedRatioRenderable(0.7, s.content),
+			layout.NewFixedRatioRenderable(0.3, s.inspector),
 		})
 
-	s.layout = layout2.NewCenterLayout(
-		layout2.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
-			0,
+	s.layout = layout.NewCenterLayout(
+		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
+			2,
 			[]orvyn.Renderable{
+				s.title,
+				orvyn.VGap,
 				s.layoutContent,
 				s.statusMessage,
 				s.help,

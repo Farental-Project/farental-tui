@@ -36,10 +36,13 @@ type Focusable interface {
 	// able to get directly focused with one key.
 	GetFocusKeybind() *key.Binding
 
-	// GetInputKeybind can return a *key.Binding if the widget should be
+	// GetEnterInputKeybind can return a *key.Binding if the widget should be
 	// able to enter the input mode.
 	// Input mode means that all the tea.Msg will be managed by the widget.
-	GetInputKeybind() *key.Binding
+	GetEnterInputKeybind() *key.Binding
+
+	// GetExitInputKeybind returns by default "Esc". Can be override.
+	GetExitInputKeybind() key.Binding
 
 	// setFocused allows to set the focused value.
 	setFocused(bool)
@@ -66,8 +69,12 @@ func (b *BaseFocusable) GetFocusKeybind() *key.Binding {
 	return nil
 }
 
-func (b *BaseFocusable) GetInputKeybind() *key.Binding {
+func (b *BaseFocusable) GetEnterInputKeybind() *key.Binding {
 	return nil
+}
+
+func (b *BaseFocusable) GetExitInputKeybind() key.Binding {
+	return key.NewBinding(key.WithKeys("esc"))
 }
 
 func (b *BaseFocusable) setFocused(focused bool) {
