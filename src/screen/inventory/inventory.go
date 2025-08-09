@@ -7,7 +7,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	layout2 "farental/layout"
+	layout "farental/layout"
 	"farental/style"
 	"farental/widget/filterablelist"
 	"farental/widget/help"
@@ -28,7 +28,7 @@ type Screen struct {
 	statusMessage *statusmessage.Widget
 	help          *help.Widget
 
-	layout *layout2.CenterLayout
+	layout *layout.CenterLayout
 }
 
 func New() *Screen {
@@ -48,16 +48,16 @@ func New() *Screen {
 
 	s.help = help.New()
 
-	inventoryLayout := layout2.NewHBoxFixedRatioLayout(0, 1,
+	inventoryLayout := layout.NewHBoxFixedRatioLayout(0, 1,
 		0,
-		[]layout2.FixedRatioRenderable{
-			layout2.NewFixedRatioRenderable(0.60, s.list),
-			layout2.NewFixedRatioRenderable(0.40, s.inspector),
+		[]layout.FixedRatioRenderable{
+			layout.NewFixedRatioRenderable(0.60, s.list),
+			layout.NewFixedRatioRenderable(0.40, s.inspector),
 		},
 	)
 
-	s.layout = layout2.NewCenterLayout(
-		layout2.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
+	s.layout = layout.NewCenterLayout(
+		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
 			[]orvyn.Renderable{
 				s.title,
 				orvyn.VGap,

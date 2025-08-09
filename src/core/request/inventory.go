@@ -15,6 +15,16 @@ func InventoryGetFull() *resty.Request {
 	return r
 }
 
+func InventoryGetShareable() *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodGet
+	r.URL = "/inventory/shareable"
+	r.SetResult(api.InventoryResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func InventoryUseItem(itemID uint) *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodPost

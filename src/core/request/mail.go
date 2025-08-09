@@ -6,6 +6,16 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+func MailSend(mail api.MailSendBody) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/mail/sendBasic"
+	r.SetBody(mail)
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func MailGetAll() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet

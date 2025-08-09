@@ -33,7 +33,7 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 	var b strings.Builder
 	var width int
 
-	width = m.Width() - 2
+	width = m.Width() - 2 // borders
 
 	if index == m.Index() {
 		s = style.FocusedStyle
@@ -43,10 +43,7 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 
 	b.WriteString(fmt.Sprintf("%dx %s", i.Amount, i.ItemName))
 
-	tui := s.Width(m.Width() - 2).Height(l.Height()).Render(
-		style.TextStyle.Width(width / 2).Render(
-			b.String(),
-		))
+	tui := s.Width(width).Render(b.String())
 
 	fmt.Fprint(w, tui)
 

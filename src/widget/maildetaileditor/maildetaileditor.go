@@ -1,6 +1,7 @@
 package maildetaileditor
 
 import (
+	"farental/art"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
@@ -11,9 +12,11 @@ import (
 	"farental/widget/statusmessage"
 	"farental/widget/textinput"
 	"github.com/charmbracelet/bubbles/key"
+	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"strconv"
 )
 
 type Widget struct {
@@ -24,9 +27,11 @@ type Widget struct {
 	tiMoneyStatus   *statusmessage.Widget
 	attachmentsList *mailattachmentlist.Widget
 
+	attachments []tealist.Item
+
 	focusManager *orvyn.FocusManager
 
-	layout *layout.VBoxLayout
+	layout *layout.VBoxFullLayout
 
 	contentSize orvyn.Size
 }
@@ -47,6 +52,7 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.tiMoney = textinput.New()
+	w.tiMoney.Prompt = string(art.CharGrynars)
 	w.tiMoney.Placeholder = lang.L("Money amount to send")
 	w.tiMoney.Validate = helper.NumericalValidate
 
@@ -58,7 +64,9 @@ func New() *Widget {
 	w.focusManager.Add(w.tiMoney)
 	w.focusManager.Add(w.attachmentsList)
 
-	w.layout = layout.NewMaxWidthVBoxLayout(0,
+	w.layout = layout.NewMaxWidthVBoxFullLayout(
+		orvyn.NewSize(0, 0),
+		2,
 		[]orvyn.Renderable{
 			w.tiMoney,
 			w.tiMoneyStatus,
@@ -72,6 +80,8 @@ func New() *Widget {
 func (w *Widget) Init() tea.Cmd {
 	cmd := w.tiMoney.Init()
 	w.attachmentsList.Init()
+
+	w.attachments = make([]tealist.Item, 0)
 
 	w.focusManager.BlurCurrent()
 
@@ -140,4 +150,29 @@ func (w *Widget) OnExitInput() {
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {
 	return &keybind.EKey
+}
+
+func (w *Widget) GetAttachedMoneyAmount() int {
+	amount, err := strconv.Atoi(w.tiMoney.Value())
+
+	if err != nil {
+		return 0
+	}
+
+	return amount
+}
+
+func (w *Widget) HasAttachments() bool {
+	if len(w.attachmentsList.Items()) > 0 ||
+		w.GetAttachedMoneyAmount() > 0 {
+		return true
+	}
+
+	return false
+}
+
+func (w *Widget) AddAttachment(item ListItem) {
+	w.attachments = append(w.attachments, item)
+
+	w.attachmentsList.SetItems(w.attachments)
 }

@@ -6,7 +6,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
-	layout2 "farental/layout"
+	layout "farental/layout"
 	"farental/screen"
 	"farental/style"
 	"farental/widget/characterinfo"
@@ -53,9 +53,9 @@ type Screen struct {
 
 	focusManager *orvyn.FocusManager
 
-	layout *layout2.CenterLayout
+	layout *layout.CenterLayout
 
-	socialLayout *layout2.HBoxGrowLayout
+	socialLayout *layout.HBoxGrowLayout
 }
 
 func New() *Screen {
@@ -93,13 +93,13 @@ func New() *Screen {
 
 	s.statusMessage = statusmessage.New()
 
-	s.socialLayout = layout2.NewHBoxGrowLayout(1, 0,
+	s.socialLayout = layout.NewHBoxGrowLayout(1, 0,
 		[]orvyn.Renderable{
 			s.logChat, s.logCharacters,
 		})
 
-	s.layout = layout2.NewCenterLayout(
-		layout2.NewDefinedWidthVerticalLayout(
+	s.layout = layout.NewCenterLayout(
+		layout.NewDefinedWidthVerticalLayout(
 			35,
 			style.LayoutWidth,
 			10,
@@ -108,7 +108,7 @@ func New() *Screen {
 				s.characterInfo,
 				s.locationInfo,
 				s.logEvent,
-				layout2.NewPileLayout([]orvyn.Renderable{
+				layout.NewPileLayout([]orvyn.Renderable{
 					s.socialLayout,
 					s.fullHelp,
 				}),

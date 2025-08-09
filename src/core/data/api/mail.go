@@ -5,15 +5,16 @@ import (
 )
 
 type MailSendBody struct {
-	ReceiverCharacterID uint   `validate:"required"`
-	Subject             string `validate:"required"`
-	Content             string `validate:"required"`
+	Receiver string `validate:"required"`
+	Subject  string `validate:"required"`
+	Content  string `validate:"required"`
 }
 
 type MailWithAttachmentsBody struct {
 	MailSendBody
 	IsAgainstPayment bool
-	MoneyAmount      int `validate:"min=0"`
+	PaymentAmount    int `validate:"min=0"`
+	MoneyAmount      int
 	Items            []MailAttachment
 }
 

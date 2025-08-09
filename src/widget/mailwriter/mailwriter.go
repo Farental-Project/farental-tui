@@ -1,6 +1,7 @@
 package mailwriter
 
 import (
+	"farental/core/data/api"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
@@ -140,4 +141,12 @@ func (w *Widget) OnExitInput() {
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {
 	return &keybind.EKey
+}
+
+func (w *Widget) GetMailBody() api.MailSendBody {
+	return api.MailSendBody{
+		Receiver: w.tiReceiver.Value(),
+		Subject:  w.tiSubject.Value(),
+		Content:  w.taContent.Value(),
+	}
 }

@@ -13,6 +13,12 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 )
 
+type ShowAttachmentSelectMsg uint
+
+func ShowAttachmentSelectCmd() tea.Msg {
+	return ShowAttachmentSelectMsg(1)
+}
+
 type Widget struct {
 	orvyn.BaseFocusable
 
@@ -65,9 +71,19 @@ func (w *Widget) Resize(size orvyn.Size) {
 	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
 
 	w.contentSize = size
+	w.SetWidth(size.Width)
+	w.SetHeight(size.Height)
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.AKey):
+			return ShowAttachmentSelectCmd
+		}
+	}
+
 	return nil
 }
 

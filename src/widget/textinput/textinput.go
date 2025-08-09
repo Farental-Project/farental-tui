@@ -65,7 +65,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 	// Take borders into account
 	w.Model.Width = size.Width - style.BlurredStyle.GetHorizontalFrameSize()
-	w.Model.Width -= 1 // prompt
+	w.Model.Width -= max(1, len(w.Model.Prompt))
 
 	// For the Bubbles textinput to process the update
 	focused := w.Model.Focused()

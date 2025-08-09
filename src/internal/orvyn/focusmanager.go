@@ -82,6 +82,20 @@ func (f *FocusManager) BlurCurrent() {
 	}
 }
 
+// ForceInput forces the widget to enter input
+func (f *FocusManager) ForceInput(index int) {
+	if f.tabIndex >= 0 && f.tabIndex <= len(f.widgets) {
+		f.enterInput(f.tabIndex)
+	}
+}
+
+// ExitCurrentInput simply exits the currently inputting widget
+func (f *FocusManager) ExitCurrentInput() {
+	if f.tabIndex >= 0 && f.tabIndex <= len(f.widgets) {
+		f.exitInput(f.tabIndex)
+	}
+}
+
 func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
