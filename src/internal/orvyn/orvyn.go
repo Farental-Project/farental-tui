@@ -87,6 +87,10 @@ func SwitchToPreviousScreen() tea.Cmd {
 	return SwitchScreen(previousScreenID)
 }
 
+func SetPreviousScreen(id ScreenID) {
+	previousScreenID = id
+}
+
 // GetScreen returns the Screen for the given registered ScreenID.
 func GetScreen(id ScreenID) Screen {
 	_, ok := screens[id]

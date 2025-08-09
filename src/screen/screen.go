@@ -16,4 +16,7 @@ const (
 	IDChat               orvyn.ScreenID = "chat"
 	IDInventory          orvyn.ScreenID = "inventory"
 	IDCharacterSheet     orvyn.ScreenID = "charactersheet"
+	IDMailBox            orvyn.ScreenID = "mailbox"
+	IDMailReader         orvyn.ScreenID = "mailreader"
+	IDMailEditor         orvyn.ScreenID = "maileditor"
 )

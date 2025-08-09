@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"farental/art"
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
@@ -19,8 +20,11 @@ import (
 	"farental/screen/fight"
 	"farental/screen/inventory"
 	"farental/screen/login"
+	"farental/screen/mailbox"
+	"farental/screen/mailreader"
 	"farental/screen/travel"
 	"farental/style"
+	"fmt"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/spf13/viper"
 	"log"
@@ -71,6 +75,8 @@ func main() {
 	orvyn.RegisterScreen(screen.IDChat, chat.New())
 	orvyn.RegisterScreen(screen.IDInventory, inventory.New())
 	orvyn.RegisterScreen(screen.IDCharacterSheet, charactersheet.New())
+	orvyn.RegisterScreen(screen.IDMailBox, mailbox.New())
+	orvyn.RegisterScreen(screen.IDMailReader, mailreader.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -129,7 +135,8 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.SetHelpDesc(keybind.FKey, lang.L("fights"))
 	gameDashboardKeymap.NewKeyBinding(keybind.YKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.YKey, lang.L("chat"))
-	gameDashboardKeymap.NewKeyBinding(keybind.LocationServices, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.LKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.LKey, lang.L("location service"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.Scripts, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.IKey, false)
@@ -273,7 +280,8 @@ func registerKeymapContexts() {
 	locationServicesKeymap := bubblehelp.NewKeymap(2)
 	locationServicesKeymap.Style = mainHelpStyle
 	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
-	locationServicesKeymap.SetHelpDesc(keybind.RKey, lang.L("sleep in tavern"))
+	locationServicesKeymap.SetHelpDesc(keybind.RKey, fmt.Sprintf(
+		lang.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
 	locationServicesKeymap.NewKeyBinding(keybind.MKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.MKey, lang.L("mailbox"))
 	locationServicesKeymap.NewKeyBinding(keybind.Esc, true)

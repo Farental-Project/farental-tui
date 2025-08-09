@@ -27,6 +27,8 @@ type Screen struct {
 
 	layout *layout.CenterLayout
 
+	submitScreenID orvyn.ScreenID
+
 	loadDataCallback func()
 	submitCallback   func() bool
 }
@@ -34,6 +36,8 @@ type Screen struct {
 func New(title string, delegate tealist.ItemDelegate,
 	loadDataCallback func(), submitCallback func() bool) Screen {
 	s := Screen{}
+
+	s.submitScreenID = ""
 
 	s.loadDataCallback = loadDataCallback
 	s.submitCallback = submitCallback
@@ -71,6 +75,8 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 	s.loadDataCallback()
 	s.list.Select(0)
 
+	s.statusMessage.Reset()
+
 	return nil
 }
 
@@ -95,6 +101,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.Enter):
 			if s.list.FilterState() != tealist.Filtering {
 				if s.submitCallback() {
+					if len(s.submitScreenID) > 0 {
+						return orvyn.SwitchScreen(s.submitScreenID)
+					}
+
 					return orvyn.SwitchToPreviousScreen()
 				}
 
@@ -129,4 +139,8 @@ func (s *Screen) SetStatusError(err error) {
 
 func (s *Screen) GetSelectedItem() tealist.Item {
 	return s.list.SelectedItem()
+}
+
+func (s *Screen) SetSubmitScreenID(id orvyn.ScreenID) {
+	s.submitScreenID = id
 }

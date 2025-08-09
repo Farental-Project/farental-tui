@@ -33,7 +33,7 @@ func New() *Widget {
 	w.title = lang.L("Help")
 
 	w.BaseWidget = orvyn.NewBaseWidget()
-	
+
 	w.Style = Style{
 		Widget: style.BlurredStyle,
 		Title:  style.DimUnderlinedTitleStyle,
@@ -87,4 +87,8 @@ func (w *Widget) GetMinSize() orvyn.Size {
 func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.GetRenderSize(lipgloss.NewStyle(),
 		bubblehelp.ViewAll(bubblehelp.GetCurrentContextKeymap(), 50))
+}
+
+func (w *Widget) SetTitle(title string) {
+	w.title = title
 }

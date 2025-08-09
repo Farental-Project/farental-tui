@@ -1,6 +1,8 @@
 package dashboard
 
 import (
+	"farental/core/data"
+	"farental/internal/context"
 	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
@@ -146,45 +148,24 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyMsg:
 		s.statusMessage.Reset()
 
-		switch {
-		case key.Matches(msg, keybind.Quit):
+		if key.Matches(msg, keybind.Quit) {
 			return tea.Quit
+		}
 
-		case key.Matches(msg, keybind.Help):
-			bubblehelp.ShowAll = !bubblehelp.ShowAll
-			s.showHelp(bubblehelp.ShowAll)
+		switch bubblehelp.CurrentContext {
+		case keybind.ContextGameDashboard:
+			c, ok := s.gameKeyHandler(msg)
 
-			return nil
+			if ok {
+				return c
+			}
+		case keybind.ContextLocationServices:
+			c, ok := s.servicesKeyHandler(msg)
 
-		case key.Matches(msg, keybind.Space):
-			s.claim()
-
-			return nil
-
-		case key.Matches(msg, keybind.TKey):
-			return orvyn.SwitchScreen(screen.IDTravel)
-
-		case key.Matches(msg, keybind.AKey):
-			return orvyn.SwitchScreen(screen.IDActivity)
-
-		case key.Matches(msg, keybind.FKey):
-			return orvyn.SwitchScreen(screen.IDFight)
-
-		case key.Matches(msg, keybind.CKey):
-			return orvyn.SwitchScreen(screen.IDCraft)
-
-		case key.Matches(msg, keybind.YKey):
-			return orvyn.SwitchScreen(screen.IDChat)
-
-		case key.Matches(msg, keybind.IKey):
-			return orvyn.SwitchScreen(screen.IDInventory)
-
-		case key.Matches(msg, keybind.HKey):
-			return orvyn.SwitchScreen(screen.IDCharacterSheet)
-
-		case key.Matches(msg, keybind.Esc):
-			return orvyn.SwitchScreen(screen.IDCharacterSelection)
-
+			if ok {
+				s.hideLocationService()
+				return c
+			}
 		}
 
 	case orvyn.TickMsg:
@@ -213,4 +194,93 @@ func (s *Screen) showHelp(b bool) {
 	s.help.SetActive(!b)
 	s.socialLayout.SetActive(!b)
 	s.fullHelp.SetActive(b)
+}
+
+func (s *Screen) showLocationService() {
+	bubblehelp.SwitchContext(keybind.ContextLocationServices)
+	bubblehelp.ShowAll = true
+	s.showHelp(true)
+
+	s.fullHelp.SetTitle(lang.L("Location services"))
+
+	// Activate keybind based on available features
+	bubblehelp.SetKeybindVisible(keybind.RKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
+	bubblehelp.SetKeybindVisible(keybind.MKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureMailbox)))
+}
+
+func (s *Screen) hideLocationService() {
+	bubblehelp.SwitchContext(keybind.ContextGameDashboard)
+	bubblehelp.ShowAll = false
+	s.showHelp(false)
+
+	s.fullHelp.SetTitle(lang.L("Help"))
+}
+
+func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
+	switch {
+	case key.Matches(msg, keybind.Esc):
+		return orvyn.SwitchScreen(screen.IDCharacterSelection), true
+
+	case key.Matches(msg, keybind.Help):
+		bubblehelp.ShowAll = !bubblehelp.ShowAll
+		s.showHelp(bubblehelp.ShowAll)
+
+		return nil, true
+
+	case key.Matches(msg, keybind.Space):
+		s.claim()
+
+		return nil, true
+
+	case key.Matches(msg, keybind.LKey):
+		s.showLocationService()
+
+	case key.Matches(msg, keybind.TKey):
+		return orvyn.SwitchScreen(screen.IDTravel), true
+
+	case key.Matches(msg, keybind.AKey):
+		return orvyn.SwitchScreen(screen.IDActivity), true
+
+	case key.Matches(msg, keybind.FKey):
+		return orvyn.SwitchScreen(screen.IDFight), true
+
+	case key.Matches(msg, keybind.CKey):
+		return orvyn.SwitchScreen(screen.IDCraft), true
+
+	case key.Matches(msg, keybind.YKey):
+		return orvyn.SwitchScreen(screen.IDChat), true
+
+	case key.Matches(msg, keybind.IKey):
+		return orvyn.SwitchScreen(screen.IDInventory), true
+
+	case key.Matches(msg, keybind.HKey):
+		return orvyn.SwitchScreen(screen.IDCharacterSheet), true
+
+	}
+
+	return nil, false
+}
+
+func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
+	switch {
+	case key.Matches(msg, keybind.Esc):
+		s.hideLocationService()
+
+	case key.Matches(msg, keybind.RKey):
+		if bubblehelp.IsKeybindVisible(keybind.RKey) {
+			s.tavernSleep()
+
+			return nil, true
+		}
+
+	case key.Matches(msg, keybind.MKey):
+		if bubblehelp.IsKeybindVisible(keybind.MKey) {
+			return orvyn.SwitchScreen(screen.IDMailBox), true
+		}
+		
+	}
+
+	return nil, false
 }

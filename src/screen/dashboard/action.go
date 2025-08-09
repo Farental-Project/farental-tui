@@ -24,7 +24,6 @@ func (s *Screen) tavernSleep() {
 	_, err := helper.SendRequest(request.LocationTavernSleep())
 
 	if err != nil {
-		// TODO : Hide location service
 		s.statusMessage.SetError(err)
 		return
 	}
@@ -34,7 +33,7 @@ func (s *Screen) tavernSleep() {
 		statusmessage.SuccessMessage,
 	)
 
-	// TODO : Update data and hide location service
+	s.updateData()
 }
 
 func (s *Screen) claim() {

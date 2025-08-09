@@ -307,7 +307,7 @@ func (m *Model) gameKeyHandler(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return context.ContentManager.
 			SwitchContent(m, model.ContentCharacterSheet)
 
-	case key.Matches(msg, keybind.LocationServices):
+	case key.Matches(msg, keybind.LKey):
 		m.showLocationService()
 
 		return m, nil

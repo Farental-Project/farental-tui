@@ -6,45 +6,45 @@ import (
 )
 
 var (
-	Up               key.Binding
-	Down             key.Binding
-	Left             key.Binding
-	Right            key.Binding
-	ShiftLeft        key.Binding
-	ShiftRight       key.Binding
-	Help             key.Binding
-	Quit             key.Binding
-	Enter            key.Binding
-	Space            key.Binding
-	Esc              key.Binding
-	Filter           key.Binding
-	Tab              key.Binding
-	ShiftTab         key.Binding
-	Travels          key.Binding
-	Activities       key.Binding
-	Npcs             key.Binding
-	Scripts          key.Binding
-	HKey             key.Binding
-	LocationServices key.Binding
-	GotoListStart    key.Binding
-	GotoListEnd      key.Binding
-	PrevPage         key.Binding
-	NextPage         key.Binding
-	AKey             key.Binding
-	CKey             key.Binding
-	DKey             key.Binding
-	EKey             key.Binding
-	FKey             key.Binding
-	IKey             key.Binding
-	MKey             key.Binding
-	NKey             key.Binding
-	PKey             key.Binding
-	RKey             key.Binding
-	TKey             key.Binding
-	UKey             key.Binding
-	WKey             key.Binding
-	YKey             key.Binding
-	YKeyCtrl         key.Binding
+	Up            key.Binding
+	Down          key.Binding
+	Left          key.Binding
+	Right         key.Binding
+	ShiftLeft     key.Binding
+	ShiftRight    key.Binding
+	Help          key.Binding
+	Quit          key.Binding
+	Enter         key.Binding
+	Space         key.Binding
+	Esc           key.Binding
+	Filter        key.Binding
+	Tab           key.Binding
+	ShiftTab      key.Binding
+	Travels       key.Binding
+	Activities    key.Binding
+	Npcs          key.Binding
+	Scripts       key.Binding
+	HKey          key.Binding
+	LKey          key.Binding
+	GotoListStart key.Binding
+	GotoListEnd   key.Binding
+	PrevPage      key.Binding
+	NextPage      key.Binding
+	AKey          key.Binding
+	CKey          key.Binding
+	DKey          key.Binding
+	EKey          key.Binding
+	FKey          key.Binding
+	IKey          key.Binding
+	MKey          key.Binding
+	NKey          key.Binding
+	PKey          key.Binding
+	RKey          key.Binding
+	TKey          key.Binding
+	UKey          key.Binding
+	WKey          key.Binding
+	YKey          key.Binding
+	YKeyCtrl      key.Binding
 )
 
 func Init() {
@@ -102,9 +102,6 @@ func Init() {
 	Scripts = key.NewBinding(
 		key.WithKeys("s"),
 		key.WithHelp("s", lang.L("scripts")))
-	LocationServices = key.NewBinding(
-		key.WithKeys("l"),
-		key.WithHelp("l", lang.L("location services")))
 	GotoListStart = key.NewBinding(
 		key.WithKeys("g", "home"),
 		key.WithHelp("g/home", lang.L("goto list start")))
@@ -122,7 +119,7 @@ func Init() {
 		key.WithHelp("a", "a key"))
 	CKey = key.NewBinding(
 		key.WithKeys("c"),
-		key.WithHelp("c", lang.L("c key")))
+		key.WithHelp("c", "c key"))
 	DKey = key.NewBinding(
 		key.WithKeys("d"),
 		key.WithHelp("d", "d key"))
@@ -137,7 +134,10 @@ func Init() {
 		key.WithHelp("h", "h key"))
 	IKey = key.NewBinding(
 		key.WithKeys("i"),
-		key.WithHelp("i", lang.L("i key")))
+		key.WithHelp("i", "i key"))
+	LKey = key.NewBinding(
+		key.WithKeys("l"),
+		key.WithHelp("l", "l key"))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))
@@ -155,14 +155,14 @@ func Init() {
 		key.WithHelp("t", "t key"))
 	UKey = key.NewBinding(
 		key.WithKeys("u"),
-		key.WithHelp("u", lang.L("u key")))
+		key.WithHelp("u", "u key"))
 	WKey = key.NewBinding(
 		key.WithKeys("w"),
 		key.WithHelp("w", "w key"))
 	YKey = key.NewBinding(
 		key.WithKeys("y"),
-		key.WithHelp("y", lang.L("y key")))
+		key.WithHelp("y", "y key"))
 	YKeyCtrl = key.NewBinding(
 		key.WithKeys("ctrl+y"),
-		key.WithHelp("ctrl+y", lang.L("ctrl+y key")))
+		key.WithHelp("ctrl+y", "ctrl+y key"))
 }
