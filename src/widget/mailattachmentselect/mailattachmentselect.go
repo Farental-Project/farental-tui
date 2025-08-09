@@ -120,7 +120,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) OnFocus() {
-	w.LoadData()
 }
 
 func (w *Widget) OnBlur() {

@@ -19,6 +19,14 @@ func ShowAttachmentSelectCmd() tea.Msg {
 	return ShowAttachmentSelectMsg(1)
 }
 
+type DeleteAttachmentMsg int
+
+func DeleteAttachmentCmd(index int) tea.Cmd {
+	return func() tea.Msg {
+		return DeleteAttachmentMsg(index)
+	}
+}
+
 type Widget struct {
 	orvyn.BaseFocusable
 
@@ -50,6 +58,12 @@ func New(delegate tealist.ItemDelegate) *Widget {
 	return w
 }
 
+func (w *Widget) Init() tea.Cmd {
+	w.SetItems([]tealist.Item{})
+
+	return nil
+}
+
 func (w *Widget) Render() string {
 	var s lipgloss.Style
 
@@ -65,14 +79,11 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	w.Widget.Resize(size)
-
 	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
 	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
 
 	w.contentSize = size
-	w.SetWidth(size.Width)
-	w.SetHeight(size.Height)
+	w.Widget.Resize(size)
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
@@ -81,10 +92,15 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(msg, keybind.AKey):
 			return ShowAttachmentSelectCmd
+
+		case key.Matches(msg, keybind.DKey):
+			return DeleteAttachmentCmd(w.Index())
 		}
 	}
 
-	return nil
+	cmd := w.Widget.Update(msg)
+
+	return cmd
 }
 
 func (w *Widget) OnFocus() {

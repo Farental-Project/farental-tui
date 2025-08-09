@@ -171,8 +171,22 @@ func (w *Widget) HasAttachments() bool {
 	return false
 }
 
-func (w *Widget) AddAttachment(item ListItem) {
+func (w *Widget) AddAttachment(item ListItem) tea.Cmd {
 	w.attachments = append(w.attachments, item)
 
-	w.attachmentsList.SetItems(w.attachments)
+	cmd := w.attachmentsList.SetItems(w.attachments)
+
+	return cmd
+}
+
+func (w *Widget) RemoveAttachment(index int) tea.Cmd {
+	if index < 0 || index >= len(w.attachments) {
+		return nil
+	}
+
+	w.attachments = append(w.attachments[:index], w.attachments[index+1:]...)
+
+	cmd := w.attachmentsList.SetItems(w.attachments)
+
+	return cmd
 }

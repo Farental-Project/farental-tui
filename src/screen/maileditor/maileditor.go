@@ -134,16 +134,21 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	case mailattachmentlist.ShowAttachmentSelectMsg:
 		s.showSelectAttachment()
 
+	case mailattachmentlist.DeleteAttachmentMsg:
+		s.detailEditor.RemoveAttachment(int(msg))
+
 	case mailattachmentselect.HideAttachmentSelectMsg:
 		s.hideSelectAttachment()
 
 	case mailattachmentselect.SelectItemMsg:
-		s.detailEditor.AddAttachment(maildetaileditor.ListItem{
+		cmd := s.detailEditor.AddAttachment(maildetaileditor.ListItem{
 			ItemName: msg.ItemName,
 			Amount:   msg.Amount,
 		})
 
 		s.hideSelectAttachment()
+
+		return cmd
 	}
 
 	cmd := s.focusManager.Update(msg)
@@ -187,6 +192,8 @@ func (s *Screen) showSelectAttachment() {
 }
 
 func (s *Screen) hideSelectAttachment() {
+	s.focusManager.ExitCurrentInput()
+
 	s.attachmentSelect.SetActive(false)
 	s.detailEditor.SetActive(true)
 
