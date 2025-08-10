@@ -1,6 +1,7 @@
 package maileditor
 
 import (
+	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
@@ -94,6 +95,7 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 
 	s.hideSelectAttachment()
 
+	s.focusManager.ExitCurrentInput()
 	s.focusManager.Focus(0)
 
 	s.statusMessage.Reset()
@@ -141,10 +143,15 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.hideSelectAttachment()
 
 	case mailattachmentselect.SelectItemMsg:
-		cmd := s.detailEditor.AddAttachment(maildetaileditor.ListItem{
+		cmd, err := s.detailEditor.AddAttachment(maildetaileditor.ListItem{
+			StackID:  msg.StackID,
 			ItemName: msg.ItemName,
 			Amount:   msg.Amount,
 		})
+
+		if err != nil {
+			s.statusMessage.SetError(err)
+		}
 
 		s.hideSelectAttachment()
 
@@ -189,6 +196,22 @@ func (s *Screen) showSelectAttachment() {
 
 	s.focusManager.Focus(2)
 	s.focusManager.ForceInput(2)
+
+	// Load data with filter list
+	currentAttachments := s.detailEditor.GetAttachments()
+
+	filterItems := make([]mailattachmentselect.ListItem, 0)
+
+	for _, i := range currentAttachments {
+		item := mailattachmentselect.ListItem{
+			Stack:  api.StackResponse{ID: i.StackID},
+			Amount: i.Amount,
+		}
+
+		filterItems = append(filterItems, item)
+	}
+
+	s.attachmentSelect.LoadData(filterItems)
 }
 
 func (s *Screen) hideSelectAttachment() {
@@ -197,5 +220,7 @@ func (s *Screen) hideSelectAttachment() {
 	s.attachmentSelect.SetActive(false)
 	s.detailEditor.SetActive(true)
 
-	s.focusManager.Focus(0)
+	s.focusManager.Focus(1)
+	s.focusManager.ForceInput(1)
+	s.detailEditor.SetFocusOnAttachmentList()
 }

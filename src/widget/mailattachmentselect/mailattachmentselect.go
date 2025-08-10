@@ -23,13 +23,15 @@ func HideAttachmentSelectCmd() tea.Msg {
 }
 
 type SelectItemMsg struct {
+	StackID  uint
 	ItemName string
 	Amount   int
 }
 
-func SelectItemCmd(name string, amount int) tea.Cmd {
+func SelectItemCmd(stackID uint, name string, amount int) tea.Cmd {
 	return func() tea.Msg {
 		return SelectItemMsg{
+			StackID:  stackID,
 			ItemName: name,
 			Amount:   amount,
 		}
@@ -59,6 +61,8 @@ func New() *Widget {
 	w.title.SizeConstraint = true
 
 	w.list = filterablelist.New(ListItemDelegate{}, []tealist.Item{})
+	w.list.KeyMap.NextPage = keybind.NextPage
+	w.list.KeyMap.PrevPage = keybind.PrevPage
 
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
@@ -83,7 +87,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 				return nil
 			}
 
-			return SelectItemCmd(selectedItem.Stack.Item.Name, selectedItem.Amount)
+			return SelectItemCmd(selectedItem.Stack.ID,
+				selectedItem.Stack.Item.Name, selectedItem.Amount)
 
 		case key.Matches(msg, keybind.Esc):
 			return HideAttachmentSelectCmd
@@ -131,7 +136,7 @@ func (w *Widget) OnEnterInput() {
 func (w *Widget) OnExitInput() {
 }
 
-func (w *Widget) LoadData() {
+func (w *Widget) LoadData(filterItems []ListItem) {
 	var items []tealist.Item
 
 	items = make([]tealist.Item, 0)
@@ -149,8 +154,35 @@ func (w *Widget) LoadData() {
 			Stack: s,
 		}
 
-		items = append(items, item)
+		filter := w.filterStack(&item, &filterItems)
+
+		if !filter {
+			items = append(items, item)
+		}
 	}
 
 	w.list.SetItems(items)
+}
+
+func (w *Widget) filterStack(item *ListItem, filterItems *[]ListItem) bool {
+	var filterItem *ListItem
+
+	for _, f := range *filterItems {
+		if f.Stack.ID == item.Stack.ID {
+			filterItem = &f
+			break
+		}
+	}
+
+	if filterItem == nil {
+		return false
+	}
+
+	item.Stack.Count -= filterItem.Amount
+
+	if item.Stack.Count <= 0 {
+		return true
+	}
+
+	return false
 }

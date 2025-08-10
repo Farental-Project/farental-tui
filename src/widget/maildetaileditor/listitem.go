@@ -11,8 +11,9 @@ import (
 )
 
 type ListItem struct {
-	Amount   int
+	StackID  uint
 	ItemName string
+	Amount   int
 }
 
 func (i ListItem) FilterValue() string {
