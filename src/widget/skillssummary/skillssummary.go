@@ -7,6 +7,7 @@ import (
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
+	"strconv"
 	"strings"
 )
 
@@ -112,12 +113,13 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 }
 
 func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, column *column) {
-	column.skillStr.WriteString(style.TitleStyle.Render(skill.Name))
-	column.expStr.WriteString(style.DimTextStyle.
+	column.skillStr.WriteString(style.NormalStyle.Render(skill.Name))
+	column.expStr.WriteString(style.NeutralLessDimTextStyle.
 		Render(fmt.Sprintf("(%d / %d)",
 			skill.CurrentXp, skill.NextLevelXp)))
-	column.lvlStr.WriteString(style.HighlightStyle.
-		Render(fmt.Sprintf("%s %d", lang.L("lvl."), skill.Level)))
+	column.lvlStr.WriteString(style.NormalStyle.
+		Render(fmt.Sprintf("%s %s", lang.L("lvl."),
+			style.HighlightStyle.Render(strconv.Itoa(skill.Level)))))
 
 	if addReturn {
 		column.addReturn()

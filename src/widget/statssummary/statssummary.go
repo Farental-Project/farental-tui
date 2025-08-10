@@ -109,9 +109,9 @@ func (w *Widget) Resize(size orvyn.Size) {
 func (w *Widget) renderStat(statCode data.StatCode, addReturn bool, column *column) {
 	s := w.statMap[statCode]
 
-	column.statStr.WriteString(style.TitleStyle.Render(s.Name))
-	column.sepStr.WriteString(style.TitleStyle.Render(" : "))
-	column.valStr.WriteString(style.HighlightStyle.
+	column.statStr.WriteString(style.NormalStyle.Render(s.Name))
+	// column.sepStr.WriteString(style.DimTextStyle.Render(" : "))
+	column.valStr.WriteString(style.TextStyle.
 		Render(strconv.Itoa(s.Value)))
 
 	if addReturn {

@@ -113,11 +113,20 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) renderEquipmentSlot(slotCode data.SlotCode, addReturn bool, column *column) {
+	var itemNameStyle lipgloss.Style
+
 	es := w.equipmentSlots[string(slotCode)]
 
-	column.slotStr.WriteString(style.TitleStyle.Render(es.slot.Name))
-	column.sepStr.WriteString(style.TitleStyle.Render(" : "))
-	column.itemStr.WriteString(style.DimTextStyle.Render(es.item.Name))
+	column.slotStr.WriteString(style.NormalStyle.Render(es.slot.Name))
+	column.sepStr.WriteString(style.DimTextStyle.Render(" : "))
+
+	if es.item.ID == 0 {
+		itemNameStyle = style.NeutralDimTextStyle
+	} else {
+		itemNameStyle = style.DimTextStyle
+	}
+
+	column.itemStr.WriteString(itemNameStyle.Render(es.item.Name))
 
 	if addReturn {
 		column.addReturn()
