@@ -277,7 +277,7 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 
 	case key.Matches(msg, keybind.MKey):
 		if bubblehelp.IsKeybindVisible(keybind.MKey) {
-			return orvyn.SwitchScreen(screen.IDMailBox), true
+			return orvyn.SwitchScreen(screen.IDMailBox), false
 		}
 
 	}

@@ -40,9 +40,8 @@ func (w *Widget) Render() string {
 		if w.mail.MoneyAmount > 0 {
 			b.WriteString(fmt.Sprintf("%d %s", w.mail.MoneyAmount,
 				style.HighlightStyle.Render(string(art.CharGrynars))))
+			b.WriteString("\n")
 		}
-
-		b.WriteString("\n")
 
 		if len(*w.attachments) > 0 {
 			b.WriteString("\n")

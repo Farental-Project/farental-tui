@@ -44,6 +44,9 @@ type Focusable interface {
 	// GetExitInputKeybind returns by default "Esc". Can be override.
 	GetExitInputKeybind() key.Binding
 
+	// CanExitInputting returns true if the widget can exit his inputting state.
+	CanExitInputting() bool
+
 	// setFocused allows to set the focused value.
 	setFocused(bool)
 
@@ -75,6 +78,10 @@ func (b *BaseFocusable) GetEnterInputKeybind() *key.Binding {
 
 func (b *BaseFocusable) GetExitInputKeybind() key.Binding {
 	return key.NewBinding(key.WithKeys("esc"))
+}
+
+func (b *BaseFocusable) CanExitInputting() bool {
+	return true
 }
 
 func (b *BaseFocusable) setFocused(focused bool) {

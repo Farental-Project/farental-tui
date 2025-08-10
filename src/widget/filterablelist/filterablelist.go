@@ -45,6 +45,13 @@ func New(delegate list.ItemDelegate, items []list.Item) *Widget {
 	return w
 }
 
+func (w *Widget) Init() tea.Cmd {
+	w.Model.ResetSelected()
+	w.Model.ResetFilter()
+
+	return nil
+}
+
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 

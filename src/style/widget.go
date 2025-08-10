@@ -13,8 +13,9 @@ func SetTextInputStyle(ti *textinput.Model) {
 }
 
 func SetTextAreaStyle(ta *textarea.Model) {
-	ta.BlurredStyle.Text = DimTextStyle
+	ta.BlurredStyle.Text = NormalStyle
 	ta.BlurredStyle.Base = BlurredStyle
+	ta.BlurredStyle.CursorLine = NormalStyle
 	ta.FocusedStyle.Text = NormalStyle
 	ta.FocusedStyle.Base = FocusedStyle
 	ta.FocusedStyle.CursorLine = NormalStyle

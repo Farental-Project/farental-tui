@@ -16,6 +16,16 @@ func MailSend(mail api.MailSendBody) *resty.Request {
 	return r
 }
 
+func MailSendWithAttachments(mail api.MailWithAttachmentsBody) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/mail/sendWithAttachments"
+	r.SetBody(mail)
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func MailGetAll() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet

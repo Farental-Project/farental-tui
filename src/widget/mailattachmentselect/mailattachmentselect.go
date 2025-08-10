@@ -14,6 +14,7 @@ import (
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 )
 
 type HideAttachmentSelectMsg uint
@@ -24,14 +25,16 @@ func HideAttachmentSelectCmd() tea.Msg {
 
 type SelectItemMsg struct {
 	StackID  uint
+	ItemID   uint
 	ItemName string
 	Amount   int
 }
 
-func SelectItemCmd(stackID uint, name string, amount int) tea.Cmd {
+func SelectItemCmd(stackID uint, itemID uint, name string, amount int) tea.Cmd {
 	return func() tea.Msg {
 		return SelectItemMsg{
 			StackID:  stackID,
+			ItemID:   itemID,
 			ItemName: name,
 			Amount:   amount,
 		}
@@ -76,22 +79,37 @@ func New() *Widget {
 	return w
 }
 
+func (w *Widget) Init() tea.Cmd {
+	return w.list.Init()
+}
+
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Enter):
-			selectedItem, ok := w.list.SelectedItem().(ListItem)
+			if w.list.FilterState() != tealist.Filtering {
+				selectedItem, ok := w.list.SelectedItem().(ListItem)
 
-			if !ok {
-				return nil
+				if !ok {
+					return nil
+				}
+
+				return SelectItemCmd(selectedItem.Stack.ID,
+					selectedItem.Stack.ItemID,
+					selectedItem.Stack.Item.Name,
+					selectedItem.Amount)
 			}
 
-			return SelectItemCmd(selectedItem.Stack.ID,
-				selectedItem.Stack.Item.Name, selectedItem.Amount)
-
 		case key.Matches(msg, keybind.Esc):
-			return HideAttachmentSelectCmd
+			if w.list.FilterState() == tealist.Unfiltered {
+				return HideAttachmentSelectCmd
+			}
+
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+
+			return nil
 		}
 	}
 
@@ -131,13 +149,21 @@ func (w *Widget) OnBlur() {
 }
 
 func (w *Widget) OnEnterInput() {
+	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListIncDec)
 }
 
 func (w *Widget) OnExitInput() {
+	bubblehelp.SwitchToPreviousContext()
+}
+
+func (w *Widget) CanExitInputting() bool {
+	return w.list.FilterState() == tealist.Unfiltered
 }
 
 func (w *Widget) LoadData(filterItems []ListItem) {
 	var items []tealist.Item
+
+	w.Init()
 
 	items = make([]tealist.Item, 0)
 

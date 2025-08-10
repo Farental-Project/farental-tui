@@ -26,8 +26,16 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	tiMoney         *textinput.Widget
-	tiMoneyStatus   *statusmessage.Widget
+	moneyTitle    *orvyn.SimpleRenderable
+	tiMoney       *textinput.Widget
+	tiMoneyStatus *statusmessage.Widget
+
+	paymentTitle    *orvyn.SimpleRenderable
+	tiPayment       *textinput.Widget
+	tiPaymentStatus *statusmessage.Widget
+
+	attachmentListTitle *orvyn.SimpleRenderable
+
 	attachmentsList *mailattachmentlist.Widget
 
 	attachments []ListItem
@@ -54,6 +62,9 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
+	w.moneyTitle = orvyn.NewSimpleRenderable(lang.L("Money"))
+	w.moneyTitle.Style = style.DimTextStyle
+
 	w.tiMoney = textinput.New()
 	w.tiMoney.Prompt = string(art.CharGrynars)
 	w.tiMoney.Placeholder = lang.L("Money amount to send")
@@ -61,18 +72,38 @@ func New() *Widget {
 
 	w.tiMoneyStatus = statusmessage.New()
 
+	w.paymentTitle = orvyn.NewSimpleRenderable(lang.L("Payment request"))
+	w.paymentTitle.Style = style.DimTextStyle
+
+	w.tiPayment = textinput.New()
+	w.tiPayment.Prompt = string(art.CharGrynars)
+	w.tiPayment.Placeholder = lang.L("Money amount to request as payment")
+	w.tiPayment.Validate = helper.NumericalValidate
+
+	w.tiPaymentStatus = statusmessage.New()
+
+	w.attachmentListTitle = orvyn.NewSimpleRenderable(lang.L("Attachments"))
+	w.attachmentListTitle.Style = style.DimUnderlinedTitleStyle
+	w.attachmentListTitle.SizeConstraint = true
+
 	w.attachmentsList = mailattachmentlist.New(ListItemDelegate{})
 
 	w.focusManager = orvyn.NewFocusManager()
 	w.focusManager.Add(w.tiMoney)
+	w.focusManager.Add(w.tiPayment)
 	w.focusManager.Add(w.attachmentsList)
 
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
-		2,
+		7,
 		[]orvyn.Renderable{
+			w.moneyTitle,
 			w.tiMoney,
 			w.tiMoneyStatus,
+			w.paymentTitle,
+			w.tiPayment,
+			w.tiPaymentStatus,
+			w.attachmentListTitle,
 			w.attachmentsList,
 		},
 	)
@@ -81,14 +112,18 @@ func New() *Widget {
 }
 
 func (w *Widget) Init() tea.Cmd {
-	cmd := w.tiMoney.Init()
+	var cmds []tea.Cmd
+
+	cmds = append(cmds, w.tiMoney.Init())
+	cmds = append(cmds, w.tiPayment.Init())
+
 	w.attachmentsList.Init()
 
 	w.attachments = make([]ListItem, 0)
 
 	w.focusManager.BlurCurrent()
 
-	return cmd
+	return tea.Batch(cmds...)
 }
 
 func (w *Widget) Render() string {
@@ -132,6 +167,12 @@ func (w *Widget) inputUpdate(msg tea.Msg) tea.Cmd {
 		w.tiMoneyStatus.Reset()
 	}
 
+	if w.tiPayment.Err != nil {
+		w.tiPaymentStatus.SetError(w.tiPayment.Err)
+	} else {
+		w.tiPaymentStatus.Reset()
+	}
+
 	return cmd
 }
 
@@ -156,7 +197,25 @@ func (w *Widget) GetEnterInputKeybind() *key.Binding {
 }
 
 func (w *Widget) GetAttachedMoneyAmount() int {
+	if w.tiMoney.Err != nil {
+		return 0
+	}
+
 	amount, err := strconv.Atoi(w.tiMoney.Value())
+
+	if err != nil {
+		return 0
+	}
+
+	return amount
+}
+
+func (w *Widget) GetPaymentAmount() int {
+	if w.tiPayment.Err != nil {
+		return 0
+	}
+
+	amount, err := strconv.Atoi(w.tiPayment.Value())
 
 	if err != nil {
 		return 0
@@ -167,7 +226,8 @@ func (w *Widget) GetAttachedMoneyAmount() int {
 
 func (w *Widget) HasAttachments() bool {
 	if len(w.attachmentsList.Items()) > 0 ||
-		w.GetAttachedMoneyAmount() > 0 {
+		w.GetAttachedMoneyAmount() > 0 ||
+		w.GetPaymentAmount() > 0 {
 		return true
 	}
 
@@ -220,7 +280,7 @@ func (w *Widget) GetAttachments() []ListItem {
 }
 
 func (w *Widget) SetFocusOnAttachmentList() {
-	w.focusManager.Focus(1)
+	w.focusManager.Focus(2)
 }
 
 func (w *Widget) setListItems(items []ListItem) tea.Cmd {

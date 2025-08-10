@@ -18,6 +18,7 @@ import (
 	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/go-resty/resty/v2"
 	"net/http"
 )
 
@@ -92,6 +93,7 @@ func New() *Screen {
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 	s.writer.Init()
 	s.detailEditor.Init()
+	s.attachmentSelect.Init()
 
 	s.hideSelectAttachment()
 
@@ -111,6 +113,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		s.statusMessage.Reset()
+
 		switch {
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
@@ -145,6 +148,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	case mailattachmentselect.SelectItemMsg:
 		cmd, err := s.detailEditor.AddAttachment(maildetaileditor.ListItem{
 			StackID:  msg.StackID,
+			ItemID:   msg.ItemID,
 			ItemName: msg.ItemName,
 			Amount:   msg.Amount,
 		})
@@ -168,12 +172,55 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) submit() bool {
+	var attachments []api.MailAttachment
+	var req *resty.Request
+	var resp *resty.Response
+	var err error
+
 	// Detect if it's a basic email or if there is attachments to it.
 	if !s.detailEditor.HasAttachments() {
 		mail := s.writer.GetMailBody()
-		req := request.MailSend(mail)
+		req = request.MailSend(mail)
 
-		resp, err := helper.SendRequest(req)
+		resp, err = helper.SendRequest(req)
+
+		if err != nil {
+			s.statusMessage.SetError(err)
+			return false
+		}
+
+		if resp.StatusCode() == http.StatusOK {
+			return true
+		}
+	} else {
+		mail := api.MailWithAttachmentsBody{
+			MailSendBody:     s.writer.GetMailBody(),
+			IsAgainstPayment: false,
+			MoneyAmount:      s.detailEditor.GetAttachedMoneyAmount(),
+		}
+
+		mail.PaymentAmount = s.detailEditor.GetPaymentAmount()
+
+		if mail.PaymentAmount > 0 {
+			mail.IsAgainstPayment = true
+		}
+
+		attachments = make([]api.MailAttachment, 0)
+
+		for _, a := range s.detailEditor.GetAttachments() {
+			attachment := api.MailAttachment{
+				ItemID: a.ItemID,
+				Amount: a.Amount,
+			}
+
+			attachments = append(attachments, attachment)
+		}
+
+		mail.Items = attachments
+
+		req = request.MailSendWithAttachments(mail)
+
+		resp, err = helper.SendRequest(req)
 
 		if err != nil {
 			s.statusMessage.SetError(err)

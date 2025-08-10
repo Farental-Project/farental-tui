@@ -12,6 +12,7 @@ import (
 
 type ListItem struct {
 	StackID  uint
+	ItemID   uint
 	ItemName string
 	Amount   int
 }

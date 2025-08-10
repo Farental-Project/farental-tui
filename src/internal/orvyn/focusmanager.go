@@ -109,7 +109,9 @@ func (f *FocusManager) Update(msg tea.Msg) tea.Cmd {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			if key.Matches(msg, f.widgets[f.tabIndex].GetExitInputKeybind()) {
-				f.exitInput(f.tabIndex)
+				if f.widgets[f.tabIndex].CanExitInputting() {
+					f.exitInput(f.tabIndex)
+				}
 			}
 		}
 
