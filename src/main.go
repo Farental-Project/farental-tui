@@ -126,7 +126,7 @@ func registerKeymapContexts() {
 	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle
 	gameDashboardKeymap.NewKeyBinding(keybind.HKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.HKey, lang.L("character sheet"))
+	gameDashboardKeymap.SetHelpDesc(keybind.HKey, lang.L("character"))
 	gameDashboardKeymap.NewKeyBinding(keybind.TKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.TKey, lang.L("travels"))
 	gameDashboardKeymap.NewKeyBinding(keybind.AKey, false)

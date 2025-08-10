@@ -6,6 +6,7 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/style"
@@ -22,6 +23,8 @@ import (
 
 type Screen struct {
 	orvyn.BaseScreen
+
+	title *orvyn.SimpleRenderable
 
 	characterInfo *characterinfo.Widget
 
@@ -43,6 +46,9 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	s.title = orvyn.NewSimpleRenderable(lang.L("Character"))
+	s.title.Style = style.TitleStyle
+
 	s.characterInfo = characterinfo.New()
 	s.equipmentSummary = equipmentsummary.New()
 	s.statsSummary = statssummary.New()
@@ -63,6 +69,8 @@ func New() *Screen {
 			style.LayoutWidth,
 			10,
 			[]orvyn.Renderable{
+				s.title,
+				orvyn.VGap,
 				s.characterInfo,
 				s.equipmentSummary,
 				s.statsSkillLayout,
@@ -99,6 +107,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		}
 	}
+
+	s.skillsSummary.Update(msg)
 
 	return nil
 }

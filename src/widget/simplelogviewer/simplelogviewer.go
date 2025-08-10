@@ -174,6 +174,5 @@ func (w *Widget) refresh() {
 		Width(w.viewport.Width).Render(
 		strings.Join(w.content, "\n")))
 
-	// TODO: Find a way to let the user explore the log
 	w.viewport.GotoBottom()
 }

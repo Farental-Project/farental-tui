@@ -2,10 +2,14 @@ package skillssummary
 
 import (
 	"farental/core/data/api"
+	"farental/internal/keybind"
 	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"strconv"
 	"strings"
@@ -54,6 +58,8 @@ type Widget struct {
 
 	title string
 
+	viewport viewport.Model
+
 	skills []api.CharacterSkillResponse
 
 	contentSize orvyn.Size
@@ -66,28 +72,33 @@ func New() *Widget {
 
 	w.title = lang.L("Skills")
 
+	w.viewport = viewport.New(0, 0)
+
 	return w
 }
 
-func (w *Widget) Render() string {
-	var col column
-	var addReturn bool
-
-	addReturn = true
-
-	for i, skill := range w.skills {
-		if i == len(w.skills)-1 {
-			addReturn = false
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.Up):
+			w.viewport.ScrollUp(1)
+		case key.Matches(msg, keybind.Down):
+			w.viewport.ScrollDown(1)
 		}
-
-		w.renderSkill(skill, addReturn, &col)
 	}
+
+	return nil
+}
+
+func (w *Widget) Render() string {
+	w.refresh()
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		style.DimUnderlinedTitleStyle.
 			Width(w.contentSize.Width).
 			Render(w.title),
-		col.render(w.contentSize.Width))
+		w.viewport.View())
 
 	return style.BlurredStyle.
 		Width(w.contentSize.Width).
@@ -96,12 +107,21 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	w.BaseWidget.Resize(size)
+	s := size
 
 	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
 	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
 
 	w.contentSize = size
+	w.viewport.Width = size.Width
+	w.viewport.Height = size.Height -
+		lipgloss.Height(style.DimUnderlinedTitleStyle.Render(" "))
+
+	if !orvyn.SameSize(s, w.GetSize()) {
+		w.refresh()
+	}
+
+	w.BaseWidget.Resize(s)
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
@@ -128,4 +148,21 @@ func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, c
 
 func (w *Widget) UpdateData(characterInfo *api.CharacterInfoResponse) {
 	w.skills = characterInfo.Skills
+}
+
+func (w *Widget) refresh() {
+	var col column
+	var addReturn bool
+
+	addReturn = true
+
+	for i, skill := range w.skills {
+		if i == len(w.skills)-1 {
+			addReturn = false
+		}
+
+		w.renderSkill(skill, addReturn, &col)
+	}
+
+	w.viewport.SetContent(col.render(w.contentSize.Width))
 }
