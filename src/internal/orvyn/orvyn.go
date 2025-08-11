@@ -18,6 +18,8 @@ var (
 
 	// previousScreenID holds the previously active ScreenID.
 	previousScreenID ScreenID
+
+	activeDialog *Dialog
 )
 
 func Init() {
@@ -36,15 +38,28 @@ func Update(msg tea.Msg) tea.Cmd {
 		return nil
 	}
 
-	return screens[currentScreenID].Update(msg)
+	// TODO: If a dialog is active, update it and not the current screen.
+	if activeDialog != nil {
+		return activeDialog.screen.Update(msg)
+	} else {
+		return screens[currentScreenID].Update(msg)
+	}
+
 }
 
 func Render() string {
+	var layout Layout
+
 	if currentScreenID == "" {
 		return "Orvyn : No Current Screen"
 	}
 
-	layout := screens[currentScreenID].Render()
+	// TODO: If a dialog is active, render it and not the current screen.
+	if activeDialog != nil {
+		layout = activeDialog.screen.Render()
+	} else {
+		layout = screens[currentScreenID].Render()
+	}
 
 	layout.Resize(WindowSize)
 	return layout.Render()
@@ -105,4 +120,24 @@ func GetScreen(id ScreenID) Screen {
 // GetCurrentScreenID returns the currently active ScreenID.
 func GetCurrentScreenID() ScreenID {
 	return currentScreenID
+}
+
+// Dialog API
+
+func OpenDialog(dialogID ScreenID, dialog Screen, param interface{}) {
+	activeDialog = new(Dialog)
+
+	activeDialog.dialogID = dialogID
+	activeDialog.screen = dialog
+
+	activeDialog.screen.OnEnter(param)
+}
+
+func CloseDialog() tea.Cmd {
+	param := activeDialog.screen.OnExit()
+	id := activeDialog.dialogID
+
+	activeDialog = nil
+
+	return DialogExitCmd(id, param)
 }

@@ -27,8 +27,6 @@ const (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	tickTag uint
 
 	runningTask *runningtask.Widget

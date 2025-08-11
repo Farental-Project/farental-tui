@@ -9,6 +9,7 @@ import (
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/screen"
+	"farental/screen/dialog/popup"
 	"farental/style"
 	"farental/widget/help"
 	"farental/widget/mailattachmentlist"
@@ -23,8 +24,6 @@ import (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	title *orvyn.SimpleRenderable
 
 	writer           *mailwriter.Widget
@@ -121,7 +120,28 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.Esc):
 			if !s.writer.IsInputting() && !s.detailEditor.IsInputting() &&
 				!s.attachmentSelect.IsInputting() {
-				return orvyn.SwitchScreen(screen.IDMailBox)
+
+				options := []popup.Option{
+					{
+						Keybind: keybind.YKey,
+						Text:    lang.L("Yes"),
+						Value:   1,
+					},
+					{
+						Keybind: keybind.NKey,
+						Text:    lang.L("No"),
+						Value:   2,
+					},
+				}
+
+				config := popup.Config{
+					Message: "Are you sure you want to exit the mail and loose your work ?",
+					Style:   style.TitleStyle,
+					Options: options,
+				}
+
+				orvyn.OpenDialog("quitConfirm", popup.New(config), nil)
+				return nil
 			}
 
 		case key.Matches(msg, keybind.Enter):
@@ -132,6 +152,19 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 					s.statusMessage.SetMessage(lang.L("Mail successfully sent !"), statusmessage.SuccessMessage)
 				}
 
+				return nil
+			}
+
+		}
+
+	case orvyn.DialogExitMsg:
+		switch msg.DialogID {
+		case "quitConfirm":
+			val := msg.Param.(uint)
+			switch val {
+			case 1:
+				return orvyn.SwitchScreen(screen.IDMailBox)
+			default:
 				return nil
 			}
 		}

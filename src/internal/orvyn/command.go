@@ -18,3 +18,17 @@ func TickCmd(seconds time.Duration, tag uint) tea.Cmd {
 		}
 	})
 }
+
+type DialogExitMsg struct {
+	DialogID ScreenID
+	Param    interface{}
+}
+
+func DialogExitCmd(id ScreenID, param interface{}) tea.Cmd {
+	return func() tea.Msg {
+		return DialogExitMsg{
+			DialogID: id,
+			Param:    param,
+		}
+	}
+}

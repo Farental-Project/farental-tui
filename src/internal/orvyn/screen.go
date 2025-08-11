@@ -19,15 +19,4 @@ type Screen interface {
 
 	// Render returns the view string of the whole screen
 	Render() Layout
-
-	// GetID returns the ScreenID of the screen.
-	GetID() ScreenID
-}
-
-type BaseScreen struct {
-	ID ScreenID
-}
-
-func (b *BaseScreen) GetID() ScreenID {
-	return b.ID
 }

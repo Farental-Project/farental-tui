@@ -20,8 +20,6 @@ import (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	mail        *api.MailBasicResponse
 	attachments []api.MailAttachmentResponse
 

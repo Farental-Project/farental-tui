@@ -26,8 +26,6 @@ import (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	title *orvyn.SimpleRenderable
 
 	tiEmail    *textinput.Widget

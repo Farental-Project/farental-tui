@@ -23,8 +23,6 @@ import (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	title *orvyn.SimpleRenderable
 
 	characters []tealist.Item

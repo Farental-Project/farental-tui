@@ -29,8 +29,6 @@ func (r RaceData) RenderValue() string {
 }
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	title *orvyn.SimpleRenderable
 
 	tiFirstname *textinput.Widget

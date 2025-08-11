@@ -22,8 +22,6 @@ import (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	title *orvyn.SimpleRenderable
 
 	characterInfo *characterinfo.Widget

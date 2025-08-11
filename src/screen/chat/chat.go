@@ -26,8 +26,6 @@ const (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	tickTag uint
 
 	title *orvyn.SimpleRenderable

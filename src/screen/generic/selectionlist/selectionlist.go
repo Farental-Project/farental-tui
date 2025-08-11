@@ -15,8 +15,6 @@ import (
 )
 
 type Screen struct {
-	orvyn.BaseScreen
-
 	title *orvyn.SimpleRenderable
 
 	list *filterablelist.Widget
