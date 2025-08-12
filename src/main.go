@@ -23,6 +23,7 @@ import (
 	"farental/screen/mailbox"
 	"farental/screen/maileditor"
 	"farental/screen/mailreader"
+	"farental/screen/scriptexplorer"
 	"farental/screen/travel"
 	"farental/style"
 	"fmt"
@@ -79,6 +80,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDMailBox, mailbox.New())
 	orvyn.RegisterScreen(screen.IDMailReader, mailreader.New())
 	orvyn.RegisterScreen(screen.IDMailEditor, maileditor.New())
+	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -140,7 +142,8 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.NewKeyBinding(keybind.LKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.LKey, lang.L("location service"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
-	gameDashboardKeymap.NewKeyBinding(keybind.Scripts, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.SKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.SKey, lang.L("scripts"))
 	gameDashboardKeymap.NewKeyBinding(keybind.IKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.IKey, lang.L("inventory"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Space, true)

@@ -58,8 +58,6 @@ func (s *Screen) loadActivities() {
 	}
 
 	s.SetItems(items)
-
-	return
 }
 
 func (s *Screen) submit() bool {

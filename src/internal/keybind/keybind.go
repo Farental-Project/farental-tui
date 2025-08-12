@@ -21,9 +21,6 @@ var (
 	Tab           key.Binding
 	ShiftTab      key.Binding
 	Npcs          key.Binding
-	Scripts       key.Binding
-	HKey          key.Binding
-	LKey          key.Binding
 	GotoListStart key.Binding
 	GotoListEnd   key.Binding
 	PrevPage      key.Binding
@@ -33,11 +30,14 @@ var (
 	DKey          key.Binding
 	EKey          key.Binding
 	FKey          key.Binding
+	HKey          key.Binding
 	IKey          key.Binding
+	LKey          key.Binding
 	MKey          key.Binding
 	NKey          key.Binding
 	PKey          key.Binding
 	RKey          key.Binding
+	SKey          key.Binding
 	TKey          key.Binding
 	UKey          key.Binding
 	WKey          key.Binding
@@ -91,9 +91,6 @@ func Init() {
 	Npcs = key.NewBinding(
 		key.WithKeys("n"),
 		key.WithHelp("n", lang.L("npcs")))
-	Scripts = key.NewBinding(
-		key.WithKeys("s"),
-		key.WithHelp("s", lang.L("scripts")))
 	GotoListStart = key.NewBinding(
 		key.WithKeys("g", "home"),
 		key.WithHelp("g/home", lang.L("goto list start")))
@@ -142,6 +139,9 @@ func Init() {
 	RKey = key.NewBinding(
 		key.WithKeys("r"),
 		key.WithHelp("r", "r key"))
+	SKey = key.NewBinding(
+		key.WithKeys("s"),
+		key.WithHelp("s", lang.L("scripts")))
 	TKey = key.NewBinding(
 		key.WithKeys("t"),
 		key.WithHelp("t", "t key"))

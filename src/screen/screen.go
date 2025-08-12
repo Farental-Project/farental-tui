@@ -19,4 +19,6 @@ const (
 	IDMailBox            orvyn.ScreenID = "mailbox"
 	IDMailReader         orvyn.ScreenID = "mailreader"
 	IDMailEditor         orvyn.ScreenID = "maileditor"
+	IDScriptExplorer     orvyn.ScreenID = "scriptexplorer"
+	IDScriptEditor       orvyn.ScreenID = "scripteditor"
 )
