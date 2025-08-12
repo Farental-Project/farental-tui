@@ -24,19 +24,15 @@ func HideAttachmentSelectCmd() tea.Msg {
 }
 
 type SelectItemMsg struct {
-	StackID  uint
-	ItemID   uint
-	ItemName string
-	Amount   int
+	Item   api.ItemResponse
+	Amount int
 }
 
-func SelectItemCmd(stackID uint, itemID uint, name string, amount int) tea.Cmd {
+func SelectItemCmd(item *api.ItemResponse, amount int) tea.Cmd {
 	return func() tea.Msg {
 		return SelectItemMsg{
-			StackID:  stackID,
-			ItemID:   itemID,
-			ItemName: name,
-			Amount:   amount,
+			Item:   *item,
+			Amount: amount,
 		}
 	}
 }
@@ -95,9 +91,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 					return nil
 				}
 
-				return SelectItemCmd(selectedItem.Stack.ID,
-					selectedItem.Stack.ItemID,
-					selectedItem.Stack.Item.Name,
+				return SelectItemCmd(&selectedItem.Item,
 					selectedItem.Amount)
 			}
 
@@ -160,12 +154,22 @@ func (w *Widget) CanExitInputting() bool {
 	return w.list.FilterState() == tealist.Unfiltered
 }
 
+func (w *Widget) SetItems(items *[]ListItem) {
+	listItems := make([]tealist.Item, 0)
+
+	for _, i := range *items {
+		listItems = append(listItems, i)
+	}
+
+	w.list.SetItems(listItems)
+}
+
 func (w *Widget) LoadData(filterItems []ListItem) {
-	var items []tealist.Item
+	var items []ListItem
 
 	w.Init()
 
-	items = make([]tealist.Item, 0)
+	items = make([]ListItem, 0)
 
 	resp, err := helper.SendRequest(request.InventoryGetShareable())
 
@@ -176,39 +180,52 @@ func (w *Widget) LoadData(filterItems []ListItem) {
 	inventory := *resp.Result().(*api.InventoryResponse)
 
 	for _, s := range inventory.Stacks {
-		item := ListItem{
-			Stack: s,
+		index := FindItemIndex(s.ItemID, &items)
+
+		// Non-existing index
+		if index == -1 {
+			listItem := NewListItem(&s)
+			items = append(items, listItem)
+			continue
 		}
 
-		filter := w.filterStack(&item, &filterItems)
-
-		if !filter {
-			items = append(items, item)
-		}
+		items[index].Count += s.Count
 	}
 
-	w.list.SetItems(items)
+	w.filterItems(&items, filterItems)
+
+	w.SetItems(&items)
 }
 
-func (w *Widget) filterStack(item *ListItem, filterItems *[]ListItem) bool {
-	var filterItem *ListItem
+func (w *Widget) filterItems(items *[]ListItem, filterItems []ListItem) {
+	tmpItems := *items
 
-	for _, f := range *filterItems {
-		if f.Stack.ID == item.Stack.ID {
-			filterItem = &f
-			break
+	for i, f := range *items {
+		index := FindItemIndex(f.Item.ID, &filterItems)
+
+		if index == -1 {
+			continue
+		}
+
+		tmpItems[i].Count -= filterItems[index].Count
+	}
+
+	for i := len(tmpItems) - 1; i >= 0; i-- {
+		if tmpItems[i].Count <= 0 {
+			tmpItems = helper.SliceRemove(tmpItems, i)
 		}
 	}
 
-	if filterItem == nil {
-		return false
+	items = &tmpItems
+
+}
+
+func FindItemIndex(itemID uint, items *[]ListItem) int {
+	for i, item := range *items {
+		if item.Item.ID == itemID {
+			return i
+		}
 	}
 
-	item.Stack.Count -= filterItem.Amount
-
-	if item.Stack.Count <= 0 {
-		return true
-	}
-
-	return false
+	return -1
 }

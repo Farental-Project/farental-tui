@@ -162,12 +162,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.hideSelectAttachment()
 
 	case mailattachmentselect.SelectItemMsg:
-		cmd, err := s.detailEditor.AddAttachment(maildetaileditor.ListItem{
-			StackID:  msg.StackID,
-			ItemID:   msg.ItemID,
-			ItemName: msg.ItemName,
-			Amount:   msg.Amount,
-		})
+		cmd, err := s.detailEditor.AddAttachment(&msg.Item, msg.Amount)
 
 		if err != nil {
 			s.statusMessage.SetError(err)
@@ -223,10 +218,12 @@ func (s *Screen) submit() bool {
 
 		attachments = make([]api.MailAttachment, 0)
 
-		for _, a := range s.detailEditor.GetAttachments() {
+		currentAttachments := s.detailEditor.GetAttachments()
+
+		for _, a := range currentAttachments.Stacks {
 			attachment := api.MailAttachment{
 				ItemID: a.ItemID,
-				Amount: a.Amount,
+				Amount: a.Count,
 			}
 
 			attachments = append(attachments, attachment)
@@ -265,13 +262,21 @@ func (s *Screen) showSelectAttachment() {
 
 	filterItems := make([]mailattachmentselect.ListItem, 0)
 
-	for _, i := range currentAttachments {
-		item := mailattachmentselect.ListItem{
-			Stack:  api.StackResponse{ID: i.StackID},
-			Amount: i.Amount,
+	for _, i := range currentAttachments.Stacks {
+		index := mailattachmentselect.FindItemIndex(i.ItemID, &filterItems)
+
+		if index == -1 {
+			item := mailattachmentselect.ListItem{
+				Item:  i.Item,
+				Count: i.Count,
+			}
+
+			filterItems = append(filterItems, item)
+
+			continue
 		}
 
-		filterItems = append(filterItems, item)
+		filterItems[index].Count += i.Count
 	}
 
 	s.attachmentSelect.LoadData(filterItems)

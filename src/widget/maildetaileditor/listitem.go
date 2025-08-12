@@ -1,6 +1,7 @@
 package maildetaileditor
 
 import (
+	"farental/core/data/api"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/list"
@@ -11,10 +12,7 @@ import (
 )
 
 type ListItem struct {
-	StackID  uint
-	ItemID   uint
-	ItemName string
-	Amount   int
+	Stack *api.StackResponse
 }
 
 func (i ListItem) FilterValue() string {
@@ -43,7 +41,7 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 		s = style.BlurredStyle
 	}
 
-	b.WriteString(fmt.Sprintf("%dx %s", i.Amount, i.ItemName))
+	b.WriteString(fmt.Sprintf("%dx %s", i.Stack.Count, i.Stack.Item.Name))
 
 	tui := s.Width(width).Render(b.String())
 
@@ -66,14 +64,6 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 	if !ok {
 		return nil
 	}
-
-	// TODO : Manage delete
-	// switch msg := msg.(type) {
-	// case tea.KeyMsg:
-	// 	switch {
-	//
-	// 	}
-	// }
 
 	updateItem(m, selectedIndex, selectedItem)
 	return nil

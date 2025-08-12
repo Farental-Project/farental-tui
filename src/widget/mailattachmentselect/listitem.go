@@ -16,14 +16,16 @@ import (
 )
 
 type ListItem struct {
-	Stack  api.StackResponse
+	Item   api.ItemResponse
+	Count  int
 	Amount int
 }
 
 func NewListItem(stack *api.StackResponse) ListItem {
 	li := ListItem{}
 
-	li.Stack = *stack
+	li.Item = stack.Item
+	li.Count = stack.Count
 	li.Amount = 0
 
 	return li
@@ -32,8 +34,7 @@ func NewListItem(stack *api.StackResponse) ListItem {
 func (i ListItem) FilterValue() string {
 	var b strings.Builder
 
-	b.WriteString(i.Stack.Item.Name)
-	b.WriteString(i.Stack.Item.Description)
+	b.WriteString(i.Item.Name)
 
 	return b.String()
 }
@@ -60,10 +61,10 @@ func (l ListItemDelegate) Render(w io.Writer, m list.Model, index int, item list
 		s = style.BlurredStyle
 	}
 
-	left.WriteString(i.Stack.Item.Name)
+	left.WriteString(i.Item.Name)
 
 	right.WriteString(style.DimTextStyle.Render(
-		fmt.Sprintf("%d / %d", i.Stack.Count, i.Stack.Item.MaxStackCount),
+		fmt.Sprintf("%d", i.Count),
 	))
 	right.WriteString("\n")
 
@@ -118,13 +119,13 @@ func (l ListItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd {
 		case key.Matches(msgType, keybind.Right):
 			selectedItem.Amount++
 
-			selectedItem.Amount = min(selectedItem.Amount, selectedItem.Stack.Count)
+			selectedItem.Amount = min(selectedItem.Amount, selectedItem.Count)
 
 			return updateItem(m, selectedIndex, selectedItem)
 		case key.Matches(msgType, keybind.ShiftRight):
 			selectedItem.Amount += helper.Next10Inc(selectedItem.Amount)
 
-			selectedItem.Amount = min(selectedItem.Amount, selectedItem.Stack.Count)
+			selectedItem.Amount = min(selectedItem.Amount, selectedItem.Count)
 
 			return updateItem(m, selectedIndex, selectedItem)
 		}

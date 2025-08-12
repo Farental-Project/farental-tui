@@ -1,9 +1,9 @@
 package maildetaileditor
 
 import (
-	"errors"
 	"farental/art"
 	"farental/core/data"
+	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/lang"
@@ -13,7 +13,6 @@ import (
 	"farental/widget/mailattachmentlist"
 	"farental/widget/statusmessage"
 	"farental/widget/textinput"
-	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -38,7 +37,7 @@ type Widget struct {
 
 	attachmentsList *mailattachmentlist.Widget
 
-	attachments []ListItem
+	inventory *data.Inventory
 
 	focusManager *orvyn.FocusManager
 
@@ -119,7 +118,7 @@ func (w *Widget) Init() tea.Cmd {
 
 	w.attachmentsList.Init()
 
-	w.attachments = make([]ListItem, 0)
+	w.inventory = data.NewInventory(data.ConstMailAttachmentStackCount)
 
 	w.focusManager.BlurCurrent()
 
@@ -234,62 +233,41 @@ func (w *Widget) HasAttachments() bool {
 	return false
 }
 
-func (w *Widget) AddAttachment(item ListItem) (tea.Cmd, error) {
-	var existingIndex int
+func (w *Widget) AddAttachment(item *api.ItemResponse, amount int) (tea.Cmd, error) {
+	_, err := w.inventory.AddItem(item, amount)
 
-	existingIndex = -1
+	cmd := w.setListItems()
 
-	for i, a := range w.attachments {
-		if a.StackID == item.StackID {
-			existingIndex = i
-			break
-		}
-	}
-
-	if existingIndex != -1 {
-		w.attachments[existingIndex].Amount += item.Amount
-	} else {
-		if len(w.attachments) == data.ConstMailAttachmentStackCount {
-			return nil, errors.New(fmt.Sprintf(
-				lang.L("Mails cannot have more than %d attachments"),
-				data.ConstMailAttachmentStackCount))
-		}
-
-		w.attachments = append(w.attachments, item)
-	}
-
-	cmd := w.setListItems(w.attachments)
-
-	return cmd, nil
+	return cmd, err
 }
 
 func (w *Widget) RemoveAttachment(index int) tea.Cmd {
-	if index < 0 || index >= len(w.attachments) {
-		return nil
-	}
+	w.inventory.RemoveIndex(index)
 
-	w.attachments = append(w.attachments[:index], w.attachments[index+1:]...)
-
-	cmd := w.setListItems(w.attachments)
+	cmd := w.setListItems()
 
 	return cmd
 }
 
-func (w *Widget) GetAttachments() []ListItem {
-	return w.attachments
+func (w *Widget) GetAttachments() *data.Inventory {
+	return w.inventory
 }
 
 func (w *Widget) SetFocusOnAttachmentList() {
 	w.focusManager.Focus(2)
 }
 
-func (w *Widget) setListItems(items []ListItem) tea.Cmd {
+func (w *Widget) setListItems() tea.Cmd {
 	var listItems []tealist.Item
 
 	listItems = make([]tealist.Item, 0)
 
-	for _, i := range items {
-		listItems = append(listItems, i)
+	for _, i := range w.inventory.Stacks {
+		listItems = append(listItems,
+			ListItem{
+				Stack: &i,
+			},
+		)
 	}
 
 	return w.attachmentsList.SetItems(listItems)
