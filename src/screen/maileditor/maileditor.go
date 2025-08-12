@@ -121,26 +121,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			if !s.writer.IsInputting() && !s.detailEditor.IsInputting() &&
 				!s.attachmentSelect.IsInputting() {
 
-				options := []popup.Option{
-					{
-						Keybind: keybind.YKey,
-						Text:    lang.L("Yes"),
-						Value:   1,
-					},
-					{
-						Keybind: keybind.NKey,
-						Text:    lang.L("No"),
-						Value:   2,
-					},
-				}
-
-				config := popup.Config{
-					Message: "Are you sure you want to exit the mail and loose your work ?",
-					Style:   style.TitleStyle,
-					Options: options,
-				}
-
-				orvyn.OpenDialog("quitConfirm", popup.New(config), nil)
+				orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
+					lang.L("Are you sure you want to quit the editor and loose your current progress ?"),
+				), nil)
 				return nil
 			}
 

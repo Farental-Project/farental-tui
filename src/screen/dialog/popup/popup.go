@@ -3,6 +3,7 @@ package popup
 import (
 	"farental/art"
 	"farental/internal/keybind"
+	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -21,7 +22,6 @@ type Option struct {
 
 type Config struct {
 	Message string
-	Style   lipgloss.Style
 	Options []Option
 }
 
@@ -36,6 +36,28 @@ type Screen struct {
 	value uint
 }
 
+func NewYesNo(message string) *Screen {
+	options := []Option{
+		{
+			Keybind: keybind.YKey,
+			Text:    lang.L("Yes"),
+			Value:   1,
+		},
+		{
+			Keybind: keybind.NKey,
+			Text:    lang.L("No"),
+			Value:   2,
+		},
+	}
+
+	config := Config{
+		Message: message,
+		Options: options,
+	}
+
+	return New(config)
+}
+
 func New(config Config) *Screen {
 	var b strings.Builder
 
@@ -43,10 +65,11 @@ func New(config Config) *Screen {
 
 	s.config = config
 
-	b.WriteString(config.Style.Render(config.Message))
+	b.WriteString(config.Message)
 	b.WriteString("\n\n")
 
 	s.content = orvyn.NewSimpleRenderable(b.String())
+	s.content.Style = style.TitleStyle.AlignHorizontal(lipgloss.Center)
 	s.content.SizeConstraint = true
 
 	b.Reset()
