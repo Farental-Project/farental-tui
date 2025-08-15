@@ -59,6 +59,8 @@ github.com/halsten-dev/bubblehelp v1.0.0 h1:Ot5iCknJb85Wz1qu3CS4CxQBJglWQE9qVD7g
 github.com/halsten-dev/bubblehelp v1.0.0/go.mod h1:tIMQHQB2dkLJ7wgdURUs118NO2kG1tstbRVsmjI2P9A=
 github.com/halsten-dev/bubblehelp v1.0.1 h1:iWubKpDZ3iAwmXFQ2F62gut+FrExHJQp4/U38leCUOw=
 github.com/halsten-dev/bubblehelp v1.0.1/go.mod h1:tIMQHQB2dkLJ7wgdURUs118NO2kG1tstbRVsmjI2P9A=
+github.com/halsten-dev/lokyn v1.0.0 h1:T4XGe2N9kQyjv+hRD/G9Clo5luhFzBosrZcqDFytW3M=
+github.com/halsten-dev/lokyn v1.0.0/go.mod h1:qGTNdCXIBmFcpP7puv/fEdrjZhAI16DV4v9N9OE2QOw=
 github.com/jeandeaual/go-locale v0.0.0-20250421151639-a9d6ed1b3d45 h1:vFdvrlsVU+p/KFBWTq0lTG4fvWvG88sawGlCzM+RUEU=
 github.com/jeandeaual/go-locale v0.0.0-20250421151639-a9d6ed1b3d45/go.mod h1:ZDXo8KHryOWSIqnsb/CiDq7hQUYryCgdVnxbj8tDG7o=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=

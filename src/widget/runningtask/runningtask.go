@@ -4,13 +4,13 @@ import (
 	"farental/art"
 	"farental/internal/context"
 	"farental/internal/helper"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 	"time"
 )
@@ -86,16 +86,16 @@ func (w *Widget) Render() string {
 		b.WriteString("\n")
 
 		if context.RunningTask.RemainingTimeHours > 0 {
-			b.WriteString(fmt.Sprintf("%s : %s", lang.L("Remaining time"),
+			b.WriteString(fmt.Sprintf("%s : %s", lokyn.L("Remaining time"),
 				helper.HoursDecFormat(context.RunningTask.RemainingTimeHours)))
 			b.WriteString("\n")
 			b.WriteString(w.Style.SpinnerWidget.Render(w.spinner.View()))
 		} else {
-			b.WriteString(lang.L("Completed! Waiting for claim!"))
+			b.WriteString(lokyn.L("Completed! Waiting for claim!"))
 		}
 	} else {
 		b.WriteString(w.Style.NoTask.Render(
-			lang.L("No running task")),
+			lokyn.L("No running task")),
 		)
 	}
 

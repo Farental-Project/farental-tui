@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/screen"
@@ -20,6 +19,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-resty/resty/v2"
+	"github.com/halsten-dev/lokyn"
 	"net/http"
 )
 
@@ -42,7 +42,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(lang.L("New mail"))
+	s.title = orvyn.NewSimpleRenderable(lokyn.L("New mail"))
 	s.title.Style = style.TitleStyle
 
 	s.writer = mailwriter.New()
@@ -122,7 +122,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				!s.attachmentSelect.IsInputting() {
 
 				orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
-					lang.L("Are you sure you want to quit the editor and loose your current progress ?"),
+					lokyn.L("Are you sure you want to quit the editor and loose your current progress ?"),
 				), nil)
 				return nil
 			}
@@ -132,7 +132,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				!s.attachmentSelect.IsInputting() {
 				if s.submit() {
 					s.OnEnter(nil)
-					s.statusMessage.SetMessage(lang.L("Mail successfully sent !"), statusmessage.SuccessMessage)
+					s.statusMessage.SetMessage(lokyn.L("Mail successfully sent !"), statusmessage.SuccessMessage)
 				}
 
 				return nil

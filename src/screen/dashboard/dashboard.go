@@ -4,7 +4,6 @@ import (
 	"farental/core/data"
 	"farental/internal/context"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/screen"
@@ -19,6 +18,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"time"
 )
 
@@ -72,15 +72,15 @@ func New() *Screen {
 		BlurredTitle:  style.DimUnderlinedTitleStyle,
 	}
 
-	s.logEvent = simplelogviewer.New(lang.L("Events"))
+	s.logEvent = simplelogviewer.New(lokyn.L("Events"))
 	s.logEvent.Style = logStyle
 	s.logEvent.OnBlur()
 
-	s.logChat = simplelogviewer.New(lang.L("Chat"))
+	s.logChat = simplelogviewer.New(lokyn.L("Chat"))
 	s.logChat.Style = logStyle
 	s.logChat.OnBlur()
 
-	s.logCharacters = simplelogviewer.New(lang.L("Characters"))
+	s.logCharacters = simplelogviewer.New(lokyn.L("Characters"))
 	s.logCharacters.Style = logStyle
 	s.logCharacters.OnBlur()
 
@@ -199,7 +199,7 @@ func (s *Screen) showLocationService() {
 	bubblehelp.ShowAll = true
 	s.showHelp(true)
 
-	s.fullHelp.SetTitle(lang.L("Location services"))
+	s.fullHelp.SetTitle(lokyn.L("Location services"))
 
 	// Activate keybind based on available features
 	bubblehelp.SetKeybindVisible(keybind.RKey,
@@ -213,7 +213,7 @@ func (s *Screen) hideLocationService() {
 	bubblehelp.ShowAll = false
 	s.showHelp(false)
 
-	s.fullHelp.SetTitle(lang.L("Help"))
+	s.fullHelp.SetTitle(lokyn.L("Help"))
 }
 
 func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {

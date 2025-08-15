@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -16,6 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"net/http"
 )
 
@@ -38,7 +38,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(lang.L("Read mail"))
+	s.title = orvyn.NewSimpleRenderable(lokyn.L("Read mail"))
 	s.title.Style = style.TitleStyle
 
 	s.content = mailcontentreader.New()
@@ -204,7 +204,7 @@ func (s *Screen) payMail() {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		s.statusMessage.SetMessage(lang.L("Payment sent !"),
+		s.statusMessage.SetMessage(lokyn.L("Payment sent !"),
 			statusmessage.SuccessMessage)
 		s.updateData()
 		s.updateKeymap()
@@ -222,7 +222,7 @@ func (s *Screen) transferAttachments() {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		s.statusMessage.SetMessage(lang.L("Mail attachments transfered !"),
+		s.statusMessage.SetMessage(lokyn.L("Mail attachments transfered !"),
 			statusmessage.SuccessMessage)
 		s.updateData()
 		s.updateKeymap()

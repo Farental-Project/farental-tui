@@ -7,7 +7,6 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/screen"
@@ -20,6 +19,7 @@ import (
 	teatextinput "github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
@@ -47,10 +47,10 @@ func New() *Screen {
 		style.TitleStyle.Render(art.CreateASCIIArtBrokenTitle("farental"))))
 
 	s.tiEmail = textinput.New()
-	s.tiEmail.Placeholder = lang.L("Email")
+	s.tiEmail.Placeholder = lokyn.L("Email")
 
 	s.tiPassword = textinput.New()
-	s.tiPassword.Placeholder = lang.L("Password")
+	s.tiPassword.Placeholder = lokyn.L("Password")
 	s.tiPassword.EchoMode = teatextinput.EchoPassword
 	s.tiPassword.EchoCharacter = art.CharBullet
 
@@ -156,7 +156,7 @@ func (s *Screen) submit() bool {
 
 	if len(email) == 0 || len(password) == 0 {
 		s.statusMessage.SetMessage(
-			lang.L("Please input e-mail and password"),
+			lokyn.L("Please input e-mail and password"),
 			statusmessage.ErrorMessage)
 		return false
 	}
@@ -186,7 +186,7 @@ func (s *Screen) submit() bool {
 	err = viper.WriteConfig()
 
 	if err != nil {
-		log.Println(lang.L("could not save config : "), err)
+		log.Println(lokyn.L("could not save config : "), err)
 	}
 
 	s.getActiveCharacter()

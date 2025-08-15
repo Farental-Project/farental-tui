@@ -6,7 +6,6 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/screen"
@@ -18,6 +17,7 @@ import (
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"github.com/spf13/viper"
 	"net/http"
 )
@@ -39,7 +39,7 @@ func New() *Screen {
 	s := new(Screen)
 
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lang.L("Character selection")),
+		style.TitleStyle.Render(lokyn.L("Character selection")),
 	)
 
 	s.list = list.New(

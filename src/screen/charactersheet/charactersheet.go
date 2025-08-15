@@ -6,7 +6,6 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/style"
@@ -19,6 +18,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type Screen struct {
@@ -44,7 +44,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(lang.L("Character"))
+	s.title = orvyn.NewSimpleRenderable(lokyn.L("Character"))
 	s.title.Style = style.TitleStyle
 
 	s.characterInfo = characterinfo.New()

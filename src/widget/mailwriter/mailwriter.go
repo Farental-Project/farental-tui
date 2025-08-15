@@ -3,7 +3,6 @@ package mailwriter
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -13,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type Widget struct {
@@ -36,7 +36,7 @@ func New() *Widget {
 	editModeKeymap.NewKeyBinding(keybind.Tab, true)
 	editModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	editModeKeymap.NewKeyBinding(keybind.Esc, true)
-	editModeKeymap.SetHelpDesc(keybind.Esc, lang.L("stop editing"))
+	editModeKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
 	editModeKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextMailWriterEditMode, editModeKeymap)
@@ -46,13 +46,13 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.tiReceiver = textinput.New()
-	w.tiReceiver.Placeholder = lang.L("Receiver name")
+	w.tiReceiver.Placeholder = lokyn.L("Receiver name")
 
 	w.tiSubject = textinput.New()
-	w.tiSubject.Placeholder = lang.L("Subject")
+	w.tiSubject.Placeholder = lokyn.L("Subject")
 
 	w.taContent = textarea.New()
-	w.taContent.Placeholder = lang.L("Mail content")
+	w.taContent.Placeholder = lokyn.L("Mail content")
 	w.taContent.ShowLineNumbers = false
 	w.taContent.MinHeight = 3
 

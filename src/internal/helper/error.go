@@ -3,8 +3,8 @@ package helper
 import (
 	"errors"
 	"farental/core/data/api"
-	"farental/internal/lang"
 	"github.com/go-resty/resty/v2"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -41,5 +41,5 @@ func ExtractError(resp *resty.Response) error {
 }
 
 func ConnectionError() error {
-	return errors.New(lang.L("Cannot connect to Farental server"))
+	return errors.New(lokyn.L("Cannot connect to Farental server"))
 }

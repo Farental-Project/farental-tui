@@ -3,7 +3,6 @@ package skillssummary
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strconv"
 	"strings"
 )
@@ -70,7 +70,7 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.title = lang.L("Skills")
+	w.title = lokyn.L("Skills")
 
 	w.viewport = viewport.New(0, 0)
 
@@ -138,7 +138,7 @@ func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, c
 		Render(fmt.Sprintf("(%d / %d)",
 			skill.CurrentXp, skill.NextLevelXp)))
 	column.lvlStr.WriteString(style.NormalStyle.
-		Render(fmt.Sprintf("%s %s", lang.L("lvl."),
+		Render(fmt.Sprintf("%s %s", lokyn.L("lvl."),
 			style.HighlightStyle.Render(strconv.Itoa(skill.Level)))))
 
 	if addReturn {

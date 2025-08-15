@@ -5,18 +5,18 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
-	"farental/internal/lang"
 	"farental/widget/statusmessage"
+	"github.com/halsten-dev/lokyn"
 	"log"
 )
 
 func (s *Screen) runningTaskError() {
 	if context.RunningTask.IsRunning {
 		s.statusMessage.SetError(
-			errors.New(lang.L("A task is currently running.")))
+			errors.New(lokyn.L("A task is currently running.")))
 	} else {
 		s.statusMessage.SetError(
-			errors.New(lang.L("Please claim your reward first.")))
+			errors.New(lokyn.L("Please claim your reward first.")))
 	}
 }
 
@@ -29,7 +29,7 @@ func (s *Screen) tavernSleep() {
 	}
 
 	s.statusMessage.SetMessage(
-		lang.L("New respawn location set !"),
+		lokyn.L("New respawn location set !"),
 		statusmessage.SuccessMessage,
 	)
 

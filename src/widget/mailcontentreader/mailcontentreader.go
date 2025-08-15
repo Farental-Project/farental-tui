@@ -3,12 +3,12 @@ package mailcontentreader
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -47,10 +47,10 @@ func (w *Widget) Render() string {
 	}
 
 	from := fmt.Sprintf("%s : %s",
-		style.TitleStyle.Render(lang.L("From")),
+		style.TitleStyle.Render(lokyn.L("From")),
 		w.from)
 	subject := fmt.Sprintf("%s : %s",
-		style.TitleStyle.Render(lang.L("Subject")),
+		style.TitleStyle.Render(lokyn.L("Subject")),
 		w.subject)
 
 	b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,

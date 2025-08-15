@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/style"
@@ -17,6 +16,7 @@ import (
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type Screen struct {
@@ -32,7 +32,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(lang.L("Inventory"))
+	s.title = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
 	s.title.Style = style.TitleStyle
 
 	s.list = filterablelist.New(ListItemDelegate{}, []tealist.Item{})
@@ -199,7 +199,7 @@ func (s *Screen) useItem(index int, item *ListItem) {
 
 	item.Stack.Count--
 
-	s.statusMessage.SetMessage(lang.L("Item used !"), statusmessage.SuccessMessage)
+	s.statusMessage.SetMessage(lokyn.L("Item used !"), statusmessage.SuccessMessage)
 
 	if item.Stack.Count == 0 {
 		s.list.RemoveItem(index)
@@ -221,7 +221,7 @@ func (s *Screen) equipItem(item *ListItem) {
 
 	item.Stack.Count--
 
-	s.statusMessage.SetMessage(lang.L("Item equipped !"), statusmessage.SuccessMessage)
+	s.statusMessage.SetMessage(lokyn.L("Item equipped !"), statusmessage.SuccessMessage)
 
 	s.loadInventory()
 }

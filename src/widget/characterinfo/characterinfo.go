@@ -3,7 +3,6 @@ package characterinfo
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -11,6 +10,7 @@ import (
 	"farental/widget/label"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -32,8 +32,8 @@ func New() *Widget {
 	w.info = label.New("")
 	w.info.Style = lipgloss.NewStyle().
 		AlignHorizontal(lipgloss.Center)
-	w.barHp = characterbar.New(lang.L("HP"), style.ColorHpBar)
-	w.barMp = characterbar.New(lang.L("MP"), style.ColorMpBar)
+	w.barHp = characterbar.New(lokyn.L("HP"), style.ColorHpBar)
+	w.barMp = characterbar.New(lokyn.L("MP"), style.ColorMpBar)
 
 	w.layout = layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
@@ -102,7 +102,7 @@ func (w *Widget) constructInfo(info *api.CharacterInfoResponse, money int) {
 	))
 	b.WriteString("\n")
 	b.WriteString(style.SpecialHighlightStyle.Render(
-		fmt.Sprintf("%s : %d", lang.L("Power"), power),
+		fmt.Sprintf("%s : %d", lokyn.L("Power"), power),
 	))
 
 	w.info.SetValue(b.String())

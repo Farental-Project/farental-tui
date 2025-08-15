@@ -1,15 +1,15 @@
 package helper
 
 import (
-	"farental/internal/lang"
 	"fmt"
+	"github.com/halsten-dev/lokyn"
 	"regexp"
 )
 
 func NumericalValidate(s string) error {
 	matched, _ := regexp.MatchString(`^\d*$`, s)
 	if !matched {
-		return fmt.Errorf(lang.L("Only numbers are allowed"))
+		return fmt.Errorf(lokyn.L("Only numbers are allowed"))
 	}
 	return nil
 }

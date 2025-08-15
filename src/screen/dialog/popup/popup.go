@@ -3,7 +3,6 @@ package popup
 import (
 	"farental/art"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -11,6 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -40,12 +40,12 @@ func NewYesNo(message string) *Screen {
 	options := []Option{
 		{
 			Keybind: keybind.YKey,
-			Text:    lang.L("Yes"),
+			Text:    lokyn.L("Yes"),
 			Value:   1,
 		},
 		{
 			Keybind: keybind.NKey,
-			Text:    lang.L("No"),
+			Text:    lokyn.L("No"),
 			Value:   2,
 		},
 	}

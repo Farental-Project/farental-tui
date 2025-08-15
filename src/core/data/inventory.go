@@ -4,7 +4,7 @@ import (
 	"errors"
 	"farental/core/data/api"
 	"farental/internal/helper"
-	"farental/internal/lang"
+	"github.com/halsten-dev/lokyn"
 	"sort"
 )
 
@@ -71,11 +71,11 @@ func (inv *Inventory) addItem(item *api.ItemResponse, count int) (int, error) {
 	// There are still objects to add to the inventory.
 	for {
 		if len(inv.Stacks) == inv.MaxSize {
-			return count, errors.New(lang.L("Inventory is full"))
+			return count, errors.New(lokyn.L("Inventory is full"))
 		}
 
 		if item.IsUnique && stackExists {
-			return count, errors.New(lang.L("Unique object stack is full"))
+			return count, errors.New(lokyn.L("Unique object stack is full"))
 		}
 
 		itemStack = api.StackResponse{
@@ -139,7 +139,7 @@ func (inv *Inventory) removeItem(item *api.ItemResponse, count int) (int, error)
 
 		if inventoryStack == nil {
 			if loopCounter == 0 {
-				return count, errors.New(lang.L("Object does not exist in inventory"))
+				return count, errors.New(lokyn.L("Object does not exist in inventory"))
 			} else {
 				break
 			}

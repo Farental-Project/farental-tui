@@ -5,11 +5,11 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/screen/generic/selectionlist"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"log"
 )
 
@@ -20,7 +20,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lang.L("Fights"), ListItemDelegate{},
+	s.Screen = selectionlist.New(lokyn.L("Fights"), ListItemDelegate{},
 		s.loadFights, s.submit)
 
 	return s

@@ -2,13 +2,13 @@ package filterablelist
 
 import (
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type Widget struct {
@@ -68,7 +68,7 @@ func (w *Widget) Render() string {
 		return w.NoContentStyle.
 			Width(size.Width).
 			Height(size.Height).
-			Render(lang.L("Nothing to show"))
+			Render(lokyn.L("Nothing to show"))
 	}
 
 	return w.Model.View()
@@ -98,12 +98,12 @@ func (w *Widget) updateHelp() {
 	switch w.FilterState() {
 	case list.Filtering:
 		bubblehelp.ShowAll = false
-		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lang.L("cancel"))
-		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, lang.L("apply"))
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lokyn.L("cancel"))
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, lokyn.L("apply"))
 		bubblehelp.SetKeybindVisible(keybind.Filter, false)
 		bubblehelp.SetKeybindVisible(keybind.Help, false)
 	case list.FilterApplied:
-		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lang.L("clear filter"))
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lokyn.L("clear filter"))
 		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, w.CustomEnterDesc)
 		bubblehelp.SetKeybindVisible(keybind.Filter, true)
 		bubblehelp.SetKeybindVisible(keybind.Help, true)

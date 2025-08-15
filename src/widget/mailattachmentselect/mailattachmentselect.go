@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -15,6 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type HideAttachmentSelectMsg uint
@@ -55,7 +55,7 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.title = orvyn.NewSimpleRenderable(lang.L("Inventory"))
+	w.title = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
 	w.title.Style = style.DimUnderlinedTitleStyle
 	w.title.SizeConstraint = true
 

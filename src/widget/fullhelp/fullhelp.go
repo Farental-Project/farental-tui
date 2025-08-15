@@ -1,11 +1,11 @@
 package fullhelp
 
 import (
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -30,7 +30,7 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
-	w.title = lang.L("Help")
+	w.title = lokyn.L("Help")
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 

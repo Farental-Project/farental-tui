@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/style"
@@ -18,6 +17,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type RaceData struct {
@@ -50,14 +50,14 @@ func New() *Screen {
 	s := new(Screen)
 
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lang.L("New character")),
+		style.TitleStyle.Render(lokyn.L("New character")),
 	)
 
 	s.tiFirstname = textinput.New()
-	s.tiFirstname.Placeholder = lang.L("First name")
+	s.tiFirstname.Placeholder = lokyn.L("First name")
 
 	s.tiLastname = textinput.New()
-	s.tiLastname.Placeholder = lang.L("Last name")
+	s.tiLastname.Placeholder = lokyn.L("Last name")
 
 	s.mvsRace = multivalueselector.New[RaceData]()
 	s.mvsRace.Style = multivalueselector.Style{

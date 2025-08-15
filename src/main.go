@@ -7,7 +7,6 @@ import (
 	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/screen"
 	"farental/screen/activity"
@@ -27,9 +26,11 @@ import (
 	"farental/screen/travel"
 	"farental/style"
 	"fmt"
-	"github.com/halsten-dev/bubblehelp"
-	"github.com/spf13/viper"
 	"log"
+
+	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
+	"github.com/spf13/viper"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -48,14 +49,14 @@ func main() {
 	config.Init()
 	context.Init()
 	request.Init(context.Client)
-	lang.Init()
-	err = lang.AddTranslationFS(translations, "translations")
+	lokyn.Init()
+	err = lokyn.AddTranslationFS(translations, "translations")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	lang.SetLanguage(viper.GetString("language"))
+	lokyn.SetLanguage(viper.GetString("language"))
 
 	keybind.Init()
 
@@ -109,9 +110,9 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.NewKeyBinding(keybind.Down, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.NKey, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Enter, true)
-	characterSelectionKeymap.SetHelpDesc(keybind.NKey, lang.L("new character"))
+	characterSelectionKeymap.SetHelpDesc(keybind.NKey, lokyn.L("new character"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Esc, true)
-	characterSelectionKeymap.SetHelpDesc(keybind.Esc, lang.L("logout"))
+	characterSelectionKeymap.SetHelpDesc(keybind.Esc, lokyn.L("logout"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, false)
 	characterSelectionKeymap.NewKeyBinding(keybind.Help, true)
 
@@ -128,27 +129,27 @@ func registerKeymapContexts() {
 	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle
 	gameDashboardKeymap.NewKeyBinding(keybind.HKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.HKey, lang.L("character"))
+	gameDashboardKeymap.SetHelpDesc(keybind.HKey, lokyn.L("character"))
 	gameDashboardKeymap.NewKeyBinding(keybind.TKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.TKey, lang.L("travels"))
+	gameDashboardKeymap.SetHelpDesc(keybind.TKey, lokyn.L("travels"))
 	gameDashboardKeymap.NewKeyBinding(keybind.AKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.AKey, lang.L("activities"))
+	gameDashboardKeymap.SetHelpDesc(keybind.AKey, lokyn.L("activities"))
 	gameDashboardKeymap.NewKeyBinding(keybind.CKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.CKey, lang.L("crafts"))
+	gameDashboardKeymap.SetHelpDesc(keybind.CKey, lokyn.L("crafts"))
 	gameDashboardKeymap.NewKeyBinding(keybind.FKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.FKey, lang.L("fights"))
+	gameDashboardKeymap.SetHelpDesc(keybind.FKey, lokyn.L("fights"))
 	gameDashboardKeymap.NewKeyBinding(keybind.YKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.YKey, lang.L("chat"))
+	gameDashboardKeymap.SetHelpDesc(keybind.YKey, lokyn.L("chat"))
 	gameDashboardKeymap.NewKeyBinding(keybind.LKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.LKey, lang.L("location service"))
+	gameDashboardKeymap.SetHelpDesc(keybind.LKey, lokyn.L("location service"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
 	gameDashboardKeymap.NewKeyBinding(keybind.SKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.SKey, lang.L("scripts"))
+	gameDashboardKeymap.SetHelpDesc(keybind.SKey, lokyn.L("scripts"))
 	gameDashboardKeymap.NewKeyBinding(keybind.IKey, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.IKey, lang.L("inventory"))
+	gameDashboardKeymap.SetHelpDesc(keybind.IKey, lokyn.L("inventory"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Space, true)
 	gameDashboardKeymap.NewKeyBinding(keybind.Esc, false)
-	gameDashboardKeymap.SetHelpDesc(keybind.Esc, lang.L("character selection"))
+	gameDashboardKeymap.SetHelpDesc(keybind.Esc, lokyn.L("character selection"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Quit, true)
 	gameDashboardKeymap.NewKeyBinding(keybind.Help, true)
 
@@ -173,9 +174,9 @@ func registerKeymapContexts() {
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Up, false)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Down, false)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Left, false)
-	filterSelListIncDecKeymap.SetHelpDesc(keybind.Left, lang.L("decrease"))
+	filterSelListIncDecKeymap.SetHelpDesc(keybind.Left, lokyn.L("decrease"))
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Right, false)
-	filterSelListIncDecKeymap.SetHelpDesc(keybind.Right, lang.L("increase"))
+	filterSelListIncDecKeymap.SetHelpDesc(keybind.Right, lokyn.L("increase"))
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.GotoListStart, false)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.GotoListEnd, false)
 	filterSelListIncDecKeymap.NewKeyBinding(keybind.Filter, true)
@@ -191,9 +192,9 @@ func registerKeymapContexts() {
 	filterSelListPageKeymap.NewKeyBinding(keybind.Up, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Down, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Right, false)
-	filterSelListPageKeymap.SetHelpDesc(keybind.Right, lang.L("next page"))
+	filterSelListPageKeymap.SetHelpDesc(keybind.Right, lokyn.L("next page"))
 	filterSelListPageKeymap.NewKeyBinding(keybind.Left, false)
-	filterSelListPageKeymap.SetHelpDesc(keybind.Left, lang.L("previous page"))
+	filterSelListPageKeymap.SetHelpDesc(keybind.Left, lokyn.L("previous page"))
 	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListStart, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListEnd, false)
 	filterSelListPageKeymap.NewKeyBinding(keybind.Filter, true)
@@ -211,7 +212,7 @@ func registerKeymapContexts() {
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.GotoListStart, false)
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.GotoListEnd, false)
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.NKey, true)
-	filterSelListBasicKeymapWithNew.SetHelpDesc(keybind.NKey, lang.L("new"))
+	filterSelListBasicKeymapWithNew.SetHelpDesc(keybind.NKey, lokyn.L("new"))
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Filter, true)
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Enter, true)
 	filterSelListBasicKeymapWithNew.NewKeyBinding(keybind.Esc, true)
@@ -225,13 +226,13 @@ func registerKeymapContexts() {
 	craftKeymap.NewKeyBinding(keybind.Up, false)
 	craftKeymap.NewKeyBinding(keybind.Down, false)
 	craftKeymap.NewKeyBinding(keybind.Left, false)
-	craftKeymap.SetHelpDesc(keybind.Left, lang.L("decrease"))
+	craftKeymap.SetHelpDesc(keybind.Left, lokyn.L("decrease"))
 	craftKeymap.NewKeyBinding(keybind.ShiftLeft, false)
-	craftKeymap.SetHelpDesc(keybind.ShiftLeft, lang.L("decrease 10"))
+	craftKeymap.SetHelpDesc(keybind.ShiftLeft, lokyn.L("decrease 10"))
 	craftKeymap.NewKeyBinding(keybind.Right, false)
-	craftKeymap.SetHelpDesc(keybind.Right, lang.L("increase"))
+	craftKeymap.SetHelpDesc(keybind.Right, lokyn.L("increase"))
 	craftKeymap.NewKeyBinding(keybind.ShiftRight, false)
-	craftKeymap.SetHelpDesc(keybind.ShiftRight, lang.L("increase 10"))
+	craftKeymap.SetHelpDesc(keybind.ShiftRight, lokyn.L("increase 10"))
 	craftKeymap.NewKeyBinding(keybind.PrevPage, false)
 	craftKeymap.NewKeyBinding(keybind.NextPage, false)
 	craftKeymap.NewKeyBinding(keybind.GotoListStart, false)
@@ -252,9 +253,9 @@ func registerKeymapContexts() {
 	inventoryKeymap.NewKeyBinding(keybind.GotoListStart, false)
 	inventoryKeymap.NewKeyBinding(keybind.GotoListEnd, false)
 	inventoryKeymap.NewKeyBinding(keybind.UKey, true)
-	inventoryKeymap.SetHelpDesc(keybind.UKey, lang.L("use"))
+	inventoryKeymap.SetHelpDesc(keybind.UKey, lokyn.L("use"))
 	inventoryKeymap.NewKeyBinding(keybind.EKey, true)
-	inventoryKeymap.SetHelpDesc(keybind.EKey, lang.L("equip"))
+	inventoryKeymap.SetHelpDesc(keybind.EKey, lokyn.L("equip"))
 	inventoryKeymap.NewKeyBinding(keybind.Enter, true)
 	inventoryKeymap.NewKeyBinding(keybind.Esc, true)
 	inventoryKeymap.NewKeyBinding(keybind.Quit, true)
@@ -265,9 +266,9 @@ func registerKeymapContexts() {
 	chatKeymap := bubblehelp.NewKeymap(3)
 	chatKeymap.Style = mainHelpStyle
 	chatKeymap.NewKeyBinding(keybind.Enter, true)
-	chatKeymap.SetHelpDesc(keybind.Enter, lang.L("send message"))
+	chatKeymap.SetHelpDesc(keybind.Enter, lokyn.L("send message"))
 	chatKeymap.NewKeyBinding(keybind.YKeyCtrl, true)
-	chatKeymap.SetHelpDesc(keybind.YKeyCtrl, lang.L("new line"))
+	chatKeymap.SetHelpDesc(keybind.YKeyCtrl, lokyn.L("new line"))
 	chatKeymap.NewKeyBinding(keybind.Esc, true)
 	chatKeymap.NewKeyBinding(keybind.Quit, true)
 
@@ -286,11 +287,11 @@ func registerKeymapContexts() {
 	locationServicesKeymap.Style = mainHelpStyle
 	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.RKey, fmt.Sprintf(
-		lang.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
+		lokyn.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
 	locationServicesKeymap.NewKeyBinding(keybind.MKey, true)
-	locationServicesKeymap.SetHelpDesc(keybind.MKey, lang.L("mailbox"))
+	locationServicesKeymap.SetHelpDesc(keybind.MKey, lokyn.L("mailbox"))
 	locationServicesKeymap.NewKeyBinding(keybind.Esc, true)
-	locationServicesKeymap.SetHelpDesc(keybind.Esc, lang.L("close"))
+	locationServicesKeymap.SetHelpDesc(keybind.Esc, lokyn.L("close"))
 	locationServicesKeymap.NewKeyBinding(keybind.Quit, true)
 
 	bubblehelp.RegisterContext(keybind.ContextLocationServices, locationServicesKeymap)
@@ -298,11 +299,11 @@ func registerKeymapContexts() {
 	mailReaderKeymap := bubblehelp.NewKeymap(3)
 	mailReaderKeymap.Style = mainHelpStyle
 	mailReaderKeymap.NewKeyBinding(keybind.PKey, true)
-	mailReaderKeymap.SetHelpDesc(keybind.PKey, lang.L("pay the sender"))
+	mailReaderKeymap.SetHelpDesc(keybind.PKey, lokyn.L("pay the sender"))
 	mailReaderKeymap.NewKeyBinding(keybind.TKey, true)
-	mailReaderKeymap.SetHelpDesc(keybind.TKey, lang.L("transfer all attachments"))
+	mailReaderKeymap.SetHelpDesc(keybind.TKey, lokyn.L("transfer all attachments"))
 	mailReaderKeymap.NewKeyBinding(keybind.RKey, true)
-	mailReaderKeymap.SetHelpDesc(keybind.RKey, lang.L("read / unread flag"))
+	mailReaderKeymap.SetHelpDesc(keybind.RKey, lokyn.L("read / unread flag"))
 	mailReaderKeymap.NewKeyBinding(keybind.Esc, true)
 	mailReaderKeymap.NewKeyBinding(keybind.Quit, false)
 	mailReaderKeymap.NewKeyBinding(keybind.Help, true)
@@ -312,9 +313,9 @@ func registerKeymapContexts() {
 	MailWidgetNormalModeKeymap := bubblehelp.NewKeymap(2)
 	MailWidgetNormalModeKeymap.Style = style.MainHelpStyle
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.EKey, true)
-	MailWidgetNormalModeKeymap.SetHelpDesc(keybind.EKey, lang.L("edit"))
+	MailWidgetNormalModeKeymap.SetHelpDesc(keybind.EKey, lokyn.L("edit"))
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Enter, true)
-	MailWidgetNormalModeKeymap.SetHelpDesc(keybind.Enter, lang.L("send mail"))
+	MailWidgetNormalModeKeymap.SetHelpDesc(keybind.Enter, lokyn.L("send mail"))
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Tab, true)
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Esc, true)

@@ -3,10 +3,10 @@ package statssummary
 import (
 	"farental/core/data"
 	"farental/core/data/api"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strconv"
 	"strings"
 )
@@ -59,7 +59,7 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.title = lang.L("Stats")
+	w.title = lokyn.L("Stats")
 
 	return w
 }

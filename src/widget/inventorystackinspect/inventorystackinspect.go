@@ -2,11 +2,11 @@ package inventorystackinspect
 
 import (
 	"farental/core/data/api"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"fmt"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -38,14 +38,14 @@ func New() *Widget {
 	w.srName = orvyn.NewSimpleRenderable("")
 	w.srName.Style = style.DimUnderlinedTitleStyle
 	w.srName.SizeConstraint = true
-	w.srUnique = orvyn.NewSimpleRenderable(lang.L("Unique"))
+	w.srUnique = orvyn.NewSimpleRenderable(lokyn.L("Unique"))
 	w.srUnique.Style = style.SpecialHighlightStyle
 	w.srUnique.SetActive(false)
 	w.srDescription = orvyn.NewSimpleRenderable("")
 	w.srDescription.SizeConstraint = true
 
 	w.srStatsTitle = orvyn.NewSimpleRenderable(
-		fmt.Sprintf("\n%s", lang.L("Stats")))
+		fmt.Sprintf("\n%s", lokyn.L("Stats")))
 	w.srStatsTitle.Style = titleStyle
 	w.srStatsTitle.SizeConstraint = true
 	w.srStats = orvyn.NewSimpleRenderable("")
@@ -54,7 +54,7 @@ func New() *Widget {
 	w.srStats.SetActive(false)
 
 	w.srConditionsTitle = orvyn.NewSimpleRenderable(
-		fmt.Sprintf("\n%s", lang.L("Equip conditions")))
+		fmt.Sprintf("\n%s", lokyn.L("Equip conditions")))
 	w.srConditionsTitle.Style = titleStyle
 	w.srConditionsTitle.SizeConstraint = true
 	w.srConditions = orvyn.NewSimpleRenderable("")
@@ -63,7 +63,7 @@ func New() *Widget {
 	w.srConditions.SetActive(false)
 
 	w.srResultsTitle = orvyn.NewSimpleRenderable(
-		fmt.Sprintf("\n%s", lang.L("Effects")))
+		fmt.Sprintf("\n%s", lokyn.L("Effects")))
 	w.srResultsTitle.Style = titleStyle
 	w.srResultsTitle.SizeConstraint = true
 	w.srResults = orvyn.NewSimpleRenderable("")

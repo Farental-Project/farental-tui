@@ -3,10 +3,10 @@ package maildetailinspect
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -65,7 +65,7 @@ func (w *Widget) Render() string {
 			b.WriteString("\n\n")
 			b.WriteString(style.TextStyle.Width(w.contentSize.Width).
 				Render(fmt.Sprintf(
-					lang.L("The sender ask you to pay %d %c to access the attachments."),
+					lokyn.L("The sender ask you to pay %d %c to access the attachments."),
 					w.mail.PaymentAmount, art.CharGrynars)))
 		}
 	}

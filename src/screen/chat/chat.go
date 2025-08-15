@@ -7,7 +7,6 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/style"
@@ -18,6 +17,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"time"
 )
 
@@ -52,10 +52,10 @@ func New() *Screen {
 	}
 
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lang.L("Chat")),
+		style.TitleStyle.Render(lokyn.L("Chat")),
 	)
 
-	s.logChat = simplelogviewer.New(lang.L("Chat"))
+	s.logChat = simplelogviewer.New(lokyn.L("Chat"))
 	s.logChat.Style = logStyle
 	s.logChat.Keybind.ScrollUp = keybind.PrevPage
 	s.logChat.Keybind.ScrollDown = keybind.NextPage
@@ -150,7 +150,7 @@ func (s *Screen) sendMessage() {
 
 	if len(message) == 0 {
 		s.statusMessage.SetError(
-			errors.New(lang.L("Can't send empty messages")))
+			errors.New(lokyn.L("Can't send empty messages")))
 		return
 	}
 

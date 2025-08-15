@@ -6,7 +6,6 @@ import (
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
@@ -18,6 +17,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 	"strconv"
 )
 
@@ -52,7 +52,7 @@ func New() *Widget {
 	editModeKeymap.NewKeyBinding(keybind.Tab, true)
 	editModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	editModeKeymap.NewKeyBinding(keybind.Esc, true)
-	editModeKeymap.SetHelpDesc(keybind.Esc, lang.L("stop editing"))
+	editModeKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
 	editModeKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextMailDetailEditorEditMode, editModeKeymap)
@@ -61,27 +61,27 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.moneyTitle = orvyn.NewSimpleRenderable(lang.L("Money"))
+	w.moneyTitle = orvyn.NewSimpleRenderable(lokyn.L("Money"))
 	w.moneyTitle.Style = style.DimTextStyle
 
 	w.tiMoney = textinput.New()
 	w.tiMoney.Prompt = string(art.CharGrynars)
-	w.tiMoney.Placeholder = lang.L("Money amount to send")
+	w.tiMoney.Placeholder = lokyn.L("Money amount to send")
 	w.tiMoney.Validate = helper.NumericalValidate
 
 	w.tiMoneyStatus = statusmessage.New()
 
-	w.paymentTitle = orvyn.NewSimpleRenderable(lang.L("Payment request"))
+	w.paymentTitle = orvyn.NewSimpleRenderable(lokyn.L("Payment request"))
 	w.paymentTitle.Style = style.DimTextStyle
 
 	w.tiPayment = textinput.New()
 	w.tiPayment.Prompt = string(art.CharGrynars)
-	w.tiPayment.Placeholder = lang.L("Money amount to request as payment")
+	w.tiPayment.Placeholder = lokyn.L("Money amount to request as payment")
 	w.tiPayment.Validate = helper.NumericalValidate
 
 	w.tiPaymentStatus = statusmessage.New()
 
-	w.attachmentListTitle = orvyn.NewSimpleRenderable(lang.L("Attachments"))
+	w.attachmentListTitle = orvyn.NewSimpleRenderable(lokyn.L("Attachments"))
 	w.attachmentListTitle.Style = style.DimUnderlinedTitleStyle
 	w.attachmentListTitle.SizeConstraint = true
 

@@ -5,10 +5,10 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"strings"
 )
 
@@ -56,7 +56,7 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.title = lang.L("Equipment")
+	w.title = lokyn.L("Equipment")
 
 	return w
 }
@@ -163,7 +163,7 @@ func (w *Widget) UpdateData() {
 			slot: s,
 			item: api.ItemResponse{
 				ID:   0,
-				Name: lang.L("None"),
+				Name: lokyn.L("None"),
 			},
 		}
 

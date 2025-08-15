@@ -2,7 +2,6 @@ package mailattachmentlist
 
 import (
 	"farental/internal/keybind"
-	"farental/internal/lang"
 	"farental/internal/orvyn"
 	"farental/style"
 	"farental/widget/list"
@@ -11,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/lokyn"
 )
 
 type ShowAttachmentSelectMsg uint
@@ -41,11 +41,11 @@ func New(delegate tealist.ItemDelegate) *Widget {
 	keymapContext.NewKeyBinding(keybind.Up, true)
 	keymapContext.NewKeyBinding(keybind.Down, true)
 	keymapContext.NewKeyBinding(keybind.DKey, true)
-	keymapContext.SetHelpDesc(keybind.DKey, lang.L("delete"))
+	keymapContext.SetHelpDesc(keybind.DKey, lokyn.L("delete"))
 	keymapContext.NewKeyBinding(keybind.AKey, true)
-	keymapContext.SetHelpDesc(keybind.AKey, lang.L("add"))
+	keymapContext.SetHelpDesc(keybind.AKey, lokyn.L("add"))
 	keymapContext.NewKeyBinding(keybind.Esc, true)
-	keymapContext.SetHelpDesc(keybind.Esc, lang.L("stop editing"))
+	keymapContext.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
 
 	bubblehelp.RegisterContext(keybind.ContextMailDetailEditorAttachmentList, keymapContext)
 
