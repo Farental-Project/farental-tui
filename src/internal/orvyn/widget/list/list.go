@@ -45,6 +45,8 @@ type Widget[T any] struct {
 func New[T any](itemConstructor ItemConstructor[T]) *Widget[T] {
 	w := new(Widget[T])
 
+	w.BaseWidget = orvyn.NewBaseWidget()
+
 	w.itemConstructor = itemConstructor
 
 	w.InfiniteScroll = false
@@ -53,7 +55,6 @@ func New[T any](itemConstructor ItemConstructor[T]) *Widget[T] {
 
 	w.paginator = paginator.New()
 	w.paginator.Type = paginator.Dots
-	w.paginator.PerPage = 4
 	w.paginator.ActiveDot = style.TitleStyle.Render("•")
 	w.paginator.InactiveDot = style.DimTextStyle.Render("•")
 
@@ -85,6 +86,25 @@ func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
+func (w *Widget[T]) Resize(size orvyn.Size) {
+	var perPage int
+
+	maxItemHeight := 0
+
+	w.BaseWidget.Resize(size)
+
+	for _, li := range w.listItems {
+		li.Resize(size)
+
+		maxItemHeight = max(maxItemHeight, li.GetSize().Height)
+	}
+
+	perPage = size.Height / maxItemHeight
+
+	w.paginator.PerPage = perPage
+	w.paginator.SetTotalPages(len(w.listItems))
+}
+
 func (w *Widget[T]) Render() string {
 	var b strings.Builder
 
@@ -93,7 +113,7 @@ func (w *Widget[T]) Render() string {
 	start, end := w.paginator.GetSliceBounds(len(w.listItems))
 
 	for i, li := range w.listItems[start:end] {
-		if i > 1 {
+		if i > 0 {
 			b.WriteString("\n")
 		}
 
@@ -102,9 +122,7 @@ func (w *Widget[T]) Render() string {
 		count++
 	}
 
-	lipgloss.JoinVertical(lipgloss.Center, b.String(), w.paginator.View())
-
-	return ""
+	return lipgloss.JoinVertical(lipgloss.Center, b.String(), w.paginator.View())
 }
 
 func (w *Widget[T]) OnFocus() {}
@@ -122,7 +140,7 @@ func (w *Widget[T]) PreviousItem() {
 	w.cursor--
 	w.globalIndex--
 
-	if w.cursor == 0 && w.paginator.Page == 0 {
+	if w.cursor < 0 && w.paginator.Page == 0 {
 		if w.InfiniteScroll {
 			w.paginator.Page = w.paginator.TotalPages - 1
 			w.cursor = w.paginator.ItemsOnPage(len(w.items)) - 1
@@ -163,7 +181,7 @@ func (w *Widget[T]) NextItem() {
 		return
 	}
 
-	if w.cursor < itemsOnPage-1 {
+	if w.cursor <= itemsOnPage-1 {
 		return
 	}
 
@@ -187,8 +205,5 @@ func (w *Widget[T]) SetItems(items []T) {
 			item)
 	}
 
-	// TODO: Test - Order should be good ?
 	w.focusManager.SetWidgets(focusableList)
-
-	w.paginator.SetTotalPages(len(w.listItems))
 }

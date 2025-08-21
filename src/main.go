@@ -22,6 +22,7 @@ import (
 	"farental/screen/mailbox"
 	"farental/screen/maileditor"
 	"farental/screen/mailreader"
+	"farental/screen/scripteditor"
 	"farental/screen/scriptexplorer"
 	"farental/screen/travel"
 	"farental/style"
@@ -82,7 +83,9 @@ func main() {
 	orvyn.RegisterScreen(screen.IDMailReader, mailreader.New())
 	orvyn.RegisterScreen(screen.IDMailEditor, maileditor.New())
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
-	orvyn.SwitchScreen(screen.IDLogin)
+	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
+	// orvyn.SwitchScreen(screen.IDLogin)
+	orvyn.SwitchScreen(screen.IDScriptEditor)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
