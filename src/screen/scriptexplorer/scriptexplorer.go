@@ -5,7 +5,10 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/internal/orvyn"
+	"farental/screen"
 	"farental/screen/generic/selectionlist"
+	"github.com/charmbracelet/bubbles/key"
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -27,6 +30,20 @@ func New() *Screen {
 	)
 
 	return s
+}
+
+func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	cmd := s.Screen.Update(msg)
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.NKey):
+			return orvyn.SwitchScreen(screen.IDScriptEditor)
+		}
+	}
+
+	return cmd
 }
 
 func (s *Screen) OnEnter(i interface{}) tea.Cmd {

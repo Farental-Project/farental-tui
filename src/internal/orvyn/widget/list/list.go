@@ -2,13 +2,22 @@ package widget
 
 import (
 	"farental/internal/orvyn"
+	"farental/style"
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"strings"
 )
+
+type IListItem interface {
+	orvyn.Focusable
+	orvyn.Renderable
+}
 
 // ItemConstructor defines the signature of the item constructor.
 // T type represents the type of the item data.
-type ItemConstructor[T any] func(T) orvyn.Focusable
+type ItemConstructor[T any] func(T) IListItem
 
 // Widget defines a list widget.
 // T type represents the type of the item data.
@@ -16,8 +25,15 @@ type Widget[T any] struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	listItems []orvyn.Focusable
+	InfiniteScroll bool
+
+	cursor      int
+	globalIndex int
+
+	listItems []IListItem
 	items     []T
+
+	paginator paginator.Model
 
 	focusManager *orvyn.FocusManager
 
@@ -31,7 +47,18 @@ func New[T any](itemConstructor ItemConstructor[T]) *Widget[T] {
 
 	w.itemConstructor = itemConstructor
 
+	w.InfiniteScroll = false
+
+	w.cursor = 0
+
+	w.paginator = paginator.New()
+	w.paginator.Type = paginator.Dots
+	w.paginator.PerPage = 4
+	w.paginator.ActiveDot = style.TitleStyle.Render("•")
+	w.paginator.InactiveDot = style.DimTextStyle.Render("•")
+
 	w.focusManager = orvyn.NewFocusManager()
+	w.focusManager.ManageFocusNextPrevKeybind = false
 	w.focusManager.PreviousFocusKeybind = key.NewBinding(key.WithKeys("up"))
 	w.focusManager.NextFocusKeybind = key.NewBinding(key.WithKeys("down"))
 
@@ -39,12 +66,44 @@ func New[T any](itemConstructor ItemConstructor[T]) *Widget[T] {
 }
 
 func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, w.focusManager.PreviousFocusKeybind):
+			w.PreviousItem()
+
+		case key.Matches(msg, w.focusManager.NextFocusKeybind):
+			w.NextItem()
+
+		}
+	}
+
 	cmd := w.focusManager.Update(msg)
+
+	w.focusManager.Focus(w.globalIndex)
 
 	return cmd
 }
 
 func (w *Widget[T]) Render() string {
+	var b strings.Builder
+
+	// perPage := w.paginator.PerPage
+	count := 0
+	start, end := w.paginator.GetSliceBounds(len(w.listItems))
+
+	for i, li := range w.listItems[start:end] {
+		if i > 1 {
+			b.WriteString("\n")
+		}
+
+		b.WriteString(li.Render())
+
+		count++
+	}
+
+	lipgloss.JoinVertical(lipgloss.Center, b.String(), w.paginator.View())
+
 	return ""
 }
 
@@ -56,19 +115,80 @@ func (w *Widget[T]) OnEnterInput() {}
 
 func (w *Widget[T]) OnExitInput() {}
 
+// Public API
+
+// PreviousItem manages the focus of the previous item.
+func (w *Widget[T]) PreviousItem() {
+	w.cursor--
+	w.globalIndex--
+
+	if w.cursor == 0 && w.paginator.Page == 0 {
+		if w.InfiniteScroll {
+			w.paginator.Page = w.paginator.TotalPages - 1
+			w.cursor = w.paginator.ItemsOnPage(len(w.items)) - 1
+			w.globalIndex = len(w.items) - 1
+			return
+		}
+
+		w.cursor = 0
+		w.globalIndex = 0
+		return
+	}
+
+	if w.cursor >= 0 {
+		return
+	}
+
+	w.paginator.PrevPage()
+	w.cursor = w.paginator.ItemsOnPage(len(w.items)) - 1
+}
+
+// NextItem manages the focus of the next item.
+func (w *Widget[T]) NextItem() {
+	itemsOnPage := w.paginator.ItemsOnPage(len(w.items))
+
+	w.cursor++
+	w.globalIndex++
+
+	if w.cursor >= itemsOnPage && w.paginator.OnLastPage() {
+		if w.InfiniteScroll {
+			w.paginator.Page = 0
+			w.cursor = 0
+			w.globalIndex = 0
+			return
+		}
+
+		w.cursor = itemsOnPage - 1
+		w.globalIndex = len(w.items) - 1
+		return
+	}
+
+	if w.cursor < itemsOnPage-1 {
+		return
+	}
+
+	w.paginator.NextPage()
+	w.cursor = 0
+}
+
 // SetItems takes a []T (slice of data) and instantiate all items
 // based on it.
 func (w *Widget[T]) SetItems(items []T) {
 	w.items = items
 
-	w.listItems = make([]orvyn.Focusable, 0)
-	w.focusManager.SetWidgets([]orvyn.Focusable{})
+	w.listItems = make([]IListItem, 0)
+	focusableList := make([]orvyn.Focusable, 0)
 
 	for _, i := range w.items {
+		item := w.itemConstructor(i)
 		w.listItems = append(w.listItems,
-			w.itemConstructor(i))
+			item)
+		focusableList = append(focusableList,
+			item)
 	}
 
 	// TODO: Test - Order should be good ?
-	w.focusManager.SetWidgets(w.listItems)
+	w.focusManager.SetWidgets(focusableList)
+
+	w.paginator.SetTotalPages(len(w.listItems))
 }
