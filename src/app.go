@@ -1,8 +1,8 @@
 package main
 
 import (
-	"farental/internal/orvyn"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/orvyn"
 )
 
 // App is the main model to run the Orvyn application

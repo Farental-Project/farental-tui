@@ -4,7 +4,6 @@ import (
 	"farental/core/data"
 	"farental/internal/context"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/screen"
 	"farental/style"
@@ -19,6 +18,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"time"
 )
 

@@ -1,8 +1,8 @@
 package layout
 
 import (
-	"farental/internal/orvyn"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/orvyn"
 )
 
 // CenterLayout centers the given element in the available size.

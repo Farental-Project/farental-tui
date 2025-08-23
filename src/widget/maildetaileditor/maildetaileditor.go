@@ -6,7 +6,6 @@ import (
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"farental/widget/mailattachmentlist"
@@ -18,6 +17,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strconv"
 )
 

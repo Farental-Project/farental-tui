@@ -1,9 +1,9 @@
 package statusmessage
 
 import (
-	"farental/internal/orvyn"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/orvyn"
 )
 
 type messageType int

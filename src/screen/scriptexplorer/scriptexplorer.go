@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/screen"
 	"farental/screen/generic/selectionlist"
 	"github.com/charmbracelet/bubbles/key"
@@ -13,6 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Screen struct {

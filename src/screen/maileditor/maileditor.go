@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/screen"
 	"farental/screen/dialog/popup"
@@ -20,6 +19,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"net/http"
 )
 

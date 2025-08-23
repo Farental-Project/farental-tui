@@ -2,13 +2,13 @@ package filterablelist
 
 import (
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Widget struct {

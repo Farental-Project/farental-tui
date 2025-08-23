@@ -1,9 +1,9 @@
 package help
 
 import (
-	"farental/internal/orvyn"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Widget struct {

@@ -3,7 +3,6 @@ package popup
 import (
 	"farental/art"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

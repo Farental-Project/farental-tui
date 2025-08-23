@@ -3,7 +3,6 @@ package skillssummary
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/key"
@@ -11,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strconv"
 	"strings"
 )

@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"farental/widget/filterablelist"
@@ -15,6 +14,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 type HideAttachmentSelectMsg uint

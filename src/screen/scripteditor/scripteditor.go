@@ -1,10 +1,10 @@
 package scripteditor
 
 import (
-	"farental/internal/orvyn"
-	olist "farental/internal/orvyn/widget/list"
 	"farental/layout"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/widget/list"
 )
 
 type Screen struct {
@@ -18,7 +18,7 @@ type Screen struct {
 	// ScriptRulesParamEditor
 	// ScriptAbilitySelect
 
-	list *olist.Widget[string]
+	list *list.Widget[string]
 
 	layout *layout.CenterLayout
 }
@@ -26,7 +26,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.list = olist.New(olist.SimpleListItemConstructor)
+	s.list = list.New(list.SimpleListItemConstructor)
 
 	s.layout = layout.NewCenterLayout(
 		s.list,

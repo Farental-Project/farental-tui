@@ -2,7 +2,6 @@ package mailattachmentlist
 
 import (
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/style"
 	"farental/widget/list"
 	"github.com/charmbracelet/bubbles/key"
@@ -11,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 type ShowAttachmentSelectMsg uint

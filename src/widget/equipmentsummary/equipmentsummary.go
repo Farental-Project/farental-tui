@@ -5,10 +5,10 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
-	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

@@ -3,12 +3,12 @@ package locationinfo
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"farental/widget/label"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/orvyn"
 	"sort"
 	"strings"
 )

@@ -1,8 +1,8 @@
 package label
 
 import (
-	"farental/internal/orvyn"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Widget struct {

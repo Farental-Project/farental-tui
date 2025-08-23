@@ -7,7 +7,6 @@ import (
 	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/screen"
 	"farental/screen/activity"
 	"farental/screen/charactercreation"
@@ -27,6 +26,7 @@ import (
 	"farental/screen/travel"
 	"farental/style"
 	"fmt"
+	"github.com/halsten-dev/orvyn"
 	"log"
 
 	"github.com/halsten-dev/bubblehelp"

@@ -6,7 +6,6 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/screen"
 	"farental/style"
@@ -18,6 +17,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"github.com/spf13/viper"
 	"net/http"
 )

@@ -1,7 +1,7 @@
 package layout
 
 import (
-	"farental/internal/orvyn"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

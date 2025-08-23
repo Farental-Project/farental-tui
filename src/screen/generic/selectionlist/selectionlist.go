@@ -2,7 +2,6 @@ package selectionlist
 
 import (
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	layout "farental/layout"
 	"farental/style"
 	"farental/widget/filterablelist"
@@ -12,6 +11,7 @@ import (
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Screen struct {

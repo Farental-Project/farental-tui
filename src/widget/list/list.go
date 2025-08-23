@@ -1,10 +1,10 @@
 package list
 
 import (
-	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/orvyn"
 )
 
 // Widget is a very simple list without filter or any feature.

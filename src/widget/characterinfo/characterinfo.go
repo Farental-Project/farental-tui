@@ -3,7 +3,6 @@ package characterinfo
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"farental/widget/characterbar"
@@ -11,6 +10,7 @@ import (
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

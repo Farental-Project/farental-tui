@@ -1,11 +1,11 @@
 package characterbar
 
 import (
-	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

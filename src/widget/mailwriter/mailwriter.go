@@ -3,7 +3,6 @@ package mailwriter
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/internal/orvyn"
 	"farental/layout"
 	"farental/style"
 	"farental/widget/textarea"
@@ -13,6 +12,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Widget struct {

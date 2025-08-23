@@ -3,12 +3,12 @@ package mailcontentreader
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/orvyn"
 	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

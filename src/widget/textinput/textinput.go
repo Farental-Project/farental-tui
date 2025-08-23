@@ -1,8 +1,8 @@
 package textinput
 
 import (
-	"farental/internal/orvyn"
 	"farental/style"
+	"github.com/halsten-dev/orvyn"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"

@@ -1,7 +1,7 @@
 package screen
 
 import (
-	"farental/internal/orvyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 const (

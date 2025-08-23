@@ -1,11 +1,11 @@
 package fullhelp
 
 import (
-	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 

@@ -1,10 +1,10 @@
 package textarea
 
 import (
-	"farental/internal/orvyn"
 	"farental/style"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Widget struct {

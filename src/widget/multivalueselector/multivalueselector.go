@@ -1,10 +1,10 @@
 package multivalueselector
 
 import (
-	"farental/internal/orvyn"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/orvyn"
 	"strings"
 )
 
