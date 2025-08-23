@@ -67,7 +67,7 @@ func New() *Screen {
 	return s
 }
 
-func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
+func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
 
 	s.loadCharacters()
@@ -76,7 +76,7 @@ func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
 	return nil
 }
 
-func (s *Screen) OnExit() interface{} {
+func (s *Screen) OnExit() any {
 	return nil
 }
 

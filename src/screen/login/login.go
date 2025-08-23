@@ -107,7 +107,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
+func (s *Screen) OnEnter(_ any) tea.Cmd {
 	var cmds []tea.Cmd
 
 	cmds = append(cmds, s.tiEmail.Init())
@@ -142,7 +142,7 @@ func (s *Screen) OnEnter(_ interface{}) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (s *Screen) OnExit() interface{} {
+func (s *Screen) OnExit() any {
 	return nil
 }
 

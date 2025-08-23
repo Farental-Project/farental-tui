@@ -35,46 +35,15 @@ func New() *Screen {
 	return s
 }
 
-func (s *Screen) OnEnter(i interface{}) tea.Cmd {
-	data := []string{
-		"Hello",
-		"Coucou",
-		"Salut",
-		"Fine",
-		"Ta race",
-		"Hello",
-		"Coucou",
-		"Salut",
-		"Fine",
-		"Ta race",
-		"Hello",
-		"Coucou",
-		"Salut",
-		"Fine",
-		"Ta race",
-		"Hello",
-		"Coucou",
-		"Salut",
-		"Fine",
-		"Ta race",
-		"Hello",
-		"Coucou",
-		"Salut",
-		"Fine",
-		"Ta race",
-		"Hello",
-		"Coucou",
-		"Salut",
-		"Fine",
-		"Ta race",
-	}
+func (s *Screen) OnEnter(i any) tea.Cmd {
+	data := []string{"hello", "test"}
 
 	s.list.SetItems(data)
 
 	return nil
 }
 
-func (s *Screen) OnExit() interface{} {
+func (s *Screen) OnExit() any {
 	return nil
 }
 

@@ -1,4 +1,4 @@
-package widget
+package list
 
 import (
 	"farental/internal/orvyn"

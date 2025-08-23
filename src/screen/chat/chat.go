@@ -88,7 +88,7 @@ func New() *Screen {
 	return s
 }
 
-func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextChat)
 
 	cmd := s.input.Init()
@@ -98,7 +98,7 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 	return tea.Batch(orvyn.TickCmd(tick, s.tickTag), cmd)
 }
 
-func (s *Screen) OnExit() interface{} {
+func (s *Screen) OnExit() any {
 	return nil
 }
 

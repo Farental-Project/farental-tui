@@ -44,7 +44,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
 	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListWithNew)
@@ -54,7 +54,7 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 	return nil
 }
 
-func (s *Screen) OnExit() interface{} {
+func (s *Screen) OnExit() any {
 	if s.selectedMail != nil {
 		return s.selectedMail
 	}

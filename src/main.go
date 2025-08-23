@@ -84,8 +84,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDMailEditor, maileditor.New())
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
-	// orvyn.SwitchScreen(screen.IDLogin)
-	orvyn.SwitchScreen(screen.IDScriptEditor)
+	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 

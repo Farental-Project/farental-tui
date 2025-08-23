@@ -68,7 +68,7 @@ func New(title string, delegate tealist.ItemDelegate,
 	return s
 }
 
-func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.loadDataCallback()
 	s.list.Select(0)
 
@@ -77,7 +77,7 @@ func (s *Screen) OnEnter(i interface{}) tea.Cmd {
 	return nil
 }
 
-func (s *Screen) OnExit() interface{} {
+func (s *Screen) OnExit() any {
 	return nil
 }
 

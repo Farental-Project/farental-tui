@@ -93,7 +93,7 @@ func RegisterScreen(id ScreenID, screen Screen) {
 
 // SwitchScreen change the currently active screen and called OnExit and OnEnter.
 func SwitchScreen(id ScreenID) tea.Cmd {
-	var param interface{}
+	var param any
 
 	_, ok := screens[id]
 
@@ -143,7 +143,7 @@ func GetCurrentScreenID() ScreenID {
 
 // Dialog API
 
-func OpenDialog(dialogID ScreenID, dialog Screen, param interface{}) {
+func OpenDialog(dialogID ScreenID, dialog Screen, param any) {
 	activeDialog = new(Dialog)
 
 	activeDialog.dialogID = dialogID

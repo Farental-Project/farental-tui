@@ -25,7 +25,7 @@ func New() *Screen {
 	return s
 }
 
-func (s *Screen) OnEnter(i interface{}) tea.Cmd {
+func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
 	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListIncDec)
