@@ -2,16 +2,15 @@ package selectionlist
 
 import (
 	"farental/internal/keybind"
-	layout "farental/layout"
-	"farental/style"
 	"farental/widget/filterablelist"
 	"farental/widget/help"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
 type Screen struct {

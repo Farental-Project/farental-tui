@@ -4,9 +4,10 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
-	"farental/style"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"github.com/spf13/viper"
 	"log"
 	"time"
@@ -61,10 +62,12 @@ func UpdateChat() {
 		return
 	}
 
+	titleStyle := orvyn.GetTheme().Style(theme.TitleStyleID)
+
 	for _, message := range chatMessages {
 		chatMessage := fmt.Sprintf("%s %s - %s",
-			style.TitleStyle.Render(message.Timestamp.Format(time.TimeOnly)),
-			style.TitleStyle.Render(message.Name),
+			titleStyle.Render(message.Timestamp.Format(time.TimeOnly)),
+			titleStyle.Render(message.Name),
 			message.Message)
 
 		ChatContent = append(ChatContent, chatMessage)
