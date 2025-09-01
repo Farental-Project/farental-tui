@@ -6,20 +6,20 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen/generic/selectionlist"
-	"github.com/charmbracelet/bubbles/list"
+	"farental/widget/activitylistitem"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 )
 
 type Screen struct {
-	selectionlist.Screen
+	selectionlist.Screen[activitylistitem.Data]
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Activities"), ListItemDelegate{},
+	s.Screen = selectionlist.New(lokyn.L("Activities"), activitylistitem.Constructor,
 		s.loadActivities, s.submit)
 
 	return s
@@ -35,9 +35,6 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) loadActivities() {
 	var activities []api.ActivityResponse
-	var items []list.Item
-
-	items = make([]list.Item, 0)
 
 	resp, err := helper.SendRequest(request.ActivityGetAvailable())
 
@@ -48,36 +45,32 @@ func (s *Screen) loadActivities() {
 
 	activities = *resp.Result().(*[]api.ActivityResponse)
 
-	for _, a := range activities {
-		item := ListItem{
-			Activity:      a,
-			DurationIndex: 0,
-		}
+	data := make([]activitylistitem.Data, 0)
 
-		items = append(items, item)
+	for _, a := range activities {
+		data = append(data, activitylistitem.Data{
+			ActivityResponse: a,
+			DurationIndex:    0,
+		})
 	}
 
-	s.SetItems(items)
+	s.SetItems(data)
 }
 
 func (s *Screen) submit() bool {
 	var durationID uint
 
-	i, ok := s.GetSelectedItem().(ListItem)
-
-	if !ok {
-		return false
-	}
+	i := s.GetSelectedItem()
 
 	durationID = 0
 
-	if len(i.Activity.Duration.Durations) > 0 {
-		durationID = i.Activity.Duration.Durations[i.DurationIndex].ID
+	if len(i.Duration.Durations) > 1 {
+		durationID = i.Duration.Durations[i.DurationIndex].ID
 	} else {
-		durationID = i.Activity.Duration.Durations[0].ID
+		durationID = i.Duration.Durations[0].ID
 	}
 
-	req := request.ActivityStart(i.Activity.ID, durationID)
+	req := request.ActivityStart(i.ID, durationID)
 
 	_, err := helper.SendRequest(req)
 

@@ -7,17 +7,18 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	layout "farental/layout"
-	"farental/style"
+	ftheme "farental/internal/theme"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
-	"farental/widget/statusmessage"
-	"farental/widget/textarea"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/textarea"
 	"time"
 )
 
@@ -44,15 +45,17 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	logStyle := simplelogviewer.Style{
-		FocusedWidget: style.FocusedStyle,
-		BlurredWidget: style.BlurredStyle,
-		FocusedTitle:  style.HighlightUnderlinedTitleStyle,
-		BlurredTitle:  style.DimUnderlinedTitleStyle,
+		FocusedWidget: t.Style(theme.FocusedWidgetStyleID),
+		BlurredWidget: t.Style(theme.BlurredWidgetStyleID),
+		FocusedTitle:  t.Style(ftheme.TitleUnderlinedTextStyleID),
+		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
 
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lokyn.L("Chat")),
+		t.Style(theme.TitleStyleID).Render(lokyn.L("Chat")),
 	)
 
 	s.logChat = simplelogviewer.New(lokyn.L("Chat"))

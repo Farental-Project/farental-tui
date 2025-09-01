@@ -3,7 +3,6 @@ package statssummary
 import (
 	"farental/core/data"
 	"farental/core/data/api"
-	"farental/style"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"

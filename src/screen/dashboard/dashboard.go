@@ -4,21 +4,22 @@ import (
 	"farental/core/data"
 	"farental/internal/context"
 	"farental/internal/keybind"
-	layout "farental/layout"
+	ftheme "farental/internal/theme"
 	"farental/screen"
-	"farental/style"
 	"farental/widget/characterinfo"
 	"farental/widget/fullhelp"
 	"farental/widget/help"
 	"farental/widget/locationinfo"
 	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"time"
 )
 
@@ -59,6 +60,8 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.runningTask = runningtask.New()
 
 	s.characterInfo = characterinfo.New()
@@ -66,10 +69,10 @@ func New() *Screen {
 	s.locationInfo = locationinfo.New()
 
 	logStyle := simplelogviewer.Style{
-		FocusedWidget: style.FocusedStyle,
-		BlurredWidget: style.BlurredStyle,
-		FocusedTitle:  style.HighlightUnderlinedTitleStyle,
-		BlurredTitle:  style.DimUnderlinedTitleStyle,
+		FocusedWidget: t.Style(theme.FocusedWidgetStyleID),
+		BlurredWidget: t.Style(theme.BlurredWidgetStyleID),
+		FocusedTitle:  t.Style(ftheme.TitleUnderlinedTextStyleID),
+		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
 
 	s.logEvent = simplelogviewer.New(lokyn.L("Events"))
@@ -99,7 +102,7 @@ func New() *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(
 			35,
-			style.LayoutWidth,
+			t.Size(ftheme.LayoutWidthSizeID),
 			10,
 			[]orvyn.Renderable{
 				s.runningTask,

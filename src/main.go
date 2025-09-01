@@ -7,6 +7,7 @@ import (
 	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/keybind"
+	ftheme "farental/internal/theme"
 	"farental/screen"
 	"farental/screen/activity"
 	"farental/screen/charactercreation"
@@ -67,6 +68,8 @@ func main() {
 
 	// Orvyn
 	orvyn.Init()
+
+	orvyn.SetTheme(ftheme.FarentalTheme{})
 
 	orvyn.RegisterScreen(screen.IDLogin, login.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())

@@ -5,19 +5,18 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	layout "farental/layout"
-	"farental/style"
 	"farental/widget/help"
-	"farental/widget/label"
 	"farental/widget/multivalueselector"
-	"farental/widget/statusmessage"
-	"farental/widget/textinput"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/textinput"
 )
 
 type RaceData struct {
@@ -35,7 +34,7 @@ type Screen struct {
 	tiLastname  *textinput.Widget
 	mvsRace     *multivalueselector.Widget[RaceData]
 
-	raceDescription *label.Widget
+	raceDescription *orvyn.SimpleRenderable
 
 	statusMessage *statusmessage.Widget
 
@@ -49,8 +48,10 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lokyn.L("New character")),
+		t.Style(theme.TitleStyleID).Render(lokyn.L("New character")),
 	)
 
 	s.tiFirstname = textinput.New()
@@ -61,17 +62,17 @@ func New() *Screen {
 
 	s.mvsRace = multivalueselector.New[RaceData]()
 	s.mvsRace.Style = multivalueselector.Style{
-		FocusedWidget:  style.FocusedStyle,
-		BlurredWidget:  style.BlurredStyle,
-		BlurredControl: style.DimTextStyle,
-		FocusedControl: style.HighlightStyle,
-		BlurredValue:   style.DimTextStyle,
-		FocusedValue:   style.NormalStyle,
+		FocusedWidget:  t.Style(theme.FocusedWidgetStyleID),
+		BlurredWidget:  t.Style(theme.BlurredWidgetStyleID),
+		BlurredControl: t.Style(theme.DimTextStyleID),
+		FocusedControl: t.Style(theme.HighlightTextStyleID),
+		BlurredValue:   t.Style(theme.DimTextStyleID),
+		FocusedValue:   t.Style(theme.NormalTextStyleID),
 	}
 	s.mvsRace.OnBlur()
 
-	s.raceDescription = label.New("")
-	s.raceDescription.Style = style.DimTextStyle.
+	s.raceDescription = orvyn.NewSimpleRenderable("")
+	s.raceDescription.Style = t.Style(theme.DimSecondaryTextStyleID).
 		AlignHorizontal(lipgloss.Center)
 
 	s.statusMessage = statusmessage.New()

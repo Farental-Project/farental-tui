@@ -6,18 +6,19 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	layout "farental/layout"
+	ftheme "farental/internal/theme"
 	"farental/screen"
-	"farental/style"
+	"farental/widget/characterbasiclistitem"
 	"farental/widget/help"
-	"farental/widget/list"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/spf13/viper"
 	"net/http"
 )
@@ -25,8 +26,7 @@ import (
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	characters []tealist.Item
-	list       *list.Widget
+	list *list.Widget[api.CharacterBasicResponse]
 
 	statusMessage *statusmessage.Widget
 
@@ -38,16 +38,15 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(lokyn.L("Character selection")),
+		t.Style(theme.TitleStyleID).Render(lokyn.L("Character selection")),
 	)
 
-	s.list = list.New(
-		CharacterItemDelegate{},
-		[]tealist.Item{},
-	)
+	s.list = list.New(characterbasiclistitem.Constructor)
 
-	s.list.PreferredSize.Width = style.LayoutWidth - 2 // items border
+	s.list.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
 	s.list.MinSize.Height = 13
 
 	s.statusMessage = statusmessage.New()
@@ -71,7 +70,7 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
 
 	s.loadCharacters()
-	s.list.Select(0)
+	s.list.FocusFirst()
 
 	return nil
 }
@@ -126,11 +125,7 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) submit() bool {
-	selectedItem, ok := s.list.SelectedItem().(CharacterItem)
-
-	if !ok {
-		return false
-	}
+	selectedItem := s.list.GetSelectedItem()
 
 	if selectedItem.ID == 0 {
 		return false
@@ -156,8 +151,7 @@ func (s *Screen) submit() bool {
 
 // loadCharacters loads all the characters available for the current user.
 func (s *Screen) loadCharacters() {
-	var characters *[]api.CharacterBasicResponse
-	var ok bool
+	var characters []api.CharacterBasicResponse
 
 	resp, err := helper.SendRequest(request.CharacterGetAll())
 
@@ -166,17 +160,11 @@ func (s *Screen) loadCharacters() {
 		return
 	}
 
-	characters, ok = resp.Result().(*[]api.CharacterBasicResponse)
+	characters = *resp.Result().(*[]api.CharacterBasicResponse)
 
-	if !ok {
+	if characters == nil {
 		return
 	}
 
-	s.characters = make([]tealist.Item, 0)
-
-	for _, character := range *characters {
-		s.characters = append(s.characters, NewCharacterItem(&character))
-	}
-
-	s.list.SetItems(s.characters)
+	s.list.SetItems(characters)
 }

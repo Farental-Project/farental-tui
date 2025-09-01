@@ -3,12 +3,12 @@ package locationinfo
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/layout"
-	"farental/style"
-	"farental/widget/label"
+	"farental/internal/style"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
 	"sort"
 	"strings"
 )
@@ -16,8 +16,8 @@ import (
 type Widget struct {
 	orvyn.BaseWidget
 
-	title       *label.Widget
-	description *label.Widget
+	title       *orvyn.SimpleRenderable
+	description *orvyn.SimpleRenderable
 
 	layout *layout.VBoxLayout
 }
@@ -25,14 +25,16 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
+	t := orvyn.GetTheme()
+
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.title = label.New("")
-	w.title.Style = style.DimBottomBorderStyle.
+	w.title = orvyn.NewSimpleRenderable("")
+	w.title.Style = lipgloss.NewStyle().
 		AlignHorizontal(lipgloss.Center)
 
-	w.description = label.New("")
-	w.description.Style = style.NormalStyle.
+	w.description = orvyn.NewSimpleRenderable("")
+	w.description.Style = t.Style(theme.NormalTextStyleID).
 		AlignHorizontal(lipgloss.Center)
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
@@ -45,14 +47,17 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return style.BlurredStyle.Render(w.layout.Render())
+	return orvyn.GetTheme().Style(theme.BlurredWidgetStyleID).
+		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	st := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+
+	size.Width -= st.GetHorizontalFrameSize()
+	size.Height -= st.GetVerticalFrameSize()
 
 	w.layout.Resize(size)
 }
@@ -75,12 +80,15 @@ func (w *Widget) constructTitle(location *api.LocationResponse) {
 	var b strings.Builder
 	var features strings.Builder
 
-	b.WriteString(style.BoldTextStyle.Render(location.Name))
+	t := orvyn.GetTheme()
+
+	b.WriteString(t.Style(theme.NeutralTextStyleID).
+		Bold(true).Render(location.Name))
 	b.WriteString("\n")
-	b.WriteString(style.NeutralDimTextStyle.Render(location.Continent.Name))
+	b.WriteString(t.Style(theme.NeutralDimTextStyleID).Render(location.Continent.Name))
 	b.WriteString("\n")
 	b.WriteString(fmt.Sprintf("%s | %s",
-		style.NeutralDimTextStyle.Render(location.Type.Name),
+		t.Style(theme.NeutralDimTextStyleID).Render(location.Type.Name),
 		style.LocationBiomeStyle(location.Biome.Code).Render(location.Biome.Name)),
 	)
 
@@ -104,7 +112,7 @@ func (w *Widget) constructTitle(location *api.LocationResponse) {
 
 		}
 
-		b.WriteString(style.DimTextStyle.Render(features.String()))
+		b.WriteString(t.Style(theme.DimTextStyleID).Render(features.String()))
 	}
 
 	w.title.SetValue(b.String())

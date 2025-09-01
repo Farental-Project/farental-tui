@@ -3,23 +3,26 @@ package characterinfo
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/layout"
-	"farental/style"
+	"farental/internal/style"
+	ftheme "farental/internal/theme"
 	"farental/widget/characterbar"
-	"farental/widget/label"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 )
 
 type Widget struct {
 	orvyn.BaseWidget
 
-	info  *label.Widget
+	info  *orvyn.SimpleRenderable
 	barHp *characterbar.Widget
 	barMp *characterbar.Widget
+
+	style lipgloss.Style
 
 	layout *layout.HBoxGrowLayout
 }
@@ -27,13 +30,17 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
+	t := orvyn.GetTheme()
+
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.info = label.New("")
+	w.info = orvyn.NewSimpleRenderable("")
 	w.info.Style = lipgloss.NewStyle().
 		AlignHorizontal(lipgloss.Center)
-	w.barHp = characterbar.New(lokyn.L("HP"), style.ColorHpBar)
-	w.barMp = characterbar.New(lokyn.L("MP"), style.ColorMpBar)
+	w.barHp = characterbar.New(lokyn.L("HP"), t.Color(ftheme.HPBarColorID))
+	w.barMp = characterbar.New(lokyn.L("MP"), t.Color(ftheme.MPBarColorID))
+
+	w.style = t.Style(theme.BlurredWidgetStyleID)
 
 	w.layout = layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
@@ -46,14 +53,14 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return style.BlurredStyle.Render(w.layout.Render())
+	return w.style.Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	size.Width -= w.style.GetHorizontalFrameSize()
+	size.Height -= w.style.GetVerticalFrameSize()
 
 	w.layout.Resize(size)
 }
@@ -87,7 +94,9 @@ func (w *Widget) UpdateData(info *api.CharacterInfoResponse, money int) {
 func (w *Widget) constructInfo(info *api.CharacterInfoResponse, money int) {
 	var b strings.Builder
 
-	fullName := style.BoldTextStyle.Render(
+	t := orvyn.GetTheme()
+
+	fullName := t.Style(theme.TitleStyleID).Render(
 		fmt.Sprintf("%s %s", info.FirstName, info.LastName))
 	raceName := info.RaceName
 	raceStyle := style.RaceStyle(raceName)
@@ -97,11 +106,11 @@ func (w *Widget) constructInfo(info *api.CharacterInfoResponse, money int) {
 	b.WriteString("\n")
 	b.WriteString(raceStyle.Render(raceName))
 	b.WriteString("\n")
-	b.WriteString(style.NormalStyle.Render(
+	b.WriteString(t.Style(theme.NormalTextStyleID).Render(
 		fmt.Sprintf("%d %c", money, art.CharGrynars),
 	))
 	b.WriteString("\n")
-	b.WriteString(style.SpecialHighlightStyle.Render(
+	b.WriteString(t.Style(theme.HighlightTextStyleID).Render(
 		fmt.Sprintf("%s : %d", lokyn.L("Power"), power),
 	))
 

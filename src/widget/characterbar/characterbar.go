@@ -1,11 +1,11 @@
 package characterbar
 
 import (
-	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 )
 
@@ -22,15 +22,15 @@ type Widget struct {
 	CurrentValue int
 }
 
-func New(title, color string) *Widget {
+func New(title string, color lipgloss.Color) *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.Model = progress.New(progress.WithSolidFill(color))
+	w.Model = progress.New(progress.WithSolidFill(string(color)))
 	w.Model.ShowPercentage = false
 
-	w.TitleStyle = style.NormalStyle.
+	w.TitleStyle = orvyn.GetTheme().Style(theme.TitleStyleID).
 		AlignHorizontal(lipgloss.Center)
 	w.title = title
 

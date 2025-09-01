@@ -6,19 +6,20 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	layout "farental/layout"
-	"farental/style"
+	ftheme "farental/internal/theme"
 	"farental/widget/characterinfo"
 	"farental/widget/equipmentsummary"
 	"farental/widget/help"
 	"farental/widget/skillssummary"
 	"farental/widget/statssummary"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
 type Screen struct {
@@ -45,7 +46,7 @@ func New() *Screen {
 	s := new(Screen)
 
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("Character"))
-	s.title.Style = style.TitleStyle
+	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.characterInfo = characterinfo.New()
 	s.equipmentSummary = equipmentsummary.New()
@@ -64,7 +65,7 @@ func New() *Screen {
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(35,
-			style.LayoutWidth,
+			orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID),
 			10,
 			[]orvyn.Renderable{
 				s.title,

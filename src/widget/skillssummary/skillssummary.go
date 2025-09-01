@@ -3,7 +3,7 @@ package skillssummary
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/style"
+	ftheme "farental/internal/theme"
 	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"strconv"
 	"strings"
 )
@@ -36,15 +37,17 @@ func (c *column) addReturn() {
 func (c *column) render(width int) string {
 	var colWidth int
 
+	style := lipgloss.NewStyle()
+
 	colWidth = width / 3
 
-	nameCol := style.TextStyle.Width(colWidth).
+	nameCol := style.Width(colWidth).
 		AlignHorizontal(lipgloss.Left).Render(c.skillStr.String())
 
-	expCol := style.TextStyle.Width(colWidth).
+	expCol := style.Width(colWidth).
 		AlignHorizontal(lipgloss.Center).Render(c.expStr.String())
 
-	lvlCol := style.TextStyle.Width(colWidth).
+	lvlCol := style.Width(colWidth).
 		AlignHorizontal(lipgloss.Right).Render(c.lvlStr.String())
 
 	return lipgloss.JoinHorizontal(lipgloss.Center,
@@ -94,13 +97,15 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 func (w *Widget) Render() string {
 	w.refresh()
 
+	t := orvyn.GetTheme()
+
 	content := lipgloss.JoinVertical(lipgloss.Left,
-		style.DimUnderlinedTitleStyle.
+		t.Style(ftheme.DimUnderlinedTextStyleID).
 			Width(w.contentSize.Width).
 			Render(w.title),
 		w.viewport.View())
 
-	return style.BlurredStyle.
+	return t.Style(theme.BlurredWidgetStyleID).
 		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
 		Render(content)
@@ -109,13 +114,16 @@ func (w *Widget) Render() string {
 func (w *Widget) Resize(size orvyn.Size) {
 	s := size
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	t := orvyn.GetTheme()
+	st := t.Style(theme.BlurredWidgetStyleID)
+
+	size.Width -= st.GetHorizontalFrameSize()
+	size.Height -= st.GetVerticalFrameSize()
 
 	w.contentSize = size
 	w.viewport.Width = size.Width
 	w.viewport.Height = size.Height -
-		lipgloss.Height(style.DimUnderlinedTitleStyle.Render(" "))
+		lipgloss.Height(t.Style(ftheme.DimUnderlinedTextStyleID).Render(" "))
 
 	if !orvyn.SameSize(s, w.GetSize()) {
 		w.refresh()
@@ -133,13 +141,15 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 }
 
 func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, column *column) {
-	column.skillStr.WriteString(style.NormalStyle.Render(skill.Name))
-	column.expStr.WriteString(style.NeutralLessDimTextStyle.
+	t := orvyn.GetTheme()
+
+	column.skillStr.WriteString(t.Style(theme.NormalTextStyleID).Render(skill.Name))
+	column.expStr.WriteString(t.Style(theme.NeutralTextStyleID).
 		Render(fmt.Sprintf("(%d / %d)",
 			skill.CurrentXp, skill.NextLevelXp)))
-	column.lvlStr.WriteString(style.NormalStyle.
+	column.lvlStr.WriteString(t.Style(theme.NormalTextStyleID).
 		Render(fmt.Sprintf("%s %s", lokyn.L("lvl."),
-			style.HighlightStyle.Render(strconv.Itoa(skill.Level)))))
+			t.Style(theme.HighlightTextStyleID).Render(strconv.Itoa(skill.Level)))))
 
 	if addReturn {
 		column.addReturn()

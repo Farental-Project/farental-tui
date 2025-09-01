@@ -7,12 +7,8 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	layout "farental/layout"
 	"farental/screen"
-	"farental/style"
 	"farental/widget/help"
-	"farental/widget/statusmessage"
-	"farental/widget/textinput"
 	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	teatextinput "github.com/charmbracelet/bubbles/textinput"
@@ -20,6 +16,10 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/textinput"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
@@ -43,8 +43,10 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.title = orvyn.NewSimpleRenderable(fmt.Sprintf("%s",
-		style.TitleStyle.Render(art.CreateASCIIArtBrokenTitle("farental"))))
+		t.Style(theme.TitleStyleID).Render(art.CreateASCIIArtBrokenTitle("farental"))))
 
 	s.tiEmail = textinput.New()
 	s.tiEmail.Placeholder = lokyn.L("Email")

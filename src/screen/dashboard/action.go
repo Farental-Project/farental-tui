@@ -5,8 +5,8 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
-	"farental/widget/statusmessage"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"log"
 )
 

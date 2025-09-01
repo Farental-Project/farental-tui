@@ -2,21 +2,22 @@ package selectionlist
 
 import (
 	"farental/internal/keybind"
-	"farental/widget/filterablelist"
+	ftheme "farental/internal/theme"
 	"farental/widget/help"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
-type Screen struct {
+type Screen[T any] struct {
 	title *orvyn.SimpleRenderable
 
-	list *filterablelist.Widget
+	list *list.Widget[T]
 
 	statusMessage *statusmessage.Widget
 
@@ -30,9 +31,9 @@ type Screen struct {
 	submitCallback   func() bool
 }
 
-func New(title string, delegate tealist.ItemDelegate,
-	loadDataCallback func(), submitCallback func() bool) Screen {
-	s := Screen{}
+func New[T any](title string, constructor list.ItemConstructor[T],
+	loadDataCallback func(), submitCallback func() bool) Screen[T] {
+	s := Screen[T]{}
 
 	s.submitScreenID = ""
 
@@ -40,12 +41,12 @@ func New(title string, delegate tealist.ItemDelegate,
 	s.submitCallback = submitCallback
 
 	s.title = orvyn.NewSimpleRenderable(
-		style.TitleStyle.Render(title),
+		orvyn.GetTheme().Style(theme.TitleStyleID).Render(title),
 	)
 
-	s.list = filterablelist.New(delegate, []tealist.Item{})
+	s.list = list.New(constructor)
 
-	s.list.PreferredSize.Width = style.LayoutWidth - 2 // border
+	s.list.PreferredSize.Width = orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID)
 	s.list.MinSize.Height = 13
 
 	s.statusMessage = statusmessage.New()
@@ -67,20 +68,20 @@ func New(title string, delegate tealist.ItemDelegate,
 	return s
 }
 
-func (s *Screen) OnEnter(i any) tea.Cmd {
+func (s *Screen[T]) OnEnter(i any) tea.Cmd {
 	s.loadDataCallback()
-	s.list.Select(0)
+	s.list.FocusFirst()
 
 	s.statusMessage.Reset()
 
 	return nil
 }
 
-func (s *Screen) OnExit() any {
+func (s *Screen[T]) OnExit() any {
 	return nil
 }
 
-func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+func (s *Screen[T]) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		s.statusMessage.Reset()
@@ -90,12 +91,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return tea.Quit
 
 		case key.Matches(msg, keybind.Esc):
-			if s.list.FilterState() == tealist.Unfiltered {
+			if s.list.FilterState() == list.Unfiltered {
 				return orvyn.SwitchToPreviousScreen()
 			}
 
 		case key.Matches(msg, keybind.Enter):
-			if s.list.FilterState() != tealist.Filtering {
+			if s.list.FilterState() != list.Filtering {
 				if s.submitCallback() {
 					if len(s.submitScreenID) > 0 {
 						return orvyn.SwitchScreen(s.submitScreenID)
@@ -108,7 +109,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(msg, keybind.Help):
-			if s.list.FilterState() != tealist.Filtering {
+			if s.list.FilterState() != list.Filtering {
 				bubblehelp.ShowAll = !bubblehelp.ShowAll
 
 				return nil
@@ -121,22 +122,22 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-func (s *Screen) Render() orvyn.Layout {
+func (s *Screen[T]) Render() orvyn.Layout {
 	return s.layout
 }
 
-func (s *Screen) SetItems(items []tealist.Item) {
+func (s *Screen[T]) SetItems(items []T) {
 	s.list.SetItems(items)
 }
 
-func (s *Screen) SetStatusError(err error) {
+func (s *Screen[T]) SetStatusError(err error) {
 	s.statusMessage.SetError(err)
 }
 
-func (s *Screen) GetSelectedItem() tealist.Item {
-	return s.list.SelectedItem()
+func (s *Screen[T]) GetSelectedItem() T {
+	return s.list.GetSelectedItem()
 }
 
-func (s *Screen) SetSubmitScreenID(id orvyn.ScreenID) {
+func (s *Screen[T]) SetSubmitScreenID(id orvyn.ScreenID) {
 	s.submitScreenID = id
 }

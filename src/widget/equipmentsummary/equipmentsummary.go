@@ -5,10 +5,11 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
-	"farental/style"
+	ftheme "farental/internal/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 )
 
@@ -68,6 +69,8 @@ func (w *Widget) Render() string {
 
 	size := w.contentSize
 
+	t := orvyn.GetTheme()
+
 	if len(w.equipmentSlots) == 0 {
 		return ""
 	}
@@ -90,24 +93,26 @@ func (w *Widget) Render() string {
 	rightCol = col.render()
 
 	summary := lipgloss.JoinHorizontal(lipgloss.Top,
-		style.TextStyle.Width(size.Width/2).Render(leftCol),
-		style.TextStyle.Width(size.Width/2).Render(rightCol))
+		t.Style(theme.NormalTextStyleID).Width(size.Width/2).Render(leftCol),
+		t.Style(theme.NormalTextStyleID).Width(size.Width/2).Render(rightCol))
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
-		style.DimUnderlinedTitleStyle.
+		t.Style(ftheme.DimUnderlinedTextStyleID).
 			Width(size.Width).
 			Render(w.title),
 		summary)
 
-	return style.BlurredStyle.
+	return t.Style(theme.BlurredWidgetStyleID).
 		Width(size.Width).Render(content)
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+
+	size.Width -= s.GetHorizontalFrameSize()
+	size.Height -= s.GetVerticalFrameSize()
 
 	w.contentSize = size
 }
@@ -117,13 +122,15 @@ func (w *Widget) renderEquipmentSlot(slotCode data.SlotCode, addReturn bool, col
 
 	es := w.equipmentSlots[string(slotCode)]
 
-	column.slotStr.WriteString(style.NormalStyle.Render(es.slot.Name))
-	column.sepStr.WriteString(style.DimTextStyle.Render(" : "))
+	t := orvyn.GetTheme()
+
+	column.slotStr.WriteString(t.Style(theme.NormalTextStyleID).Render(es.slot.Name))
+	column.sepStr.WriteString(t.Style(theme.DimTextStyleID).Render(" : "))
 
 	if es.item.ID == 0 {
-		itemNameStyle = style.NeutralDimTextStyle
+		itemNameStyle = t.Style(theme.NeutralDimTextStyleID)
 	} else {
-		itemNameStyle = style.DimTextStyle
+		itemNameStyle = t.Style(theme.DimTextStyleID)
 	}
 
 	column.itemStr.WriteString(itemNameStyle.Render(es.item.Name))
