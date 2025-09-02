@@ -6,7 +6,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen/generic/selectionlist"
-	"github.com/charmbracelet/bubbles/list"
+	"farental/widget/craftlistitem"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
@@ -14,13 +14,13 @@ import (
 )
 
 type Screen struct {
-	selectionlist.Screen
+	selectionlist.Screen[craftlistitem.Data]
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Crafts"), ListItemDelegate{},
+	s.Screen = selectionlist.New(lokyn.L("Crafts"), craftlistitem.Constructor,
 		s.loadCrafts, s.submit)
 
 	return s
@@ -36,9 +36,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) loadCrafts() {
 	var crafts []api.RecipeResponse
-	var items []list.Item
-
-	items = make([]list.Item, 0)
+	var data []craftlistitem.Data
 
 	resp, err := helper.SendRequest(request.CraftGetAvailable())
 
@@ -50,24 +48,23 @@ func (s *Screen) loadCrafts() {
 	crafts = *resp.Result().(*[]api.RecipeResponse)
 
 	for _, c := range crafts {
-		item := NewListItem(&c)
+		item := craftlistitem.Data{
+			RecipeResponse: c,
+			Amount:         0,
+		}
 
-		items = append(items, item)
+		data = append(data, item)
 	}
 
-	s.SetItems(items)
+	s.SetItems(data)
 
 	return
 }
 
 func (s *Screen) submit() bool {
-	i, ok := s.GetSelectedItem().(ListItem)
+	i := s.GetSelectedItem()
 
-	if !ok {
-		return false
-	}
-
-	req := request.CraftStart(i.CraftRecipe.ID, i.Amount)
+	req := request.CraftStart(i.ID, i.Amount)
 
 	resp, err := helper.SendRequest(req)
 
