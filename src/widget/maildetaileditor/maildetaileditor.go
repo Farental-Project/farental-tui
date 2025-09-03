@@ -177,9 +177,12 @@ func (w *Widget) inputUpdate(msg tea.Msg) tea.Cmd {
 
 func (w *Widget) OnFocus() {
 	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
 }
 
-func (w *Widget) OnBlur() {}
+func (w *Widget) OnBlur() {
+	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+}
 
 func (w *Widget) OnEnterInput() {
 	w.focusManager.Focus(0)
@@ -257,4 +260,5 @@ func (w *Widget) SetFocusOnAttachmentList() {
 
 func (w *Widget) setListItems() {
 	w.attachmentsList.SetItems(w.inventory.Stacks)
+	w.attachmentsList.FocusFirst()
 }

@@ -6,6 +6,7 @@ import (
 	"farental/internal/keybind"
 	"fmt"
 	"github.com/charmbracelet/bubbles/paginator"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
@@ -53,6 +54,12 @@ func Constructor(data *Data) list.IListItem {
 	w.OnBlur()
 
 	return w
+}
+
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	w.paginator, _ = w.paginator.Update(msg)
+
+	return nil
 }
 
 func (w *Widget) Resize(size orvyn.Size) {

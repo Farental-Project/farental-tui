@@ -87,7 +87,9 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			if w.list.FilterState() != list.Filtering {
 				selectedItem := w.list.GetSelectedItem()
 
-				return SelectItemCmd(&selectedItem)
+				if selectedItem.Amount > 0 {
+					return SelectItemCmd(&selectedItem)
+				}
 			}
 
 		case key.Matches(msg, keybind.Esc):

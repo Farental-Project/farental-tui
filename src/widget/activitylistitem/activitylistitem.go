@@ -101,7 +101,7 @@ func (w *Widget) Render() string {
 	hs := t.Style(theme.HighlightTextStyleID)
 	ns := lipgloss.NewStyle()
 
-	left.WriteString(w.data.Name)
+	left.WriteString(hs.Render(w.data.Name))
 	left.WriteString("\n")
 	left.WriteString(ds.Render(w.data.Description))
 

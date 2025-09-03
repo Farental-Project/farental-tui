@@ -6,17 +6,17 @@ import (
 )
 
 const (
-	TitleUnderlinedTextStyleID theme.StyleID = iota
+	TitleUnderlinedTextStyleID theme.StyleID = iota + 9999
 	DimUnderlinedTextStyleID
 )
 
 const (
-	HPBarColorID theme.ColorID = iota
+	HPBarColorID theme.ColorID = iota + 9999
 	MPBarColorID
 )
 
 const (
-	LayoutWidthSizeID theme.SizeID = iota
+	LayoutWidthSizeID theme.SizeID = iota + 9999
 )
 
 type FarentalTheme struct {
@@ -33,13 +33,16 @@ func (t FarentalTheme) Style(id theme.StyleID) lipgloss.Style {
 			Border(lipgloss.NormalBorder()).
 			BorderTop(false).BorderLeft(false).BorderRight(false).
 			Bold(true).
-			Foreground(t.Color(theme.TitleFontColorID))
+			Foreground(t.Color(theme.TitleFontColorID)).
+			BorderForeground(t.Color(theme.DimFontColorID))
 
 	case DimUnderlinedTextStyleID:
+		dfc := t.Color(theme.DimFontColorID)
 		style = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).
 			BorderTop(false).BorderLeft(false).BorderRight(false).
-			Foreground(t.Color(theme.DimFontColorID))
+			Foreground(dfc).
+			BorderForeground(dfc)
 	}
 
 	return style

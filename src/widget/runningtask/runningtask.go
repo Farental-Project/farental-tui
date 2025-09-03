@@ -43,7 +43,7 @@ func New() *Widget {
 			AlignHorizontal(lipgloss.Center),
 		NoTask:        t.Style(theme.DimTextStyleID),
 		TaskRunning:   t.Style(theme.TitleStyleID),
-		SpinnerWidget: t.Style(theme.FocusedWidgetStyleID),
+		SpinnerWidget: t.Style(theme.BlurredWidgetStyleID),
 		Spinner:       t.Style(theme.TitleStyleID),
 	}
 

@@ -4,6 +4,7 @@ import (
 	"farental/art"
 	"farental/core/data/api"
 	"farental/internal/style"
+	ftheme "farental/internal/theme"
 	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
@@ -30,12 +31,14 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.title = orvyn.NewSimpleRenderable("")
-	w.title.Style = lipgloss.NewStyle().
+	w.title.Style = t.Style(ftheme.DimUnderlinedTextStyleID).
 		AlignHorizontal(lipgloss.Center)
+	w.title.SizeConstraint = true
 
 	w.description = orvyn.NewSimpleRenderable("")
 	w.description.Style = t.Style(theme.NormalTextStyleID).
 		AlignHorizontal(lipgloss.Center)
+	w.description.SizeConstraint = true
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
 		[]orvyn.Renderable{

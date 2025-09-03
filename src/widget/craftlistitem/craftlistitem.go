@@ -94,7 +94,7 @@ func (w *Widget) Render() string {
 
 	s = w.style
 
-	left.WriteString(w.data.Name)
+	left.WriteString(hs.Render(w.data.Name))
 	left.WriteString("\n")
 	left.WriteString(ds.Render(w.data.Description))
 

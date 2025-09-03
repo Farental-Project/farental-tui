@@ -37,6 +37,7 @@ func New() *Widget {
 	w.info = orvyn.NewSimpleRenderable("")
 	w.info.Style = lipgloss.NewStyle().
 		AlignHorizontal(lipgloss.Center)
+	w.info.SizeConstraint = true
 	w.barHp = characterbar.New(lokyn.L("HP"), t.Color(ftheme.HPBarColorID))
 	w.barMp = characterbar.New(lokyn.L("MP"), t.Color(ftheme.MPBarColorID))
 

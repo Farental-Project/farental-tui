@@ -45,6 +45,7 @@ func New() *Screen {
 	)
 
 	s.list = list.New(characterbasiclistitem.Constructor)
+	s.list.SetFilterable(false)
 
 	s.list.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
 	s.list.MinSize.Height = 13

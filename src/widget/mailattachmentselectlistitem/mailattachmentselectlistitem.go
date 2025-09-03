@@ -2,7 +2,11 @@ package mailattachmentselectlistitem
 
 import (
 	"farental/core/data/api"
+	"farental/internal/helper"
+	"farental/internal/keybind"
 	"fmt"
+	"github.com/charmbracelet/bubbles/key"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
@@ -38,6 +42,48 @@ func Constructor(data *Data) list.IListItem {
 	w.OnBlur()
 
 	return w
+}
+
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	switch msgType := msg.(type) {
+	case tea.KeyMsg:
+
+		switch {
+		case key.Matches(msgType, keybind.Left):
+			w.data.Amount--
+
+			w.data.Amount = max(0, w.data.Amount)
+
+		case key.Matches(msgType, keybind.ShiftLeft):
+			w.data.Amount -= helper.Prev10Inc(w.data.Amount)
+
+			w.data.Amount = max(0, w.data.Amount)
+
+		case key.Matches(msgType, keybind.Right):
+			w.data.Amount++
+
+			w.data.Amount = min(w.data.Amount, w.data.Count)
+
+		case key.Matches(msgType, keybind.ShiftRight):
+			w.data.Amount += helper.Next10Inc(w.data.Amount)
+
+			w.data.Amount = min(w.data.Amount, w.data.Count)
+
+		}
+	}
+
+	return nil
+}
+
+func (w *Widget) Resize(size orvyn.Size) {
+	size.Height = 4
+
+	w.BaseWidget.Resize(size)
+
+	size.Width -= w.style.GetHorizontalFrameSize()
+	size.Height -= w.style.GetVerticalFrameSize()
+
+	w.contentSize = size
 }
 
 func (w *Widget) Render() string {

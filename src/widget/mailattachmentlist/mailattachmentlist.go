@@ -50,6 +50,7 @@ func New() *Widget {
 	w.Widget.PreferredSize.Height = 13
 
 	w.Widget = *list.New(mailattachmentlistitem.Constructor)
+	w.Widget.SetFilterable(false)
 
 	w.OnBlur()
 
@@ -63,7 +64,7 @@ func (w *Widget) Init() tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	return w.Render()
+	return w.Widget.Render()
 }
 
 func (w *Widget) Resize(size orvyn.Size) {

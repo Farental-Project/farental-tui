@@ -46,6 +46,8 @@ func Constructor(data *api.TravelResponse) list.IListItem {
 
 	w.featuresList = b.String()
 
+	w.OnBlur()
+
 	return w
 }
 

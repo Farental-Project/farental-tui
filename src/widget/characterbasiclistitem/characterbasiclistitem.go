@@ -2,9 +2,10 @@ package characterbasiclistitem
 
 import (
 	"farental/core/data/api"
+	"farental/internal/style"
+	"fmt"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
 )
@@ -13,60 +14,49 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	name     *orvyn.SimpleRenderable
-	race     *orvyn.SimpleRenderable
-	location *orvyn.SimpleRenderable
-
 	style lipgloss.Style
 
 	data *api.CharacterBasicResponse
 
-	layout *layout.CenterLayout
+	contentSize orvyn.Size
 }
 
 func Constructor(data *api.CharacterBasicResponse) list.IListItem {
 	w := new(Widget)
 
-	t := orvyn.GetTheme()
-
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.data = data
 
-	w.name = orvyn.NewSimpleRenderable("")
-	w.name.Style = t.Style(theme.TitleStyleID)
-
-	w.race = orvyn.NewSimpleRenderable("")
-	// TODO: Manage race colors
-	w.race.Style = t.Style(theme.HighlightTextStyleID)
-
-	w.location = orvyn.NewSimpleRenderable("")
-	w.location.Style = t.Style(theme.DimSecondaryTextStyleID)
-
-	w.layout = layout.NewCenterLayout(
-		layout.NewMaxWidthVBoxLayout(0,
-			[]orvyn.Renderable{
-				w.name,
-				w.race,
-				w.location,
-			},
-		),
-	)
+	w.OnBlur()
 
 	return w
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	size.Height = 5
+
 	w.BaseWidget.Resize(size)
 
 	size.Width -= w.style.GetHorizontalFrameSize()
 	size.Height -= w.style.GetVerticalFrameSize()
 
-	w.layout.Resize(size)
+	w.contentSize = size
 }
 
 func (w *Widget) Render() string {
-	return w.layout.Render()
+	t := orvyn.GetTheme()
+
+	str := w.style.Width(w.contentSize.Width).
+		Height(w.contentSize.Height).Render(
+		fmt.Sprintf("%s\n%s\n%s",
+			t.Style(theme.HighlightTextStyleID).Render(fmt.Sprintf("%s %s", w.data.FirstName, w.data.LastName)),
+			style.RaceStyle(w.data.RaceName).Render(w.data.RaceName),
+			t.Style(theme.DimTextStyleID).Render(w.data.LocationName),
+		),
+	)
+
+	return str
 }
 
 func (w *Widget) OnFocus() {

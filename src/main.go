@@ -64,13 +64,15 @@ func main() {
 
 	bubblehelp.Init()
 
-	registerKeymapContexts()
-
 	// Orvyn
 	orvyn.Init()
 
 	orvyn.SetTheme(ftheme.FarentalTheme{})
 
+	style.InitHelpStyle()
+
+	registerKeymapContexts()
+	
 	orvyn.RegisterScreen(screen.IDLogin, login.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
@@ -88,8 +90,6 @@ func main() {
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
 	orvyn.SwitchScreen(screen.IDLogin)
-
-	style.InitHelpStyle()
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
