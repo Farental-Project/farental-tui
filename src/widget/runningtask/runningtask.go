@@ -4,13 +4,13 @@ import (
 	"farental/art"
 	"farental/internal/context"
 	"farental/internal/helper"
-	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 	"time"
 )
@@ -34,15 +34,17 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
+	t := orvyn.GetTheme()
+
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.Style = Style{
-		Widget: style.BlurredStyle.
+		Widget: t.Style(theme.BlurredWidgetStyleID).
 			AlignHorizontal(lipgloss.Center),
-		NoTask:        style.DimTextStyle,
-		TaskRunning:   style.TitleStyle,
-		SpinnerWidget: style.FocusedStyle,
-		Spinner:       style.TitleStyle,
+		NoTask:        t.Style(theme.DimTextStyleID),
+		TaskRunning:   t.Style(theme.TitleStyleID),
+		SpinnerWidget: t.Style(theme.FocusedWidgetStyleID),
+		Spinner:       t.Style(theme.TitleStyleID),
 	}
 
 	w.spinner = spinner.New()

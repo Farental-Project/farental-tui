@@ -5,16 +5,16 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/layout"
-	"farental/style"
-	"farental/widget/filterablelist"
+	ftheme "farental/internal/theme"
+	"farental/widget/mailattachmentselectlistitem"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/list"
 )
 
 type HideAttachmentSelectMsg uint
@@ -28,11 +28,11 @@ type SelectItemMsg struct {
 	Amount int
 }
 
-func SelectItemCmd(item *api.ItemResponse, amount int) tea.Cmd {
+func SelectItemCmd(data *mailattachmentselectlistitem.Data) tea.Cmd {
 	return func() tea.Msg {
 		return SelectItemMsg{
-			Item:   *item,
-			Amount: amount,
+			Item:   data.ItemResponse,
+			Amount: data.Amount,
 		}
 	}
 }
@@ -43,7 +43,7 @@ type Widget struct {
 
 	title *orvyn.SimpleRenderable
 
-	list *filterablelist.Widget
+	list *list.Widget[mailattachmentselectlistitem.Data]
 
 	layout *layout.VBoxFullLayout
 
@@ -53,15 +53,15 @@ type Widget struct {
 func New() *Widget {
 	w := new(Widget)
 
+	t := orvyn.GetTheme()
+
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.title = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
-	w.title.Style = style.DimUnderlinedTitleStyle
+	w.title.Style = t.Style(ftheme.DimUnderlinedTextStyleID)
 	w.title.SizeConstraint = true
 
-	w.list = filterablelist.New(ListItemDelegate{}, []tealist.Item{})
-	w.list.KeyMap.NextPage = keybind.NextPage
-	w.list.KeyMap.PrevPage = keybind.PrevPage
+	w.list = list.New(mailattachmentselectlistitem.Constructor)
 
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
@@ -84,19 +84,14 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Enter):
-			if w.list.FilterState() != tealist.Filtering {
-				selectedItem, ok := w.list.SelectedItem().(ListItem)
+			if w.list.FilterState() != list.Filtering {
+				selectedItem := w.list.GetSelectedItem()
 
-				if !ok {
-					return nil
-				}
-
-				return SelectItemCmd(&selectedItem.Item,
-					selectedItem.Amount)
+				return SelectItemCmd(&selectedItem)
 			}
 
 		case key.Matches(msg, keybind.Esc):
-			if w.list.FilterState() == tealist.Unfiltered {
+			if w.list.FilterState() == list.Unfiltered {
 				return HideAttachmentSelectCmd
 			}
 
@@ -113,24 +108,19 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	var s lipgloss.Style
-
-	if w.IsFocused() {
-		s = style.FocusedStyle
-	} else {
-		s = style.BlurredStyle
-	}
-
-	return s.Width(w.contentSize.Width).
+	return orvyn.GetTheme().Style(theme.BlurredWidgetStyleID).
+		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	size.Width -= s.GetHorizontalFrameSize()
+	size.Height -= s.GetVerticalFrameSize()
 
 	w.contentSize = size
 	w.layout.Resize(size)
@@ -151,25 +141,13 @@ func (w *Widget) OnExitInput() {
 }
 
 func (w *Widget) CanExitInputting() bool {
-	return w.list.FilterState() == tealist.Unfiltered
+	return w.list.FilterState() == list.Unfiltered
 }
 
-func (w *Widget) SetItems(items *[]ListItem) {
-	listItems := make([]tealist.Item, 0)
-
-	for _, i := range *items {
-		listItems = append(listItems, i)
-	}
-
-	w.list.SetItems(listItems)
-}
-
-func (w *Widget) LoadData(filterItems []ListItem) {
-	var items []ListItem
-
+func (w *Widget) LoadData(filterItems []mailattachmentselectlistitem.Data) {
 	w.Init()
 
-	items = make([]ListItem, 0)
+	items := make([]mailattachmentselectlistitem.Data, 0)
 
 	resp, err := helper.SendRequest(request.InventoryGetShareable())
 
@@ -184,7 +162,12 @@ func (w *Widget) LoadData(filterItems []ListItem) {
 
 		// Non-existing index
 		if index == -1 {
-			listItem := NewListItem(&s)
+			listItem := mailattachmentselectlistitem.Data{
+				ItemResponse: s.Item,
+				Count:        s.Count,
+				Amount:       0,
+			}
+
 			items = append(items, listItem)
 			continue
 		}
@@ -194,14 +177,14 @@ func (w *Widget) LoadData(filterItems []ListItem) {
 
 	w.filterItems(&items, filterItems)
 
-	w.SetItems(&items)
+	w.list.SetItems(items)
 }
 
-func (w *Widget) filterItems(items *[]ListItem, filterItems []ListItem) {
+func (w *Widget) filterItems(items *[]mailattachmentselectlistitem.Data, filterItems []mailattachmentselectlistitem.Data) {
 	tmpItems := *items
 
 	for i, f := range *items {
-		index := FindItemIndex(f.Item.ID, &filterItems)
+		index := FindItemIndex(f.ID, &filterItems)
 
 		if index == -1 {
 			continue
@@ -220,9 +203,9 @@ func (w *Widget) filterItems(items *[]ListItem, filterItems []ListItem) {
 
 }
 
-func FindItemIndex(itemID uint, items *[]ListItem) int {
+func FindItemIndex(itemID uint, items *[]mailattachmentselectlistitem.Data) int {
 	for i, item := range *items {
-		if item.Item.ID == itemID {
+		if item.ID == itemID {
 			return i
 		}
 	}

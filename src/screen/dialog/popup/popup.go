@@ -3,14 +3,14 @@ package popup
 import (
 	"farental/art"
 	"farental/internal/keybind"
-	"farental/layout"
-	"farental/style"
 	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 )
 
@@ -63,13 +63,15 @@ func New(config Config) *Screen {
 
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.config = config
 
 	b.WriteString(config.Message)
 	b.WriteString("\n\n")
 
 	s.content = orvyn.NewSimpleRenderable(b.String())
-	s.content.Style = style.TitleStyle.AlignHorizontal(lipgloss.Center)
+	s.content.Style = t.Style(theme.TitleStyleID).AlignHorizontal(lipgloss.Center)
 	s.content.SizeConstraint = true
 
 	b.Reset()
@@ -80,8 +82,8 @@ func New(config Config) *Screen {
 		}
 
 		b.WriteString(fmt.Sprintf("%s %s",
-			style.NormalStyle.Render(o.Keybind.Help().Key),
-			style.DimTextStyle.Render(o.Text)))
+			t.Style(theme.NormalTextStyleID).Render(o.Keybind.Help().Key),
+			t.Style(theme.DimTextStyleID).Render(o.Text)))
 	}
 
 	s.options = orvyn.NewSimpleRenderable(b.String())

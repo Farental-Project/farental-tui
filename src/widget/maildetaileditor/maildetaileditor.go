@@ -6,18 +6,19 @@ import (
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/layout"
-	"farental/style"
+	"farental/internal/style"
+	ftheme "farental/internal/theme"
 	"farental/widget/mailattachmentlist"
-	"farental/widget/statusmessage"
-	"farental/widget/textinput"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/textinput"
 	"strconv"
 )
 
@@ -44,6 +45,8 @@ type Widget struct {
 	layout *layout.VBoxFullLayout
 
 	contentSize orvyn.Size
+
+	style lipgloss.Style
 }
 
 func New() *Widget {
@@ -59,10 +62,13 @@ func New() *Widget {
 
 	w := new(Widget)
 
+	t := orvyn.GetTheme()
+	ds := t.Style(theme.DimTextStyleID)
+
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.moneyTitle = orvyn.NewSimpleRenderable(lokyn.L("Money"))
-	w.moneyTitle.Style = style.DimTextStyle
+	w.moneyTitle.Style = ds
 
 	w.tiMoney = textinput.New()
 	w.tiMoney.Prompt = string(art.CharGrynars)
@@ -72,7 +78,7 @@ func New() *Widget {
 	w.tiMoneyStatus = statusmessage.New()
 
 	w.paymentTitle = orvyn.NewSimpleRenderable(lokyn.L("Payment request"))
-	w.paymentTitle.Style = style.DimTextStyle
+	w.paymentTitle.Style = ds
 
 	w.tiPayment = textinput.New()
 	w.tiPayment.Prompt = string(art.CharGrynars)
@@ -82,10 +88,10 @@ func New() *Widget {
 	w.tiPaymentStatus = statusmessage.New()
 
 	w.attachmentListTitle = orvyn.NewSimpleRenderable(lokyn.L("Attachments"))
-	w.attachmentListTitle.Style = style.DimUnderlinedTitleStyle
+	w.attachmentListTitle.Style = t.Style(ftheme.DimUnderlinedTextStyleID)
 	w.attachmentListTitle.SizeConstraint = true
 
-	w.attachmentsList = mailattachmentlist.New(ListItemDelegate{})
+	w.attachmentsList = mailattachmentlist.New()
 
 	w.focusManager = orvyn.NewFocusManager()
 	w.focusManager.Add(w.tiMoney)
@@ -107,6 +113,8 @@ func New() *Widget {
 		},
 	)
 
+	w.OnBlur()
+
 	return w
 }
 
@@ -126,15 +134,7 @@ func (w *Widget) Init() tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	var s lipgloss.Style
-
-	if w.IsFocused() {
-		s = style.FocusedStyle
-	} else {
-		s = style.BlurredStyle
-	}
-
-	return s.Width(w.contentSize.Width).
+	return w.style.Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
 		Render(w.layout.Render())
 }
@@ -142,8 +142,8 @@ func (w *Widget) Render() string {
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	size.Width -= w.style.GetHorizontalFrameSize()
+	size.Height -= w.style.GetVerticalFrameSize()
 
 	w.contentSize = size
 	w.layout.Resize(size)
@@ -224,7 +224,7 @@ func (w *Widget) GetPaymentAmount() int {
 }
 
 func (w *Widget) HasAttachments() bool {
-	if len(w.attachmentsList.Items()) > 0 ||
+	if len(w.attachmentsList.GetItems()) > 0 ||
 		w.GetAttachedMoneyAmount() > 0 ||
 		w.GetPaymentAmount() > 0 {
 		return true
@@ -233,20 +233,18 @@ func (w *Widget) HasAttachments() bool {
 	return false
 }
 
-func (w *Widget) AddAttachment(item *api.ItemResponse, amount int) (tea.Cmd, error) {
+func (w *Widget) AddAttachment(item *api.ItemResponse, amount int) error {
 	_, err := w.inventory.AddItem(item, amount)
 
-	cmd := w.setListItems()
+	w.setListItems()
 
-	return cmd, err
+	return err
 }
 
-func (w *Widget) RemoveAttachment(index int) tea.Cmd {
+func (w *Widget) RemoveAttachment(index int) {
 	w.inventory.RemoveIndex(index)
 
-	cmd := w.setListItems()
-
-	return cmd
+	w.setListItems()
 }
 
 func (w *Widget) GetAttachments() *data.Inventory {
@@ -257,18 +255,6 @@ func (w *Widget) SetFocusOnAttachmentList() {
 	w.focusManager.Focus(2)
 }
 
-func (w *Widget) setListItems() tea.Cmd {
-	var listItems []tealist.Item
-
-	listItems = make([]tealist.Item, 0)
-
-	for _, i := range w.inventory.Stacks {
-		listItems = append(listItems,
-			ListItem{
-				Stack: &i,
-			},
-		)
-	}
-
-	return w.attachmentsList.SetItems(listItems)
+func (w *Widget) setListItems() {
+	w.attachmentsList.SetItems(w.inventory.Stacks)
 }

@@ -6,20 +6,20 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen/generic/selectionlist"
-	tealist "github.com/charmbracelet/bubbles/list"
+	"farental/widget/travellistitem"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 )
 
 type Screen struct {
-	selectionlist.Screen
+	selectionlist.Screen[api.TravelResponse]
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Travels"), ItemDelegate{},
+	s.Screen = selectionlist.New(lokyn.L("Travels"), travellistitem.Constructor,
 		s.loadTravels, s.submit)
 
 	return s
@@ -34,11 +34,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) submit() bool {
-	i, ok := s.GetSelectedItem().(Item)
-
-	if !ok {
-		return false
-	}
+	i := s.GetSelectedItem()
 
 	req := request.TravelStart(i.ID)
 
@@ -73,11 +69,5 @@ func (s *Screen) loadTravels() {
 		return
 	}
 
-	items := make([]tealist.Item, 0)
-
-	for _, t := range *travels {
-		items = append(items, NewItem(&t))
-	}
-
-	s.SetItems(items)
+	s.SetItems(*travels)
 }

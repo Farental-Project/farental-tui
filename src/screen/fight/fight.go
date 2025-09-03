@@ -6,7 +6,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen/generic/selectionlist"
-	"github.com/charmbracelet/bubbles/list"
+	"farental/widget/fightlistitem"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
@@ -14,13 +14,13 @@ import (
 )
 
 type Screen struct {
-	selectionlist.Screen
+	selectionlist.Screen[fightlistitem.Data]
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Fights"), ListItemDelegate{},
+	s.Screen = selectionlist.New(lokyn.L("Fights"), fightlistitem.Constructor,
 		s.loadFights, s.submit)
 
 	return s
@@ -36,9 +36,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) loadFights() {
 	var fights []api.FightCompositionResponse
-	var items []list.Item
 
-	items = make([]list.Item, 0)
+	data := make([]fightlistitem.Data, 0)
 
 	resp, err := helper.SendRequest(request.FightGetAvailable())
 
@@ -50,22 +49,21 @@ func (s *Screen) loadFights() {
 	fights = *resp.Result().(*[]api.FightCompositionResponse)
 
 	for _, f := range fights {
-		item := NewListItem(f)
+		item := fightlistitem.Data{
+			FightCompositionResponse: f,
+			TotalPower:               0,
+		}
 
-		items = append(items, item)
+		data = append(data, item)
 	}
 
-	s.SetItems(items)
+	s.SetItems(data)
 }
 
 func (s *Screen) submit() bool {
-	i, ok := s.GetSelectedItem().(ListItem)
+	i := s.GetSelectedItem()
 
-	if !ok {
-		return false
-	}
-
-	req := request.FightStart(i.FightCompo.ID)
+	req := request.FightStart(i.ID)
 
 	resp, err := helper.SendRequest(req)
 

@@ -7,6 +7,7 @@ import (
 	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/keybind"
+	"farental/internal/style"
 	ftheme "farental/internal/theme"
 	"farental/screen"
 	"farental/screen/activity"
@@ -25,7 +26,6 @@ import (
 	"farental/screen/scripteditor"
 	"farental/screen/scriptexplorer"
 	"farental/screen/travel"
-	"farental/style"
 	"fmt"
 	"github.com/halsten-dev/orvyn"
 	"log"
@@ -88,6 +88,8 @@ func main() {
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
 	orvyn.SwitchScreen(screen.IDLogin)
+
+	style.InitHelpStyle()
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 

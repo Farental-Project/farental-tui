@@ -1,11 +1,12 @@
 package fullhelp
 
 import (
-	"farental/style"
+	ftheme "farental/internal/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 )
 
@@ -29,15 +30,16 @@ type Widget struct {
 
 func New() *Widget {
 	w := new(Widget)
+	t := orvyn.GetTheme()
 
 	w.title = lokyn.L("Help")
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.Style = Style{
-		Widget: style.BlurredStyle,
-		Title:  style.DimUnderlinedTitleStyle,
-		help: style.NormalStyle.
+		Widget: t.Style(theme.BlurredWidgetStyleID),
+		Title:  t.Style(ftheme.DimUnderlinedTextStyleID),
+		help: t.Style(theme.NormalTextStyleID).
 			Align(lipgloss.Center, lipgloss.Center),
 	}
 

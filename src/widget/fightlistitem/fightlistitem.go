@@ -1,38 +1,34 @@
-package activitylistitem
+package fightlistitem
 
 import (
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
+	"fmt"
+	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget"
 	"github.com/halsten-dev/orvyn/widget/list"
+	"strconv"
 	"strings"
 )
 
-type DurationData struct {
-	api.DurationResponse
-}
-
-func (d DurationData) RenderValue() string {
-	return helper.HoursDecFormat(d.Duration)
-}
-
 type Data struct {
-	api.ActivityResponse
-	DurationIndex int
+	api.FightCompositionResponse
+	TotalPower int
 }
 
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	style lipgloss.Style
-
 	data *Data
+
+	paginator paginator.Model
+
+	style lipgloss.Style
 
 	contentSize orvyn.Size
 }
@@ -40,44 +36,27 @@ type Widget struct {
 func Constructor(data *Data) list.IListItem {
 	w := new(Widget)
 
-	w.BaseWidget = orvyn.NewBaseWidget()
-
 	w.data = data
+
+	w.paginator = paginator.New()
+	w.paginator.Type = paginator.Dots
+	w.paginator.PerPage = 4
+	widget.UpdatePaginatorTheme(&w.paginator)
+	w.paginator.SetTotalPages(len(data.Actors))
+	w.paginator.KeyMap.NextPage = keybind.Right
+	w.paginator.KeyMap.PrevPage = keybind.Left
+
+	for _, a := range data.Actors {
+		w.data.TotalPower += a.Power
+	}
 
 	w.OnBlur()
 
 	return w
 }
 
-func (w *Widget) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-
-		switch {
-		case key.Matches(msg, keybind.Left):
-			w.data.DurationIndex--
-
-			if w.data.DurationIndex < 0 {
-				w.data.DurationIndex = 0
-			}
-
-		case key.Matches(msg, keybind.Right):
-			w.data.DurationIndex++
-
-			length := len(w.data.Duration.Durations) - 1
-
-			if w.data.DurationIndex > length {
-				w.data.DurationIndex = length
-			}
-
-		}
-	}
-
-	return nil
-}
-
 func (w *Widget) Resize(size orvyn.Size) {
-	size.Height = 6
+	size.Height = 7
 
 	w.BaseWidget.Resize(size)
 
@@ -97,28 +76,40 @@ func (w *Widget) Render() string {
 
 	s = w.style
 	t := orvyn.GetTheme()
-	ds := t.Style(theme.DimTextStyleID)
 	hs := t.Style(theme.HighlightTextStyleID)
 	ns := lipgloss.NewStyle()
 
-	left.WriteString(w.data.Name)
-	left.WriteString("\n")
-	left.WriteString(ds.Render(w.data.Description))
+	perPage := w.paginator.PerPage
+	count := 0
+	start, end := w.paginator.GetSliceBounds(len(w.data.Actors))
 
-	right.WriteString(ds.Render(w.data.Skill.Name))
-	right.WriteString("\n\n\n")
+	for i, a := range w.data.Actors[start:end] {
+		if i > 0 {
+			left.WriteString("\n")
+		}
 
-	if len(w.data.Duration.Durations) > 0 {
-		right.WriteString(hs.Render("< "))
-		right.WriteString(t.Style(theme.NormalTextStyleID).
-			Bold(true).Render(helper.HoursDecFormat(
-			w.data.Duration.Durations[w.data.DurationIndex].Duration)))
-		right.WriteString(hs.Render(" >"))
-	} else {
-		right.WriteString(t.Style(theme.NormalTextStyleID).
-			Render(helper.HoursDecFormat(
-				w.data.Duration.Durations[0].Duration)))
+		left.WriteString(fmt.Sprintf("%s (%d)", a.Name, a.Power))
+
+		count++
 	}
+
+	if count < perPage {
+		left.WriteString(strings.Repeat("\n", perPage-count))
+	}
+
+	if len(w.data.Actors) > perPage {
+		left.WriteString("\n")
+		left.WriteString(hs.Render("< "))
+		left.WriteString(w.paginator.View())
+		left.WriteString(hs.Render(" >"))
+	} else {
+		left.WriteString("\n")
+	}
+
+	right.WriteString(hs.Render(strconv.Itoa(w.data.TotalPower)))
+	right.WriteString("\n\n\n\n")
+	right.WriteString(t.Style(theme.NeutralTextStyleID).Bold(true).Render(
+		helper.HoursDecFormat(w.data.Duration.Duration)))
 
 	tui := s.Width(width).Height(w.contentSize.Height).Render(
 		lipgloss.JoinHorizontal(lipgloss.Top,
@@ -147,11 +138,9 @@ func (w *Widget) OnExitInput() {}
 func (w *Widget) FilterValue() string {
 	var b strings.Builder
 
-	b.WriteString(w.data.Name)
-	b.WriteString(" ")
-	b.WriteString(w.data.Description)
-	b.WriteString(" ")
-	b.WriteString(w.data.Skill.Name)
+	for _, a := range w.data.Actors {
+		b.WriteString(a.Name)
+	}
 
 	return b.String()
 }

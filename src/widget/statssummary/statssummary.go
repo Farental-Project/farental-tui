@@ -3,9 +3,11 @@ package statssummary
 import (
 	"farental/core/data"
 	"farental/core/data/api"
+	ftheme "farental/internal/theme"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"strconv"
 	"strings"
 )
@@ -35,7 +37,7 @@ func (c *column) render(width int) string {
 
 	rightWidth := width - lipgloss.Width(leftPart)
 
-	rightPart := style.TextStyle.Width(rightWidth).
+	rightPart := lipgloss.NewStyle().Width(rightWidth).
 		AlignHorizontal(lipgloss.Right).Render(c.valStr.String())
 
 	return lipgloss.JoinHorizontal(lipgloss.Center,
@@ -66,6 +68,8 @@ func New() *Widget {
 func (w *Widget) Render() string {
 	var col column
 
+	t := orvyn.GetTheme()
+
 	w.renderStat(data.INIStat, true, &col)
 	w.renderStat(data.STRStat, true, &col)
 	w.renderStat(data.INTStat, true, &col)
@@ -77,12 +81,12 @@ func (w *Widget) Render() string {
 	w.renderStat(data.ATKStat, false, &col)
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
-		style.DimUnderlinedTitleStyle.
+		t.Style(ftheme.DimUnderlinedTextStyleID).
 			Width(w.contentSize.Width).
 			Render(w.title),
 		col.render(w.contentSize.Width))
 
-	return style.BlurredStyle.
+	return t.Style(theme.BlurredWidgetStyleID).
 		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
 		Render(content)
@@ -97,10 +101,12 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	size.Width -= s.GetHorizontalFrameSize()
+	size.Height -= s.GetVerticalFrameSize()
 
 	w.contentSize = size
 }
@@ -108,9 +114,9 @@ func (w *Widget) Resize(size orvyn.Size) {
 func (w *Widget) renderStat(statCode data.StatCode, addReturn bool, column *column) {
 	s := w.statMap[statCode]
 
-	column.statStr.WriteString(style.NormalStyle.Render(s.Name))
+	column.statStr.WriteString(orvyn.GetTheme().Style(theme.NormalTextStyleID).Render(s.Name))
 	// column.sepStr.WriteString(style.DimTextStyle.Render(" : "))
-	column.valStr.WriteString(style.TextStyle.
+	column.valStr.WriteString(lipgloss.NewStyle().
 		Render(strconv.Itoa(s.Value)))
 
 	if addReturn {

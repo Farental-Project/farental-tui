@@ -5,23 +5,24 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	layout "farental/layout"
-	"farental/style"
-	"farental/widget/filterablelist"
+	ftheme "farental/internal/theme"
 	"farental/widget/help"
+	"farental/widget/inventorylistitem"
 	"farental/widget/inventorystackinspect"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
 type Screen struct {
 	title         *orvyn.SimpleRenderable
-	list          *filterablelist.Widget
+	list          *list.Widget[api.StackResponse]
 	inspector     *inventorystackinspect.Widget
 	statusMessage *statusmessage.Widget
 	help          *help.Widget
@@ -32,12 +33,14 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
-	s.title.Style = style.TitleStyle
+	s.title.Style = t.Style(theme.TitleStyleID)
 
-	s.list = filterablelist.New(ListItemDelegate{}, []tealist.Item{})
+	s.list = list.New(inventorylistitem.Constructor)
 
-	s.list.PreferredSize.Width = style.LayoutWidth - 2 // border
+	s.list.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID) // border
 	s.list.PreferredSize.Height = 80
 	s.list.MinSize.Height = 13
 
@@ -73,16 +76,12 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextInventory)
 
 	s.loadInventory()
-	s.list.Select(0)
+	s.list.FocusFirst()
 
-	selectedItem, ok := s.list.SelectedItem().(ListItem)
-
-	if !ok {
-		return nil
-	}
+	selectedItem := s.list.GetSelectedItem()
 
 	s.updateInspector(&selectedItem)
-	s.updateKeybind(&selectedItem.Stack.Item)
+	s.updateKeybind(&selectedItem.Item)
 
 	return nil
 }
@@ -100,12 +99,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return tea.Quit
 
 		case key.Matches(msg, keybind.Esc):
-			if s.list.FilterState() == tealist.Unfiltered {
+			if s.list.FilterState() == list.Unfiltered {
 				return orvyn.SwitchToPreviousScreen()
 			}
 
 		case key.Matches(msg, keybind.Help):
-			if s.list.FilterState() != tealist.Filtering {
+			if s.list.FilterState() != list.Filtering {
 				bubblehelp.ShowAll = !bubblehelp.ShowAll
 			}
 
@@ -115,17 +114,17 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	cmd := s.list.Update(msg)
 
-	index := s.list.GlobalIndex()
-	selectedItem, ok := s.list.SelectedItem().(ListItem)
+	selectedItem := s.list.GetSelectedItem()
+	index := s.list.GetGlobalIndex()
 
-	if ok {
-		if s.inspector.GetCurrentStackItemID() != selectedItem.Stack.ItemID {
+	if selectedItem.ID > 0 {
+		if s.inspector.GetCurrentStackItemID() != selectedItem.ItemID {
 			s.updateInspector(&selectedItem)
-			s.updateKeybind(&selectedItem.Stack.Item)
+			s.updateKeybind(&selectedItem.Item)
 		}
 	}
 
-	if s.list.FilterState() == tealist.Filtering {
+	if s.list.FilterState() == list.Filtering {
 		return cmd
 	}
 
@@ -155,9 +154,6 @@ func (s *Screen) Render() orvyn.Layout {
 
 func (s *Screen) loadInventory() {
 	var inventory api.InventoryResponse
-	var items []tealist.Item
-
-	items = make([]tealist.Item, 0)
 
 	resp, err := helper.SendRequest(request.InventoryGetFull())
 
@@ -168,27 +164,19 @@ func (s *Screen) loadInventory() {
 
 	inventory = *resp.Result().(*api.InventoryResponse)
 
-	for _, s := range inventory.Stacks {
-		item := ListItem{
-			Stack: s,
-		}
-
-		items = append(items, item)
-	}
-
-	s.list.SetItems(items)
+	s.list.SetItems(inventory.Stacks)
 }
 
 func (s *Screen) submit() bool {
 	return false
 }
 
-func (s *Screen) updateInspector(item *ListItem) {
-	s.inspector.UpdateData(&item.Stack)
+func (s *Screen) updateInspector(item *api.StackResponse) {
+	s.inspector.UpdateData(item)
 }
 
-func (s *Screen) useItem(index int, item *ListItem) {
-	req := request.InventoryUseItem(item.Stack.ItemID)
+func (s *Screen) useItem(index int, item *api.StackResponse) {
+	req := request.InventoryUseItem(item.ItemID)
 
 	_, err := helper.SendRequest(req)
 
@@ -197,11 +185,11 @@ func (s *Screen) useItem(index int, item *ListItem) {
 		return
 	}
 
-	item.Stack.Count--
+	item.Count--
 
 	s.statusMessage.SetMessage(lokyn.L("Item used !"), statusmessage.SuccessMessage)
 
-	if item.Stack.Count == 0 {
+	if item.Count == 0 {
 		s.list.RemoveItem(index)
 		return
 	}
@@ -209,8 +197,8 @@ func (s *Screen) useItem(index int, item *ListItem) {
 	s.list.SetItem(index, *item)
 }
 
-func (s *Screen) equipItem(item *ListItem) {
-	req := request.InventoryEquipItem(item.Stack.ItemID)
+func (s *Screen) equipItem(item *api.StackResponse) {
+	req := request.InventoryEquipItem(item.ItemID)
 
 	_, err := helper.SendRequest(req)
 
@@ -219,7 +207,7 @@ func (s *Screen) equipItem(item *ListItem) {
 		return
 	}
 
-	item.Stack.Count--
+	item.Count--
 
 	s.statusMessage.SetMessage(lokyn.L("Item equipped !"), statusmessage.SuccessMessage)
 

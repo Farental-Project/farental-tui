@@ -5,9 +5,10 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
-	"farental/style"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"github.com/spf13/viper"
 	"log"
 	"time"
@@ -87,9 +88,11 @@ func (s *Screen) updateEventLog() {
 		return
 	}
 
+	ts := orvyn.GetTheme().Style(theme.TitleStyleID)
+
 	for _, entry := range eventLog.Entries {
 		s.logEvent.AppendContent(fmt.Sprintf("%s - %s",
-			style.TitleStyle.Render(
+			ts.Render(
 				entry.Timestamp.Format(viper.GetString("datetimeformat"))),
 			entry.Value,
 		))
@@ -135,7 +138,7 @@ func (s *Screen) updateVisibleCharacters() {
 
 	for _, character := range characters {
 		str = append(str,
-			style.TitleStyle.Render(fmt.Sprintf("%s %s - %s\n  %s",
+			orvyn.GetTheme().Style(theme.TitleStyleID).Render(fmt.Sprintf("%s %s - %s\n  %s",
 				character.FirstName, character.LastName,
 				character.RaceName, character.CurrentActivityTitle)))
 	}

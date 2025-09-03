@@ -5,21 +5,22 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/layout"
 	"farental/screen"
 	"farental/screen/dialog/popup"
-	"farental/style"
 	"farental/widget/help"
 	"farental/widget/mailattachmentlist"
 	"farental/widget/mailattachmentselect"
+	"farental/widget/mailattachmentselectlistitem"
 	"farental/widget/maildetaileditor"
 	"farental/widget/mailwriter"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"net/http"
 )
 
@@ -42,8 +43,10 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	t := orvyn.GetTheme()
+
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("New mail"))
-	s.title.Style = style.TitleStyle
+	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.writer = mailwriter.New()
 	s.detailEditor = maildetaileditor.New()
@@ -162,7 +165,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.hideSelectAttachment()
 
 	case mailattachmentselect.SelectItemMsg:
-		cmd, err := s.detailEditor.AddAttachment(&msg.Item, msg.Amount)
+		err := s.detailEditor.AddAttachment(&msg.Item, msg.Amount)
 
 		if err != nil {
 			s.statusMessage.SetError(err)
@@ -170,7 +173,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		s.hideSelectAttachment()
 
-		return cmd
+		return nil
 	}
 
 	cmd := s.focusManager.Update(msg)
@@ -260,15 +263,15 @@ func (s *Screen) showSelectAttachment() {
 	// Load data with filter list
 	currentAttachments := s.detailEditor.GetAttachments()
 
-	filterItems := make([]mailattachmentselect.ListItem, 0)
+	filterItems := make([]mailattachmentselectlistitem.Data, 0)
 
 	for _, i := range currentAttachments.Stacks {
 		index := mailattachmentselect.FindItemIndex(i.ItemID, &filterItems)
 
 		if index == -1 {
-			item := mailattachmentselect.ListItem{
-				Item:  i.Item,
-				Count: i.Count,
+			item := mailattachmentselectlistitem.Data{
+				ItemResponse: i.Item,
+				Count:        i.Count,
 			}
 
 			filterItems = append(filterItems, item)

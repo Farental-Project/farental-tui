@@ -5,17 +5,17 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/layout"
-	"farental/style"
 	"farental/widget/help"
 	"farental/widget/mailcontentreader"
 	"farental/widget/maildetailinspect"
-	"farental/widget/statusmessage"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"net/http"
 )
 
@@ -39,7 +39,7 @@ func New() *Screen {
 	s := new(Screen)
 
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("Read mail"))
-	s.title.Style = style.TitleStyle
+	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.content = mailcontentreader.New()
 	s.inspector = maildetailinspect.New()

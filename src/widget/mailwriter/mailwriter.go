@@ -3,16 +3,17 @@ package mailwriter
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/layout"
-	"farental/style"
-	"farental/widget/textarea"
-	"farental/widget/textinput"
+	"farental/internal/style"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/textarea"
+	"github.com/halsten-dev/orvyn/widget/textinput"
 )
 
 type Widget struct {
@@ -28,6 +29,8 @@ type Widget struct {
 	focusManager *orvyn.FocusManager
 
 	layout *layout.VBoxFullLayout
+
+	style lipgloss.Style
 }
 
 func New() *Widget {
@@ -71,6 +74,8 @@ func New() *Widget {
 		},
 	)
 
+	w.OnBlur()
+
 	return w
 }
 
@@ -86,15 +91,7 @@ func (w *Widget) Init() tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	var s lipgloss.Style
-
-	if w.IsFocused() {
-		s = style.FocusedStyle
-	} else {
-		s = style.BlurredStyle
-	}
-
-	return s.Width(w.contentSize.Width).
+	return w.style.Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
 		Render(w.layout.Render())
 }
@@ -102,8 +99,8 @@ func (w *Widget) Render() string {
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	size.Width -= w.style.GetHorizontalFrameSize()
+	size.Height -= w.style.GetVerticalFrameSize()
 
 	w.contentSize = size
 	w.layout.Resize(size)
@@ -125,9 +122,12 @@ func (w *Widget) inputUpdate(msg tea.Msg) tea.Cmd {
 
 func (w *Widget) OnFocus() {
 	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
 }
 
-func (w *Widget) OnBlur() {}
+func (w *Widget) OnBlur() {
+	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+}
 
 func (w *Widget) OnEnterInput() {
 	w.focusManager.Focus(0)

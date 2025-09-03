@@ -7,8 +7,8 @@ import (
 	"farental/internal/keybind"
 	"farental/screen"
 	"farental/screen/generic/selectionlist"
+	"farental/widget/scriptexplorerlistitem"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
@@ -16,7 +16,7 @@ import (
 )
 
 type Screen struct {
-	selectionlist.Screen
+	selectionlist.Screen[api.ScriptBasicResponse]
 }
 
 func New() *Screen {
@@ -24,7 +24,7 @@ func New() *Screen {
 
 	s.Screen = selectionlist.New(
 		lokyn.L("Scripts"),
-		ListItemDelegate{},
+		scriptexplorerlistitem.Constructor,
 		s.loadScripts,
 		s.submit,
 	)
@@ -56,9 +56,6 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) loadScripts() {
 	var scripts []api.ScriptBasicResponse
-	var items []tealist.Item
-
-	items = make([]tealist.Item, 0)
 
 	resp, err := helper.SendRequest(request.ScriptGetPrivate())
 
@@ -69,13 +66,7 @@ func (s *Screen) loadScripts() {
 
 	scripts = *resp.Result().(*[]api.ScriptBasicResponse)
 
-	for _, s := range scripts {
-		item := NewListItem(s)
-
-		items = append(items, item)
-	}
-
-	s.SetItems(items)
+	s.SetItems(scripts)
 }
 
 func (s *Screen) submit() bool {

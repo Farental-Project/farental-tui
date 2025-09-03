@@ -1,9 +1,9 @@
 package scripteditor
 
 import (
-	"farental/layout"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/widget/list"
 )
 

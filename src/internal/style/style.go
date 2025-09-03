@@ -2,7 +2,35 @@ package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
+	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 )
+
+var (
+	MainHelpStyle bubblehelp.Style
+)
+
+func InitHelpStyle() {
+	t := orvyn.GetTheme()
+	ds := t.Style(theme.NeutralDimTextStyleID)
+	ns := t.Style(theme.NeutralTextStyleID)
+
+	MainHelpStyle = bubblehelp.Style{
+		EssentialKey:               ns.Bold(true),
+		EssentialKeyDescription:    ds,
+		EssentialKeySeparator:      ds,
+		EssentialKeySeparatorValue: " ",
+		EssentialColSeparator:      ds,
+		EssentialColSeparatorValue: " • ",
+		FullKey:                    ns.Bold(true),
+		FullKeyDescription:         ds,
+		FullKeySeparator:           ds,
+		FullKeySeparatorValue:      " ",
+		FullColSeparator:           lipgloss.Style{},
+		FullColSeparatorValue:      "  ",
+	}
+}
 
 func RaceStyle(name string) lipgloss.Style {
 	var style lipgloss.Style

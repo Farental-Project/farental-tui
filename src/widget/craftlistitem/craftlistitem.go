@@ -52,6 +52,8 @@ func Constructor(data *Data) list.IListItem {
 	w.paginator.KeyMap.NextPage = keybind.NextPage
 	w.paginator.KeyMap.PrevPage = keybind.PrevPage
 
+	w.OnBlur()
+
 	return w
 }
 
@@ -63,6 +65,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	size.Height = 7
+
 	w.BaseWidget.Resize(size)
 
 	size.Width -= w.style.GetHorizontalFrameSize()
@@ -80,7 +84,7 @@ func (w *Widget) Render() string {
 	var top string
 	var width int
 
-	size := w.GetSize()
+	size := w.contentSize
 	t := orvyn.GetTheme()
 	ds := t.Style(theme.DimTextStyleID)
 	hs := t.Style(theme.HighlightTextStyleID)

@@ -1,16 +1,16 @@
 package mailattachmentlist
 
 import (
+	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/style"
-	"farental/widget/list"
+	"farental/internal/style"
+	"farental/widget/mailattachmentlistitem"
 	"github.com/charmbracelet/bubbles/key"
-	tealist "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/widget/list"
 )
 
 type ShowAttachmentSelectMsg uint
@@ -28,14 +28,10 @@ func DeleteAttachmentCmd(index int) tea.Cmd {
 }
 
 type Widget struct {
-	orvyn.BaseFocusable
-
-	list.Widget
-
-	contentSize orvyn.Size
+	list.Widget[api.StackResponse]
 }
 
-func New(delegate tealist.ItemDelegate) *Widget {
+func New() *Widget {
 	keymapContext := bubblehelp.NewKeymap(2)
 	keymapContext.Style = style.MainHelpStyle
 	keymapContext.NewKeyBinding(keybind.Up, true)
@@ -53,36 +49,24 @@ func New(delegate tealist.ItemDelegate) *Widget {
 
 	w.Widget.PreferredSize.Height = 13
 
-	w.Widget = *list.New(delegate, []tealist.Item{})
+	w.Widget = *list.New(mailattachmentlistitem.Constructor)
+
+	w.OnBlur()
 
 	return w
 }
 
 func (w *Widget) Init() tea.Cmd {
-	w.SetItems([]tealist.Item{})
+	w.SetItems([]api.StackResponse{})
 
 	return nil
 }
 
 func (w *Widget) Render() string {
-	var s lipgloss.Style
-
-	if w.IsFocused() {
-		s = style.FocusedStyle
-	} else {
-		s = style.BlurredStyle
-	}
-
-	return s.Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
-		Render(w.Widget.Render())
+	return w.Render()
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
-
-	w.contentSize = size
 	w.Widget.Resize(size)
 }
 
@@ -94,7 +78,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			return ShowAttachmentSelectCmd
 
 		case key.Matches(msg, keybind.DKey):
-			return DeleteAttachmentCmd(w.Index())
+			return DeleteAttachmentCmd(w.GetGlobalIndex())
 		}
 	}
 
@@ -104,10 +88,12 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) OnFocus() {
+	w.Widget.OnFocus()
 	bubblehelp.SwitchContext(keybind.ContextMailDetailEditorAttachmentList)
 }
 
 func (w *Widget) OnBlur() {
+	w.Widget.OnBlur()
 	bubblehelp.SwitchToPreviousContext()
 }
 

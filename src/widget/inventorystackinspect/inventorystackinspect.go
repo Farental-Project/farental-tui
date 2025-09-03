@@ -2,11 +2,12 @@ package inventorystackinspect
 
 import (
 	"farental/core/data/api"
-	"farental/layout"
-	"farental/style"
+	ftheme "farental/internal/theme"
 	"fmt"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
 	"strings"
 )
 
@@ -30,16 +31,17 @@ type Widget struct {
 
 func New() *Widget {
 	w := new(Widget)
+	t := orvyn.GetTheme()
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	titleStyle := style.DimBottomBorderStyle
+	titleStyle := t.Style(ftheme.DimUnderlinedTextStyleID)
 
 	w.srName = orvyn.NewSimpleRenderable("")
-	w.srName.Style = style.DimUnderlinedTitleStyle
+	w.srName.Style = titleStyle
 	w.srName.SizeConstraint = true
 	w.srUnique = orvyn.NewSimpleRenderable(lokyn.L("Unique"))
-	w.srUnique.Style = style.SpecialHighlightStyle
+	w.srUnique.Style = t.Style(theme.HighlightTextStyleID)
 	w.srUnique.SetActive(false)
 	w.srDescription = orvyn.NewSimpleRenderable("")
 	w.srDescription.SizeConstraint = true
@@ -89,16 +91,18 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return style.BlurredStyle.
+	return orvyn.GetTheme().Style(theme.BlurredWidgetStyleID).
 		Height(w.layout.GetSize().Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+
 	w.BaseWidget.Resize(size)
 
-	size.Width -= style.BlurredStyle.GetHorizontalFrameSize()
-	size.Height -= style.BlurredStyle.GetVerticalFrameSize()
+	size.Width -= s.GetHorizontalFrameSize()
+	size.Height -= s.GetVerticalFrameSize()
 
 	w.layout.Resize(size)
 }
