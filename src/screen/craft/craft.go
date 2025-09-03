@@ -50,7 +50,7 @@ func (s *Screen) loadCrafts() {
 	for _, c := range crafts {
 		item := craftlistitem.Data{
 			RecipeResponse: c,
-			Amount:         0,
+			CraftAmount:    0,
 		}
 
 		data = append(data, item)
@@ -64,7 +64,11 @@ func (s *Screen) loadCrafts() {
 func (s *Screen) submit() bool {
 	i := s.GetSelectedItem()
 
-	req := request.CraftStart(i.ID, i.Amount)
+	if i.CraftAmount <= 0 {
+		return false
+	}
+
+	req := request.CraftStart(i.ID, i.CraftAmount)
 
 	resp, err := helper.SendRequest(req)
 

@@ -19,7 +19,7 @@ import (
 
 type Data struct {
 	api.RecipeResponse
-	Amount int
+	CraftAmount int
 }
 
 type Widget struct {
@@ -60,6 +60,8 @@ func Constructor(data *Data) list.IListItem {
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	w.amountSelector.Update(msg)
 	w.paginator, _ = w.paginator.Update(msg)
+
+	w.data.CraftAmount = w.amountSelector.GetValue()
 
 	return nil
 }
