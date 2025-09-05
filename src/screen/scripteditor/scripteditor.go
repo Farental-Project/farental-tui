@@ -1,10 +1,16 @@
 package scripteditor
 
 import (
+	"farental/core/data/api"
+	"farental/widget/help"
+	"farental/widget/scriptinfoinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
+	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
 type Screen struct {
@@ -18,27 +24,66 @@ type Screen struct {
 	// ScriptRulesParamEditor
 	// ScriptAbilitySelect
 
-	list *list.Widget[string]
+	title         *orvyn.SimpleRenderable
+	scriptInfo    *scriptinfoinput.Widget
+	list          *list.Widget[string]
+	statusMessage *statusmessage.Widget
+	help          *help.Widget
+
+	focusManager *orvyn.FocusManager
 
 	layout *layout.CenterLayout
+
+	new bool
 }
 
 func New() *Screen {
 	s := new(Screen)
 
+	s.title = orvyn.NewSimpleRenderable(lokyn.L("Script editor"))
+	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
+
+	s.scriptInfo = scriptinfoinput.New()
 	s.list = list.New(list.SimpleListItemConstructor)
 
+	s.statusMessage = statusmessage.New()
+	s.help = help.New()
+
+	s.focusManager = orvyn.NewFocusManager()
+	s.focusManager.Add(s.scriptInfo)
+	s.focusManager.Add(s.list)
+
 	s.layout = layout.NewCenterLayout(
-		s.list,
+		layout.NewMaxWidthVBoxFullLayout(
+			orvyn.NewSize(10, 4),
+			2,
+			[]orvyn.Renderable{
+				s.title,
+				orvyn.VGap,
+				layout.NewHBoxFixedRatioLayout(
+					0, 1, 1,
+					[]layout.FixedRatioRenderable{
+						layout.NewFixedRatioRenderable(0.2, s.scriptInfo),
+						layout.NewFixedRatioRenderable(0.8, s.list),
+					},
+				),
+				s.statusMessage,
+				s.help,
+			},
+		),
 	)
 
 	return s
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
-	data := []string{"hello", "test"}
+	script, ok := i.(*api.ScriptBasicResponse)
 
-	s.list.SetItems(data)
+	if !ok || script == nil {
+		s.new = true
+	}
+
+	s.focusManager.FocusFirst()
 
 	return nil
 }
@@ -48,7 +93,7 @@ func (s *Screen) OnExit() any {
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
-	cmd := s.list.Update(msg)
+	cmd := s.focusManager.Update(msg)
 
 	return cmd
 }
