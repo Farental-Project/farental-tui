@@ -4,12 +4,12 @@ go 1.24.6
 
 require (
 	github.com/charmbracelet/bubbles v0.21.0
-	github.com/charmbracelet/bubbletea v1.3.6
+	github.com/charmbracelet/bubbletea v1.3.7
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/halsten-dev/bubblehelp v1.0.1
 	github.com/halsten-dev/lokyn v1.0.0
-	github.com/halsten-dev/orvyn v0.0.0-20250905120543-96f9005e4d66
+	github.com/halsten-dev/orvyn v0.0.0-20250906061908-860bd02ff062
 	github.com/spf13/viper v1.20.1
 )
 

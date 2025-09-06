@@ -72,7 +72,7 @@ func main() {
 	style.InitHelpStyle()
 
 	registerKeymapContexts()
-	
+
 	orvyn.RegisterScreen(screen.IDLogin, login.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
@@ -149,7 +149,8 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.SetHelpDesc(keybind.YKey, lokyn.L("chat"))
 	gameDashboardKeymap.NewKeyBinding(keybind.LKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.LKey, lokyn.L("location service"))
-	gameDashboardKeymap.NewKeyBinding(keybind.Npcs, false)
+	gameDashboardKeymap.NewKeyBinding(keybind.NKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.NKey, lokyn.L("npcs"))
 	gameDashboardKeymap.NewKeyBinding(keybind.SKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.SKey, lokyn.L("scripts"))
 	gameDashboardKeymap.NewKeyBinding(keybind.IKey, false)
@@ -329,4 +330,27 @@ func registerKeymapContexts() {
 	MailWidgetNormalModeKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextMailWidgetNormalMode, MailWidgetNormalModeKeymap)
+
+	ScriptEditorWidgetNormalModeKeymap := bubblehelp.NewKeymap(2)
+	ScriptEditorWidgetNormalModeKeymap.Style = style.MainHelpStyle
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.EKey, true)
+	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.EKey, lokyn.L("edit"))
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.SKeyCtrl, true)
+	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.SKeyCtrl, lokyn.L("save script"))
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Tab, true)
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Esc, true)
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Quit, false)
+
+	bubblehelp.RegisterContext(keybind.ContextScriptEditorWidgetNormalMode, ScriptEditorWidgetNormalModeKeymap)
+
+	BasicEditModeKeymap := bubblehelp.NewKeymap(2)
+	BasicEditModeKeymap.Style = style.MainHelpStyle
+	BasicEditModeKeymap.NewKeyBinding(keybind.Tab, true)
+	BasicEditModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
+	BasicEditModeKeymap.NewKeyBinding(keybind.Esc, true)
+	BasicEditModeKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
+	BasicEditModeKeymap.NewKeyBinding(keybind.Quit, false)
+
+	bubblehelp.RegisterContext(keybind.ContextBasicEditMode, BasicEditModeKeymap)
 }

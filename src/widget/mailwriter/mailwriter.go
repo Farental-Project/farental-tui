@@ -3,7 +3,6 @@ package mailwriter
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/internal/style"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -34,16 +33,6 @@ type Widget struct {
 }
 
 func New() *Widget {
-	editModeKeymap := bubblehelp.NewKeymap(2)
-	editModeKeymap.Style = style.MainHelpStyle
-	editModeKeymap.NewKeyBinding(keybind.Tab, true)
-	editModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
-	editModeKeymap.NewKeyBinding(keybind.Esc, true)
-	editModeKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
-	editModeKeymap.NewKeyBinding(keybind.Quit, false)
-
-	bubblehelp.RegisterContext(keybind.ContextMailWriterEditMode, editModeKeymap)
-
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -131,7 +120,7 @@ func (w *Widget) OnBlur() {
 
 func (w *Widget) OnEnterInput() {
 	w.focusManager.Focus(0)
-	bubblehelp.SwitchContext(keybind.ContextMailWriterEditMode)
+	bubblehelp.SwitchContext(keybind.ContextBasicEditMode)
 }
 
 func (w *Widget) OnExitInput() {

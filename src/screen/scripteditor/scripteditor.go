@@ -2,8 +2,10 @@ package scripteditor
 
 import (
 	"farental/core/data/api"
+	"farental/internal/keybind"
 	"farental/widget/help"
 	"farental/widget/scriptinfoinput"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -85,6 +87,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.focusManager.FocusFirst()
 
+	s.list.Init()
+
 	return nil
 }
 
@@ -93,6 +97,15 @@ func (s *Screen) OnExit() any {
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	if m, ok := orvyn.GetKeyMsg(msg); ok {
+		switch {
+		case key.Matches(m, keybind.Esc):
+			if !s.focusManager.IsInputting() {
+				return orvyn.SwitchToPreviousScreen()
+			}
+		}
+	}
+
 	cmd := s.focusManager.Update(msg)
 
 	return cmd

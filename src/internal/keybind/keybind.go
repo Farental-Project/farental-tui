@@ -20,7 +20,6 @@ var (
 	Filter        key.Binding
 	Tab           key.Binding
 	ShiftTab      key.Binding
-	Npcs          key.Binding
 	GotoListStart key.Binding
 	GotoListEnd   key.Binding
 	PrevPage      key.Binding
@@ -38,6 +37,7 @@ var (
 	PKey          key.Binding
 	RKey          key.Binding
 	SKey          key.Binding
+	SKeyCtrl      key.Binding
 	TKey          key.Binding
 	UKey          key.Binding
 	WKey          key.Binding
@@ -88,9 +88,6 @@ func Init() {
 	ShiftTab = key.NewBinding(
 		key.WithKeys("shift+tab"),
 		key.WithHelp(lokyn.L("shift+tab"), lokyn.L("prev. focus")))
-	Npcs = key.NewBinding(
-		key.WithKeys("n"),
-		key.WithHelp("n", lokyn.L("npcs")))
 	GotoListStart = key.NewBinding(
 		key.WithKeys("g", "home"),
 		key.WithHelp("g/home", lokyn.L("goto list start")))
@@ -141,7 +138,10 @@ func Init() {
 		key.WithHelp("r", "r key"))
 	SKey = key.NewBinding(
 		key.WithKeys("s"),
-		key.WithHelp("s", lokyn.L("scripts")))
+		key.WithHelp("s", "s key"))
+	SKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+s"),
+		key.WithHelp("ctrl+s", "ctrl+s key"))
 	TKey = key.NewBinding(
 		key.WithKeys("t"),
 		key.WithHelp("t", "t key"))

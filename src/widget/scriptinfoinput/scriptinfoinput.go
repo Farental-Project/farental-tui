@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
@@ -13,6 +14,12 @@ import (
 	"github.com/halsten-dev/orvyn/widget/textarea"
 	"github.com/halsten-dev/orvyn/widget/textinput"
 )
+
+type Data struct {
+	name        string
+	description string
+	private     bool
+}
 
 type Widget struct {
 	orvyn.BaseWidget
@@ -46,6 +53,7 @@ func New() *Widget {
 	w.description = textarea.New()
 	w.description.Placeholder = lokyn.L("Script description")
 	w.description.ShowLineNumbers = false
+	w.description.MinHeight = 5
 
 	w.private = checkbox.New(lokyn.L("Private"))
 
@@ -69,13 +77,6 @@ func New() *Widget {
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
-	if m, ok := orvyn.GetKeyMsg(msg); ok {
-		switch {
-		case key.Matches(m, keybind.Esc):
-			orvyn.SwitchToPreviousScreen()
-		}
-	}
-
 	cmd := w.focusManager.Update(msg)
 
 	return cmd
@@ -99,6 +100,8 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) OnFocus() {
+	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
+
 	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
 }
 
@@ -106,6 +109,26 @@ func (w *Widget) OnBlur() {
 	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
-func (w *Widget) OnEnterInput() {}
+func (w *Widget) OnEnterInput() {
+	bubblehelp.SwitchContext(keybind.ContextBasicEditMode)
 
-func (w *Widget) OnExitInput() {}
+	w.focusManager.FocusFirst()
+}
+
+func (w *Widget) OnExitInput() {
+	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
+
+	w.focusManager.BlurCurrent()
+}
+
+func (w *Widget) GetEnterInputKeybind() *key.Binding {
+	return &keybind.EKey
+}
+
+func (w *Widget) GetData() Data {
+	return Data{
+		name:        w.name.Value(),
+		description: w.description.Value(),
+		private:     w.private.IsChecked(),
+	}
+}
