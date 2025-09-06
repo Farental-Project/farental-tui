@@ -46,7 +46,9 @@ func New() *Screen {
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.scriptInfo = scriptinfoinput.New()
+
 	s.list = list.New(list.SimpleListItemConstructor)
+	s.list.SetFilterable(false)
 
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
