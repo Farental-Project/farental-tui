@@ -5,13 +5,13 @@ import (
 	"farental/internal/keybind"
 	"farental/widget/help"
 	"farental/widget/scriptinfoinput"
+	"farental/widget/scriptrulelist"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
@@ -28,7 +28,7 @@ type Screen struct {
 
 	title         *orvyn.SimpleRenderable
 	scriptInfo    *scriptinfoinput.Widget
-	list          *list.Widget[string]
+	list          *scriptrulelist.Widget
 	statusMessage *statusmessage.Widget
 	help          *help.Widget
 
@@ -47,7 +47,7 @@ func New() *Screen {
 
 	s.scriptInfo = scriptinfoinput.New()
 
-	s.list = list.New(list.SimpleListItemConstructor)
+	s.list = scriptrulelist.New()
 	s.list.SetFilterable(false)
 
 	s.statusMessage = statusmessage.New()

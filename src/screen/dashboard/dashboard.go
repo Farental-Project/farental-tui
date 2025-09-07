@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	tick time.Duration = 15
+	tick time.Duration = 60
 )
 
 type Screen struct {
