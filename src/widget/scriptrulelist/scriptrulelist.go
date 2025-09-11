@@ -5,8 +5,11 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/style"
 	"farental/widget/scriptrulelistitem"
+	"github.com/charmbracelet/bubbles/key"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/widget/list"
 )
 
@@ -32,6 +35,23 @@ func New() *Widget {
 	w.Widget = *list.New(scriptrulelistitem.Constructor)
 
 	return w
+}
+
+func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	if m, ok := orvyn.GetKeyMsg(msg); ok {
+		switch {
+		case key.Matches(m, keybind.NKey):
+
+			return nil
+
+		case key.Matches(m, keybind.IKey):
+
+			return nil
+
+		}
+	}
+
+	return nil
 }
 
 func (w *Widget) OnFocus() {
