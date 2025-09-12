@@ -7,6 +7,7 @@ import (
 	"farental/internal/style"
 	"farental/widget/button"
 	"farental/widget/multivalueselector"
+	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -22,13 +23,18 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
+	titleOrder    *orvyn.SimpleRenderable
+	titleRuleType *orvyn.SimpleRenderable
+	titleTarget   *orvyn.SimpleRenderable
+	titleAbility  *orvyn.SimpleRenderable
+
 	btRuleType *button.Widget
 	mvsTarget  *multivalueselector.Widget[cdata.Target]
 	btAbility  *button.Widget
 
 	focusManager *orvyn.FocusManager
 
-	layout *layout.HBoxGrowLayout
+	layout *layout.VBoxLayout
 
 	style lipgloss.Style
 
@@ -54,6 +60,20 @@ func Constructor(data *api.ScriptRuleBody) list.IListItem {
 	dts := t.Style(theme.DimTextStyleID)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+
+	w.titleOrder = orvyn.NewSimpleRenderable(fmt.Sprintf(lokyn.L("Order : %d"), data.Order))
+
+	w.titleRuleType = orvyn.NewSimpleRenderable(lokyn.L("Rule type"))
+	w.titleRuleType.Style = dts
+	w.titleRuleType.SizeConstraint = true
+
+	w.titleTarget = orvyn.NewSimpleRenderable(lokyn.L("Target"))
+	w.titleTarget.Style = dts
+	w.titleTarget.SizeConstraint = true
+
+	w.titleAbility = orvyn.NewSimpleRenderable(lokyn.L("Ability"))
+	w.titleAbility.Style = dts
+	w.titleAbility.SizeConstraint = true
 
 	w.btRuleType = button.New(lokyn.L("Select a rule type"))
 	w.btRuleType.OnFocusCallback = w.btOnFocus
@@ -82,11 +102,25 @@ func Constructor(data *api.ScriptRuleBody) list.IListItem {
 	w.focusManager.Add(w.mvsTarget)
 	w.focusManager.Add(w.btAbility)
 
-	w.layout = layout.NewHBoxGrowLayout(2, 1,
+	titleLayout := layout.NewHBoxGrowLayout(1, 1,
+		[]orvyn.Renderable{
+			w.titleRuleType,
+			w.titleTarget,
+			w.titleAbility,
+		})
+
+	controlsLayout := layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
 			w.btRuleType,
 			w.mvsTarget,
 			w.btAbility,
+		})
+
+	w.layout = layout.NewMaxWidthVBoxLayout(0,
+		[]orvyn.Renderable{
+			w.titleOrder,
+			titleLayout,
+			controlsLayout,
 		})
 
 	w.OnBlur()
@@ -109,6 +143,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	size.Height -= w.style.GetVerticalFrameSize()
 
 	w.contentSize = size
+	w.layout.Resize(size)
 }
 
 func (w *Widget) Render() string {

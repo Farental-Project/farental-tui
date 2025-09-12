@@ -42,6 +42,8 @@ type Widget[T Value] struct {
 	controlStyle lipgloss.Style
 	valueStyle   lipgloss.Style
 
+	contentSize orvyn.Size
+
 	Looping bool
 }
 
@@ -130,14 +132,21 @@ func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
+func (w *Widget[T]) Resize(size orvyn.Size) {
+	w.BaseWidget.Resize(size)
+
+	size.Width -= w.widgetStyle.GetHorizontalFrameSize()
+	size.Height -= w.widgetStyle.GetVerticalFrameSize()
+
+	w.contentSize = size
+}
+
 func (w *Widget[T]) Render() string {
 	var b strings.Builder
 	var margin int
 
-	size := w.GetSize()
+	size := w.contentSize
 
-	margin += w.widgetStyle.GetBorderLeftSize()
-	margin += w.widgetStyle.GetBorderRightSize()
 	margin += 4 // "< " & " >"
 
 	b.WriteString(w.controlStyle.Render("< "))
