@@ -41,6 +41,15 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.NKey):
+			w.SetItems([]api.ScriptRuleBody{
+				{
+					Target:     api.TargetSelf,
+					Order:      10,
+					RuleTypeID: 0,
+					AbilityID:  0,
+					Parameters: "",
+				},
+			})
 
 			return nil
 
@@ -51,11 +60,14 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	return nil
+	cmd := w.Widget.Update(msg)
+
+	return cmd
 }
 
 func (w *Widget) OnFocus() {
 	w.Widget.OnFocus()
+	w.FocusFirst()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
 }
 

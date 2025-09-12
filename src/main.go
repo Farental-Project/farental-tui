@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"farental/art"
+	"farental/core/data"
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
@@ -63,6 +64,8 @@ func main() {
 	keybind.Init()
 
 	bubblehelp.Init()
+
+	data.InitTargets()
 
 	// Orvyn
 	orvyn.Init()

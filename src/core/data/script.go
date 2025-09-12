@@ -25,20 +25,25 @@ func (t Target) RenderValue() string {
 	return ""
 }
 
-var TargetKeys = []string{
-	lokyn.L("Self"),
-	lokyn.L("Allies"),
-	lokyn.L("Enemies"),
-}
+var TargetKeys []string
+var Targets map[string]Target
 
-var Targets = map[string]Target{
-	TargetKeys[0]: {
-		api.TargetSelf,
-	},
-	TargetKeys[1]: {
-		api.TargetAllies,
-	},
-	TargetKeys[2]: {
-		api.TargetEnemies,
-	},
+func InitTargets() {
+	TargetKeys = []string{
+		lokyn.L("Self"),
+		lokyn.L("Allies"),
+		lokyn.L("Enemies"),
+	}
+
+	Targets = map[string]Target{
+		TargetKeys[0]: {
+			api.TargetSelf,
+		},
+		TargetKeys[1]: {
+			api.TargetAllies,
+		},
+		TargetKeys[2]: {
+			api.TargetEnemies,
+		},
+	}
 }

@@ -25,5 +25,6 @@ const (
 	ContextMailDetailEditorAttachmentList bubblehelp.KeymapContext = "mailDetailEditorAttachmentList"
 	ContextScriptEditorWidgetNormalMode   bubblehelp.KeymapContext = "scriptEditorWidgetNormalMode"
 	ContextScriptEditorRulesList          bubblehelp.KeymapContext = "scriptEditorRulesList"
+	ContextScriptEditorRulesListItem      bubblehelp.KeymapContext = "scriptEditorRulesListItem"
 	ContextBasicEditMode                  bubblehelp.KeymapContext = "basicEditMode"
 )
