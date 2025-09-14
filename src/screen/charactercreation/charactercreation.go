@@ -74,13 +74,14 @@ func New() *Screen {
 	s.raceDescription = orvyn.NewSimpleRenderable("")
 	s.raceDescription.Style = t.Style(theme.DimSecondaryTextStyleID).
 		AlignHorizontal(lipgloss.Center)
+	s.raceDescription.SizeConstraint = true
 
 	s.statusMessage = statusmessage.New()
 
 	s.help = help.New()
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewVBoxLayout(10,
+		layout.NewMaxWidthVBoxLayout(20,
 			[]orvyn.Renderable{
 				s.title,
 				orvyn.VGap,

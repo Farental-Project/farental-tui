@@ -16,16 +16,6 @@ import (
 )
 
 type Screen struct {
-
-	// ScriptInfoEditor
-	// ScriptRulesList
-	// - Complex list item
-
-	// PileLayout :
-	// ScriptRuleTypeSelect
-	// ScriptRulesParamEditor
-	// ScriptAbilitySelect
-
 	title         *orvyn.SimpleRenderable
 	scriptInfo    *scriptinfoinput.Widget
 	list          *scriptrulelist.Widget
@@ -85,6 +75,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	if !ok || script == nil {
 		s.new = true
+	} else {
+
 	}
 
 	s.focusManager.FocusFirst()
