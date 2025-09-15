@@ -23,6 +23,8 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
+	data *api.ScriptRuleBody
+
 	titleOrder    *orvyn.SimpleRenderable
 	titleRuleType *orvyn.SimpleRenderable
 	titleTarget   *orvyn.SimpleRenderable
@@ -56,12 +58,14 @@ func Constructor(data *api.ScriptRuleBody) list.IListItem {
 
 	w := new(Widget)
 
+	w.data = data
+
 	t := orvyn.GetTheme()
 	dts := t.Style(theme.DimTextStyleID)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.titleOrder = orvyn.NewSimpleRenderable(fmt.Sprintf(lokyn.L("Order : %d"), data.Order))
+	w.titleOrder = orvyn.NewSimpleRenderable("")
 
 	w.titleRuleType = orvyn.NewSimpleRenderable(lokyn.L("Rule type"))
 	w.titleRuleType.Style = dts
@@ -125,17 +129,32 @@ func Constructor(data *api.ScriptRuleBody) list.IListItem {
 
 	w.OnBlur()
 
+	w.updateWidgets()
+
 	return w
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	cmd := w.focusManager.Update(msg)
 
+	w.updateData()
+
 	return cmd
 }
 
+func (w *Widget) updateWidgets() {
+	// TODO: Init all widgets with data
+	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
+	w.mvsTarget.SetSelected(int(w.data.Target))
+}
+
+func (w *Widget) updateData() {
+	// TODO: Update data
+	w.data.Target = w.mvsTarget.GetSelectedValue().ScriptTarget
+}
+
 func (w *Widget) Resize(size orvyn.Size) {
-	size.Height = 5
+	size.Height = 7
 
 	w.BaseWidget.Resize(size)
 
@@ -147,6 +166,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) Render() string {
+	w.updateWidgets()
+	
 	return w.style.
 		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
@@ -167,7 +188,8 @@ func (w *Widget) OnEnterInput() {
 }
 
 func (w *Widget) OnExitInput() {
-
+	w.focusManager.BlurCurrent()
+	bubblehelp.SwitchToPreviousContext()
 }
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {

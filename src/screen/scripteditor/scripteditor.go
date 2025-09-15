@@ -94,7 +94,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.Esc):
-			if !s.focusManager.IsInputting() {
+			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
 				return orvyn.SwitchToPreviousScreen()
 			}
 		}

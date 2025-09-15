@@ -1,6 +1,7 @@
 package scriptrulelist
 
 import (
+	"farental/core/data"
 	"farental/core/data/api"
 	"farental/internal/keybind"
 	"farental/internal/style"
@@ -15,8 +16,6 @@ import (
 
 type Widget struct {
 	list.Widget[api.ScriptRuleBody]
-
-	data []api.ScriptRuleBody
 }
 
 func New() *Widget {
@@ -37,38 +36,86 @@ func New() *Widget {
 	return w
 }
 
+func (w *Widget) Init() tea.Cmd {
+	cmd := w.Widget.Init()
+
+	w.SetItems([]api.ScriptRuleBody{})
+
+	return cmd
+}
+
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
-	if m, ok := orvyn.GetKeyMsg(msg); ok {
+	if m, ok := orvyn.GetKeyMsg(msg); ok && !w.Widget.IsInputting() {
 		switch {
 		case key.Matches(m, keybind.NKey):
-			w.SetItems([]api.ScriptRuleBody{
-				{
+			if bubblehelp.IsKeybindVisible(keybind.NKey) {
+				w.Widget.AppendItem(api.ScriptRuleBody{
 					Target:     api.TargetSelf,
-					Order:      10,
+					Order:      len(w.GetItems()) + 1,
 					RuleTypeID: 0,
 					AbilityID:  0,
 					Parameters: "",
-				},
-			})
+				})
 
-			return nil
+				w.updateKeybind()
+				return nil
+			}
 
 		case key.Matches(m, keybind.IKey):
+			if bubblehelp.IsKeybindVisible(keybind.IKey) {
+				w.Widget.InsertItem(w.GetGlobalIndex(),
+					api.ScriptRuleBody{
+						Target:     api.TargetSelf,
+						Order:      0,
+						RuleTypeID: 0,
+						AbilityID:  0,
+						Parameters: "",
+					})
+
+				w.updateRulesOrder()
+
+				w.updateKeybind()
+				return nil
+			}
+
+		case key.Matches(m, keybind.DKey):
+			w.RemoveItem(w.GetGlobalIndex())
+
+			w.updateRulesOrder()
+
+			w.updateKeybind()
 
 			return nil
-
 		}
 	}
 
 	cmd := w.Widget.Update(msg)
 
+	w.updateKeybind()
+
 	return cmd
+}
+
+func (w *Widget) updateRulesOrder() {
+	items := w.GetItems()
+
+	for i, r := range items {
+		r.Order = i + 1
+		w.Widget.SetItem(i, r)
+	}
+}
+
+func (w *Widget) updateKeybind() {
+	limitReached := len(w.Widget.GetItems()) == data.ConstScriptMaxRules
+
+	bubblehelp.SetKeybindVisible(keybind.NKey, !limitReached)
+	bubblehelp.SetKeybindVisible(keybind.IKey, !limitReached)
 }
 
 func (w *Widget) OnFocus() {
 	w.Widget.OnFocus()
-	w.FocusFirst()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
+	w.updateKeybind()
 }
 
 func (w *Widget) OnBlur() {
