@@ -46,6 +46,12 @@ type ScriptResponse struct {
 	Rules []ScriptRuleResponse
 }
 
+type ScriptRuleTypeResponse struct {
+	Code        string
+	Name        string
+	Description string
+}
+
 type ScriptRuleResponse struct {
 	ScriptRuleBody
 	ParamStruct ScriptRuleParamStructResponse

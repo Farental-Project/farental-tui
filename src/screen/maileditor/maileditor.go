@@ -127,6 +127,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
 					lokyn.L("Are you sure you want to quit the editor and loose your current progress ?"),
 				), nil)
+			
 				return nil
 			}
 

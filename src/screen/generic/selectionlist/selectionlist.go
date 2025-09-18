@@ -138,6 +138,10 @@ func (s *Screen[T]) GetSelectedItem() T {
 	return s.list.GetSelectedItem()
 }
 
+func (s *Screen[T]) GetFilteringState() list.FilterState {
+	return s.list.FilterState()
+}
+
 func (s *Screen[T]) SetSubmitScreenID(id orvyn.ScreenID) {
 	s.submitScreenID = id
 }

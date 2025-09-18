@@ -5,6 +5,7 @@ import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
 	"farental/internal/style"
+	"farental/screen/dialog/ruletypeselection"
 	"farental/widget/button"
 	"farental/widget/multivalueselector"
 	"fmt"
@@ -135,6 +136,20 @@ func Constructor(data *api.ScriptRuleBody) list.IListItem {
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case orvyn.DialogExitMsg:
+		switch msg.DialogID {
+		case "selectRuleType":
+			val, ok := msg.Param.(api.ScriptRuleTypeResponse)
+
+			if ok {
+				w.btRuleType.SetLabel(val.Name)
+			}
+		}
+
+		bubblehelp.SwitchToPreviousContext()
+	}
+
 	cmd := w.focusManager.Update(msg)
 
 	w.updateData()
@@ -167,7 +182,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 func (w *Widget) Render() string {
 	w.updateWidgets()
-	
+
 	return w.style.
 		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
@@ -189,7 +204,7 @@ func (w *Widget) OnEnterInput() {
 
 func (w *Widget) OnExitInput() {
 	w.focusManager.BlurCurrent()
-	bubblehelp.SwitchToPreviousContext()
+	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
 }
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {
@@ -211,7 +226,7 @@ func (w *Widget) btOnBlur() {
 }
 
 func (w *Widget) btRuleTypeOnClicked() tea.Cmd {
-	w.btRuleType.SetLabel("Clicked")
+	orvyn.OpenDialog("selectRuleType", ruletypeselection.New(), nil)
 
 	return nil
 }
