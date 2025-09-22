@@ -8,7 +8,9 @@ type AbilityResponse struct {
 	Name        string
 	Description string
 
-	SkillName string
+	SkillName     string
+	SkillLevelMin int
+	SkillLevelMax int
 
 	Power    int
 	Cooldown int

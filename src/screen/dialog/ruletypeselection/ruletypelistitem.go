@@ -3,11 +3,12 @@ package ruletypeselection
 import (
 	"farental/core/data/api"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
-	"strings"
 )
 
 type RuleTypeListItem struct {
@@ -33,15 +34,15 @@ func Constructor(data *api.ScriptRuleTypeResponse) list.IListItem {
 	return w
 }
 
-func (w *RuleTypeListItem) Resize(size orvyn.Size) {
+func (r *RuleTypeListItem) Resize(size orvyn.Size) {
 	size.Height = 3
 
-	w.BaseWidget.Resize(size)
+	r.BaseWidget.Resize(size)
 
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
+	size.Width -= r.style.GetHorizontalFrameSize()
+	size.Height -= r.style.GetVerticalFrameSize()
 
-	w.contentSize = size
+	r.contentSize = size
 }
 
 func (r *RuleTypeListItem) Render() string {
