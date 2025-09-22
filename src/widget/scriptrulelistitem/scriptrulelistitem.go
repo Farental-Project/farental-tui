@@ -5,10 +5,12 @@ import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
 	"farental/internal/style"
+	"farental/screen/dialog/abilityselection"
 	"farental/screen/dialog/ruletypeselection"
 	"farental/widget/button"
 	"farental/widget/multivalueselector"
 	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -145,6 +147,13 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			if ok {
 				w.btRuleType.SetLabel(val.Name)
 			}
+
+		case "selectAbility":
+			val, ok := msg.Param.(api.AbilityResponse)
+
+			if ok {
+				w.btAbility.SetLabel(val.Name)
+			}
 		}
 
 		bubblehelp.SwitchToPreviousContext()
@@ -232,7 +241,7 @@ func (w *Widget) btRuleTypeOnClicked() tea.Cmd {
 }
 
 func (w *Widget) btAbilityOnClicked() tea.Cmd {
-	w.btAbility.SetLabel("Clicked")
+	orvyn.OpenDialog("selectAbility", abilityselection.New(), nil)
 
 	return nil
 }
