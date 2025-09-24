@@ -2,10 +2,13 @@ package scripteditor
 
 import (
 	"farental/core/data/api"
+	"farental/core/request"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/widget/help"
 	"farental/widget/scriptinfoinput"
 	"farental/widget/scriptrulelist"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/lokyn"
@@ -25,6 +28,8 @@ type Screen struct {
 	focusManager *orvyn.FocusManager
 
 	layout *layout.CenterLayout
+
+	data api.ScriptBody
 
 	new bool
 }
@@ -76,7 +81,31 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	if !ok || script == nil {
 		s.new = true
 	} else {
+		s.new = false
+	
+		resp, err := helper.SendRequest(request.ScriptGetDetail(script.ID))
 
+		if err != nil {
+			return orvyn.SwitchToPreviousScreen()
+		}
+
+		scriptDetail, ok := resp.Result().(*api.ScriptResponse)
+
+		if !ok {
+			return orvyn.SwitchToPreviousScreen()
+		}
+
+		s.data = api.ScriptBody{
+			ID:          scriptDetail.ID,
+			Name:        scriptDetail.Name,
+			Description: scriptDetail.Description,
+			IsPrivate:   scriptDetail.IsPrivate,
+			Rules:       make([]api.ScriptRuleBody, 0),
+		}
+
+		for _, r := range scriptDetail.Rules {
+			s.data.Rules = append(s.data.Rules, r.ScriptRuleBody)
+		}
 	}
 
 	s.focusManager.FocusFirst()

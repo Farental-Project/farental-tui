@@ -8,6 +8,7 @@ import (
 	"farental/screen"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/scriptexplorerlistitem"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -62,6 +63,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.NKey):
 			s.newScript = true
 			return orvyn.SwitchScreen(screen.IDScriptEditor)
+
+		case key.Matches(m, keybind.Enter):
+			s.newScript = false
+			return orvyn.SwitchScreen(screen.IDScriptEditor)
+
 		}
 	}
 
