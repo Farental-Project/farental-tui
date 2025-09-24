@@ -19,6 +19,8 @@ type Screen struct {
 	selectionlist.Screen[api.AbilityResponse]
 
 	submitted bool
+
+	target api.ScriptTarget
 }
 
 func New() *Screen {
@@ -56,6 +58,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	target, _ := i.(api.ScriptTarget)
+
+	s.target = target
+
 	cmd := s.Screen.OnEnter(i)
 
 	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListBasic)
@@ -73,6 +79,8 @@ func (s *Screen) OnExit() any {
 
 func (s *Screen) loadData() {
 	var abilities []api.AbilityResponse
+	var filteredAbilities []api.AbilityResponse
+	var add bool
 
 	resp, err := helper.SendRequest(request.AbilityGetAll())
 
@@ -83,7 +91,32 @@ func (s *Screen) loadData() {
 
 	abilities = *resp.Result().(*[]api.AbilityResponse)
 
-	s.SetItems(abilities)
+	for _, a := range abilities {
+		add = false
+
+		switch s.target {
+		case api.TargetSelf:
+			if a.CanTargetSelf {
+				add = true
+			}
+
+		case api.TargetEnemies:
+			if a.CanTargetEnemies {
+				add = true
+			}
+
+		case api.TargetAllies:
+			if a.CanTargetAllies {
+				add = true
+			}
+		}
+
+		if add {
+			filteredAbilities = append(filteredAbilities, a)
+		}
+	}
+
+	s.SetItems(filteredAbilities)
 }
 
 func (s *Screen) submit() bool {

@@ -201,7 +201,14 @@ func (w *Widget) updateWidgets() {
 }
 
 func (w *Widget) updateData() {
-	w.data.Target = w.mvsTarget.GetSelectedValue().ScriptTarget
+	scriptTarget := w.mvsTarget.GetSelectedValue().ScriptTarget
+
+	if w.data.Target != scriptTarget {
+		w.data.Target = scriptTarget
+		w.data.AbilityCode = ""
+		w.data.AbilityName = ""
+	}
+
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
@@ -268,7 +275,7 @@ func (w *Widget) btRuleTypeOnClicked() tea.Cmd {
 }
 
 func (w *Widget) btAbilityOnClicked() tea.Cmd {
-	orvyn.OpenDialog("selectAbility", abilityselection.New(), nil)
+	orvyn.OpenDialog("selectAbility", abilityselection.New(), w.data.Target)
 
 	return nil
 }
