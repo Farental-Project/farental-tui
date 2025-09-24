@@ -6,6 +6,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/style"
 	"farental/widget/scriptrulelistitem"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -15,7 +16,7 @@ import (
 )
 
 type Widget struct {
-	list.Widget[api.ScriptRuleBody]
+	list.Widget[scriptrulelistitem.Data]
 }
 
 func New() *Widget {
@@ -39,7 +40,7 @@ func New() *Widget {
 func (w *Widget) Init() tea.Cmd {
 	cmd := w.Widget.Init()
 
-	w.SetItems([]api.ScriptRuleBody{})
+	w.SetItems([]scriptrulelistitem.Data{})
 
 	return cmd
 }
@@ -49,13 +50,16 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(m, keybind.NKey):
 			if bubblehelp.IsKeybindVisible(keybind.NKey) {
-				w.Widget.AppendItem(api.ScriptRuleBody{
-					Target:     api.TargetSelf,
-					Order:      len(w.GetItems()) + 1,
-					RuleTypeID: 0,
-					AbilityID:  0,
-					Parameters: "",
-				})
+				w.Widget.AppendItem(
+					scriptrulelistitem.Data{
+						ScriptRuleBody: api.ScriptRuleBody{
+							Target:       api.TargetSelf,
+							Order:        len(w.GetItems()) + 1,
+							RuleTypeCode: "",
+							AbilityCode:  "",
+							Parameters:   "",
+						},
+					})
 
 				w.updateKeybind()
 				return nil
@@ -64,12 +68,14 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.IKey):
 			if bubblehelp.IsKeybindVisible(keybind.IKey) {
 				w.Widget.InsertItem(w.GetGlobalIndex(),
-					api.ScriptRuleBody{
-						Target:     api.TargetSelf,
-						Order:      0,
-						RuleTypeID: 0,
-						AbilityID:  0,
-						Parameters: "",
+					scriptrulelistitem.Data{
+						ScriptRuleBody: api.ScriptRuleBody{
+							Target:       api.TargetSelf,
+							Order:        0,
+							RuleTypeCode: "",
+							AbilityCode:  "",
+							Parameters:   "",
+						},
 					})
 
 				w.updateRulesOrder()

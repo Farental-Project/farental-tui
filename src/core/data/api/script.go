@@ -26,11 +26,11 @@ type ScriptBody struct {
 }
 
 type ScriptRuleBody struct {
-	Target     ScriptTarget `validate:"required,valid"`
-	Order      int          `validate:"required,min=1"`
-	RuleTypeID uint         `validate:"required"`
-	AbilityID  uint         `validate:"required"`
-	Parameters string       `validate:"json"`
+	Target       ScriptTarget `validate:"required,valid"`
+	Order        int          `validate:"required,min=1"`
+	RuleTypeCode string       `validate:"required"`
+	AbilityCode  string       `validate:"required"`
+	Parameters   string       `validate:"json"`
 }
 
 type ScriptBasicResponse struct {

@@ -22,11 +22,17 @@ import (
 	"github.com/halsten-dev/orvyn/widget/list"
 )
 
+type Data struct {
+	api.ScriptRuleBody
+	AbilityName  string
+	RuleTypeName string
+}
+
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *api.ScriptRuleBody
+	data *Data
 
 	titleOrder    *orvyn.SimpleRenderable
 	titleRuleType *orvyn.SimpleRenderable
@@ -37,6 +43,9 @@ type Widget struct {
 	mvsTarget  *multivalueselector.Widget[cdata.Target]
 	btAbility  *button.Widget
 
+	btRuleTypePlaceHolder string
+	btAbilityPlaceHolder  string
+
 	focusManager *orvyn.FocusManager
 
 	layout *layout.VBoxLayout
@@ -46,7 +55,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.ScriptRuleBody) list.IListItem {
+func Constructor(data *Data) list.IListItem {
 	inputKeymap := bubblehelp.NewKeymap(2)
 	inputKeymap.Style = style.MainHelpStyle
 	inputKeymap.NewKeyBinding(keybind.Tab, true)
@@ -82,12 +91,14 @@ func Constructor(data *api.ScriptRuleBody) list.IListItem {
 	w.titleAbility.Style = dts
 	w.titleAbility.SizeConstraint = true
 
-	w.btRuleType = button.New(lokyn.L("Select a rule type"))
+	w.btRuleTypePlaceHolder = lokyn.L("Select a rule type")
+	w.btRuleType = button.New(w.btRuleTypePlaceHolder)
 	w.btRuleType.OnFocusCallback = w.btOnFocus
 	w.btRuleType.OnBlurCallback = w.btOnBlur
 	w.btRuleType.OnClickedCallback = w.btRuleTypeOnClicked
 
-	w.btAbility = button.New(lokyn.L("Select an ability"))
+	w.btAbilityPlaceHolder = lokyn.L("Select an ability")
+	w.btAbility = button.New(w.btAbilityPlaceHolder)
 	w.btAbility.OnFocusCallback = w.btOnFocus
 	w.btAbility.OnBlurCallback = w.btOnBlur
 	w.btAbility.OnClickedCallback = w.btAbilityOnClicked
@@ -145,6 +156,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			val, ok := msg.Param.(api.ScriptRuleTypeResponse)
 
 			if ok {
+				w.data.RuleTypeName = val.Name
+				w.data.RuleTypeCode = val.Code
 				w.btRuleType.SetLabel(val.Name)
 			}
 
@@ -152,6 +165,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			val, ok := msg.Param.(api.AbilityResponse)
 
 			if ok {
+				w.data.AbilityName = val.Name
+				w.data.AbilityCode = val.Code
 				w.btAbility.SetLabel(val.Name)
 			}
 		}
@@ -167,13 +182,25 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) updateWidgets() {
-	// TODO: Init all widgets with data
 	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
 	w.mvsTarget.SetSelected(int(w.data.Target))
+
+	abilityName := w.btAbilityPlaceHolder
+	ruleTypeName := w.btRuleTypePlaceHolder
+
+	if w.data.AbilityName != "" {
+		abilityName = w.data.AbilityName
+	}
+
+	if w.data.RuleTypeName != "" {
+		ruleTypeName = w.data.RuleTypeName
+	}
+
+	w.btAbility.SetLabel(abilityName)
+	w.btRuleType.SetLabel(ruleTypeName)
 }
 
 func (w *Widget) updateData() {
-	// TODO: Update data
 	w.data.Target = w.mvsTarget.GetSelectedValue().ScriptTarget
 }
 
