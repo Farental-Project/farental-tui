@@ -17,6 +17,18 @@ func ScriptGetRuleTypes() *resty.Request {
 	return r
 }
 
+func ScriptGetRuleTypeParamStruct(ruleTypeCode string) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodGet
+	r.URL = "/script/ruleTypeParamStruct"
+	r.SetQueryParam("Code", ruleTypeCode)
+	r.SetResult(api.ScriptRuleTypeParamStructResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+
+}
+
 func ScriptGetPrivate() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet

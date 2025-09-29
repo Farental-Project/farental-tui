@@ -48,7 +48,7 @@ type ScriptResponse struct {
 
 type ScriptRuleResponse struct {
 	ScriptRuleBody
-	ParamStruct ScriptRuleParamStructResponse
+	ParamStruct ScriptRuleTypeParamStructResponse
 }
 
 type ScriptRuleTypeResponse struct {
@@ -57,17 +57,17 @@ type ScriptRuleTypeResponse struct {
 	Description string
 }
 
-type ScriptRuleParamStructResponse struct {
-	Parameters []ScriptRuleParam
+type ScriptRuleTypeParamStructResponse struct {
+	Parameters []ScriptRuleTypeParam
 }
 
-type ScriptRuleParam struct {
+type ScriptRuleTypeParam struct {
 	Name           string
 	Type           uint
-	PossibleValues []ScriptRuleParamValue
+	PossibleValues []ScriptRuleTypeParamValue
 }
 
-type ScriptRuleParamValue struct {
+type ScriptRuleTypeParamValue struct {
 	Key   string
 	Value string
 }

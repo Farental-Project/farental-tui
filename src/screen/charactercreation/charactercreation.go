@@ -7,6 +7,7 @@ import (
 	"farental/internal/keybind"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -61,14 +62,6 @@ func New() *Screen {
 	s.tiLastname.Placeholder = lokyn.L("Last name")
 
 	s.mvsRace = multivalueselector.New[RaceData]()
-	s.mvsRace.Style = multivalueselector.Style{
-		FocusedWidget:  t.Style(theme.FocusedWidgetStyleID),
-		BlurredWidget:  t.Style(theme.BlurredWidgetStyleID),
-		BlurredControl: t.Style(theme.DimTextStyleID),
-		FocusedControl: t.Style(theme.HighlightTextStyleID),
-		BlurredValue:   t.Style(theme.DimTextStyleID),
-		FocusedValue:   t.Style(theme.NormalTextStyleID),
-	}
 	s.mvsRace.OnBlur()
 
 	s.raceDescription = orvyn.NewSimpleRenderable("")

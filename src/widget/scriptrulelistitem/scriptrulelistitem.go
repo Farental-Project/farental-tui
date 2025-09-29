@@ -22,6 +22,14 @@ import (
 	"github.com/halsten-dev/orvyn/widget/list"
 )
 
+type ChangedRuleTypeMsg string
+
+func ChangedRuleTypeCmd(code string) tea.Cmd {
+	return func() tea.Msg {
+		return ChangedRuleTypeMsg(code)
+	}
+}
+
 type Data struct {
 	api.ScriptRuleBody
 	AbilityName  string
@@ -105,14 +113,6 @@ func Constructor(data *Data) list.IListItem {
 
 	w.mvsTarget = multivalueselector.New[cdata.Target]()
 	w.mvsTarget.SetValues(cdata.TargetKeys, cdata.Targets)
-	w.mvsTarget.Style = multivalueselector.Style{
-		FocusedWidget:  t.Style(theme.FocusedWidgetStyleID),
-		BlurredWidget:  t.Style(theme.BlurredWidgetStyleID),
-		BlurredControl: dts,
-		FocusedControl: t.Style(theme.HighlightTextStyleID),
-		BlurredValue:   dts,
-		FocusedValue:   t.Style(theme.NormalTextStyleID),
-	}
 	w.mvsTarget.OnBlur()
 
 	w.focusManager = orvyn.NewFocusManager()
@@ -149,6 +149,8 @@ func Constructor(data *Data) list.IListItem {
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case orvyn.DialogExitMsg:
 		switch msg.DialogID {
@@ -159,6 +161,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 				w.data.RuleTypeName = val.Name
 				w.data.RuleTypeCode = val.Code
 				w.btRuleType.SetLabel(val.Name)
+
+				cmds = append(cmds, ChangedRuleTypeCmd(val.Code))
 			}
 
 		case "selectAbility":
@@ -176,9 +180,11 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 	cmd := w.focusManager.Update(msg)
 
+	cmds = append(cmds, cmd)
+
 	w.updateData()
 
-	return cmd
+	return tea.Batch(cmds...)
 }
 
 func (w *Widget) updateWidgets() {

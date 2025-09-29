@@ -1,11 +1,13 @@
 package multivalueselector
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
-	"strings"
+	"github.com/halsten-dev/orvyn/theme"
 )
 
 type Value interface {
@@ -50,6 +52,9 @@ type Widget[T Value] struct {
 func New[T Value]() *Widget[T] {
 	w := new(Widget[T])
 
+	t := orvyn.GetTheme()
+	dts := t.Style(theme.DimTextStyleID)
+
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.values = make(map[string]T)
@@ -58,12 +63,12 @@ func New[T Value]() *Widget[T] {
 	w.selectedIndex = 0
 
 	w.Style = Style{
-		FocusedWidget:  lipgloss.NewStyle().Border(lipgloss.NormalBorder()),
-		BlurredWidget:  lipgloss.NewStyle().Border(lipgloss.HiddenBorder()),
-		BlurredControl: lipgloss.NewStyle().Italic(true),
-		BlurredValue:   lipgloss.NewStyle().Italic(true),
-		FocusedControl: lipgloss.NewStyle().Bold(true),
-		FocusedValue:   lipgloss.NewStyle().Bold(true),
+		FocusedWidget:  t.Style(theme.FocusedWidgetStyleID),
+		BlurredWidget:  t.Style(theme.BlurredWidgetStyleID),
+		BlurredControl: dts,
+		FocusedControl: t.Style(theme.HighlightTextStyleID),
+		BlurredValue:   dts,
+		FocusedValue:   t.Style(theme.NormalTextStyleID),
 	}
 
 	w.Keybind = Keybind{
@@ -80,6 +85,8 @@ func New[T Value]() *Widget[T] {
 	w.valueStyle = w.Style.BlurredValue
 
 	w.Looping = false
+
+	w.OnBlur()
 
 	return w
 }

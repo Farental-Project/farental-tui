@@ -6,8 +6,10 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/widget/help"
+	"farental/widget/ruletypeinspector"
 	"farental/widget/scriptinfoinput"
 	"farental/widget/scriptrulelist"
+	"farental/widget/scriptrulelistitem"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -20,11 +22,12 @@ import (
 )
 
 type Screen struct {
-	title         *orvyn.SimpleRenderable
-	scriptInfo    *scriptinfoinput.Widget
-	list          *scriptrulelist.Widget
-	statusMessage *statusmessage.Widget
-	help          *help.Widget
+	title             *orvyn.SimpleRenderable
+	scriptInfo        *scriptinfoinput.Widget
+	list              *scriptrulelist.Widget
+	ruleTypeInspector *ruletypeinspector.Widget
+	statusMessage     *statusmessage.Widget
+	help              *help.Widget
 
 	focusManager *orvyn.FocusManager
 
@@ -47,6 +50,9 @@ func New() *Screen {
 
 	s.list = scriptrulelist.New()
 	s.list.SetFilterable(false)
+	s.list.CursorMovedCallback = s.ruleListCursorMoved
+
+	s.ruleTypeInspector = ruletypeinspector.New()
 
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
@@ -54,6 +60,7 @@ func New() *Screen {
 	s.focusManager = orvyn.NewFocusManager()
 	s.focusManager.Add(s.scriptInfo)
 	s.focusManager.Add(s.list)
+	s.focusManager.Add(s.ruleTypeInspector)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(
@@ -66,7 +73,8 @@ func New() *Screen {
 					0, 1, 1,
 					[]layout.FixedRatioRenderable{
 						layout.NewFixedRatioRenderable(0.2, s.scriptInfo),
-						layout.NewFixedRatioRenderable(0.8, s.list),
+						layout.NewFixedRatioRenderable(0.6, s.list),
+						layout.NewFixedRatioRenderable(0.2, s.ruleTypeInspector),
 					},
 				),
 				s.statusMessage,
@@ -128,12 +136,19 @@ func (s *Screen) OnExit() any {
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
+		s.statusMessage.Reset()
+
 		switch {
 		case key.Matches(m, keybind.Esc):
 			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
 				return orvyn.SwitchToPreviousScreen()
 			}
 		}
+	}
+
+	switch msg := msg.(type) {
+	case scriptrulelistitem.ChangedRuleTypeMsg:
+		s.inspectorUpdate(string(msg))
 	}
 
 	cmd := s.focusManager.Update(msg)
@@ -143,4 +158,19 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 func (s *Screen) Render() orvyn.Layout {
 	return s.layout
+}
+
+func (s *Screen) inspectorUpdate(code string) {
+	err := s.ruleTypeInspector.SetRuleType(code)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+	}
+}
+
+func (s *Screen) ruleListCursorMoved(_ int) {
+	// TODO: Finish the reset of the inspector
+	if len(s.list.GetItems()) > 0 {
+		s.inspectorUpdate(s.list.GetSelectedItem().RuleTypeCode)
+	}
 }
