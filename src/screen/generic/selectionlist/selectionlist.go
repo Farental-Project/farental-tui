@@ -4,6 +4,7 @@ import (
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/widget/help"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -73,6 +74,12 @@ func (s *Screen[T]) OnEnter(i any) tea.Cmd {
 	s.list.FocusFirst()
 
 	s.statusMessage.Reset()
+
+	err, ok := i.(error)
+
+	if ok {
+		s.SetStatusError(err)
+	}
 
 	return nil
 }

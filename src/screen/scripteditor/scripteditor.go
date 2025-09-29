@@ -8,6 +8,7 @@ import (
 	"farental/widget/help"
 	"farental/widget/scriptinfoinput"
 	"farental/widget/scriptrulelist"
+	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,6 +33,8 @@ type Screen struct {
 	data api.ScriptBody
 
 	new bool
+
+	returnErr error
 }
 
 func New() *Screen {
@@ -82,16 +85,18 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		s.new = true
 	} else {
 		s.new = false
-	
+
 		resp, err := helper.SendRequest(request.ScriptGetDetail(script.ID))
 
 		if err != nil {
+			s.returnErr = fmt.Errorf(lokyn.L("Cannot open selected script"))
 			return orvyn.SwitchToPreviousScreen()
 		}
 
 		scriptDetail, ok := resp.Result().(*api.ScriptResponse)
 
 		if !ok {
+			s.returnErr = fmt.Errorf(lokyn.L("Cannot open selected script"))
 			return orvyn.SwitchToPreviousScreen()
 		}
 
@@ -106,6 +111,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		for _, r := range scriptDetail.Rules {
 			s.data.Rules = append(s.data.Rules, r.ScriptRuleBody)
 		}
+
+		s.scriptInfo.SetData(&s.data)
 	}
 
 	s.focusManager.FocusFirst()
@@ -116,7 +123,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
-	return nil
+	return s.returnErr
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {

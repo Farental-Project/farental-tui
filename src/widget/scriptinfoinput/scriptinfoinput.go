@@ -1,7 +1,9 @@
 package scriptinfoinput
 
 import (
+	"farental/core/data/api"
 	"farental/internal/keybind"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,9 +18,9 @@ import (
 )
 
 type Data struct {
-	name        string
-	description string
-	private     bool
+	Name        string
+	Description string
+	Private     bool
 }
 
 type Widget struct {
@@ -37,12 +39,20 @@ type Widget struct {
 	style lipgloss.Style
 
 	contentSize orvyn.Size
+
+	data *Data
 }
 
 func New() *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+
+	w.data = &Data{
+		Name:        "",
+		Description: "",
+		Private:     false,
+	}
 
 	w.title = orvyn.NewSimpleRenderable(lokyn.L("Script information"))
 	w.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
@@ -79,6 +89,8 @@ func New() *Widget {
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	cmd := w.focusManager.Update(msg)
 
+	w.updateData()
+
 	return cmd
 }
 
@@ -93,6 +105,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) Render() string {
+	w.updateWidget()
+
 	return w.style.
 		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).
@@ -126,9 +140,25 @@ func (w *Widget) GetEnterInputKeybind() *key.Binding {
 }
 
 func (w *Widget) GetData() Data {
-	return Data{
-		name:        w.name.Value(),
-		description: w.description.Value(),
-		private:     w.private.IsChecked(),
+	return *w.data
+}
+
+func (w *Widget) SetData(data *api.ScriptBody) {
+	w.data = &Data{
+		Name:        data.Name,
+		Description: data.Description,
+		Private:     data.IsPrivate,
 	}
+}
+
+func (w *Widget) updateData() {
+	w.data.Name = w.name.Value()
+	w.data.Description = w.description.Value()
+	w.data.Private = w.private.IsChecked()
+}
+
+func (w *Widget) updateWidget() {
+	w.name.SetValue(w.data.Name)
+	w.description.SetValue(w.data.Description)
+	w.private.SetChecked(w.data.Private)
 }
