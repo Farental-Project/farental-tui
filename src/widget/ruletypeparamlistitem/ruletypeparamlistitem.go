@@ -48,7 +48,6 @@ func Constructor(data *api.ScriptRuleTypeParam) list.IListItem {
 	w.inputValue = textinput.New()
 	w.inputValue.SetActive(false)
 
-	// TODO: Set style from style package
 	w.multiValueSelector = multivalueselector.New[Data]()
 	w.multiValueSelector.SetActive(false)
 
@@ -82,6 +81,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
+	size.Height = 4
 	w.BaseWidget.Resize(size)
 	w.layout.Resize(size)
 }
@@ -125,5 +125,9 @@ func (w *Widget) init() {
 		}
 
 		w.multiValueSelector.SetValues(keys, data)
+
+		return
 	}
+
+	w.inputValue.SetActive(true)
 }

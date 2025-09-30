@@ -126,6 +126,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.focusManager.FocusFirst()
 
 	s.list.Init()
+	s.ruleTypeInspector.Init()
 
 	return nil
 }
@@ -168,9 +169,11 @@ func (s *Screen) inspectorUpdate(code string) {
 	}
 }
 
-func (s *Screen) ruleListCursorMoved(_ int) {
+func (s *Screen) ruleListCursorMoved(index int) {
 	// TODO: Finish the reset of the inspector
-	if len(s.list.GetItems()) > 0 {
-		s.inspectorUpdate(s.list.GetSelectedItem().RuleTypeCode)
+	items := s.list.GetItems()
+
+	if len(items) > 0 {
+		s.inspectorUpdate(items[index].RuleTypeCode)
 	}
 }

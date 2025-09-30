@@ -38,6 +38,14 @@ func New() *Widget {
 	return w
 }
 
+func (w *Widget) Init() tea.Cmd {
+	w.SetRuleType("")
+
+	cmd := w.parameters.Init()
+
+	return cmd
+}
+
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
