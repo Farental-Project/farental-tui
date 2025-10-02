@@ -1,4 +1,4 @@
-package scriptrulelistitem
+package scriptrulelist
 
 import (
 	cdata "farental/core/data"
@@ -36,7 +36,7 @@ type Data struct {
 	RuleTypeName string
 }
 
-type Widget struct {
+type ListItem struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
@@ -76,7 +76,7 @@ func Constructor(data *Data) list.IListItem {
 
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorRulesListItem, inputKeymap)
 
-	w := new(Widget)
+	w := new(ListItem)
 
 	w.data = data
 
@@ -148,7 +148,7 @@ func Constructor(data *Data) list.IListItem {
 	return w
 }
 
-func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
@@ -187,7 +187,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (w *Widget) updateWidgets() {
+func (w *ListItem) updateWidgets() {
 	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
 	w.mvsTarget.SetSelected(int(w.data.Target))
 
@@ -206,7 +206,7 @@ func (w *Widget) updateWidgets() {
 	w.btRuleType.SetLabel(ruleTypeName)
 }
 
-func (w *Widget) updateData() {
+func (w *ListItem) updateData() {
 	scriptTarget := w.mvsTarget.GetSelectedValue().ScriptTarget
 
 	if w.data.Target != scriptTarget {
@@ -217,7 +217,7 @@ func (w *Widget) updateData() {
 
 }
 
-func (w *Widget) Resize(size orvyn.Size) {
+func (w *ListItem) Resize(size orvyn.Size) {
 	size.Height = 7
 
 	w.BaseWidget.Resize(size)
@@ -229,7 +229,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.layout.Resize(size)
 }
 
-func (w *Widget) Render() string {
+func (w *ListItem) Render() string {
 	w.updateWidgets()
 
 	return w.style.
@@ -238,49 +238,49 @@ func (w *Widget) Render() string {
 		Render(w.layout.Render())
 }
 
-func (w *Widget) OnFocus() {
+func (w *ListItem) OnFocus() {
 	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
 }
 
-func (w *Widget) OnBlur() {
+func (w *ListItem) OnBlur() {
 	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
-func (w *Widget) OnEnterInput() {
+func (w *ListItem) OnEnterInput() {
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesListItem)
 	w.focusManager.FocusFirst()
 }
 
-func (w *Widget) OnExitInput() {
+func (w *ListItem) OnExitInput() {
 	w.focusManager.BlurCurrent()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
 }
 
-func (w *Widget) GetEnterInputKeybind() *key.Binding {
+func (w *ListItem) GetEnterInputKeybind() *key.Binding {
 	return &keybind.EKey
 }
 
-func (w *Widget) FilterValue() string {
+func (w *ListItem) FilterValue() string {
 	return ""
 }
 
-func (w *Widget) btOnFocus() {
+func (w *ListItem) btOnFocus() {
 	// TODO: Need to check current keymap
 	bubblehelp.SetKeybindVisible(keybind.Space, true)
 }
 
-func (w *Widget) btOnBlur() {
+func (w *ListItem) btOnBlur() {
 	// TODO: Need to check current keymap
 	bubblehelp.SetKeybindVisible(keybind.Space, false)
 }
 
-func (w *Widget) btRuleTypeOnClicked() tea.Cmd {
+func (w *ListItem) btRuleTypeOnClicked() tea.Cmd {
 	orvyn.OpenDialog("selectRuleType", ruletypeselection.New(), nil)
 
 	return nil
 }
 
-func (w *Widget) btAbilityOnClicked() tea.Cmd {
+func (w *ListItem) btAbilityOnClicked() tea.Cmd {
 	orvyn.OpenDialog("selectAbility", abilityselection.New(), w.data.Target)
 
 	return nil

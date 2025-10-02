@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/widget/ruletypeparamlistitem"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -15,11 +14,16 @@ import (
 	"github.com/halsten-dev/orvyn/widget/list"
 )
 
+type ParamData struct {
+	api.ScriptRuleTypeStructParam
+	Value string
+}
+
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	parameters *list.Widget[api.ScriptRuleTypeParam]
+	parameters *list.Widget[ParamData]
 
 	contentSize orvyn.Size
 }
@@ -29,7 +33,7 @@ func New() *Widget {
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
-	w.parameters = list.New(ruletypeparamlistitem.Constructor)
+	w.parameters = list.New(Constructor)
 	w.parameters.SetFilterable(false)
 	w.parameters.CursorMovedCallback = w.cursorMoved
 
@@ -39,7 +43,7 @@ func New() *Widget {
 }
 
 func (w *Widget) Init() tea.Cmd {
-	w.SetRuleType("")
+	w.SetRuleType("", nil)
 
 	cmd := w.parameters.Init()
 
@@ -90,9 +94,11 @@ func (w *Widget) cursorMoved(index int) {
 }
 
 // SetRuleType initialize the inspector based on the given rule type code.
-func (w *Widget) SetRuleType(code string) error {
+func (w *Widget) SetRuleType(code string, data *[]api.ScriptRuleTypeParam) error {
+	var paramData []ParamData
+
 	if code == "" {
-		w.parameters.SetItems([]api.ScriptRuleTypeParam{})
+		w.parameters.SetItems([]ParamData{})
 		w.parameters.SetActive(false)
 		return nil
 	}
@@ -103,25 +109,52 @@ func (w *Widget) SetRuleType(code string) error {
 		return err
 	}
 
-	ruleParamStruct, ok := resp.Result().(*api.ScriptRuleTypeParamStructResponse)
+	ruleParamStruct, ok := resp.Result().(*[]api.ScriptRuleTypeStructParam)
 
 	if !ok {
 		return fmt.Errorf(lokyn.L("Invalid response"))
 	}
 
-	w.parameters.SetItems(ruleParamStruct.Parameters)
+	paramData = make([]ParamData, 0)
+
+	for _, d := range *ruleParamStruct {
+		value := ""
+
+		if data != nil {
+			for _, v := range *data {
+				if v.Identifier == d.Identifier {
+					value = v.Value
+					break
+				}
+			}
+		}
+
+		param := ParamData{
+			ScriptRuleTypeStructParam: d,
+			Value:                     value,
+		}
+
+		paramData = append(paramData, param)
+	}
+
+	w.parameters.SetItems(paramData)
 	w.parameters.BlurCurrent()
 
 	return nil
 }
 
-// UpdateData reads the script response and set parameters values.
-func (w *Widget) UpdateData(data *api.ScriptResponse) {
+// GetItemsData returns the parameters as a json string.
+func (w *Widget) GetItemsData() []api.ScriptRuleTypeParam {
+	var items []api.ScriptRuleTypeParam
 
-}
+	for _, rtp := range w.parameters.GetItems() {
+		item := api.ScriptRuleTypeParam{
+			Identifier: rtp.Identifier,
+			Value:      rtp.Value,
+		}
 
-// GetData returns the parameters as a json string.
-func (w *Widget) GetData() string {
-	// TODO: export parameters as json string
-	return ""
+		items = append(items, item)
+	}
+
+	return items
 }

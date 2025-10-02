@@ -1,4 +1,4 @@
-package ruletypeparamlistitem
+package ruletypeinspector
 
 import (
 	"farental/core/data/api"
@@ -12,32 +12,32 @@ import (
 	"github.com/halsten-dev/orvyn/widget/textinput"
 )
 
-type Data struct {
-	api.ScriptRuleTypeParamValue
+type PossibleValueData struct {
+	api.ScriptRuleTypePossibleValue
 }
 
-func (d Data) RenderValue() string {
+func (d PossibleValueData) RenderValue() string {
 	return d.Value
 }
 
-type Widget struct {
+type ListItem struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *api.ScriptRuleTypeParam
+	data *ParamData
 
 	nameLabel *label.Widget
 
 	inputValue         *textinput.Widget
-	multiValueSelector *multivalueselector.Widget[Data]
+	multiValueSelector *multivalueselector.Widget[PossibleValueData]
 
 	focusManager *orvyn.FocusManager
 
 	layout *layout.VBoxLayout
 }
 
-func Constructor(data *api.ScriptRuleTypeParam) list.IListItem {
-	w := new(Widget)
+func Constructor(data *ParamData) list.IListItem {
+	w := new(ListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
 
@@ -48,7 +48,7 @@ func Constructor(data *api.ScriptRuleTypeParam) list.IListItem {
 	w.inputValue = textinput.New()
 	w.inputValue.SetActive(false)
 
-	w.multiValueSelector = multivalueselector.New[Data]()
+	w.multiValueSelector = multivalueselector.New[PossibleValueData]()
 	w.multiValueSelector.SetActive(false)
 
 	// The focusManager will be useful to ensure to focus the first active widget when calling focusFirst()
@@ -74,60 +74,85 @@ func Constructor(data *api.ScriptRuleTypeParam) list.IListItem {
 	return w
 }
 
-func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	cmd := w.focusManager.Update(msg)
+
+	w.updateValue()
 
 	return cmd
 }
 
-func (w *Widget) Resize(size orvyn.Size) {
+func (w *ListItem) Resize(size orvyn.Size) {
 	size.Height = 4
 	w.BaseWidget.Resize(size)
 	w.layout.Resize(size)
 }
 
-func (w *Widget) Render() string {
+func (w *ListItem) Render() string {
 	return w.layout.Render()
 }
 
-func (w *Widget) OnFocus() {
+func (w *ListItem) OnFocus() {
 	w.focusManager.FocusFirst()
 }
 
-func (w *Widget) OnBlur() {
+func (w *ListItem) OnBlur() {
 	w.focusManager.BlurCurrent()
 }
 
-func (w *Widget) OnEnterInput() {
+func (w *ListItem) OnEnterInput() {
 }
 
-func (w *Widget) OnExitInput() {
+func (w *ListItem) OnExitInput() {
 }
 
-func (w *Widget) FilterValue() string {
+func (w *ListItem) FilterValue() string {
 	return ""
 }
 
-func (w *Widget) init() {
+// updateValue updates the Value property of the data based on the active widget.
+func (w *ListItem) updateValue() {
+	switch {
+	case w.multiValueSelector.IsActive():
+		w.data.Value = w.multiValueSelector.GetSelectedValue().Key
+	case w.inputValue.IsActive():
+		w.data.Value = w.inputValue.Value()
+	}
+
+}
+
+func (w *ListItem) init() {
 	if len(w.data.PossibleValues) > 0 {
 		var keys []string
-		var data map[string]Data
+		var data map[string]PossibleValueData
+		var selectedIndex int
 
-		data = make(map[string]Data)
+		selectedIndex = 0
+
+		data = make(map[string]PossibleValueData)
 
 		w.multiValueSelector.SetActive(true)
 
-		for _, pv := range w.data.PossibleValues {
+		for i, pv := range w.data.PossibleValues {
 			keys = append(keys, pv.Key)
-			data[pv.Key] = Data{
-				ScriptRuleTypeParamValue: pv,
+
+			if pv.Key == w.data.Value {
+				selectedIndex = i
+			}
+
+			data[pv.Key] = PossibleValueData{
+				ScriptRuleTypePossibleValue: pv,
 			}
 		}
 
 		w.multiValueSelector.SetValues(keys, data)
 
+		w.multiValueSelector.SetSelected(selectedIndex)
+
 		return
 	}
 
 	w.inputValue.SetActive(true)
+
+	w.inputValue.SetValue(w.data.Value)
 }

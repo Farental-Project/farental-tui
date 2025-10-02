@@ -9,7 +9,6 @@ import (
 	"farental/widget/ruletypeinspector"
 	"farental/widget/scriptinfoinput"
 	"farental/widget/scriptrulelist"
-	"farental/widget/scriptrulelistitem"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -50,6 +49,7 @@ func New() *Screen {
 
 	s.list = scriptrulelist.New()
 	s.list.SetFilterable(false)
+	s.list.CursorMovingCallback = s.ruleListCursorMoving
 	s.list.CursorMovedCallback = s.ruleListCursorMoved
 
 	s.ruleTypeInspector = ruletypeinspector.New()
@@ -117,7 +117,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		}
 
 		for _, r := range scriptDetail.Rules {
-			s.data.Rules = append(s.data.Rules, r.ScriptRuleBody)
+			s.data.Rules = append(s.data.Rules, r)
 		}
 
 		s.scriptInfo.SetData(&s.data)
@@ -148,8 +148,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	switch msg := msg.(type) {
-	case scriptrulelistitem.ChangedRuleTypeMsg:
-		s.inspectorUpdate(string(msg))
+	case scriptrulelist.ChangedRuleTypeMsg:
+		s.inspectorUpdate(string(msg), nil)
 	}
 
 	cmd := s.focusManager.Update(msg)
@@ -161,19 +161,38 @@ func (s *Screen) Render() orvyn.Layout {
 	return s.layout
 }
 
-func (s *Screen) inspectorUpdate(code string) {
-	err := s.ruleTypeInspector.SetRuleType(code)
+// ruleDataUpdate updates the rule with the data contained in the rule type inspector.
+func (s *Screen) ruleDataUpdate(ruleItemData *scriptrulelist.Data) {
+	params := s.ruleTypeInspector.GetItemsData()
+
+	ruleItemData.Parameters = params
+}
+
+// inspectorUpdate updates the inspector based on the rule type in the selected rule.
+func (s *Screen) inspectorUpdate(code string, data *[]api.ScriptRuleTypeParam) {
+	err := s.ruleTypeInspector.SetRuleType(code, data)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 	}
 }
 
-func (s *Screen) ruleListCursorMoved(index int) {
-	// TODO: Finish the reset of the inspector
+// ruleListCursorMoving is called before the movement of the cursor in the ruleList.
+func (s *Screen) ruleListCursorMoving(index int) {
 	items := s.list.GetItems()
 
 	if len(items) > 0 {
-		s.inspectorUpdate(items[index].RuleTypeCode)
+		item := &items[index]
+		s.ruleDataUpdate(item)
+		s.list.SetItem(index, *item)
+	}
+}
+
+// ruleListCursorMoved is called after the movement of the cursor in the ruleList.
+func (s *Screen) ruleListCursorMoved(index int) {
+	items := s.list.GetItems()
+
+	if len(items) > 0 {
+		s.inspectorUpdate(items[index].RuleTypeCode, &items[index].Parameters)
 	}
 }

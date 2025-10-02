@@ -22,7 +22,7 @@ func ScriptGetRuleTypeParamStruct(ruleTypeCode string) *resty.Request {
 	r.Method = resty.MethodGet
 	r.URL = "/script/ruleTypeParamStruct"
 	r.SetQueryParam("Code", ruleTypeCode)
-	r.SetResult(api.ScriptRuleTypeParamStructResponse{})
+	r.SetResult([]api.ScriptRuleTypeStructParam{})
 	r.SetError(api.ErrorResponse{})
 
 	return r

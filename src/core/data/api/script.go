@@ -30,7 +30,7 @@ type ScriptRuleBody struct {
 	Order        int          `validate:"required,min=1"`
 	RuleTypeCode string       `validate:"required"`
 	AbilityCode  string       `validate:"required"`
-	Parameters   string       `validate:"json"`
+	Parameters   []ScriptRuleTypeParam
 }
 
 type ScriptBasicResponse struct {
@@ -43,31 +43,28 @@ type ScriptBasicResponse struct {
 
 type ScriptResponse struct {
 	ScriptBasicResponse
-	Rules []ScriptRuleResponse
+	Rules []ScriptRuleBody
 }
 
-type ScriptRuleResponse struct {
-	ScriptRuleBody
-	ParamStruct ScriptRuleTypeParamStructResponse
+type ScriptRuleTypeParam struct {
+	Identifier string
+	Value      string
+}
+
+type ScriptRuleTypeStructParam struct {
+	Name           string
+	Identifier     string
+	Type           uint
+	PossibleValues []ScriptRuleTypePossibleValue
+}
+
+type ScriptRuleTypePossibleValue struct {
+	Key   string
+	Value string
 }
 
 type ScriptRuleTypeResponse struct {
 	Code        string
 	Name        string
 	Description string
-}
-
-type ScriptRuleTypeParamStructResponse struct {
-	Parameters []ScriptRuleTypeParam
-}
-
-type ScriptRuleTypeParam struct {
-	Name           string
-	Type           uint
-	PossibleValues []ScriptRuleTypeParamValue
-}
-
-type ScriptRuleTypeParamValue struct {
-	Key   string
-	Value string
 }

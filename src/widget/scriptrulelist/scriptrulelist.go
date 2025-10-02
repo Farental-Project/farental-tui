@@ -5,7 +5,6 @@ import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
 	"farental/internal/style"
-	"farental/widget/scriptrulelistitem"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,7 +15,7 @@ import (
 )
 
 type Widget struct {
-	list.Widget[scriptrulelistitem.Data]
+	list.Widget[Data]
 }
 
 func New() *Widget {
@@ -32,7 +31,7 @@ func New() *Widget {
 
 	w := new(Widget)
 
-	w.Widget = *list.New(scriptrulelistitem.Constructor)
+	w.Widget = *list.New(Constructor)
 
 	return w
 }
@@ -40,7 +39,7 @@ func New() *Widget {
 func (w *Widget) Init() tea.Cmd {
 	cmd := w.Widget.Init()
 
-	w.SetItems([]scriptrulelistitem.Data{})
+	w.SetItems([]Data{})
 
 	return cmd
 }
@@ -51,13 +50,13 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.NKey):
 			if bubblehelp.IsKeybindVisible(keybind.NKey) {
 				w.Widget.AppendItem(
-					scriptrulelistitem.Data{
+					Data{
 						ScriptRuleBody: api.ScriptRuleBody{
 							Target:       api.TargetSelf,
 							Order:        len(w.GetItems()) + 1,
 							RuleTypeCode: "",
 							AbilityCode:  "",
-							Parameters:   "",
+							Parameters:   make([]api.ScriptRuleTypeParam, 0),
 						},
 					})
 
@@ -68,13 +67,13 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.IKey):
 			if bubblehelp.IsKeybindVisible(keybind.IKey) {
 				w.Widget.InsertItem(w.GetGlobalIndex(),
-					scriptrulelistitem.Data{
+					Data{
 						ScriptRuleBody: api.ScriptRuleBody{
 							Target:       api.TargetSelf,
 							Order:        0,
 							RuleTypeCode: "",
 							AbilityCode:  "",
-							Parameters:   "",
+							Parameters:   make([]api.ScriptRuleTypeParam, 0),
 						},
 					})
 
@@ -102,6 +101,20 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
+func (w *Widget) OnFocus() {
+	w.Widget.OnFocus()
+	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
+	w.updateKeybind()
+}
+
+func (w *Widget) OnBlur() {
+	w.Widget.OnBlur()
+}
+
+func (w *Widget) UpdateParameters() {
+
+}
+
 func (w *Widget) updateRulesOrder() {
 	items := w.GetItems()
 
@@ -116,14 +129,4 @@ func (w *Widget) updateKeybind() {
 
 	bubblehelp.SetKeybindVisible(keybind.NKey, !limitReached)
 	bubblehelp.SetKeybindVisible(keybind.IKey, !limitReached)
-}
-
-func (w *Widget) OnFocus() {
-	w.Widget.OnFocus()
-	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
-	w.updateKeybind()
-}
-
-func (w *Widget) OnBlur() {
-	w.Widget.OnBlur()
 }

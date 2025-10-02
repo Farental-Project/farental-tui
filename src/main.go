@@ -28,8 +28,9 @@ import (
 	"farental/screen/scriptexplorer"
 	"farental/screen/travel"
 	"fmt"
-	"github.com/halsten-dev/orvyn"
 	"log"
+
+	"github.com/halsten-dev/orvyn"
 
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
