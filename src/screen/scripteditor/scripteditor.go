@@ -87,6 +87,9 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	s.list.Init()
+	s.ruleTypeInspector.Init()
+
 	script, ok := i.(*api.ScriptBasicResponse)
 
 	if !ok || script == nil {
@@ -113,20 +116,18 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 			Name:        scriptDetail.Name,
 			Description: scriptDetail.Description,
 			IsPrivate:   scriptDetail.IsPrivate,
-			Rules:       make([]api.ScriptRuleBody, 0),
-		}
-
-		for _, r := range scriptDetail.Rules {
-			s.data.Rules = append(s.data.Rules, r)
+			Rules:       scriptDetail.Rules,
 		}
 
 		s.scriptInfo.SetData(&s.data)
+
+		if len(s.data.Rules) > 0 {
+			s.list.SetData(&s.data.Rules)
+			s.ruleListCursorMoved(0)
+		}
 	}
 
 	s.focusManager.FocusFirst()
-
-	s.list.Init()
-	s.ruleTypeInspector.Init()
 
 	return nil
 }
@@ -143,6 +144,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.Esc):
 			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
 				return orvyn.SwitchToPreviousScreen()
+			}
+
+		case key.Matches(m, keybind.SKeyCtrl):
+			if !s.focusManager.IsInputting() {
+				s.save()
 			}
 		}
 	}
@@ -194,5 +200,18 @@ func (s *Screen) ruleListCursorMoved(index int) {
 
 	if len(items) > 0 {
 		s.inspectorUpdate(items[index].RuleTypeCode, &items[index].Parameters)
+	}
+}
+
+func (s *Screen) save() {
+	resp, err := helper.SendRequest(request.ScriptSave(&s.data))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	if resp.StatusCode() == 200 {
+		s.statusMessage.SetMessage(lokyn.L("Script save successfully."), statusmessage.SuccessMessage)
 	}
 }

@@ -17,6 +17,17 @@ func ScriptGetRuleTypes() *resty.Request {
 	return r
 }
 
+func ScriptGetRuleType(code string) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodGet
+	r.URL = "/script/ruleType"
+	r.SetQueryParam("Code", code)
+	r.SetResult(api.ScriptRuleTypeResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func ScriptGetRuleTypeParamStruct(ruleTypeCode string) *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
@@ -49,4 +60,15 @@ func ScriptGetDetail(ID uint) *resty.Request {
 
 	return r
 
+}
+
+func ScriptSave(script *api.ScriptBody) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/script/save"
+	r.SetBody(script)
+	r.SetError(api.ErrorResponse{})
+
+	return r
 }

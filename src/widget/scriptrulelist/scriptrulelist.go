@@ -3,11 +3,15 @@ package scriptrulelist
 import (
 	"farental/core/data"
 	"farental/core/data/api"
+	"farental/core/request"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/style"
+	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -111,10 +115,6 @@ func (w *Widget) OnBlur() {
 	w.Widget.OnBlur()
 }
 
-func (w *Widget) UpdateParameters() {
-
-}
-
 func (w *Widget) updateRulesOrder() {
 	items := w.GetItems()
 
@@ -122,6 +122,62 @@ func (w *Widget) updateRulesOrder() {
 		r.Order = i + 1
 		w.Widget.SetItem(i, r)
 	}
+}
+
+func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
+	var listItems []Data
+	var abilityName, ruleTypeName string
+	var resp *resty.Response
+	var err error
+
+	for _, rb := range *data {
+		abilityName = ""
+		ruleTypeName = ""
+
+		if rb.AbilityCode != "" {
+			resp, err = helper.SendRequest(request.AbilityGet(rb.AbilityCode))
+
+			if err != nil {
+				return err
+			}
+
+			ability, ok := resp.Result().(*api.AbilityResponse)
+
+			if !ok {
+				return fmt.Errorf(lokyn.L("Invalid response from server"))
+			}
+
+			abilityName = ability.Name
+		}
+
+		if rb.RuleTypeCode != "" {
+			resp, err = helper.SendRequest(request.ScriptGetRuleType(rb.RuleTypeCode))
+
+			if err != nil {
+				return err
+			}
+
+			ruleType, ok := resp.Result().(*api.ScriptRuleTypeResponse)
+
+			if !ok {
+				return fmt.Errorf(lokyn.L("Invalid response from server"))
+			}
+
+			ruleTypeName = ruleType.Name
+		}
+
+		item := Data{
+			ScriptRuleBody: rb,
+			AbilityName:    abilityName,
+			RuleTypeName:   ruleTypeName,
+		}
+
+		listItems = append(listItems, item)
+	}
+
+	w.SetItems(listItems)
+
+	return nil
 }
 
 func (w *Widget) updateKeybind() {
