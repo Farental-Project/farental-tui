@@ -63,7 +63,7 @@ type ListItem struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.IListItem {
+func Constructor(data *Data) list.ListItem {
 	inputKeymap := bubblehelp.NewKeymap(2)
 	inputKeymap.Style = style.MainHelpStyle
 	inputKeymap.NewKeyBinding(keybind.Tab, true)
@@ -143,7 +143,7 @@ func Constructor(data *Data) list.IListItem {
 
 	w.OnBlur()
 
-	w.updateWidgets()
+	w.UpdateData()
 
 	return w
 }
@@ -187,7 +187,7 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (w *ListItem) updateWidgets() {
+func (w *ListItem) UpdateData() {
 	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
 	w.mvsTarget.SetSelected(int(w.data.Target))
 
@@ -206,6 +206,7 @@ func (w *ListItem) updateWidgets() {
 	w.btRuleType.SetLabel(ruleTypeName)
 }
 
+// updateData updates the data based on the widgets values
 func (w *ListItem) updateData() {
 	scriptTarget := w.mvsTarget.GetSelectedValue().ScriptTarget
 
@@ -214,7 +215,6 @@ func (w *ListItem) updateData() {
 		w.data.AbilityCode = ""
 		w.data.AbilityName = ""
 	}
-
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {
@@ -230,8 +230,6 @@ func (w *ListItem) Resize(size orvyn.Size) {
 }
 
 func (w *ListItem) Render() string {
-	w.updateWidgets()
-
 	return w.style.
 		Width(w.contentSize.Width).
 		Height(w.contentSize.Height).

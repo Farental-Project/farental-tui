@@ -7,6 +7,8 @@ import (
 	ftheme "farental/internal/theme"
 	"farental/widget/numericalselector"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -14,7 +16,6 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget"
 	"github.com/halsten-dev/orvyn/widget/list"
-	"strings"
 )
 
 type Data struct {
@@ -36,7 +37,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.IListItem {
+func Constructor(data *Data) list.ListItem {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -65,6 +66,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 	return nil
 }
+
+func (w *Widget) UpdateData() {}
 
 func (w *Widget) Resize(size orvyn.Size) {
 	size.Height = 7
@@ -140,10 +143,9 @@ func (w *Widget) Render() string {
 			b.WriteString("\n")
 		}
 
-		b.WriteString(
-			fmt.Sprintf("%dx %s",
-				ingredient.Amount,
-				ingredient.Item.Name))
+		b.WriteString(fmt.Sprintf("%dx %s",
+			ingredient.Amount,
+			ingredient.Item.Name))
 
 		count++
 	}

@@ -4,13 +4,14 @@ import (
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
-	"strings"
 )
 
 type DurationData struct {
@@ -37,7 +38,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.IListItem {
+func Constructor(data *Data) list.ListItem {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -75,6 +76,8 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 	return nil
 }
+
+func (w *Widget) UpdateData() {}
 
 func (w *Widget) Resize(size orvyn.Size) {
 	size.Height = 6

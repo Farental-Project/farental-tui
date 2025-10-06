@@ -5,6 +5,9 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -12,8 +15,6 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget"
 	"github.com/halsten-dev/orvyn/widget/list"
-	"strconv"
-	"strings"
 )
 
 type Data struct {
@@ -34,7 +35,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.IListItem {
+func Constructor(data *Data) list.ListItem {
 	w := new(Widget)
 
 	w.data = data
@@ -47,9 +48,7 @@ func Constructor(data *Data) list.IListItem {
 	w.paginator.KeyMap.NextPage = keybind.Right
 	w.paginator.KeyMap.PrevPage = keybind.Left
 
-	for _, a := range data.Actors {
-		w.data.TotalPower += a.Power
-	}
+	w.UpdateData()
 
 	w.OnBlur()
 
@@ -60,6 +59,12 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	w.paginator, _ = w.paginator.Update(msg)
 
 	return nil
+}
+
+func (w *Widget) UpdateData() {
+	for _, a := range w.data.Actors {
+		w.data.TotalPower += a.Power
+	}
 }
 
 func (w *Widget) Resize(size orvyn.Size) {

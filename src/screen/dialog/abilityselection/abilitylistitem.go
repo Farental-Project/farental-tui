@@ -43,7 +43,7 @@ type AbilityListItem struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.AbilityResponse) list.IListItem {
+func Constructor(data *api.AbilityResponse) list.ListItem {
 	a := new(AbilityListItem)
 
 	t := orvyn.GetTheme()
@@ -176,6 +176,10 @@ func (a *AbilityListItem) Resize(size orvyn.Size) {
 
 	a.contentSize = size
 	a.layout.Resize(a.contentSize)
+}
+
+func (a *AbilityListItem) UpdateData() {
+
 }
 
 func (a *AbilityListItem) Render() string {

@@ -3,12 +3,13 @@ package mailboxlistitem
 import (
 	"farental/core/data/api"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 type Widget struct {
@@ -22,7 +23,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.MailBasicResponse) list.IListItem {
+func Constructor(data *api.MailBasicResponse) list.ListItem {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -44,6 +45,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 	w.contentSize = size
 }
+
+func (w *Widget) UpdateData() {}
 
 func (w *Widget) Render() string {
 	var s lipgloss.Style

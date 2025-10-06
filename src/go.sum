@@ -44,10 +44,10 @@ github.com/halsten-dev/bubblehelp v1.0.2 h1:FiNgy+37cIiDkUOaUK1ShCzPYbhJ7ksff7w3
 github.com/halsten-dev/bubblehelp v1.0.2/go.mod h1:tIMQHQB2dkLJ7wgdURUs118NO2kG1tstbRVsmjI2P9A=
 github.com/halsten-dev/lokyn v1.0.0 h1:T4XGe2N9kQyjv+hRD/G9Clo5luhFzBosrZcqDFytW3M=
 github.com/halsten-dev/lokyn v1.0.0/go.mod h1:qGTNdCXIBmFcpP7puv/fEdrjZhAI16DV4v9N9OE2QOw=
-github.com/halsten-dev/orvyn v0.0.0-20250930172354-d49292feee1a h1:YNi0dyw3ayaP93msMvmqLEjzcebhanHa3TqlpE3L3rI=
-github.com/halsten-dev/orvyn v0.0.0-20250930172354-d49292feee1a/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
-github.com/halsten-dev/orvyn v0.0.0-20251002125420-17b98494ce02 h1:uzAxcn4/30rQEoaoaFVGNOcFJ5NDkMWZxaCljZ0anzQ=
-github.com/halsten-dev/orvyn v0.0.0-20251002125420-17b98494ce02/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
+github.com/halsten-dev/orvyn v0.0.0-20251006190604-8b5943e834ec h1:RKFz2bIexVQka8YoF78jmVLLF7+Q/OjHmjLZ+lLvR90=
+github.com/halsten-dev/orvyn v0.0.0-20251006190604-8b5943e834ec/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
+github.com/halsten-dev/orvyn v0.0.0-20251006191708-2d1ac93cda17 h1:s4z1x6kWHAXyjrDDFdK6nBwS7qbeI52es3qBpM4e+gQ=
+github.com/halsten-dev/orvyn v0.0.0-20251006191708-2d1ac93cda17/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade/go.mod h1:ZDXo8KHryOWSIqnsb/CiDq7hQUYryCgdVnxbj8tDG7o=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=

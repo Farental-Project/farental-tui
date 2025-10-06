@@ -5,11 +5,12 @@ import (
 	"farental/core/data/api"
 	"farental/internal/style"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
-	"strings"
 )
 
 type Widget struct {
@@ -25,26 +26,13 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.TravelResponse) list.IListItem {
-	var b strings.Builder
+func Constructor(data *api.TravelResponse) list.ListItem {
 
 	w := new(Widget)
 
 	w.data = data
 
-	for _, f := range data.DestLocation.Features {
-		if !f.IsAction {
-			continue
-		}
-
-		if b.Len() > 0 {
-			b.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
-		}
-
-		b.WriteString(f.Name)
-	}
-
-	w.featuresList = b.String()
+	w.UpdateData()
 
 	w.OnBlur()
 
@@ -60,6 +48,24 @@ func (w *Widget) Resize(size orvyn.Size) {
 	size.Height -= w.style.GetVerticalFrameSize()
 
 	w.contentSize = size
+}
+
+func (w *Widget) UpdateData() {
+	var b strings.Builder
+
+	for _, f := range w.data.DestLocation.Features {
+		if !f.IsAction {
+			continue
+		}
+
+		if b.Len() > 0 {
+			b.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
+		}
+
+		b.WriteString(f.Name)
+	}
+
+	w.featuresList = b.String()
 }
 
 func (w *Widget) Render() string {
