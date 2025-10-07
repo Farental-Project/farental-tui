@@ -2,11 +2,12 @@ package scriptexplorerlistitem
 
 import (
 	"farental/core/data/api"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
-	"strings"
 )
 
 type Widget struct {
@@ -20,7 +21,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.ScriptBasicResponse) list.IListItem {
+func Constructor(data *api.ScriptBasicResponse) list.ListItem {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -42,6 +43,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 	w.contentSize = size
 }
+
+func (w *Widget) UpdateData() {}
 
 func (w *Widget) Render() string {
 	var s lipgloss.Style

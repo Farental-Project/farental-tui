@@ -36,7 +36,7 @@ type ListItem struct {
 	layout *layout.VBoxLayout
 }
 
-func Constructor(data *ParamData) list.IListItem {
+func Constructor(data *ParamData) list.ListItem {
 	w := new(ListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -69,7 +69,7 @@ func Constructor(data *ParamData) list.IListItem {
 			pileLayout,
 		})
 
-	w.init()
+	w.UpdateData()
 
 	return w
 }
@@ -80,6 +80,42 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	w.updateValue()
 
 	return cmd
+}
+
+func (w *ListItem) UpdateData() {
+	if len(w.data.PossibleValues) > 0 {
+		var keys []string
+		var data map[string]PossibleValueData
+		var selectedIndex int
+
+		selectedIndex = 0
+
+		data = make(map[string]PossibleValueData)
+
+		w.multiValueSelector.SetActive(true)
+
+		for i, pv := range w.data.PossibleValues {
+			keys = append(keys, pv.Key)
+
+			if pv.Key == w.data.Value {
+				selectedIndex = i
+			}
+
+			data[pv.Key] = PossibleValueData{
+				ScriptRuleTypePossibleValue: pv,
+			}
+		}
+
+		w.multiValueSelector.SetValues(keys, data)
+
+		w.multiValueSelector.SetSelected(selectedIndex)
+
+		return
+	}
+
+	w.inputValue.SetActive(true)
+
+	w.inputValue.SetValue(w.data.Value)
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {
@@ -119,40 +155,4 @@ func (w *ListItem) updateValue() {
 		w.data.Value = w.inputValue.Value()
 	}
 
-}
-
-func (w *ListItem) init() {
-	if len(w.data.PossibleValues) > 0 {
-		var keys []string
-		var data map[string]PossibleValueData
-		var selectedIndex int
-
-		selectedIndex = 0
-
-		data = make(map[string]PossibleValueData)
-
-		w.multiValueSelector.SetActive(true)
-
-		for i, pv := range w.data.PossibleValues {
-			keys = append(keys, pv.Key)
-
-			if pv.Key == w.data.Value {
-				selectedIndex = i
-			}
-
-			data[pv.Key] = PossibleValueData{
-				ScriptRuleTypePossibleValue: pv,
-			}
-		}
-
-		w.multiValueSelector.SetValues(keys, data)
-
-		w.multiValueSelector.SetSelected(selectedIndex)
-
-		return
-	}
-
-	w.inputValue.SetActive(true)
-
-	w.inputValue.SetValue(w.data.Value)
 }

@@ -4,6 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/internal/style"
 	"fmt"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
@@ -21,7 +22,7 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.CharacterBasicResponse) list.IListItem {
+func Constructor(data *api.CharacterBasicResponse) list.ListItem {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -43,6 +44,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 	w.contentSize = size
 }
+
+func (w *Widget) UpdateData() {}
 
 func (w *Widget) Render() string {
 	t := orvyn.GetTheme()

@@ -22,7 +22,7 @@ type RuleTypeListItem struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.ScriptRuleTypeResponse) list.IListItem {
+func Constructor(data *api.ScriptRuleTypeResponse) list.ListItem {
 	w := new(RuleTypeListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -44,6 +44,8 @@ func (r *RuleTypeListItem) Resize(size orvyn.Size) {
 
 	r.contentSize = size
 }
+
+func (r *RuleTypeListItem) UpdateData() {}
 
 func (r *RuleTypeListItem) Render() string {
 	t := orvyn.GetTheme()
