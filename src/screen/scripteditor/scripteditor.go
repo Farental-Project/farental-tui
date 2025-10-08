@@ -204,6 +204,22 @@ func (s *Screen) ruleListCursorMoved(index int) {
 }
 
 func (s *Screen) save() {
+	infoData := s.scriptInfo.GetData()
+
+	s.data.Name = infoData.Name
+	s.data.Description = infoData.Description
+	s.data.IsPrivate = infoData.Private
+
+	s.ruleListCursorMoving(s.list.GetGlobalIndex())
+
+	rulesData := s.list.GetItems()
+
+	s.data.Rules = make([]api.ScriptRuleBody, 0)
+
+	for _, rd := range rulesData {
+		s.data.Rules = append(s.data.Rules, rd.ScriptRuleBody)
+	}
+
 	resp, err := helper.SendRequest(request.ScriptSave(&s.data))
 
 	if err != nil {

@@ -143,7 +143,7 @@ func (w *Widget) SetRuleType(code string, data *[]api.ScriptRuleTypeParam) error
 	return nil
 }
 
-// GetItemsData returns the parameters as a json string.
+// GetItemsData returns the parameters
 func (w *Widget) GetItemsData() []api.ScriptRuleTypeParam {
 	var items []api.ScriptRuleTypeParam
 
