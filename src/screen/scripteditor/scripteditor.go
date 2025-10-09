@@ -228,6 +228,6 @@ func (s *Screen) save() {
 	}
 
 	if resp.StatusCode() == 200 {
-		s.statusMessage.SetMessage(lokyn.L("Script save successfully."), statusmessage.SuccessMessage)
+		s.statusMessage.SetMessage(lokyn.L("Script saved successfully."), statusmessage.SuccessMessage)
 	}
 }
