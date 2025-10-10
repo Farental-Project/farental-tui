@@ -6,11 +6,12 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	ftheme "farental/internal/theme"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type EquipmentSlot struct {
@@ -70,10 +71,6 @@ func (w *Widget) Render() string {
 	size := w.contentSize
 
 	t := orvyn.GetTheme()
-
-	if len(w.equipmentSlots) == 0 {
-		return ""
-	}
 
 	col = column{}
 

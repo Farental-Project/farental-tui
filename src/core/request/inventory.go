@@ -2,6 +2,7 @@ package request
 
 import (
 	"farental/core/data/api"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -56,7 +57,6 @@ func InventoryGetEquippedItems() *resty.Request {
 	r.Method = resty.MethodGet
 	r.URL = "/inventory/equippedItems"
 	r.SetResult([]api.ItemResponse{})
-	r.SetError(api.ErrorResponse{})
 
 	return r
 }

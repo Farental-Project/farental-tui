@@ -10,6 +10,8 @@ import (
 	"farental/screen"
 	"farental/widget/characterbasiclistitem"
 	"farental/widget/help"
+	"net/http"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -20,7 +22,6 @@ import (
 	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/spf13/viper"
-	"net/http"
 )
 
 type Screen struct {
@@ -69,6 +70,19 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
+
+	if orvyn.GetPreviousScreen() != screen.IDDashBoard {
+		resp, _ := helper.SendRequest(request.CharacterGetActive())
+
+		if resp.StatusCode() == http.StatusOK {
+			charInfo, ok := resp.Result().(*api.CharacterBasicResponse)
+
+			if ok {
+				context.CharacterID = charInfo.ID
+				return orvyn.SwitchScreen(screen.IDDashBoard)
+			}
+		}
+	}
 
 	s.loadCharacters()
 	s.list.FocusFirst()

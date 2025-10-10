@@ -12,6 +12,8 @@ import (
 	"farental/widget/locationinfo"
 	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
+	"time"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -20,7 +22,6 @@ import (
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
-	"time"
 )
 
 const (
