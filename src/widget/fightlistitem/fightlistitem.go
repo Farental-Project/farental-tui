@@ -26,7 +26,7 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *Data
+	data Data
 
 	paginator paginator.Model
 
@@ -35,10 +35,10 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.ListItem {
+func Constructor(data Data) list.ListItem[Data] {
 	w := new(Widget)
 
-	w.data = data
+	w.UpdateData(data)
 
 	w.paginator = paginator.New()
 	w.paginator.Type = paginator.Dots
@@ -47,8 +47,6 @@ func Constructor(data *Data) list.ListItem {
 	w.paginator.SetTotalPages(len(data.Actors))
 	w.paginator.KeyMap.NextPage = keybind.Right
 	w.paginator.KeyMap.PrevPage = keybind.Left
-
-	w.UpdateData()
 
 	w.OnBlur()
 
@@ -61,10 +59,16 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget) UpdateData() {
+func (w *Widget) UpdateData(data Data) {
+	w.data = data
+
 	for _, a := range w.data.Actors {
 		w.data.TotalPower += a.Power
 	}
+}
+
+func (w *Widget) GetData() Data {
+	return w.data
 }
 
 func (w *Widget) Resize(size orvyn.Size) {

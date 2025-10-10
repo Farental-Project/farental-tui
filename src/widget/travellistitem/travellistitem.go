@@ -17,7 +17,7 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *api.TravelResponse
+	data api.TravelResponse
 
 	featuresList string
 
@@ -26,13 +26,11 @@ type Widget struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.TravelResponse) list.ListItem {
+func Constructor(data api.TravelResponse) list.ListItem[api.TravelResponse] {
 
 	w := new(Widget)
 
-	w.data = data
-
-	w.UpdateData()
+	w.UpdateData(data)
 
 	w.OnBlur()
 
@@ -50,7 +48,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.contentSize = size
 }
 
-func (w *Widget) UpdateData() {
+func (w *Widget) UpdateData(data api.TravelResponse) {
 	var b strings.Builder
 
 	for _, f := range w.data.DestLocation.Features {
@@ -66,6 +64,10 @@ func (w *Widget) UpdateData() {
 	}
 
 	w.featuresList = b.String()
+}
+
+func (w *Widget) GetData() api.TravelResponse {
+	return w.data
 }
 
 func (w *Widget) Render() string {

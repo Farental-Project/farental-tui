@@ -17,12 +17,12 @@ type RuleTypeListItem struct {
 
 	style lipgloss.Style
 
-	data *api.ScriptRuleTypeResponse
+	data api.ScriptRuleTypeResponse
 
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.ScriptRuleTypeResponse) list.ListItem {
+func Constructor(data api.ScriptRuleTypeResponse) list.ListItem[api.ScriptRuleTypeResponse] {
 	w := new(RuleTypeListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -45,7 +45,13 @@ func (r *RuleTypeListItem) Resize(size orvyn.Size) {
 	r.contentSize = size
 }
 
-func (r *RuleTypeListItem) UpdateData() {}
+func (r *RuleTypeListItem) UpdateData(data api.ScriptRuleTypeResponse) {
+	r.data = data
+}
+
+func (r *RuleTypeListItem) GetData() api.ScriptRuleTypeResponse {
+	return r.data
+}
 
 func (r *RuleTypeListItem) Render() string {
 	t := orvyn.GetTheme()

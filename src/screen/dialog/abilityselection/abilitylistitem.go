@@ -38,12 +38,12 @@ type AbilityListItem struct {
 
 	style lipgloss.Style
 
-	data *api.AbilityResponse
+	data api.AbilityResponse
 
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.AbilityResponse) list.ListItem {
+func Constructor(data api.AbilityResponse) list.ListItem[api.AbilityResponse] {
 	a := new(AbilityListItem)
 
 	t := orvyn.GetTheme()
@@ -178,8 +178,12 @@ func (a *AbilityListItem) Resize(size orvyn.Size) {
 	a.layout.Resize(a.contentSize)
 }
 
-func (a *AbilityListItem) UpdateData() {
+func (a *AbilityListItem) UpdateData(data api.AbilityResponse) {
+	a.data = data
+}
 
+func (a *AbilityListItem) GetData() api.AbilityResponse {
+	return a.data
 }
 
 func (a *AbilityListItem) Render() string {

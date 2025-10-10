@@ -17,12 +17,12 @@ type Widget struct {
 
 	style lipgloss.Style
 
-	data *api.CharacterBasicResponse
+	data api.CharacterBasicResponse
 
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.CharacterBasicResponse) list.ListItem {
+func Constructor(data api.CharacterBasicResponse) list.ListItem[api.CharacterBasicResponse] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -45,7 +45,13 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.contentSize = size
 }
 
-func (w *Widget) UpdateData() {}
+func (w *Widget) UpdateData(data api.CharacterBasicResponse) {
+	w.data = data
+}
+
+func (w *Widget) GetData() api.CharacterBasicResponse {
+	return w.data
+}
 
 func (w *Widget) Render() string {
 	t := orvyn.GetTheme()

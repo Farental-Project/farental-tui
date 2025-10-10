@@ -17,12 +17,12 @@ type Widget struct {
 
 	style lipgloss.Style
 
-	data *api.StackResponse
+	data api.StackResponse
 
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.StackResponse) list.ListItem {
+func Constructor(data api.StackResponse) list.ListItem[api.StackResponse] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -45,7 +45,13 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.contentSize = size
 }
 
-func (w *Widget) UpdateData() {}
+func (w *Widget) UpdateData(data api.StackResponse) {
+	w.data = data
+}
+
+func (w *Widget) GetData() api.StackResponse {
+	return w.data
+}
 
 func (w *Widget) Render() string {
 	var s lipgloss.Style

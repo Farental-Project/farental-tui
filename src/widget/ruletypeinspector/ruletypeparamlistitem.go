@@ -24,7 +24,7 @@ type ListItem struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *ParamData
+	data ParamData
 
 	nameLabel *label.Widget
 
@@ -36,7 +36,7 @@ type ListItem struct {
 	layout *layout.VBoxLayout
 }
 
-func Constructor(data *ParamData) list.ListItem {
+func Constructor(data ParamData) list.ListItem[ParamData] {
 	w := new(ListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -69,7 +69,7 @@ func Constructor(data *ParamData) list.ListItem {
 			pileLayout,
 		})
 
-	w.UpdateData()
+	w.UpdateData(data)
 
 	return w
 }
@@ -82,7 +82,9 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-func (w *ListItem) UpdateData() {
+func (w *ListItem) UpdateData(data ParamData) {
+	w.data = data
+
 	if len(w.data.PossibleValues) > 0 {
 		var keys []string
 		var data map[string]PossibleValueData
@@ -116,6 +118,10 @@ func (w *ListItem) UpdateData() {
 	w.inputValue.SetActive(true)
 
 	w.inputValue.SetValue(w.data.Value)
+}
+
+func (w *ListItem) GetData() ParamData {
+	return w.data
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {

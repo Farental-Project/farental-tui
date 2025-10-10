@@ -33,12 +33,12 @@ type Widget struct {
 
 	style lipgloss.Style
 
-	data *Data
+	data Data
 
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.ListItem {
+func Constructor(data Data) list.ListItem[Data] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -77,7 +77,13 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget) UpdateData() {}
+func (w *Widget) UpdateData(data Data) {
+	w.data = data
+}
+
+func (w *Widget) GetData() Data {
+	return w.data
+}
 
 func (w *Widget) Resize(size orvyn.Size) {
 	size.Height = 6

@@ -40,7 +40,7 @@ type ListItem struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *Data
+	data Data
 
 	titleOrder    *orvyn.SimpleRenderable
 	titleRuleType *orvyn.SimpleRenderable
@@ -63,7 +63,7 @@ type ListItem struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data *Data) list.ListItem {
+func Constructor(data Data) list.ListItem[Data] {
 	inputKeymap := bubblehelp.NewKeymap(2)
 	inputKeymap.Style = style.MainHelpStyle
 	inputKeymap.NewKeyBinding(keybind.Tab, true)
@@ -77,8 +77,6 @@ func Constructor(data *Data) list.ListItem {
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorRulesListItem, inputKeymap)
 
 	w := new(ListItem)
-
-	w.data = data
 
 	t := orvyn.GetTheme()
 	dts := t.Style(theme.DimTextStyleID)
@@ -113,6 +111,7 @@ func Constructor(data *Data) list.ListItem {
 
 	w.mvsTarget = multivalueselector.New[cdata.Target]()
 	w.mvsTarget.SetValues(cdata.TargetKeys, cdata.Targets)
+	w.mvsTarget.Looping = true
 	w.mvsTarget.OnBlur()
 
 	w.focusManager = orvyn.NewFocusManager()
@@ -143,7 +142,7 @@ func Constructor(data *Data) list.ListItem {
 
 	w.OnBlur()
 
-	w.UpdateData()
+	w.UpdateData(data)
 
 	return w
 }
@@ -187,7 +186,9 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (w *ListItem) UpdateData() {
+func (w *ListItem) UpdateData(data Data) {
+	w.data = data
+
 	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
 	w.mvsTarget.SetSelected(int(w.data.Target))
 
@@ -206,6 +207,10 @@ func (w *ListItem) UpdateData() {
 	w.btRuleType.SetLabel(ruleTypeName)
 }
 
+func (w *ListItem) GetData() Data {
+	return w.data
+}
+
 // updateData updates the data based on the widgets values
 func (w *ListItem) updateData() {
 	scriptTarget := w.mvsTarget.GetSelectedValue().ScriptTarget
@@ -214,6 +219,8 @@ func (w *ListItem) updateData() {
 		w.data.Target = scriptTarget
 		w.data.AbilityCode = ""
 		w.data.AbilityName = ""
+
+		w.UpdateData(w.data)
 	}
 }
 

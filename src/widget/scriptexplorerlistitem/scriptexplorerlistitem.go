@@ -14,14 +14,14 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data *api.ScriptBasicResponse
+	data api.ScriptBasicResponse
 
 	style lipgloss.Style
 
 	contentSize orvyn.Size
 }
 
-func Constructor(data *api.ScriptBasicResponse) list.ListItem {
+func Constructor(data api.ScriptBasicResponse) list.ListItem[api.ScriptBasicResponse] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -44,7 +44,13 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.contentSize = size
 }
 
-func (w *Widget) UpdateData() {}
+func (w *Widget) UpdateData(data api.ScriptBasicResponse) {
+	w.data = data
+}
+
+func (w *Widget) GetData() api.ScriptBasicResponse {
+	return w.data
+}
 
 func (w *Widget) Render() string {
 	var s lipgloss.Style
