@@ -78,3 +78,12 @@ func CharacterGetCurrencyAmount(currencyCode api.CurrencyCode) *resty.Request {
 
 	return r
 }
+
+func CharacterHaveBankAccount() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodGet
+	r.URL = "/character/haveBankAccount"
+
+	return r
+}

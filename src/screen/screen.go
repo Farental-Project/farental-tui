@@ -21,4 +21,5 @@ const (
 	IDMailEditor         orvyn.ScreenID = "maileditor"
 	IDScriptExplorer     orvyn.ScreenID = "scriptexplorer"
 	IDScriptEditor       orvyn.ScreenID = "scripteditor"
+	IDBank               orvyn.ScreenID = "bank"
 )

@@ -12,6 +12,7 @@ import (
 	ftheme "farental/internal/theme"
 	"farental/screen"
 	"farental/screen/activity"
+	"farental/screen/bank"
 	"farental/screen/charactercreation"
 	"farental/screen/characterselection"
 	"farental/screen/charactersheet"
@@ -93,6 +94,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDMailEditor, maileditor.New())
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
+	orvyn.RegisterScreen(screen.IDBank, bank.New())
 	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
@@ -296,6 +298,8 @@ func registerKeymapContexts() {
 
 	locationServicesKeymap := bubblehelp.NewKeymap(2)
 	locationServicesKeymap.Style = mainHelpStyle
+	locationServicesKeymap.NewKeyBinding(keybind.BKey, true)
+	locationServicesKeymap.SetHelpDesc(keybind.BKey, lokyn.L("bank"))
 	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.RKey, fmt.Sprintf(
 		lokyn.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
@@ -375,4 +379,16 @@ func registerKeymapContexts() {
 	BasicEditModeKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextBasicEditMode, BasicEditModeKeymap)
+
+	BankKeymap := bubblehelp.NewKeymap(2)
+	BankKeymap.Style = style.MainHelpStyle
+	BankKeymap.NewKeyBinding(keybind.TKey, true)
+	BankKeymap.SetHelpDesc(keybind.TKey, lokyn.L("transfer item"))
+	BankKeymap.NewKeyBinding(keybind.TKeyCtrl, true)
+	BankKeymap.SetHelpDesc(keybind.TKeyCtrl, lokyn.L("transfer item stack"))
+	BankKeymap.NewKeyBinding(keybind.UKey, true)
+	BankKeymap.SetHelpDesc(keybind.UKey, lokyn.L("buy upgrade"))
+	BankKeymap.NewKeyBinding(keybind.Esc, true)
+
+	bubblehelp.RegisterContext(keybind.ContextBank, BankKeymap)
 }

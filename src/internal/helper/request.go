@@ -15,7 +15,9 @@ func SendRequest(req *resty.Request) (*resty.Response, error) {
 	err = ExtractError(resp)
 
 	if err != nil {
-		return nil, err
+		if err.Error() != "" {
+			return nil, err
+		}
 	}
 
 	return resp, nil

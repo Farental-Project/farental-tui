@@ -206,6 +206,8 @@ func (s *Screen) showLocationService() {
 	s.fullHelp.SetTitle(lokyn.L("Location services"))
 
 	// Activate keybind based on available features
+	bubblehelp.SetKeybindVisible(keybind.BKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureBank)))
 	bubblehelp.SetKeybindVisible(keybind.RKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
 	bubblehelp.SetKeybindVisible(keybind.MKey,
@@ -271,6 +273,11 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	switch {
 	case key.Matches(msg, keybind.Esc):
 		s.hideLocationService()
+
+	case key.Matches(msg, keybind.BKey):
+		if bubblehelp.IsKeybindVisible(keybind.BKey) {
+			return orvyn.SwitchScreen(screen.IDBank), false
+		}
 
 	case key.Matches(msg, keybind.RKey):
 		if bubblehelp.IsKeybindVisible(keybind.RKey) {

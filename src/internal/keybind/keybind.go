@@ -25,6 +25,7 @@ var (
 	PrevPage      key.Binding
 	NextPage      key.Binding
 	AKey          key.Binding
+	BKey          key.Binding
 	CKey          key.Binding
 	DKey          key.Binding
 	EKey          key.Binding
@@ -39,6 +40,7 @@ var (
 	SKey          key.Binding
 	SKeyCtrl      key.Binding
 	TKey          key.Binding
+	TKeyCtrl      key.Binding
 	UKey          key.Binding
 	WKey          key.Binding
 	YKey          key.Binding
@@ -103,6 +105,9 @@ func Init() {
 	AKey = key.NewBinding(
 		key.WithKeys("a"),
 		key.WithHelp("a", "a key"))
+	BKey = key.NewBinding(
+		key.WithKeys("b"),
+		key.WithHelp("b", "b key"))
 	CKey = key.NewBinding(
 		key.WithKeys("c"),
 		key.WithHelp("c", "c key"))
@@ -145,6 +150,9 @@ func Init() {
 	TKey = key.NewBinding(
 		key.WithKeys("t"),
 		key.WithHelp("t", "t key"))
+	TKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+t"),
+		key.WithHelp("ctrl+t", "ctrl+t key"))
 	UKey = key.NewBinding(
 		key.WithKeys("u"),
 		key.WithHelp("u", "u key"))
