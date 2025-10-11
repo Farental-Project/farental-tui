@@ -121,11 +121,13 @@ func (w *Widget) Render() string {
 		Render(strconv.Itoa(w.data.Amount)))
 	right.WriteString(hs.Render(" >"))
 
+	width1, width2 := orvyn.DivideSizeFull(width)
+
 	tui := s.Render(lipgloss.JoinHorizontal(lipgloss.Top,
-		ns.Width(width/2).
+		ns.Width(width1).
 			AlignHorizontal(lipgloss.Left).
 			Render(left.String()),
-		ns.Width(width/2).
+		ns.Width(width2).
 			AlignHorizontal(lipgloss.Right).
 			Render(right.String())))
 

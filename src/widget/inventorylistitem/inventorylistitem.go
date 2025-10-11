@@ -70,12 +70,14 @@ func (w *Widget) Render() string {
 	right.WriteString(t.Style(theme.DimTextStyleID).Render(
 		fmt.Sprintf("%d / %d", w.data.Count, w.data.Item.MaxStackCount)))
 
+	width1, width2 := orvyn.DivideSizeFull(width)
+
 	tui := s.Width(width).Height(w.contentSize.Height).Render(
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			ns.Width(width/2).
+			ns.Width(width1).
 				AlignHorizontal(lipgloss.Left).
 				Render(left.String()),
-			ns.Width(width/2).
+			ns.Width(width2).
 				AlignHorizontal(lipgloss.Right).
 				Render(right.String())))
 

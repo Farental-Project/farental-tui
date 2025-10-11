@@ -122,12 +122,14 @@ func (w *Widget) Render() string {
 		fmt.Sprintf("%dx %s",
 			w.data.Amount, w.data.Item.Name)))
 
+	width1, width2 := orvyn.DivideSizeFull(width)
+
 	top = t.Style(ftheme.DimUnderlinedTextStyleID).Render(
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			ns.Width(width/2).
+			ns.Width(width1).
 				AlignHorizontal(lipgloss.Left).
 				Render(left.String()),
-			ns.Width(width/2).
+			ns.Width(width2).
 				AlignHorizontal(lipgloss.Right).
 				Render(right.String())))
 
@@ -157,10 +159,10 @@ func (w *Widget) Render() string {
 	}
 
 	ingredientsList.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
-		ns.Width(width/2).
+		ns.Width(width1).
 			AlignHorizontal(lipgloss.Left).
 			Render(left.String()),
-		ns.Width(width/2).
+		ns.Width(width2).
 			AlignHorizontal(lipgloss.Left).
 			Render(right.String())))
 

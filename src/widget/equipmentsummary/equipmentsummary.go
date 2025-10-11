@@ -89,9 +89,11 @@ func (w *Widget) Render() string {
 
 	rightCol = col.render()
 
+	width1, width2 := orvyn.DivideSizeFull(size.Width)
+
 	summary := lipgloss.JoinHorizontal(lipgloss.Top,
-		t.Style(theme.NormalTextStyleID).Width(size.Width/2).Render(leftCol),
-		t.Style(theme.NormalTextStyleID).Width(size.Width/2).Render(rightCol))
+		t.Style(theme.NormalTextStyleID).Width(width1).Render(leftCol),
+		t.Style(theme.NormalTextStyleID).Width(width2).Render(rightCol))
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		t.Style(ftheme.DimUnderlinedTextStyleID).

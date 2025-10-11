@@ -29,12 +29,15 @@ import (
 type Screen struct {
 	existingAccount bool
 
-	title              *orvyn.SimpleRenderable
+	// title              *orvyn.SimpleRenderable
 	maxStackInfo       *orvyn.SimpleRenderable
 	noBankAccountTitle *orvyn.SimpleRenderable
 
-	characterInventoryList *list.Widget[inventorygroupedlistitem.Data]
-	bankInventoryList      *list.Widget[inventorygroupedlistitem.Data]
+	characterInventoryTitle *orvyn.SimpleRenderable
+	characterInventoryList  *list.Widget[inventorygroupedlistitem.Data]
+
+	bankInventoryTitle *orvyn.SimpleRenderable
+	bankInventoryList  *list.Widget[inventorygroupedlistitem.Data]
 
 	statusMessage *statusmessage.Widget
 
@@ -52,20 +55,29 @@ func New() *Screen {
 	s := new(Screen)
 
 	t := orvyn.GetTheme()
+	ts := t.Style(theme.TitleStyleID)
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("Bank"))
-	s.title.Style = t.Style(theme.TitleStyleID)
+	// s.title = orvyn.NewSimpleRenderable(lokyn.L("Bank"))
+	// s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.maxStackInfo = orvyn.NewSimpleRenderable("")
 	s.maxStackInfo.Style = t.Style(theme.DimTextStyleID)
 
 	s.noBankAccountTitle = orvyn.NewSimpleRenderable("NO BANK ACCOUNT")
-	s.noBankAccountTitle.Style = t.Style(theme.TitleStyleID)
+	s.noBankAccountTitle.Style = ts
+
+	s.characterInventoryTitle = orvyn.NewSimpleRenderable(lokyn.L("Inventaire"))
+	s.characterInventoryTitle.SizeConstraint = true
+	s.characterInventoryTitle.Style = ts
 
 	s.characterInventoryList = list.New(inventorygroupedlistitem.Constructor)
 	s.characterInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
 	s.characterInventoryList.PreferredSize.Height = 80
 	s.characterInventoryList.MinSize.Height = 13
+
+	s.bankInventoryTitle = orvyn.NewSimpleRenderable("")
+	s.bankInventoryTitle.SizeConstraint = true
+	s.bankInventoryTitle.Style = ts
 
 	s.bankInventoryList = list.New(inventorygroupedlistitem.Constructor)
 	s.bankInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
@@ -80,20 +92,34 @@ func New() *Screen {
 	s.focusManager.Add(s.characterInventoryList)
 	s.focusManager.Add(s.bankInventoryList)
 
+	characterListLayout := layout.NewMaxWidthVBoxFullLayout(
+		orvyn.NewSize(0, 0), 1,
+		[]orvyn.Renderable{
+			s.characterInventoryTitle,
+			s.characterInventoryList,
+		})
+
+	bankListLayout := layout.NewMaxWidthVBoxFullLayout(
+		orvyn.NewSize(0, 0), 1,
+		[]orvyn.Renderable{
+			s.bankInventoryTitle,
+			s.bankInventoryList,
+		})
+
 	listsLayout := layout.NewHBoxFixedRatioLayout(0, 1,
 		1,
 		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.50, s.characterInventoryList),
-			layout.NewFixedRatioRenderable(0.50, s.bankInventoryList),
+			layout.NewFixedRatioRenderable(0.50, characterListLayout),
+			layout.NewFixedRatioRenderable(0.50, bankListLayout),
 		},
 	)
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 3,
+		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 0,
 			[]orvyn.Renderable{
-				s.title,
-				s.maxStackInfo,
-				orvyn.VGap,
+				// s.title,
+				// s.maxStackInfo,
+				// orvyn.VGap,
 				listsLayout,
 				s.statusMessage,
 				s.help,
@@ -219,7 +245,7 @@ func (s *Screen) loadBankAccount() {
 
 	s.bankInventoryList.SetItems(listItems)
 	s.maxStackCount = bankAccount.MaxStackCount
-	s.maxStackInfo.SetValue(fmt.Sprintf(lokyn.L("Max stack count : %d"), s.maxStackCount))
+	s.bankInventoryTitle.SetValue(fmt.Sprintf(lokyn.L("Bank (Max stack count : %d)"), s.maxStackCount))
 }
 
 func (s *Screen) initListItems(inventory *api.InventoryResponse) []inventorygroupedlistitem.Data {
@@ -283,9 +309,15 @@ func (s *Screen) transfertItem() {
 	}
 
 	if resp.StatusCode() == 200 {
-		s.statusMessage.SetMessage(lokyn.L("Item successfully transferred !"), statusmessage.SuccessMessage)
-		s.characterInventoryList.Init()
-		s.bankInventoryList.Init()
+		message := ""
+
+		if toBank {
+			message = lokyn.L("Item successfully transferred to the bank !")
+		} else {
+			message = lokyn.L("Item successfully transferred to the inventory !")
+		}
+
+		s.statusMessage.SetMessage(message, statusmessage.SuccessMessage)
 		s.loadInventory()
 		s.loadBankAccount()
 	}
