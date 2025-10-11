@@ -24,6 +24,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+type gotoDashboardMsg int
+
+func gotoDashboardCmd() tea.Msg {
+	return gotoDashboardMsg(1)
+}
+
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
@@ -69,6 +75,8 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(_ any) tea.Cmd {
+	var cmd tea.Cmd
+
 	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
 
 	if orvyn.GetPreviousScreen() != screen.IDDashBoard {
@@ -79,7 +87,7 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 
 			if ok {
 				context.CharacterID = charInfo.ID
-				return orvyn.SwitchScreen(screen.IDDashBoard)
+				cmd = gotoDashboardCmd
 			}
 		}
 	}
@@ -87,7 +95,7 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.loadCharacters()
 	s.list.FocusFirst()
 
-	return nil
+	return cmd
 }
 
 func (s *Screen) OnExit() any {
@@ -128,6 +136,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 			return orvyn.SwitchScreen(screen.IDLogin)
 		}
+	case gotoDashboardMsg:
+		return orvyn.SwitchScreen(screen.IDDashBoard)
 	}
 
 	s.list.Update(msg)

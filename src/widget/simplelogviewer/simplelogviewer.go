@@ -1,12 +1,13 @@
 package simplelogviewer
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
-	"strings"
 )
 
 type Style struct {
@@ -127,6 +128,9 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 	size.Width -= marginW
 	size.Height -= w.titleHeight + marginH
+
+	size.Width = max(size.Width, 0)
+	size.Height = max(size.Height, 0)
 
 	w.titleStyle = w.titleStyle.Width(size.Width)
 	w.viewport.Width = size.Width

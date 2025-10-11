@@ -10,7 +10,7 @@ import (
 	"farental/screen"
 	"farental/screen/dialog/popup"
 	"farental/widget/help"
-	"farental/widget/inventorylistitem"
+	"farental/widget/inventorygroupedlistitem"
 	"fmt"
 	"net/http"
 
@@ -30,10 +30,11 @@ type Screen struct {
 	existingAccount bool
 
 	title              *orvyn.SimpleRenderable
+	maxStackInfo       *orvyn.SimpleRenderable
 	noBankAccountTitle *orvyn.SimpleRenderable
 
-	characterInventoryList *list.Widget[api.StackResponse]
-	bankInventoryList      *list.Widget[api.StackResponse]
+	characterInventoryList *list.Widget[inventorygroupedlistitem.Data]
+	bankInventoryList      *list.Widget[inventorygroupedlistitem.Data]
 
 	statusMessage *statusmessage.Widget
 
@@ -43,6 +44,8 @@ type Screen struct {
 
 	layout          *layout.CenterLayout
 	layoutNoAccount *layout.CenterLayout
+
+	maxStackCount int
 }
 
 func New() *Screen {
@@ -53,15 +56,18 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("Bank"))
 	s.title.Style = t.Style(theme.TitleStyleID)
 
+	s.maxStackInfo = orvyn.NewSimpleRenderable("")
+	s.maxStackInfo.Style = t.Style(theme.DimTextStyleID)
+
 	s.noBankAccountTitle = orvyn.NewSimpleRenderable("NO BANK ACCOUNT")
 	s.noBankAccountTitle.Style = t.Style(theme.TitleStyleID)
 
-	s.characterInventoryList = list.New(inventorylistitem.Constructor)
+	s.characterInventoryList = list.New(inventorygroupedlistitem.Constructor)
 	s.characterInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
 	s.characterInventoryList.PreferredSize.Height = 80
 	s.characterInventoryList.MinSize.Height = 13
 
-	s.bankInventoryList = list.New(inventorylistitem.Constructor)
+	s.bankInventoryList = list.New(inventorygroupedlistitem.Constructor)
 	s.bankInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
 	s.bankInventoryList.PreferredSize.Height = 80
 	s.bankInventoryList.MinSize.Height = 13
@@ -75,7 +81,7 @@ func New() *Screen {
 	s.focusManager.Add(s.bankInventoryList)
 
 	listsLayout := layout.NewHBoxFixedRatioLayout(0, 1,
-		0,
+		1,
 		[]layout.FixedRatioRenderable{
 			layout.NewFixedRatioRenderable(0.50, s.characterInventoryList),
 			layout.NewFixedRatioRenderable(0.50, s.bankInventoryList),
@@ -83,9 +89,10 @@ func New() *Screen {
 	)
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
+		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 3,
 			[]orvyn.Renderable{
 				s.title,
+				s.maxStackInfo,
 				orvyn.VGap,
 				listsLayout,
 				s.statusMessage,
@@ -182,7 +189,7 @@ func (s *Screen) openBankAccount() {
 }
 
 func (s *Screen) loadInventory() {
-	var inventory api.InventoryResponse
+	var inventory *api.InventoryResponse
 
 	resp, err := helper.SendRequest(request.InventoryGetFull())
 
@@ -191,28 +198,59 @@ func (s *Screen) loadInventory() {
 		return
 	}
 
-	inventory = *resp.Result().(*api.InventoryResponse)
+	inventory = resp.Result().(*api.InventoryResponse)
 
-	s.characterInventoryList.SetItems(inventory.Stacks)
+	listItems := s.initListItems(inventory)
+
+	s.characterInventoryList.SetItems(listItems)
 }
 
 func (s *Screen) loadBankAccount() {
-	var inventory api.InventoryResponse
-
-	resp, err := helper.SendRequest(request.LocationBankGetFull())
+	resp, err := helper.SendRequest(request.LocationBankGetAccount())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	inventory = *resp.Result().(*api.InventoryResponse)
+	bankAccount := resp.Result().(*api.BankAccountResponse)
 
-	s.bankInventoryList.SetItems(inventory.Stacks)
+	listItems := s.initListItems(&bankAccount.Inventory)
+
+	s.bankInventoryList.SetItems(listItems)
+	s.maxStackCount = bankAccount.MaxStackCount
+	s.maxStackInfo.SetValue(fmt.Sprintf(lokyn.L("Max stack count : %d"), s.maxStackCount))
+}
+
+func (s *Screen) initListItems(inventory *api.InventoryResponse) []inventorygroupedlistitem.Data {
+	var listItemsData []inventorygroupedlistitem.Data
+
+	listItemsData = make([]inventorygroupedlistitem.Data, 0)
+
+	for _, s := range inventory.Stacks {
+		index := findItemIndex(s.ItemID, &listItemsData)
+
+		if index == -1 {
+			listItem := inventorygroupedlistitem.Data{
+				ItemResponse: s.Item,
+				Count:        s.Count,
+				Amount:       0,
+				StackCount:   1,
+			}
+
+			listItemsData = append(listItemsData, listItem)
+			continue
+		}
+
+		listItemsData[index].Count += s.Count
+		listItemsData[index].StackCount++
+	}
+
+	return listItemsData
 }
 
 func (s *Screen) transfertItem() {
-	var item api.StackResponse
+	var item inventorygroupedlistitem.Data
 	var toBank bool
 	var req *resty.Request
 
@@ -232,9 +270,9 @@ func (s *Screen) transfertItem() {
 	}
 
 	if toBank {
-		req = request.LocationBankTransferTo(item.ItemID, 1)
+		req = request.LocationBankTransferTo(item.ID, item.Amount)
 	} else {
-		req = request.LocationBankTransferFrom(item.ItemID, 1)
+		req = request.LocationBankTransferFrom(item.ID, item.Amount)
 	}
 
 	resp, err := helper.SendRequest(req)
@@ -264,4 +302,14 @@ func (s *Screen) currentListFilterState() list.FilterState {
 	}
 
 	return list.Unfiltered
+}
+
+func findItemIndex(itemID uint, data *[]inventorygroupedlistitem.Data) int {
+	for i, item := range *data {
+		if item.ID == itemID {
+			return i
+		}
+	}
+
+	return -1
 }

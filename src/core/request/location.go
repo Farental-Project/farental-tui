@@ -35,12 +35,12 @@ func LocationCreateBankAccount() *resty.Request {
 	return r
 }
 
-func LocationBankGetFull() *resty.Request {
+func LocationBankGetAccount() *resty.Request {
 	r := client.R()
 
 	r.Method = resty.MethodGet
-	r.URL = "/location/bank/full"
-	r.SetResult(api.InventoryResponse{})
+	r.URL = "/location/bank/account"
+	r.SetResult(api.BankAccountResponse{})
 	r.SetError(api.ErrorResponse{})
 
 	return r

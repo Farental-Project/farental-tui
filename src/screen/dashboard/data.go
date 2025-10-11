@@ -6,12 +6,13 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/spf13/viper"
-	"log"
-	"time"
 )
 
 // updateErr used as defer to replace the error message only when necessary.

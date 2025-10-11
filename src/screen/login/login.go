@@ -10,6 +10,9 @@ import (
 	"farental/screen"
 	"farental/widget/help"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/charmbracelet/bubbles/key"
 	teatextinput "github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -21,9 +24,13 @@ import (
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/halsten-dev/orvyn/widget/textinput"
 	"github.com/spf13/viper"
-	"log"
-	"net/http"
 )
+
+type gotoCharacterSelectionMsg int
+
+func gotoCharacterSelectionCmd() tea.Msg {
+	return gotoCharacterSelectionMsg(1)
+}
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
@@ -102,6 +109,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 			return nil
 		}
+
+	case gotoCharacterSelectionMsg:
+		return s.nextScreen()
 	}
 
 	s.focusManager.Update(msg)
@@ -125,7 +135,7 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 		ok := s.skipLogin(loginToken)
 
 		if ok {
-			return s.nextScreen()
+			return gotoCharacterSelectionCmd
 		}
 
 		// Expired token

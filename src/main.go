@@ -95,7 +95,6 @@ func main() {
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
 	orvyn.RegisterScreen(screen.IDBank, bank.New())
-	orvyn.SwitchScreen(screen.IDLogin)
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
@@ -384,8 +383,6 @@ func registerKeymapContexts() {
 	BankKeymap.Style = style.MainHelpStyle
 	BankKeymap.NewKeyBinding(keybind.TKey, true)
 	BankKeymap.SetHelpDesc(keybind.TKey, lokyn.L("transfer item"))
-	BankKeymap.NewKeyBinding(keybind.TKeyCtrl, true)
-	BankKeymap.SetHelpDesc(keybind.TKeyCtrl, lokyn.L("transfer item stack"))
 	BankKeymap.NewKeyBinding(keybind.UKey, true)
 	BankKeymap.SetHelpDesc(keybind.UKey, lokyn.L("buy upgrade"))
 	BankKeymap.NewKeyBinding(keybind.Esc, true)
