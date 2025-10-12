@@ -51,6 +51,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 func (w *Widget) UpdateData(data api.TravelResponse) {
 	var b strings.Builder
 
+	w.data = data
+
 	for _, f := range w.data.DestLocation.Features {
 		if !f.IsAction {
 			continue

@@ -193,10 +193,6 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (s *Screen) Render() orvyn.Layout {
-	if !s.existingAccount {
-		return s.layoutNoAccount
-	}
-
 	return s.layout
 }
 
