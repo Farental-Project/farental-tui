@@ -46,6 +46,16 @@ func LocationBankGetAccount() *resty.Request {
 	return r
 }
 
+func LocationBankUpgradeAccount() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/location/bank/buyRankUpgrade"
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func LocationBankTransferTo(itemID uint, amount int) *resty.Request {
 	r := client.R()
 

@@ -2,6 +2,7 @@ package bank
 
 import (
 	"farental/art"
+	"farental/core/data"
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
@@ -13,6 +14,7 @@ import (
 	"farental/widget/inventorygroupedlistitem"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,11 +29,8 @@ import (
 )
 
 type Screen struct {
-	existingAccount bool
-
-	// title              *orvyn.SimpleRenderable
-	maxStackInfo       *orvyn.SimpleRenderable
-	noBankAccountTitle *orvyn.SimpleRenderable
+	existingAccount    bool
+	currentUpgradeRank int
 
 	characterInventoryTitle *orvyn.SimpleRenderable
 	characterInventoryList  *list.Widget[inventorygroupedlistitem.Data]
@@ -45,10 +44,7 @@ type Screen struct {
 
 	focusManager *orvyn.FocusManager
 
-	layout          *layout.CenterLayout
-	layoutNoAccount *layout.CenterLayout
-
-	maxStackCount int
+	layout *layout.CenterLayout
 }
 
 func New() *Screen {
@@ -56,15 +52,6 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 	ts := t.Style(theme.TitleStyleID)
-
-	// s.title = orvyn.NewSimpleRenderable(lokyn.L("Bank"))
-	// s.title.Style = t.Style(theme.TitleStyleID)
-
-	s.maxStackInfo = orvyn.NewSimpleRenderable("")
-	s.maxStackInfo.Style = t.Style(theme.DimTextStyleID)
-
-	s.noBankAccountTitle = orvyn.NewSimpleRenderable("NO BANK ACCOUNT")
-	s.noBankAccountTitle.Style = ts
 
 	s.characterInventoryTitle = orvyn.NewSimpleRenderable(lokyn.L("Inventaire"))
 	s.characterInventoryTitle.SizeConstraint = true
@@ -77,7 +64,6 @@ func New() *Screen {
 
 	s.bankInventoryTitle = orvyn.NewSimpleRenderable("")
 	s.bankInventoryTitle.SizeConstraint = true
-	s.bankInventoryTitle.Style = ts
 
 	s.bankInventoryList = list.New(inventorygroupedlistitem.Constructor)
 	s.bankInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
@@ -117,18 +103,11 @@ func New() *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 0,
 			[]orvyn.Renderable{
-				// s.title,
-				// s.maxStackInfo,
-				// orvyn.VGap,
 				listsLayout,
 				s.statusMessage,
 				s.help,
 			},
 		),
-	)
-
-	s.layoutNoAccount = layout.NewCenterLayout(
-		s.noBankAccountTitle,
 	)
 
 	return s
@@ -144,7 +123,7 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 
 	if resp.StatusCode() == http.StatusNotFound {
 		orvyn.OpenDialog("buyAccount", popup.NewYesNo(
-			fmt.Sprintf(lokyn.L("Do you want to open your bank account for 5000%c ?"), art.CharGrynars),
+			fmt.Sprintf(lokyn.L("Do you want to open your bank account for %d%c ?"), data.ConstBankAccountCreationFee, art.CharGrynars),
 		), nil)
 
 		s.existingAccount = false
@@ -165,6 +144,7 @@ func (s *Screen) OnExit() any {
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		s.statusMessage.Reset()
 		switch {
 		case key.Matches(msg, keybind.Esc):
 			if s.currentListFilterState() == list.Unfiltered {
@@ -174,6 +154,17 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			s.transfertItem()
 
 			return nil
+
+		case key.Matches(msg, keybind.UKey):
+			if bubblehelp.IsKeybindVisible(keybind.UKey) {
+				nextUpgradeCost := s.currentUpgradeRank * data.ConstBankUpgradeStepPrice
+
+				orvyn.OpenDialog("buyUpgrade", popup.NewYesNo(
+					fmt.Sprintf(lokyn.L("Do you want to upgrade the rank of your bank account for %d%c ?"), nextUpgradeCost, art.CharGrynars),
+				), nil)
+
+				return nil
+			}
 		}
 
 	case orvyn.DialogExitMsg:
@@ -185,6 +176,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				s.openBankAccount()
 			default:
 				return orvyn.SwitchScreen(screen.IDDashBoard)
+			}
+
+		case "buyUpgrade":
+			val := msg.Param.(uint)
+			switch val {
+			case 1:
+				s.buyUpgrade()
 			}
 		}
 	}
@@ -244,8 +242,26 @@ func (s *Screen) loadBankAccount() {
 	listItems := s.initListItems(&bankAccount.Inventory)
 
 	s.bankInventoryList.SetItems(listItems)
-	s.maxStackCount = bankAccount.MaxStackCount
-	s.bankInventoryTitle.SetValue(fmt.Sprintf(lokyn.L("Bank (Max stack count : %d)"), s.maxStackCount))
+	s.updateBankTitle(bankAccount)
+	s.currentUpgradeRank = bankAccount.Rank
+}
+
+func (s *Screen) updateBankTitle(bankAccount *api.BankAccountResponse) {
+	var b strings.Builder
+
+	t := orvyn.GetTheme()
+
+	sep := t.Style(theme.NeutralDimTextStyleID).Render(" / ")
+
+	b.WriteString(t.Style(theme.TitleStyleID).Render(lokyn.L("Bank")))
+	b.WriteString(sep)
+	b.WriteString(t.Style(theme.DimTextStyleID).Render(
+		fmt.Sprintf(lokyn.L("Upgrade rank : %d"), bankAccount.Rank)))
+	b.WriteString(sep)
+	b.WriteString(t.Style(theme.DimTextStyleID).Render(
+		fmt.Sprintf(lokyn.L("Max stack count : %d"), bankAccount.MaxStackCount)))
+
+	s.bankInventoryTitle.SetValue(b.String())
 }
 
 func (s *Screen) initListItems(inventory *api.InventoryResponse) []inventorygroupedlistitem.Data {
@@ -319,6 +335,19 @@ func (s *Screen) transfertItem() {
 
 		s.statusMessage.SetMessage(message, statusmessage.SuccessMessage)
 		s.loadInventory()
+		s.loadBankAccount()
+	}
+}
+
+func (s *Screen) buyUpgrade() {
+	resp, err := helper.SendRequest(request.LocationBankUpgradeAccount())
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		s.statusMessage.SetMessage(lokyn.L("Bank account rank successfully upgraded !"), statusmessage.SuccessMessage)
 		s.loadBankAccount()
 	}
 }
