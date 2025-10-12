@@ -22,4 +22,5 @@ const (
 	IDScriptExplorer     orvyn.ScreenID = "scriptexplorer"
 	IDScriptEditor       orvyn.ScreenID = "scripteditor"
 	IDBank               orvyn.ScreenID = "bank"
+	IDNpc                orvyn.ScreenID = "npc"
 )

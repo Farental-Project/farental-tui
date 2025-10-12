@@ -262,6 +262,9 @@ func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	case key.Matches(msg, keybind.HKey):
 		return orvyn.SwitchScreen(screen.IDCharacterSheet), true
 
+	case key.Matches(msg, keybind.NKey):
+		return orvyn.SwitchScreen(screen.IDNpc), true
+
 	case key.Matches(msg, keybind.SKey):
 		return orvyn.SwitchScreen(screen.IDScriptExplorer), true
 	}

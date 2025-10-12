@@ -25,6 +25,7 @@ import (
 	"farental/screen/mailbox"
 	"farental/screen/maileditor"
 	"farental/screen/mailreader"
+	"farental/screen/npc"
 	"farental/screen/scripteditor"
 	"farental/screen/scriptexplorer"
 	"farental/screen/travel"
@@ -95,6 +96,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDScriptExplorer, scriptexplorer.New())
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
 	orvyn.RegisterScreen(screen.IDBank, bank.New())
+	orvyn.RegisterScreen(screen.IDNpc, npc.New())
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
@@ -385,7 +387,29 @@ func registerKeymapContexts() {
 	BankKeymap.SetHelpDesc(keybind.TKey, lokyn.L("transfer item"))
 	BankKeymap.NewKeyBinding(keybind.UKey, true)
 	BankKeymap.SetHelpDesc(keybind.UKey, lokyn.L("buy upgrade"))
+	BankKeymap.NewKeyBinding(keybind.Up, false)
+	BankKeymap.NewKeyBinding(keybind.Down, false)
+	BankKeymap.NewKeyBinding(keybind.Left, false)
+	BankKeymap.SetHelpDesc(keybind.Left, lokyn.L("decrease"))
+	BankKeymap.NewKeyBinding(keybind.ShiftLeft, false)
+	BankKeymap.SetHelpDesc(keybind.ShiftLeft, lokyn.L("decrease 10"))
+	BankKeymap.NewKeyBinding(keybind.Right, false)
+	BankKeymap.SetHelpDesc(keybind.Right, lokyn.L("increase"))
+	BankKeymap.NewKeyBinding(keybind.ShiftRight, false)
+	BankKeymap.SetHelpDesc(keybind.ShiftRight, lokyn.L("increase 10"))
 	BankKeymap.NewKeyBinding(keybind.Esc, true)
+	BankKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextBank, BankKeymap)
+
+	NpcKeymap := bubblehelp.NewKeymap(2)
+	NpcKeymap.Style = style.MainHelpStyle
+	NpcKeymap.NewKeyBinding(keybind.Up, false)
+	NpcKeymap.NewKeyBinding(keybind.Down, false)
+	NpcKeymap.NewKeyBinding(keybind.Enter, true)
+	NpcKeymap.SetHelpDesc(keybind.Enter, lokyn.L("speak to npc"))
+	NpcKeymap.NewKeyBinding(keybind.Esc, true)
+	NpcKeymap.NewKeyBinding(keybind.Quit, false)
+
+	bubblehelp.RegisterContext(keybind.ContextNpc, NpcKeymap)
 }
