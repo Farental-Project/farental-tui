@@ -25,6 +25,20 @@ func LocationTavernSleep() *resty.Request {
 	return r
 }
 
+func LocationMerchantSellItem(itemID uint, amount int) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "location/merchant/sellItem"
+	r.SetBody(api.IDAmountBody{
+		ID:     itemID,
+		Amount: amount,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func LocationCreateBankAccount() *resty.Request {
 	r := client.R()
 

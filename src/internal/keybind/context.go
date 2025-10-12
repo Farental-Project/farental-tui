@@ -29,4 +29,5 @@ const (
 	ContextBasicEditMode                  bubblehelp.KeymapContext = "basicEditMode"
 	ContextBank                           bubblehelp.KeymapContext = "bank"
 	ContextNpc                            bubblehelp.KeymapContext = "npc"
+	ContextShop                           bubblehelp.KeymapContext = "shop"
 )

@@ -28,6 +28,7 @@ import (
 	"farental/screen/npc"
 	"farental/screen/scripteditor"
 	"farental/screen/scriptexplorer"
+	"farental/screen/shop"
 	"farental/screen/travel"
 	"fmt"
 	"log"
@@ -97,6 +98,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDScriptEditor, scripteditor.New())
 	orvyn.RegisterScreen(screen.IDBank, bank.New())
 	orvyn.RegisterScreen(screen.IDNpc, npc.New())
+	orvyn.RegisterScreen(screen.IDShop, shop.New())
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
@@ -304,6 +306,8 @@ func registerKeymapContexts() {
 	locationServicesKeymap.NewKeyBinding(keybind.RKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.RKey, fmt.Sprintf(
 		lokyn.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
+	locationServicesKeymap.NewKeyBinding(keybind.SKey, true)
+	locationServicesKeymap.SetHelpDesc(keybind.SKey, lokyn.L("shop"))
 	locationServicesKeymap.NewKeyBinding(keybind.MKey, true)
 	locationServicesKeymap.SetHelpDesc(keybind.MKey, lokyn.L("mailbox"))
 	locationServicesKeymap.NewKeyBinding(keybind.Esc, true)
@@ -412,4 +416,15 @@ func registerKeymapContexts() {
 	NpcKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextNpc, NpcKeymap)
+
+	ShopKeymap := bubblehelp.NewKeymap(2)
+	ShopKeymap.Style = style.MainHelpStyle
+	ShopKeymap.NewKeyBinding(keybind.Enter, true)
+	ShopKeymap.NewKeyBinding(keybind.Up, false)
+	ShopKeymap.NewKeyBinding(keybind.Down, false)
+	ShopKeymap.SetHelpDesc(keybind.Enter, lokyn.L("sell items"))
+	ShopKeymap.NewKeyBinding(keybind.Esc, true)
+	ShopKeymap.NewKeyBinding(keybind.Quit, false)
+
+	bubblehelp.RegisterContext(keybind.ContextShop, ShopKeymap)
 }

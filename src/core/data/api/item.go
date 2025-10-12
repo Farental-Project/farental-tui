@@ -7,6 +7,7 @@ type ItemResponse struct {
 	IsUnique       bool
 	IsUsable       bool
 	MaxStackCount  int
+	SellPrice      int
 	EquipmentSlot  *EquipmentSlotResponse
 	EquipmentStats *[]EquipmentStatResponse
 	Conditions     *[]string
