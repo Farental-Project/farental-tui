@@ -24,14 +24,13 @@ type Widget struct {
 	orvyn.BaseFocusable
 
 	parameters *list.Widget[ParamData]
-
-	contentSize orvyn.Size
 }
 
 func New() *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.parameters = list.New(Constructor)
 	w.parameters.SetFilterable(false)

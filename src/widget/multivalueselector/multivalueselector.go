@@ -56,6 +56,7 @@ func New[T Value]() *Widget[T] {
 	dts := t.Style(theme.DimTextStyleID)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.values = make(map[string]T)
 	w.keys = make([]string, 0)
@@ -103,10 +104,6 @@ func (w *Widget[T]) OnBlur() {
 	w.valueStyle = w.Style.BlurredValue
 }
 
-func (w *Widget[T]) OnEnterInput() {}
-
-func (w *Widget[T]) OnExitInput() {}
-
 func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -139,22 +136,13 @@ func (w *Widget[T]) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget[T]) Resize(size orvyn.Size) {
-	w.BaseWidget.Resize(size)
-
-	size.Width -= w.widgetStyle.GetHorizontalFrameSize()
-	size.Height -= w.widgetStyle.GetVerticalFrameSize()
-
-	w.contentSize = size
-}
-
 func (w *Widget[T]) Render() string {
 	var b strings.Builder
 	var margin int
 
-	size := w.contentSize
+	size := w.GetContentSize()
 
-	margin += 4 // "< " & " >"
+	margin = 4 // "< " & " >"
 
 	b.WriteString(w.controlStyle.Render("< "))
 	b.WriteString(w.valueStyle.Width(size.Width - margin).
@@ -164,7 +152,6 @@ func (w *Widget[T]) Render() string {
 
 	return w.widgetStyle.
 		Width(size.Width).
-		AlignHorizontal(lipgloss.Center).
 		Render(b.String())
 }
 

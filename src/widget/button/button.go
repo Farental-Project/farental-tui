@@ -2,11 +2,10 @@ package button
 
 import (
 	"farental/internal/keybind"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/theme"
 )
 
 type Widget struct {
@@ -15,19 +14,16 @@ type Widget struct {
 
 	label string
 
-	contentSize orvyn.Size
-
 	OnFocusCallback   func()
 	OnBlurCallback    func()
 	OnClickedCallback func() tea.Cmd
-
-	style lipgloss.Style
 }
 
 func New(label string) *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.label = label
 
@@ -51,23 +47,16 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget) Resize(size orvyn.Size) {
-	w.BaseWidget.Resize(size)
-
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.contentSize = size
-}
-
 func (w *Widget) Render() string {
-	return w.style.Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	contentSize := w.GetContentSize()
+
+	return w.GetStyle().Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(w.label)
 }
 
 func (w *Widget) OnFocus() {
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
+	w.BaseFocusable.OnFocus()
 
 	if w.OnFocusCallback != nil {
 		w.OnFocusCallback()
@@ -75,17 +64,11 @@ func (w *Widget) OnFocus() {
 }
 
 func (w *Widget) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+	w.BaseFocusable.OnBlur()
 
 	if w.OnBlurCallback != nil {
 		w.OnBlurCallback()
 	}
-}
-
-func (w *Widget) OnEnterInput() {
-}
-
-func (w *Widget) OnExitInput() {
 }
 
 func (w *Widget) SetLabel(label string) {

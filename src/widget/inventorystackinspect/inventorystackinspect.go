@@ -4,11 +4,12 @@ import (
 	"farental/core/data/api"
 	ftheme "farental/internal/theme"
 	"fmt"
+	"strings"
+
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Widget struct {
@@ -91,20 +92,15 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return orvyn.GetTheme().Style(theme.BlurredWidgetStyleID).
-		Height(w.layout.GetSize().Height).
+	return w.GetStyle().
+		Height(w.GetContentSize().Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
 	w.BaseWidget.Resize(size)
 
-	size.Width -= s.GetHorizontalFrameSize()
-	size.Height -= s.GetVerticalFrameSize()
-
-	w.layout.Resize(size)
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) UpdateData(stack *api.StackResponse) {

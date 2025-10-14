@@ -5,6 +5,9 @@ import (
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,20 +15,12 @@ import (
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strconv"
-	"strings"
 )
 
 type column struct {
 	skillStr strings.Builder
 	expStr   strings.Builder
 	lvlStr   strings.Builder
-}
-
-func (c *column) reset() {
-	c.skillStr.Reset()
-	c.expStr.Reset()
-	c.lvlStr.Reset()
 }
 
 func (c *column) addReturn() {
@@ -64,8 +59,6 @@ type Widget struct {
 	viewport viewport.Model
 
 	skills []api.CharacterSkillResponse
-
-	contentSize orvyn.Size
 }
 
 func New() *Widget {
@@ -98,38 +91,37 @@ func (w *Widget) Render() string {
 	w.refresh()
 
 	t := orvyn.GetTheme()
+	contentSize := w.GetContentSize()
 
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		t.Style(ftheme.DimUnderlinedTextStyleID).
-			Width(w.contentSize.Width).
+			Width(contentSize.Width).
 			Render(w.title),
 		w.viewport.View())
 
-	return t.Style(theme.BlurredWidgetStyleID).
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(content)
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	s := size
+	currentSize := w.GetSize()
 
 	t := orvyn.GetTheme()
-	st := t.Style(theme.BlurredWidgetStyleID)
 
-	size.Width -= st.GetHorizontalFrameSize()
-	size.Height -= st.GetVerticalFrameSize()
+	w.BaseWidget.Resize(size)
 
-	w.contentSize = size
-	w.viewport.Width = size.Width
-	w.viewport.Height = size.Height -
+	contentSize := w.GetContentSize()
+
+	w.viewport.Width = contentSize.Width
+	w.viewport.Height = contentSize.Height -
 		lipgloss.Height(t.Style(ftheme.DimUnderlinedTextStyleID).Render(" "))
 
-	if !orvyn.SameSize(s, w.GetSize()) {
+	if !orvyn.SameSize(s, currentSize) {
 		w.refresh()
 	}
-
-	w.BaseWidget.Resize(s)
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
@@ -174,5 +166,5 @@ func (w *Widget) refresh() {
 		w.renderSkill(skill, addReturn, &col)
 	}
 
-	w.viewport.SetContent(col.render(w.contentSize.Width))
+	w.viewport.SetContent(col.render(w.GetContentSize().Width))
 }

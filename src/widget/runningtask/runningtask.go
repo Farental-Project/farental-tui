@@ -5,14 +5,15 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
-	"time"
 )
 
 type Style struct {
@@ -77,9 +78,9 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 func (w *Widget) Render() string {
 	var b strings.Builder
 
-	size := w.GetSize()
+	contentSize := w.GetContentSize()
 
-	w.Style.Widget = w.Style.Widget.Width(size.Width - 2)
+	w.Style.Widget = w.Style.Widget.Width(contentSize.Width)
 
 	if context.RunningTask != nil {
 		b.WriteString(w.Style.TaskRunning.Render(

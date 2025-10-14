@@ -2,18 +2,18 @@ package fullhelp
 
 import (
 	ftheme "farental/internal/theme"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Style struct {
-	Widget lipgloss.Style
-	Title  lipgloss.Style
-	help   lipgloss.Style
+	Title lipgloss.Style
+	Help  lipgloss.Style
 }
 
 type Widget struct {
@@ -24,8 +24,6 @@ type Widget struct {
 	title string
 
 	titleHeight int
-
-	helpContentSize orvyn.Size
 }
 
 func New() *Widget {
@@ -37,9 +35,8 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	w.Style = Style{
-		Widget: t.Style(theme.BlurredWidgetStyleID),
-		Title:  t.Style(ftheme.DimUnderlinedTextStyleID),
-		help: t.Style(theme.NormalTextStyleID).
+		Title: t.Style(ftheme.DimUnderlinedTextStyleID),
+		Help: t.Style(theme.NormalTextStyleID).
 			Align(lipgloss.Center, lipgloss.Center),
 	}
 
@@ -51,35 +48,24 @@ func New() *Widget {
 func (w *Widget) Render() string {
 	var b strings.Builder
 
-	size := w.GetSize()
+	contentSize := w.GetContentSize()
+
+	w.Style.Title = w.Style.Title.Width(contentSize.Width)
 
 	b.WriteString(w.Style.Title.
 		Render(w.title))
 	b.WriteString("\n")
-	b.WriteString(w.Style.help.
-		Width(w.helpContentSize.Width).
-		Height(w.helpContentSize.Height).Render(
+	b.WriteString(w.Style.Help.
+		Width(contentSize.Width).
+		Height(contentSize.Height).Render(
 		bubblehelp.ViewAll(
 			bubblehelp.GetCurrentContextKeymap(),
 			w.GetSize().Width)))
 
-	return w.Style.Widget.
-		Width(size.Width).
-		Height(size.Height).
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(b.String())
-}
-
-func (w *Widget) Resize(size orvyn.Size) {
-	var marginW, marginH int
-
-	marginW += w.Style.Widget.GetBorderLeftSize()
-	marginW += w.Style.Widget.GetBorderRightSize()
-
-	marginH += w.Style.Widget.GetBorderTopSize()
-
-	w.Style.Title = w.Style.Title.Width(size.Width - marginW)
-	w.helpContentSize.Width = size.Width - marginW
-	w.helpContentSize.Height = size.Height - w.titleHeight - marginH
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

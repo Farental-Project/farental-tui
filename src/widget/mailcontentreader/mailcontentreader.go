@@ -5,12 +5,13 @@ import (
 	"farental/core/data/api"
 	ftheme "farental/internal/theme"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Widget struct {
@@ -20,8 +21,6 @@ type Widget struct {
 	subject  string
 	read     bool
 	viewport viewport.Model
-
-	contentSize orvyn.Size
 
 	headerHeight int
 }
@@ -41,6 +40,7 @@ func New() *Widget {
 func (w *Widget) Render() string {
 	var b strings.Builder
 
+	contentSize := w.GetContentSize()
 	t := orvyn.GetTheme()
 	ts := t.Style(theme.TitleStyleID)
 	ns := lipgloss.NewStyle()
@@ -59,7 +59,7 @@ func (w *Widget) Render() string {
 		w.subject)
 
 	b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top,
-		ns.Width(w.contentSize.Width-2).
+		ns.Width(contentSize.Width-2).
 			AlignHorizontal(lipgloss.Left).
 			Render(from),
 		t.Style(theme.HighlightTextStyleID).Width(1).
@@ -68,28 +68,24 @@ func (w *Widget) Render() string {
 	b.WriteString("\n")
 	b.WriteString(
 		t.Style(ftheme.DimUnderlinedTextStyleID).
-			Width(w.contentSize.Width).Render(subject),
+			Width(contentSize.Width).Render(subject),
 	)
 	b.WriteString("\n")
 	b.WriteString(w.viewport.View())
 
 	return t.Style(theme.BlurredWidgetStyleID).
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(b.String())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
 	w.BaseWidget.Resize(size)
 
-	size.Width -= s.GetHorizontalFrameSize()
-	size.Height -= s.GetVerticalFrameSize()
+	contentSize := w.GetContentSize()
 
-	w.contentSize = size
-	w.viewport.Width = size.Width
-	w.viewport.Height = size.Height - w.headerHeight
+	w.viewport.Width = contentSize.Width
+	w.viewport.Height = contentSize.Height - w.headerHeight
 }
 
 func (w *Widget) UpdateData(mail *api.MailBasicResponse) {

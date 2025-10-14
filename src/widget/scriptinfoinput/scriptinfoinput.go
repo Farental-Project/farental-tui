@@ -6,7 +6,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -36,10 +35,6 @@ type Widget struct {
 
 	layout *layout.VBoxLayout
 
-	style lipgloss.Style
-
-	contentSize orvyn.Size
-
 	data *Data
 }
 
@@ -47,6 +42,7 @@ func New() *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.data = &Data{
 		Name:        "",
@@ -97,30 +93,23 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.layout.Resize(size)
-	w.contentSize = size
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) Render() string {
 	w.updateWidget()
 
-	return w.style.
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	contentSize := w.GetContentSize()
+
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) OnFocus() {
+	w.BaseFocusable.OnFocus()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
-
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
-}
-
-func (w *Widget) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
 func (w *Widget) OnEnterInput() {

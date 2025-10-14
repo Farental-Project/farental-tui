@@ -13,7 +13,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -57,10 +56,6 @@ type ListItem struct {
 	focusManager *orvyn.FocusManager
 
 	layout *layout.VBoxLayout
-
-	style lipgloss.Style
-
-	contentSize orvyn.Size
 }
 
 func Constructor(data Data) list.ListItem[Data] {
@@ -82,6 +77,7 @@ func Constructor(data Data) list.ListItem[Data] {
 	dts := t.Style(theme.DimTextStyleID)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.titleOrder = orvyn.NewSimpleRenderable("")
 
@@ -229,26 +225,16 @@ func (w *ListItem) Resize(size orvyn.Size) {
 
 	w.BaseWidget.Resize(size)
 
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.contentSize = size
-	w.layout.Resize(size)
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *ListItem) Render() string {
-	return w.style.
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	contentSize := w.GetContentSize()
+
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(w.layout.Render())
-}
-
-func (w *ListItem) OnFocus() {
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
-}
-
-func (w *ListItem) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
 func (w *ListItem) OnEnterInput() {

@@ -7,12 +7,13 @@ import (
 	ftheme "farental/internal/theme"
 	"farental/widget/characterbar"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Widget struct {
@@ -21,8 +22,6 @@ type Widget struct {
 	info  *orvyn.SimpleRenderable
 	barHp *characterbar.Widget
 	barMp *characterbar.Widget
-
-	style lipgloss.Style
 
 	layout *layout.HBoxGrowLayout
 }
@@ -41,8 +40,6 @@ func New() *Widget {
 	w.barHp = characterbar.New(lokyn.L("HP"), t.Color(ftheme.HPBarColorID))
 	w.barMp = characterbar.New(lokyn.L("MP"), t.Color(ftheme.MPBarColorID))
 
-	w.style = t.Style(theme.BlurredWidgetStyleID)
-
 	w.layout = layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
 			w.barHp,
@@ -54,16 +51,13 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return w.style.Render(w.layout.Render())
+	return w.GetStyle().Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.layout.Resize(size)
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

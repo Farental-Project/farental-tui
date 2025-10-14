@@ -12,6 +12,7 @@ import (
 	"farental/widget/help"
 	"farental/widget/skillssummary"
 	"farental/widget/statssummary"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"

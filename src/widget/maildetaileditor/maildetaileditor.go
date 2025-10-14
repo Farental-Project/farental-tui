@@ -9,9 +9,10 @@ import (
 	"farental/internal/style"
 	ftheme "farental/internal/theme"
 	"farental/widget/mailattachmentlist"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -19,7 +20,6 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/halsten-dev/orvyn/widget/textinput"
-	"strconv"
 )
 
 type Widget struct {
@@ -43,10 +43,6 @@ type Widget struct {
 	focusManager *orvyn.FocusManager
 
 	layout *layout.VBoxFullLayout
-
-	contentSize orvyn.Size
-
-	style lipgloss.Style
 }
 
 func New() *Widget {
@@ -66,6 +62,7 @@ func New() *Widget {
 	ds := t.Style(theme.DimTextStyleID)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.moneyTitle = orvyn.NewSimpleRenderable(lokyn.L("Money"))
 	w.moneyTitle.Style = ds
@@ -134,19 +131,17 @@ func (w *Widget) Init() tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	return w.style.Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	contentSize := w.GetContentSize()
+
+	return w.GetStyle().Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.contentSize = size
-	w.layout.Resize(size)
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
@@ -176,12 +171,8 @@ func (w *Widget) inputUpdate(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) OnFocus() {
+	w.BaseFocusable.OnFocus()
 	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
-}
-
-func (w *Widget) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
 func (w *Widget) OnEnterInput() {

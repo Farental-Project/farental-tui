@@ -3,14 +3,13 @@ package mailwriter
 import (
 	"farental/core/data/api"
 	"farental/internal/keybind"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
-	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/textarea"
 	"github.com/halsten-dev/orvyn/widget/textinput"
 )
@@ -19,8 +18,6 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	contentSize orvyn.Size
-
 	tiReceiver *textinput.Widget
 	tiSubject  *textinput.Widget
 	taContent  *textarea.Widget
@@ -28,14 +25,13 @@ type Widget struct {
 	focusManager *orvyn.FocusManager
 
 	layout *layout.VBoxFullLayout
-
-	style lipgloss.Style
 }
 
 func New() *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.tiReceiver = textinput.New()
 	w.tiReceiver.Placeholder = lokyn.L("Receiver name")
@@ -80,19 +76,17 @@ func (w *Widget) Init() tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	return w.style.Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	contentSize := w.GetContentSize()
+
+	return w.GetStyle().Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.contentSize = size
-	w.layout.Resize(size)
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
@@ -110,12 +104,9 @@ func (w *Widget) inputUpdate(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) OnFocus() {
-	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
-}
+	w.BaseFocusable.OnFocus()
 
-func (w *Widget) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
 }
 
 func (w *Widget) OnEnterInput() {

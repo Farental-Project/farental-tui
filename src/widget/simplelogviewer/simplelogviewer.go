@@ -46,6 +46,7 @@ func New(title string) *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.title = title
 	w.content = make([]string, 0)
@@ -87,10 +88,6 @@ func (w *Widget) OnBlur() {
 	w.titleStyle = w.Style.BlurredTitle
 	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
 }
-
-func (w *Widget) OnEnterInput() {}
-
-func (w *Widget) OnExitInput() {}
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {

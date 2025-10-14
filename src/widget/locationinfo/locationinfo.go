@@ -6,12 +6,13 @@ import (
 	"farental/internal/style"
 	ftheme "farental/internal/theme"
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"sort"
-	"strings"
 )
 
 type Widget struct {
@@ -50,19 +51,13 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
-	return orvyn.GetTheme().Style(theme.BlurredWidgetStyleID).
-		Render(w.layout.Render())
+	return w.GetStyle().Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 
-	st := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
-	size.Width -= st.GetHorizontalFrameSize()
-	size.Height -= st.GetVerticalFrameSize()
-
-	w.layout.Resize(size)
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

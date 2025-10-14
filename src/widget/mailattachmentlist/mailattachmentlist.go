@@ -5,6 +5,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/style"
 	"farental/widget/mailattachmentlistitem"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -50,6 +51,7 @@ func New() *Widget {
 	w.Widget.PreferredSize.Height = 13
 
 	w.Widget = *list.New(mailattachmentlistitem.Constructor)
+	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)
 	w.Widget.SetFilterable(false)
 
 	w.OnBlur()
@@ -96,12 +98,6 @@ func (w *Widget) OnFocus() {
 func (w *Widget) OnBlur() {
 	w.Widget.OnBlur()
 	bubblehelp.SwitchToPreviousContext()
-}
-
-func (w *Widget) OnEnterInput() {
-}
-
-func (w *Widget) OnExitInput() {
 }
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {

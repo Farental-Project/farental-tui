@@ -4,11 +4,12 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"fmt"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strconv"
 )
 
 type Widget struct {
@@ -72,10 +73,6 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	return nil
-}
-
-func (w *Widget) Resize(size orvyn.Size) {
-
 }
 
 func (w *Widget) Render() string {

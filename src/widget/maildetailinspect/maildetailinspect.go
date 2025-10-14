@@ -5,11 +5,12 @@ import (
 	"farental/core/data/api"
 	ftheme "farental/internal/theme"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Widget struct {
@@ -17,8 +18,6 @@ type Widget struct {
 
 	mail        *api.MailBasicResponse
 	attachments *[]api.MailAttachmentResponse
-
-	contentSize orvyn.Size
 }
 
 func New() *Widget {
@@ -32,6 +31,7 @@ func New() *Widget {
 func (w *Widget) Render() string {
 	var b strings.Builder
 
+	contentSize := w.GetContentSize()
 	t := orvyn.GetTheme()
 
 	if w.mail == nil {
@@ -62,34 +62,23 @@ func (w *Widget) Render() string {
 		if b.Len() > 0 && w.mail.IsAgainstPayment {
 			b.WriteString("\n")
 			b.WriteString(t.Style(ftheme.DimUnderlinedTextStyleID).
-				Width(w.contentSize.Width).Render(""))
+				Width(contentSize.Width).Render(""))
 		}
 
 		if w.mail.IsAgainstPayment {
 			b.WriteString("\n\n")
-			b.WriteString(lipgloss.NewStyle().Width(w.contentSize.Width).
+			b.WriteString(lipgloss.NewStyle().Width(contentSize.Width).
 				Render(fmt.Sprintf(
 					lokyn.L("The sender ask you to pay %d %c to access the attachments."),
 					w.mail.PaymentAmount, art.CharGrynars)))
 		}
 	}
 
-	return t.Style(theme.BlurredWidgetStyleID).
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(b.String())
 
-}
-
-func (w *Widget) Resize(size orvyn.Size) {
-	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
-	w.BaseWidget.Resize(size)
-
-	size.Width -= s.GetHorizontalFrameSize()
-	size.Height -= s.GetVerticalFrameSize()
-
-	w.contentSize = size
 }
 
 func (w *Widget) UpdateData(mail *api.MailBasicResponse, attachments *[]api.MailAttachmentResponse) {

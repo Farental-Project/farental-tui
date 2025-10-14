@@ -4,12 +4,13 @@ import (
 	"farental/core/data"
 	"farental/core/data/api"
 	ftheme "farental/internal/theme"
+	"strconv"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strconv"
-	"strings"
 )
 
 type column struct {
@@ -51,8 +52,6 @@ type Widget struct {
 	title string
 
 	statMap data.StatMap
-
-	contentSize orvyn.Size
 }
 
 func New() *Widget {
@@ -80,15 +79,17 @@ func (w *Widget) Render() string {
 	w.renderStat(data.MDEStat, true, &col)
 	w.renderStat(data.ATKStat, false, &col)
 
+	contentSize := w.GetContentSize()
+
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		t.Style(ftheme.DimUnderlinedTextStyleID).
-			Width(w.contentSize.Width).
+			Width(contentSize.Width).
 			Render(w.title),
-		col.render(w.contentSize.Width))
+		col.render(contentSize.Width))
 
-	return t.Style(theme.BlurredWidgetStyleID).
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(content)
 }
 
@@ -98,17 +99,6 @@ func (w *Widget) GetMinSize() orvyn.Size {
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(30, 17)
-}
-
-func (w *Widget) Resize(size orvyn.Size) {
-	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
-	w.BaseWidget.Resize(size)
-
-	size.Width -= s.GetHorizontalFrameSize()
-	size.Height -= s.GetVerticalFrameSize()
-
-	w.contentSize = size
 }
 
 func (w *Widget) renderStat(statCode data.StatCode, addReturn bool, column *column) {

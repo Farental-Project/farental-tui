@@ -36,6 +36,7 @@ func New() *Widget {
 	w := new(Widget)
 
 	w.Widget = *list.New(Constructor)
+	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	return w
 }

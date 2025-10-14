@@ -7,13 +7,13 @@ import (
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/widget/mailattachmentselectlistitem"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
-	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
 )
 
@@ -46,8 +46,6 @@ type Widget struct {
 	list *list.Widget[mailattachmentselectlistitem.Data]
 
 	layout *layout.VBoxFullLayout
-
-	contentSize orvyn.Size
 }
 
 func New() *Widget {
@@ -56,6 +54,7 @@ func New() *Widget {
 	t := orvyn.GetTheme()
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.title = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
 	w.title.Style = t.Style(ftheme.DimUnderlinedTextStyleID)
@@ -110,28 +109,18 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (w *Widget) Render() string {
-	return orvyn.GetTheme().Style(theme.BlurredWidgetStyleID).
-		Width(w.contentSize.Width).
-		Height(w.contentSize.Height).
+	contentSize := w.GetContentSize()
+
+	return w.GetStyle().
+		Width(contentSize.Width).
+		Height(contentSize.Height).
 		Render(w.layout.Render())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
 	w.BaseWidget.Resize(size)
 
-	size.Width -= s.GetHorizontalFrameSize()
-	size.Height -= s.GetVerticalFrameSize()
-
-	w.contentSize = size
-	w.layout.Resize(size)
-}
-
-func (w *Widget) OnFocus() {
-}
-
-func (w *Widget) OnBlur() {
+	w.layout.Resize(w.GetContentSize())
 }
 
 func (w *Widget) OnEnterInput() {

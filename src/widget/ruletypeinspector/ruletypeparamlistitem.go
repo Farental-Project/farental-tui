@@ -40,6 +40,7 @@ func Constructor(data ParamData) list.ListItem[ParamData] {
 	w := new(ListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.data = data
 
@@ -135,17 +136,13 @@ func (w *ListItem) Render() string {
 }
 
 func (w *ListItem) OnFocus() {
+	w.BaseFocusable.OnFocus()
 	w.focusManager.FocusFirst()
 }
 
 func (w *ListItem) OnBlur() {
+	w.BaseFocusable.OnBlur()
 	w.focusManager.BlurCurrent()
-}
-
-func (w *ListItem) OnEnterInput() {
-}
-
-func (w *ListItem) OnExitInput() {
 }
 
 func (w *ListItem) FilterValue() string {

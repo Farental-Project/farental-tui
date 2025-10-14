@@ -50,7 +50,6 @@ type Widget struct {
 	title string
 
 	equipmentSlots map[string]EquipmentSlot
-	contentSize    orvyn.Size
 }
 
 func New() *Widget {
@@ -68,7 +67,7 @@ func (w *Widget) Render() string {
 	var leftCol string
 	var rightCol string
 
-	size := w.contentSize
+	size := w.GetContentSize()
 
 	t := orvyn.GetTheme()
 
@@ -101,19 +100,8 @@ func (w *Widget) Render() string {
 			Render(w.title),
 		summary)
 
-	return t.Style(theme.BlurredWidgetStyleID).
+	return w.GetStyle().
 		Width(size.Width).Render(content)
-}
-
-func (w *Widget) Resize(size orvyn.Size) {
-	w.BaseWidget.Resize(size)
-
-	s := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-
-	size.Width -= s.GetHorizontalFrameSize()
-	size.Height -= s.GetVerticalFrameSize()
-
-	w.contentSize = size
 }
 
 func (w *Widget) renderEquipmentSlot(slotCode data.SlotCode, addReturn bool, column *column) {

@@ -29,14 +29,13 @@ type Widget struct {
 	data Data
 
 	paginator paginator.Model
-
-	style lipgloss.Style
-
-	contentSize orvyn.Size
 }
 
 func Constructor(data Data) list.ListItem[Data] {
 	w := new(Widget)
+
+	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.UpdateData(data)
 
@@ -75,11 +74,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 	size.Height = 7
 
 	w.BaseWidget.Resize(size)
-
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.contentSize = size
 }
 
 func (w *Widget) Render() string {
@@ -88,9 +82,11 @@ func (w *Widget) Render() string {
 	var right strings.Builder
 	var width int
 
-	width = w.contentSize.Width
+	contentSize := w.GetContentSize()
 
-	s = w.style
+	width = contentSize.Width
+
+	s = w.GetStyle()
 	t := orvyn.GetTheme()
 	hs := t.Style(theme.HighlightTextStyleID)
 	ns := lipgloss.NewStyle()
@@ -129,7 +125,7 @@ func (w *Widget) Render() string {
 
 	width1, width2 := orvyn.DivideSizeFull(width)
 
-	tui := s.Width(width).Height(w.contentSize.Height).Render(
+	tui := s.Width(width).Height(contentSize.Height).Render(
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			ns.Width(width1).
 				AlignHorizontal(lipgloss.Left).
@@ -140,18 +136,6 @@ func (w *Widget) Render() string {
 
 	return tui
 }
-
-func (w *Widget) OnFocus() {
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
-}
-
-func (w *Widget) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-}
-
-func (w *Widget) OnEnterInput() {}
-
-func (w *Widget) OnExitInput() {}
 
 func (w *Widget) FilterValue() string {
 	var b strings.Builder

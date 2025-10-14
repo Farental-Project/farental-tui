@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
@@ -20,15 +19,13 @@ type Widget struct {
 	data api.TravelResponse
 
 	featuresList string
-
-	style lipgloss.Style
-
-	contentSize orvyn.Size
 }
 
 func Constructor(data api.TravelResponse) list.ListItem[api.TravelResponse] {
-
 	w := new(Widget)
+
+	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.UpdateData(data)
 
@@ -41,11 +38,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 	size.Height = 6
 
 	w.BaseWidget.Resize(size)
-
-	size.Width -= w.style.GetHorizontalFrameSize()
-	size.Height -= w.style.GetVerticalFrameSize()
-
-	w.contentSize = size
 }
 
 func (w *Widget) UpdateData(data api.TravelResponse) {
@@ -74,8 +66,9 @@ func (w *Widget) GetData() api.TravelResponse {
 
 func (w *Widget) Render() string {
 	t := orvyn.GetTheme()
+	contentSize := w.GetContentSize()
 
-	tui := w.style.Width(w.contentSize.Width).Render(
+	tui := w.GetStyle().Width(contentSize.Width).Render(
 		fmt.Sprintf("%s\n%s\n%s\n%s",
 			t.Style(theme.HighlightTextStyleID).
 				Render(fmt.Sprintf("%s", w.data.DestLocation.Name)),
@@ -89,18 +82,6 @@ func (w *Widget) Render() string {
 
 	return tui
 }
-
-func (w *Widget) OnFocus() {
-	w.style = orvyn.GetTheme().Style(theme.FocusedWidgetStyleID)
-}
-
-func (w *Widget) OnBlur() {
-	w.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
-}
-
-func (w *Widget) OnEnterInput() {}
-
-func (w *Widget) OnExitInput() {}
 
 func (w *Widget) FilterValue() string {
 	var b strings.Builder
