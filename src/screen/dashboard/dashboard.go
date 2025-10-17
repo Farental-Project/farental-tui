@@ -241,19 +241,29 @@ func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 		return nil, true
 
 	case key.Matches(msg, keybind.LKey):
-		s.showLocationService()
+		if s.checkRunningTask() {
+			s.showLocationService()
+		}
 
 	case key.Matches(msg, keybind.TKey):
-		return orvyn.SwitchScreen(screen.IDTravel), true
+		if s.checkRunningTask() {
+			return orvyn.SwitchScreen(screen.IDTravel), true
+		}
 
 	case key.Matches(msg, keybind.AKey):
-		return orvyn.SwitchScreen(screen.IDActivity), true
+		if s.checkRunningTask() {
+			return orvyn.SwitchScreen(screen.IDActivity), true
+		}
 
 	case key.Matches(msg, keybind.FKey):
-		return orvyn.SwitchScreen(screen.IDFight), true
+		if s.checkRunningTask() {
+			return orvyn.SwitchScreen(screen.IDFight), true
+		}
 
 	case key.Matches(msg, keybind.CKey):
-		return orvyn.SwitchScreen(screen.IDCraft), true
+		if s.checkRunningTask() {
+			return orvyn.SwitchScreen(screen.IDCraft), true
+		}
 
 	case key.Matches(msg, keybind.YKey):
 		return orvyn.SwitchScreen(screen.IDChat), true
@@ -265,10 +275,14 @@ func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 		return orvyn.SwitchScreen(screen.IDCharacterSheet), true
 
 	case key.Matches(msg, keybind.NKey):
-		return orvyn.SwitchScreen(screen.IDNpc), true
+		if s.checkRunningTask() {
+			return orvyn.SwitchScreen(screen.IDNpc), true
+		}
 
 	case key.Matches(msg, keybind.SKey):
-		return orvyn.SwitchScreen(screen.IDScriptExplorer), true
+		if s.checkRunningTask() {
+			return orvyn.SwitchScreen(screen.IDScriptExplorer), true
+		}
 	}
 
 	return nil, false
@@ -304,4 +318,13 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	}
 
 	return nil, false
+}
+
+func (s *Screen) checkRunningTask() bool {
+	if context.RunningTask != nil {
+		s.statusMessage.SetMessage(lokyn.L("A task is running. Claim it before doing this."), statusmessage.InformationMessage)
+		return false
+	}
+
+	return true
 }

@@ -3,12 +3,14 @@ package inventory
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/widget/help"
 	"farental/widget/inventorylistitem"
 	"farental/widget/inventorystackinspect"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -133,14 +135,18 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(msg, keybind.UKey):
 			if bubblehelp.IsKeybindVisible(keybind.UKey) {
-				s.useItem(index, &selectedItem)
-				return cmd
+				if s.checkRunningTask() {
+					s.useItem(index, &selectedItem)
+					return cmd
+				}
 			}
 
 		case key.Matches(msg, keybind.EKey):
 			if bubblehelp.IsKeybindVisible(keybind.EKey) {
-				s.equipItem(&selectedItem)
-				return cmd
+				if s.checkRunningTask() {
+					s.equipItem(&selectedItem)
+					return cmd
+				}
 			}
 		}
 	}
@@ -232,4 +238,13 @@ func (s *Screen) updateKeybind(item *api.ItemResponse) {
 	} else {
 		bubblehelp.SetKeybindVisible(keybind.EKey, false)
 	}
+}
+
+func (s *Screen) checkRunningTask() bool {
+	if context.RunningTask != nil {
+		s.statusMessage.SetMessage(lokyn.L("A task is running. Claim it before doing this."), statusmessage.InformationMessage)
+		return false
+	}
+
+	return true
 }
