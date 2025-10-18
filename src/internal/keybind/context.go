@@ -26,6 +26,7 @@ const (
 	ContextScriptEditorWidgetNormalMode   bubblehelp.KeymapContext = "scriptEditorWidgetNormalMode"
 	ContextScriptEditorRulesList          bubblehelp.KeymapContext = "scriptEditorRulesList"
 	ContextScriptEditorRulesListItem      bubblehelp.KeymapContext = "scriptEditorRulesListItem"
+	ContextScriptEditorRuleInspector      bubblehelp.KeymapContext = "scriptEditorRuleInspector"
 	ContextBasicEditMode                  bubblehelp.KeymapContext = "basicEditMode"
 	ContextBank                           bubblehelp.KeymapContext = "bank"
 	ContextNpc                            bubblehelp.KeymapContext = "npc"

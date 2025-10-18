@@ -24,6 +24,9 @@ var (
 	GotoListEnd   key.Binding
 	PrevPage      key.Binding
 	NextPage      key.Binding
+	Num1Key       key.Binding
+	Num2Key       key.Binding
+	Num3Key       key.Binding
 	AKey          key.Binding
 	BKey          key.Binding
 	CKey          key.Binding
@@ -102,6 +105,15 @@ func Init() {
 	NextPage = key.NewBinding(
 		key.WithKeys("pgdown"),
 		key.WithHelp("page down", lokyn.L("next page")))
+	Num1Key = key.NewBinding(
+		key.WithKeys("1"),
+		key.WithHelp("1", "Num 1 key"))
+	Num2Key = key.NewBinding(
+		key.WithKeys("2"),
+		key.WithHelp("2", "Num 2 key"))
+	Num3Key = key.NewBinding(
+		key.WithKeys("3"),
+		key.WithHelp("3", "Num 3 key"))
 	AKey = key.NewBinding(
 		key.WithKeys("a"),
 		key.WithHelp("a", "a key"))

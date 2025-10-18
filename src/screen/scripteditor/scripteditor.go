@@ -13,6 +13,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
@@ -141,6 +142,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.statusMessage.Reset()
 
 		switch {
+		case key.Matches(m, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+
 		case key.Matches(m, keybind.Esc):
 			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
 				return orvyn.SwitchToPreviousScreen()

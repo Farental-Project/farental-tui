@@ -347,6 +347,12 @@ func registerKeymapContexts() {
 
 	ScriptEditorWidgetNormalModeKeymap := bubblehelp.NewKeymap(2)
 	ScriptEditorWidgetNormalModeKeymap.Style = style.MainHelpStyle
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Num1Key, false)
+	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.Num1Key, lokyn.L("focus script info"))
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Num2Key, false)
+	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.Num2Key, lokyn.L("focus rule list"))
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Num3Key, false)
+	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.Num3Key, lokyn.L("focus rule inspector"))
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.EKey, true)
 	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.EKey, lokyn.L("edit"))
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.SKeyCtrl, true)
@@ -355,11 +361,18 @@ func registerKeymapContexts() {
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Esc, true)
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Quit, false)
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorWidgetNormalMode, ScriptEditorWidgetNormalModeKeymap)
 
 	ScriptEditorRulesListKeymap := bubblehelp.NewKeymap(2)
 	ScriptEditorRulesListKeymap.Style = style.MainHelpStyle
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Num1Key, false)
+	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.Num1Key, lokyn.L("focus script info"))
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Num2Key, false)
+	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.Num2Key, lokyn.L("focus rule list"))
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Num3Key, false)
+	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.Num3Key, lokyn.L("focus rule inspector"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.EKey, true)
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.EKey, lokyn.L("edit"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.NKey, true)
@@ -374,8 +387,20 @@ func registerKeymapContexts() {
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Esc, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Quit, false)
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorRulesList, ScriptEditorRulesListKeymap)
+
+	ScriptEditorRuleInspectorKeymap := bubblehelp.NewKeymap(2)
+	ScriptEditorRuleInspectorKeymap.Style = style.MainHelpStyle
+	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.Tab, true)
+	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.ShiftTab, true)
+	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.Esc, true)
+	ScriptEditorRuleInspectorKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
+	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.Quit, false)
+	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.Help, true)
+
+	bubblehelp.RegisterContext(keybind.ContextScriptEditorRuleInspector, ScriptEditorRuleInspectorKeymap)
 
 	BasicEditModeKeymap := bubblehelp.NewKeymap(2)
 	BasicEditModeKeymap.Style = style.MainHelpStyle

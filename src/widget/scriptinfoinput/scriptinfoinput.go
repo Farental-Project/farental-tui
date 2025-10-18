@@ -124,6 +124,10 @@ func (w *Widget) OnExitInput() {
 	w.focusManager.BlurCurrent()
 }
 
+func (w *Widget) GetFocusKeybind() *key.Binding {
+	return &keybind.Num1Key
+}
+
 func (w *Widget) GetEnterInputKeybind() *key.Binding {
 	return &keybind.EKey
 }

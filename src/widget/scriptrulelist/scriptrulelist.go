@@ -106,6 +106,10 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
+func (w *Widget) GetFocusKeybind() *key.Binding {
+	return &keybind.Num2Key
+}
+
 func (w *Widget) OnFocus() {
 	w.Widget.OnFocus()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)

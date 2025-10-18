@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/widget/list"
@@ -34,6 +35,8 @@ func New() *Widget {
 
 	w.parameters = list.New(Constructor)
 	w.parameters.SetFilterable(false)
+	w.parameters.SetCursorMovementKeybinds(keybind.Tab, keybind.ShiftTab)
+	w.parameters.InfiniteScroll = true
 	w.parameters.CursorMovedCallback = w.cursorMoved
 
 	w.OnBlur()
@@ -70,6 +73,7 @@ func (w *Widget) Render() string {
 
 func (w *Widget) OnFocus() {
 	w.parameters.OnFocus()
+	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
 }
 
 func (w *Widget) OnBlur() {
@@ -78,10 +82,16 @@ func (w *Widget) OnBlur() {
 
 func (w *Widget) OnEnterInput() {
 	w.parameters.FocusFirst()
+	bubblehelp.SwitchContext(keybind.ContextScriptEditorRuleInspector)
 }
 
 func (w *Widget) OnExitInput() {
 	w.parameters.BlurCurrent()
+	bubblehelp.SwitchToPreviousContext()
+}
+
+func (w *Widget) GetFocusKeybind() *key.Binding {
+	return &keybind.Num3Key
 }
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {
