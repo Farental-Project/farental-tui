@@ -2,9 +2,11 @@ package scriptexplorerlistitem
 
 import (
 	"farental/core/data/api"
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
@@ -55,18 +57,27 @@ func (w *Widget) Render() string {
 
 	s = w.GetStyle()
 	t := orvyn.GetTheme()
+	ds := t.Style(theme.DimTextStyleID)
 	ns := lipgloss.NewStyle()
 
 	left.WriteString(t.Style(theme.TitleStyleID).Render(w.data.Name))
 	left.WriteString("\n")
-	left.WriteString(t.Style(theme.DimTextStyleID).Render(w.data.Description))
+	left.WriteString(ds.Render(w.data.Description))
+
+	if !w.data.IsEditable {
+		right.WriteString(ds.Render(fmt.Sprintf(lokyn.L("Author : %s"), w.data.AuthorName)))
+		right.WriteString("\n")
+		right.WriteString(lokyn.L("Not editable"))
+	}
+
+	width1, width2 := orvyn.DivideSizeFull(width)
 
 	tui := s.Width(width).Height(contentSize.Height).Render(
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			ns.Width(width-2).
+			ns.Width(width1).
 				AlignHorizontal(lipgloss.Left).
 				Render(left.String()),
-			ns.Width(1).
+			ns.Width(width2).
 				AlignHorizontal(lipgloss.Right).
 				Render(right.String())))
 

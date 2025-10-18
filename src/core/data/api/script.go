@@ -39,6 +39,7 @@ type ScriptBasicResponse struct {
 	Description string
 	AuthorName  string
 	IsPrivate   bool
+	IsEditable  bool
 }
 
 type ScriptResponse struct {
