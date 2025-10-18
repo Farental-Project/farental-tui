@@ -135,13 +135,15 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 			b.Reset()
 		}
 
-		// Conditions
-		for i, c := range *stack.Item.Conditions {
-			if i > 0 {
-				b.WriteString("\n")
-			}
+		if stack.Item.Conditions != nil {
+			// Conditions
+			for i, c := range *stack.Item.Conditions {
+				if i > 0 {
+					b.WriteString("\n")
+				}
 
-			b.WriteString(fmt.Sprintf("• %s", c))
+				b.WriteString(fmt.Sprintf("• %s", c))
+			}
 		}
 
 		show = b.Len() > 0

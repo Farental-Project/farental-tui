@@ -273,6 +273,8 @@ func registerKeymapContexts() {
 	inventoryKeymap.SetHelpDesc(keybind.UKey, lokyn.L("use"))
 	inventoryKeymap.NewKeyBinding(keybind.EKey, true)
 	inventoryKeymap.SetHelpDesc(keybind.EKey, lokyn.L("equip"))
+	inventoryKeymap.NewKeyBinding(keybind.Tab, true)
+	inventoryKeymap.SetHelpDesc(keybind.Tab, lokyn.L("equipped items"))
 	inventoryKeymap.NewKeyBinding(keybind.Esc, true)
 	inventoryKeymap.NewKeyBinding(keybind.Quit, true)
 	inventoryKeymap.NewKeyBinding(keybind.Help, true)

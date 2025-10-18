@@ -22,7 +22,19 @@ import (
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
+type inventoryMode uint8
+
+const (
+	modeInventory inventoryMode = iota
+	modeEquipped
+)
+
 type Screen struct {
+	mode inventoryMode
+
+	inventoryTitle string
+	equippedTitle  string
+
 	title         *orvyn.SimpleRenderable
 	list          *list.Widget[api.StackResponse]
 	inspector     *inventorystackinspect.Widget
@@ -37,7 +49,10 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
+	s.inventoryTitle = lokyn.L("Inventory")
+	s.equippedTitle = lokyn.L("Equipped items")
+
+	s.title = orvyn.NewSimpleRenderable(s.inventoryTitle)
 	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.list = list.New(inventorylistitem.Constructor)
@@ -50,6 +65,8 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 
 	s.help = help.New()
+
+	s.mode = modeInventory
 
 	inventoryLayout := layout.NewHBoxFixedRatioLayout(0, 1,
 		0,
@@ -81,6 +98,10 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.list.FocusFirst()
 
 	selectedItem := s.list.GetSelectedItem()
+
+	s.mode = modeInventory
+
+	s.title.SetValue(s.inventoryTitle)
 
 	s.updateInspector(&selectedItem)
 	s.updateKeybind(&selectedItem.Item)
@@ -136,18 +157,28 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.UKey):
 			if bubblehelp.IsKeybindVisible(keybind.UKey) {
 				if s.checkRunningTask() {
-					s.useItem(index, &selectedItem)
-					return cmd
+					switch s.mode {
+					case modeInventory:
+						s.useItem(index, &selectedItem)
+						return cmd
+					case modeEquipped:
+						s.unequipItem(index, &selectedItem)
+						return cmd
+					}
 				}
 			}
 
 		case key.Matches(msg, keybind.EKey):
 			if bubblehelp.IsKeybindVisible(keybind.EKey) {
 				if s.checkRunningTask() {
-					s.equipItem(&selectedItem)
+					s.equipItem(index, &selectedItem)
 					return cmd
 				}
 			}
+
+		case key.Matches(msg, keybind.Tab):
+			s.changeMode()
+			return cmd
 		}
 	}
 
@@ -173,6 +204,32 @@ func (s *Screen) loadInventory() {
 	s.list.SetItems(inventory.Stacks)
 }
 
+func (s *Screen) loadEquippedInventory() {
+	var stacks []api.StackResponse
+
+	resp, err := helper.SendRequest(request.InventoryGetEquippedItems())
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	equippedItems := *resp.Result().(*[]api.ItemResponse)
+
+	for _, item := range equippedItems {
+		stack := api.StackResponse{
+			ID:     0,
+			ItemID: item.ID,
+			Item:   item,
+			Count:  0,
+		}
+
+		stacks = append(stacks, stack)
+	}
+
+	s.list.SetItems(stacks)
+}
+
 func (s *Screen) submit() bool {
 	return false
 }
@@ -196,14 +253,14 @@ func (s *Screen) useItem(index int, item *api.StackResponse) {
 	s.statusMessage.SetMessage(lokyn.L("Item used !"), statusmessage.SuccessMessage)
 
 	if item.Count == 0 {
-		s.list.RemoveItem(index)
+		s.removeItem(index)
 		return
 	}
 
 	s.list.SetItem(index, *item)
 }
 
-func (s *Screen) equipItem(item *api.StackResponse) {
+func (s *Screen) equipItem(index int, item *api.StackResponse) {
 	req := request.InventoryEquipItem(item.ItemID)
 
 	_, err := helper.SendRequest(req)
@@ -217,11 +274,39 @@ func (s *Screen) equipItem(item *api.StackResponse) {
 
 	s.statusMessage.SetMessage(lokyn.L("Item equipped !"), statusmessage.SuccessMessage)
 
-	s.loadInventory()
+	if item.Count == 0 {
+		s.removeItem(index)
+		return
+	}
+
+	s.list.SetItem(index, *item)
+}
+
+func (s *Screen) unequipItem(index int, item *api.StackResponse) {
+	req := request.InventoryUnequipItem(item.ItemID)
+
+	_, err := helper.SendRequest(req)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	s.removeItem(index)
+
+	s.statusMessage.SetMessage(lokyn.L("Item unequipped !"), statusmessage.SuccessMessage)
+}
+
+func (s *Screen) removeItem(index int) {
+	s.list.RemoveItem(index)
+
+	selectedItem := s.list.GetSelectedItem()
+
+	s.updateKeybind(&selectedItem.Item)
 }
 
 func (s *Screen) updateKeybind(item *api.ItemResponse) {
-	if item == nil {
+	if item == nil || item.ID == 0 {
 		bubblehelp.SetKeybindVisible(keybind.UKey, false)
 		bubblehelp.SetKeybindVisible(keybind.EKey, false)
 		return
@@ -233,11 +318,43 @@ func (s *Screen) updateKeybind(item *api.ItemResponse) {
 		bubblehelp.SetKeybindVisible(keybind.UKey, false)
 	}
 
-	if item.EquipmentSlot != nil {
+	if item.EquipmentSlot != nil && s.mode == modeInventory {
 		bubblehelp.SetKeybindVisible(keybind.EKey, true)
 	} else {
 		bubblehelp.SetKeybindVisible(keybind.EKey, false)
 	}
+
+	switch s.mode {
+	case modeInventory:
+		bubblehelp.UpdateKeybindHelpDesc(keybind.UKey, "") // Default
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Tab, "")  // Default
+	case modeEquipped:
+		bubblehelp.SetKeybindVisible(keybind.UKey, true)
+		bubblehelp.UpdateKeybindHelpDesc(keybind.UKey, lokyn.L("unequip item"))
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Tab, lokyn.L("inventory"))
+	}
+}
+
+func (s *Screen) changeMode() {
+	s.list.BlurCurrent()
+
+	switch s.mode {
+	case modeInventory: // goto equipped mode
+		s.title.SetValue(s.equippedTitle)
+		s.loadEquippedInventory()
+		s.mode = modeEquipped
+	case modeEquipped: // goto inventory mode
+		s.title.SetValue(s.inventoryTitle)
+		s.loadInventory()
+		s.mode = modeInventory
+	}
+
+	s.list.FocusFirst()
+
+	selectedItem := s.list.GetSelectedItem()
+
+	s.updateInspector(&selectedItem)
+	s.updateKeybind(&selectedItem.Item)
 }
 
 func (s *Screen) checkRunningTask() bool {

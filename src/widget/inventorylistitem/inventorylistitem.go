@@ -60,8 +60,10 @@ func (w *Widget) Render() string {
 
 	left.WriteString(w.data.Item.Name)
 
-	right.WriteString(t.Style(theme.DimTextStyleID).Render(
-		fmt.Sprintf("%d / %d", w.data.Count, w.data.Item.MaxStackCount)))
+	if w.data.Count > 0 {
+		right.WriteString(t.Style(theme.DimTextStyleID).Render(
+			fmt.Sprintf("%d / %d", w.data.Count, w.data.Item.MaxStackCount)))
+	}
 
 	width1, width2 := orvyn.DivideSizeFull(width)
 
