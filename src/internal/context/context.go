@@ -6,6 +6,7 @@ import (
 	"farental/internal/helper"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -33,6 +34,22 @@ func Init() {
 	CharacterID = 0
 	RunningTask = nil
 	ChatContent = make([]string, 0)
+}
+
+func Reset() {
+	var zeroTime time.Time
+
+	CharacterInfo = nil
+	RunningTask = nil
+	ChatContent = make([]string, 0)
+	LastChatTimestamp = zeroTime
+}
+
+func Logout() {
+	// Logout - Clear the logintoken in config and clear the client cookie.
+	viper.Set("logintoken", "")
+	viper.WriteConfig()
+	Client.Cookies = make([]*http.Cookie, 0)
 }
 
 func UpdateChat() {

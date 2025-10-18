@@ -18,9 +18,16 @@ type UserResponse struct {
 	AllowedCharacterCount int
 }
 
+type AuthSignUpBody struct {
+	Username        string
+	Email           string
+	Password        string
+	PasswordConfirm string
+}
+
 type AuthLoginBody struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string
+	Password string
 }
 
 type AuthSuccessResponse struct {

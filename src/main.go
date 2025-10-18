@@ -11,6 +11,7 @@ import (
 	"farental/internal/style"
 	ftheme "farental/internal/theme"
 	"farental/screen"
+	"farental/screen/accountcreation"
 	"farental/screen/activity"
 	"farental/screen/bank"
 	"farental/screen/charactercreation"
@@ -81,6 +82,7 @@ func main() {
 	registerKeymapContexts()
 
 	orvyn.RegisterScreen(screen.IDLogin, login.New())
+	orvyn.RegisterScreen(screen.IDAccountCreation, accountcreation.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
 	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
@@ -114,6 +116,8 @@ func registerKeymapContexts() {
 	loginKeymap.Style = mainHelpStyle
 	loginKeymap.NewKeyBinding(keybind.Tab, false)
 	loginKeymap.NewKeyBinding(keybind.ShiftTab, false)
+	loginKeymap.NewKeyBinding(keybind.NKeyCtrl, true)
+	loginKeymap.SetHelpDesc(keybind.NKeyCtrl, lokyn.L("new account"))
 	loginKeymap.NewKeyBinding(keybind.Enter, true)
 	loginKeymap.NewKeyBinding(keybind.Quit, true)
 	loginKeymap.NewKeyBinding(keybind.Help, true)

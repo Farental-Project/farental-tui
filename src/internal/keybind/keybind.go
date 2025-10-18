@@ -38,6 +38,7 @@ var (
 	LKey          key.Binding
 	MKey          key.Binding
 	NKey          key.Binding
+	NKeyCtrl      key.Binding
 	PKey          key.Binding
 	RKey          key.Binding
 	SKey          key.Binding
@@ -147,6 +148,9 @@ func Init() {
 	NKey = key.NewBinding(
 		key.WithKeys("n"),
 		key.WithHelp("n", "n key"))
+	NKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+n"),
+		key.WithHelp("ctrl+n", "ctrl+n key"))
 	PKey = key.NewBinding(
 		key.WithKeys("p"),
 		key.WithHelp("p", "p key"))

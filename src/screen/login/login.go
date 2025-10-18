@@ -94,6 +94,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, keybind.NKeyCtrl):
+			return orvyn.SwitchScreen(screen.IDAccountCreation)
+
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
 

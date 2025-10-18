@@ -21,13 +21,18 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
-	"github.com/spf13/viper"
 )
 
 type gotoDashboardMsg int
 
 func gotoDashboardCmd() tea.Msg {
 	return gotoDashboardMsg(1)
+}
+
+type gotoCharacterCreationMsg int
+
+func gotoCharacterCreationCmd() tea.Msg {
+	return gotoCharacterCreationMsg(1)
 }
 
 type Screen struct {
@@ -40,6 +45,8 @@ type Screen struct {
 	help *help.Widget
 
 	layout *layout.CenterLayout
+
+	noCharacters bool
 }
 
 func New() *Screen {
@@ -79,27 +86,35 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 
 	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
 
+	s.loadCharacters()
+
 	if orvyn.GetPreviousScreen() != screen.IDDashBoard {
-		resp, _ := helper.SendRequest(request.CharacterGetActive())
+		if len(s.list.GetItems()) == 0 {
+			s.noCharacters = true
+			cmd = gotoCharacterCreationCmd
+		} else {
+			s.noCharacters = false
+			resp, _ := helper.SendRequest(request.CharacterGetActive())
 
-		if resp.StatusCode() == http.StatusOK {
-			charInfo, ok := resp.Result().(*api.CharacterBasicResponse)
+			if resp.StatusCode() == http.StatusOK {
+				charInfo, ok := resp.Result().(*api.CharacterBasicResponse)
 
-			if ok {
-				context.CharacterID = charInfo.ID
-				cmd = gotoDashboardCmd
+				if ok {
+					context.CharacterID = charInfo.ID
+					cmd = gotoDashboardCmd
+				}
 			}
 		}
 	}
 
-	s.loadCharacters()
 	s.list.FocusFirst()
 
 	return cmd
 }
 
 func (s *Screen) OnExit() any {
-	return nil
+	context.Reset()
+	return s.noCharacters // Only usefull in charactercreation screen. To set the esc to logout.
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
@@ -127,17 +142,16 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			orvyn.SwitchScreen(screen.IDCharacterCreation)
 
 		case key.Matches(msg, keybind.Esc):
-			// Logout - Clear the logintoken in config and clear the client cookie.
-			viper.Set("logintoken", "")
-
-			viper.WriteConfig()
-
-			context.Client.Cookies = make([]*http.Cookie, 0)
+			context.Logout()
 
 			return orvyn.SwitchScreen(screen.IDLogin)
 		}
 	case gotoDashboardMsg:
 		return orvyn.SwitchScreen(screen.IDDashBoard)
+
+	case gotoCharacterCreationMsg:
+		return orvyn.SwitchScreen(screen.IDCharacterCreation)
+
 	}
 
 	s.list.Update(msg)
