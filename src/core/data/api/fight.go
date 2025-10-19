@@ -5,21 +5,15 @@ import (
 )
 
 type FightResponse struct {
-	ID uint
-
+	ID                uint
 	ResolvedTimestamp time.Time
-
-	EventLog EventLogResponse
-
-	Composition FightCompositionResponse
+	Composition       FightCompositionResponse
 }
 
 type FightCompositionResponse struct {
-	ID uint
-
+	ID       uint
 	Duration Duration
-
-	Actors []FightActorResponse
+	Actors   []FightActorResponse
 }
 
 type FightActorResponse struct {

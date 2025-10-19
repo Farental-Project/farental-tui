@@ -5,12 +5,16 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/screen"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/fightlistitem"
+	"log"
+
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
-	"log"
+	"github.com/halsten-dev/orvyn"
 )
 
 type Screen struct {
@@ -29,9 +33,22 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
-	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListPage)
+	bubblehelp.SwitchContext(keybind.ContextFightList)
 
 	return nil
+}
+
+func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	cmd := s.Screen.Update(msg)
+
+	if m, ok := orvyn.GetKeyMsg(msg); ok {
+		switch {
+		case key.Matches(m, keybind.HKey):
+			return orvyn.SwitchScreen(screen.IDFightHistory)
+		}
+	}
+
+	return cmd
 }
 
 func (s *Screen) loadFights() {

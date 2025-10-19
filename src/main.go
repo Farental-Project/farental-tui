@@ -21,6 +21,7 @@ import (
 	"farental/screen/craft"
 	"farental/screen/dashboard"
 	"farental/screen/fight"
+	"farental/screen/fighthistory"
 	"farental/screen/inventory"
 	"farental/screen/login"
 	"farental/screen/mailbox"
@@ -89,6 +90,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDTravel, travel.New())
 	orvyn.RegisterScreen(screen.IDActivity, activity.New())
 	orvyn.RegisterScreen(screen.IDFight, fight.New())
+	orvyn.RegisterScreen(screen.IDFightHistory, fighthistory.New())
 	orvyn.RegisterScreen(screen.IDCraft, craft.New())
 	orvyn.RegisterScreen(screen.IDChat, chat.New())
 	orvyn.RegisterScreen(screen.IDInventory, inventory.New())
@@ -208,23 +210,25 @@ func registerKeymapContexts() {
 
 	bubblehelp.RegisterContext(keybind.ContextFilterSelectionListIncDec, filterSelListIncDecKeymap)
 
-	filterSelListPageKeymap := bubblehelp.NewKeymap(3)
-	filterSelListPageKeymap.Style = mainHelpStyle
-	filterSelListPageKeymap.NewKeyBinding(keybind.Up, false)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Down, false)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Right, false)
-	filterSelListPageKeymap.SetHelpDesc(keybind.Right, lokyn.L("next page"))
-	filterSelListPageKeymap.NewKeyBinding(keybind.Left, false)
-	filterSelListPageKeymap.SetHelpDesc(keybind.Left, lokyn.L("previous page"))
-	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListStart, false)
-	filterSelListPageKeymap.NewKeyBinding(keybind.GotoListEnd, false)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Filter, true)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Enter, true)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Esc, true)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Quit, true)
-	filterSelListPageKeymap.NewKeyBinding(keybind.Help, true)
+	fightListKeymap := bubblehelp.NewKeymap(3)
+	fightListKeymap.Style = mainHelpStyle
+	fightListKeymap.NewKeyBinding(keybind.Up, false)
+	fightListKeymap.NewKeyBinding(keybind.Down, false)
+	fightListKeymap.NewKeyBinding(keybind.Right, false)
+	fightListKeymap.SetHelpDesc(keybind.Right, lokyn.L("next page"))
+	fightListKeymap.NewKeyBinding(keybind.Left, false)
+	fightListKeymap.SetHelpDesc(keybind.Left, lokyn.L("previous page"))
+	fightListKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	fightListKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	fightListKeymap.NewKeyBinding(keybind.Filter, true)
+	fightListKeymap.NewKeyBinding(keybind.HKey, true)
+	fightListKeymap.SetHelpDesc(keybind.HKey, lokyn.L("fight history"))
+	fightListKeymap.NewKeyBinding(keybind.Enter, true)
+	fightListKeymap.NewKeyBinding(keybind.Esc, true)
+	fightListKeymap.NewKeyBinding(keybind.Quit, true)
+	fightListKeymap.NewKeyBinding(keybind.Help, true)
 
-	bubblehelp.RegisterContext(keybind.ContextFilterSelectionListPage, filterSelListPageKeymap)
+	bubblehelp.RegisterContext(keybind.ContextFightList, fightListKeymap)
 
 	filterSelListBasicKeymapWithNew := bubblehelp.NewKeymap(3)
 	filterSelListBasicKeymapWithNew.Style = mainHelpStyle
@@ -447,6 +451,21 @@ func registerKeymapContexts() {
 	NpcKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextNpc, NpcKeymap)
+
+	FightHistoryKeymap := bubblehelp.NewKeymap(2)
+	FightHistoryKeymap.Style = style.MainHelpStyle
+	FightHistoryKeymap.NewKeyBinding(keybind.Up, false)
+	FightHistoryKeymap.NewKeyBinding(keybind.Down, false)
+	FightHistoryKeymap.NewKeyBinding(keybind.Right, false)
+	FightHistoryKeymap.SetHelpDesc(keybind.Right, lokyn.L("next page"))
+	FightHistoryKeymap.NewKeyBinding(keybind.Left, false)
+	FightHistoryKeymap.SetHelpDesc(keybind.Left, lokyn.L("previous page"))
+	FightHistoryKeymap.NewKeyBinding(keybind.Enter, true)
+	FightHistoryKeymap.SetHelpDesc(keybind.Enter, lokyn.L("load log"))
+	FightHistoryKeymap.NewKeyBinding(keybind.Esc, true)
+	FightHistoryKeymap.NewKeyBinding(keybind.Quit, false)
+
+	bubblehelp.RegisterContext(keybind.ContextFightHistory, FightHistoryKeymap)
 
 	ShopKeymap := bubblehelp.NewKeymap(2)
 	ShopKeymap.Style = style.MainHelpStyle

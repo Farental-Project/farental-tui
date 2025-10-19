@@ -12,7 +12,7 @@ const (
 	ContextGameDashboard                  bubblehelp.KeymapContext = "gameDashboard"
 	ContextFilterSelectionListBasic       bubblehelp.KeymapContext = "filterSelectionListBasic"
 	ContextFilterSelectionListIncDec      bubblehelp.KeymapContext = "filterSelectionListIncDec"
-	ContextFilterSelectionListPage        bubblehelp.KeymapContext = "filterSelectionListPage"
+	ContextFightList                      bubblehelp.KeymapContext = "fightList"
 	ContextFilterSelectionListWithNew     bubblehelp.KeymapContext = "filterSelectionListWithNew"
 	ContextCraft                          bubblehelp.KeymapContext = "craft"
 	ContextInventory                      bubblehelp.KeymapContext = "inventory"
@@ -30,5 +30,6 @@ const (
 	ContextBasicEditMode                  bubblehelp.KeymapContext = "basicEditMode"
 	ContextBank                           bubblehelp.KeymapContext = "bank"
 	ContextNpc                            bubblehelp.KeymapContext = "npc"
+	ContextFightHistory                   bubblehelp.KeymapContext = "fightHistory"
 	ContextShop                           bubblehelp.KeymapContext = "shop"
 )

@@ -13,6 +13,7 @@ const (
 	IDTravel             orvyn.ScreenID = "travel"
 	IDActivity           orvyn.ScreenID = "activity"
 	IDFight              orvyn.ScreenID = "fight"
+	IDFightHistory       orvyn.ScreenID = "fighthistory"
 	IDCraft              orvyn.ScreenID = "craft"
 	IDChat               orvyn.ScreenID = "chat"
 	IDInventory          orvyn.ScreenID = "inventory"
