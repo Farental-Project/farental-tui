@@ -59,6 +59,7 @@ func New() *Screen {
 
 	s.log = simplelogviewer.New(lokyn.L("Fight log"))
 	s.log.Style = logStyle
+	s.log.SetAutoScroll(false)
 	s.log.OnBlur()
 
 	s.statusMessage = statusmessage.New()
@@ -90,7 +91,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(any) tea.Cmd {
-	bubblehelp.SwitchContext(keybind.ContextNpc)
+	bubblehelp.SwitchContext(keybind.ContextFightHistory)
 
 	s.loadedLogsCache = make(map[uint]api.EventLogResponse)
 
@@ -114,7 +115,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return nil
 
 		case key.Matches(msg, keybind.Esc):
-			return orvyn.SwitchScreen(screen.IDDashBoard)
+			return orvyn.SwitchScreen(screen.IDFight)
+
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+
+			return nil
 
 		}
 	}

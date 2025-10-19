@@ -82,6 +82,16 @@ func New() *Widget {
 	return w
 }
 
+func (w *Widget) Init() tea.Cmd {
+	w.data = &Data{}
+
+	w.name.SetValue("")
+	w.description.SetValue("")
+	w.private.SetChecked(true)
+
+	return nil
+}
+
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	cmd := w.focusManager.Update(msg)
 

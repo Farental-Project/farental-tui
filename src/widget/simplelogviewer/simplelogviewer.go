@@ -40,6 +40,8 @@ type Widget struct {
 	titleHeight int
 
 	focusKeybind key.Binding
+
+	autoScroll bool
 }
 
 func New(title string) *Widget {
@@ -73,6 +75,8 @@ func New(title string) *Widget {
 			key.WithKeys("down"),
 		),
 	}
+
+	w.autoScroll = true
 
 	return w
 }
@@ -175,5 +179,11 @@ func (w *Widget) refresh() {
 		Width(w.viewport.Width).Render(
 		strings.Join(w.content, "\n")))
 
-	w.viewport.GotoBottom()
+	if w.autoScroll {
+		w.viewport.GotoBottom()
+	}
+}
+
+func (w *Widget) SetAutoScroll(b bool) {
+	w.autoScroll = b
 }

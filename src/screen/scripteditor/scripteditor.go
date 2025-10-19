@@ -5,6 +5,8 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/screen"
+	"farental/screen/dialog/popup"
 	"farental/widget/help"
 	"farental/widget/ruletypeinspector"
 	"farental/widget/scriptinfoinput"
@@ -88,6 +90,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	s.scriptInfo.Init()
 	s.list.Init()
 	s.ruleTypeInspector.Init()
 
@@ -147,7 +150,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(m, keybind.Esc):
 			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
-				return orvyn.SwitchToPreviousScreen()
+
+				orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
+					lokyn.L("Are you sure you want to quit the editor and loose your current progress ?"),
+				), nil)
+
+				return nil
 			}
 
 		case key.Matches(m, keybind.SKeyCtrl):
@@ -160,6 +168,20 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case scriptrulelist.ChangedRuleTypeMsg:
 		s.inspectorUpdate(string(msg), nil)
+
+	case orvyn.DialogExitMsg:
+		switch msg.DialogID {
+		case "quitConfirm":
+			val := msg.Param.(uint)
+
+			switch val {
+			case 1:
+				return orvyn.SwitchScreen(screen.IDScriptExplorer)
+			default:
+				return nil
+			}
+		}
+
 	}
 
 	cmd := s.focusManager.Update(msg)

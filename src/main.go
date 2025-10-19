@@ -457,13 +457,14 @@ func registerKeymapContexts() {
 	FightHistoryKeymap.NewKeyBinding(keybind.Up, false)
 	FightHistoryKeymap.NewKeyBinding(keybind.Down, false)
 	FightHistoryKeymap.NewKeyBinding(keybind.Right, false)
-	FightHistoryKeymap.SetHelpDesc(keybind.Right, lokyn.L("next page"))
+	FightHistoryKeymap.SetHelpDesc(keybind.Right, lokyn.L("next compo page"))
 	FightHistoryKeymap.NewKeyBinding(keybind.Left, false)
-	FightHistoryKeymap.SetHelpDesc(keybind.Left, lokyn.L("previous page"))
+	FightHistoryKeymap.SetHelpDesc(keybind.Left, lokyn.L("previous compo page"))
 	FightHistoryKeymap.NewKeyBinding(keybind.Enter, true)
 	FightHistoryKeymap.SetHelpDesc(keybind.Enter, lokyn.L("load log"))
 	FightHistoryKeymap.NewKeyBinding(keybind.Esc, true)
 	FightHistoryKeymap.NewKeyBinding(keybind.Quit, false)
+	FightHistoryKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(keybind.ContextFightHistory, FightHistoryKeymap)
 

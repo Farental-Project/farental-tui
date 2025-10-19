@@ -33,6 +33,8 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
+	orvyn.SetPreviousScreen(screen.IDDashBoard)
+
 	bubblehelp.SwitchContext(keybind.ContextFightList)
 
 	return nil

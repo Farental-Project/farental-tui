@@ -14,6 +14,7 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget"
 	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/spf13/viper"
 )
 
 type Data struct {
@@ -119,7 +120,9 @@ func (w *Widget) Render() string {
 
 	right.WriteString(hs.Render(strconv.Itoa(w.data.TotalPower)))
 	right.WriteString("\n\n\n\n")
-	right.WriteString(t.Style(theme.NeutralTextStyleID).Bold(true).Render("YAVAIT LTEMPS"))
+	right.WriteString(t.Style(theme.NeutralTextStyleID).Bold(true).Render(
+		w.data.ResolvedTimestamp.Format(viper.GetString("datetimeformat"))),
+	)
 
 	width1, width2 := orvyn.DivideSizeFull(width)
 
