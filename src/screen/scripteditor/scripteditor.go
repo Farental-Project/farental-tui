@@ -1,6 +1,8 @@
 package scripteditor
 
 import (
+	"bytes"
+	"encoding/json"
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
@@ -12,6 +14,7 @@ import (
 	"farental/widget/scriptinfoinput"
 	"farental/widget/scriptrulelist"
 	"fmt"
+	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,7 +38,8 @@ type Screen struct {
 
 	layout *layout.CenterLayout
 
-	data api.ScriptBody
+	data       api.ScriptBody
+	originData api.ScriptBody
 
 	new bool
 
@@ -123,6 +127,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 			Rules:       scriptDetail.Rules,
 		}
 
+		s.originData = s.data
+
 		s.scriptInfo.SetData(&s.data)
 
 		if len(s.data.Rules) > 0 {
@@ -151,9 +157,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.Esc):
 			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
 
-				orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
-					lokyn.L("Are you sure you want to quit the editor and loose your current progress ?"),
-				), nil)
+				if s.dataModified() {
+					orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
+						lokyn.L("Are you sure you want to quit the editor and loose your current progress ?"),
+					), nil)
+				} else {
+					return orvyn.SwitchScreen(screen.IDScriptExplorer)
+				}
 
 				return nil
 			}
@@ -229,7 +239,7 @@ func (s *Screen) ruleListCursorMoved(index int) {
 	}
 }
 
-func (s *Screen) save() {
+func (s *Screen) updateData() {
 	infoData := s.scriptInfo.GetData()
 
 	s.data.Name = infoData.Name
@@ -245,6 +255,10 @@ func (s *Screen) save() {
 	for _, rd := range rulesData {
 		s.data.Rules = append(s.data.Rules, rd.ScriptRuleBody)
 	}
+}
+
+func (s *Screen) save() {
+	s.updateData()
 
 	resp, err := helper.SendRequest(request.ScriptSave(&s.data))
 
@@ -256,4 +270,29 @@ func (s *Screen) save() {
 	if resp.StatusCode() == 200 {
 		s.statusMessage.SetMessage(lokyn.L("Script saved successfully."), statusmessage.SuccessMessage)
 	}
+}
+
+func (s *Screen) dataModified() bool {
+	// Compare originData and data to know if something changed.
+	s.updateData()
+
+	originJson, err := json.Marshal(s.originData)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	dataJson, err := json.Marshal(s.data)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	if !bytes.Equal(dataJson, originJson) {
+		return true
+	}
+
+	return false
 }
