@@ -66,8 +66,12 @@ func (w *Widget) Render() string {
 
 	if !w.data.IsEditable {
 		right.WriteString(ds.Render(fmt.Sprintf(lokyn.L("Author : %s"), w.data.AuthorName)))
-		right.WriteString("\n")
-		right.WriteString(lokyn.L("Not editable"))
+	} else {
+		if w.data.IsPrivate {
+			right.WriteString(ds.Render(lokyn.L("Private")))
+		} else {
+			right.WriteString(ds.Render(lokyn.L("Public")))
+		}
 	}
 
 	width1, width2 := orvyn.DivideSizeFull(width)

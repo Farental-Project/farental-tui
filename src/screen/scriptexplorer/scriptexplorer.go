@@ -11,22 +11,40 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 )
 
+type viewType uint8
+
+const (
+	own viewType = iota
+	public
+)
+
 type Screen struct {
 	selectionlist.Screen[api.ScriptBasicResponse]
 
+	titleOwn    string
+	titlePublic string
+
 	newScript bool
+
+	viewType viewType
 }
 
 func New() *Screen {
 	s := new(Screen)
 
+	s.titleOwn = lokyn.L("My scripts")
+	s.titlePublic = lokyn.L("Public scripts")
+
+	s.viewType = own
+
 	s.Screen = selectionlist.New(
-		lokyn.L("Scripts"),
+		s.titleOwn,
 		scriptexplorerlistitem.Constructor,
 		s.loadScripts,
 		s.submit,
@@ -38,7 +56,7 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
-	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListWithNew)
+	bubblehelp.SwitchContext(keybind.ContextScriptExplorer)
 
 	orvyn.SetPreviousScreen(screen.IDDashBoard)
 
@@ -64,10 +82,16 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			s.newScript = true
 			return orvyn.SwitchScreen(screen.IDScriptEditor)
 
-		case key.Matches(m, keybind.Enter):
+		case key.Matches(m, keybind.EKey):
 			s.newScript = false
 			return orvyn.SwitchScreen(screen.IDScriptEditor)
 
+		case key.Matches(m, keybind.Tab):
+			s.switchViewType()
+			s.loadScripts()
+			s.FocusFirst()
+
+			return nil
 		}
 	}
 
@@ -76,8 +100,16 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 func (s *Screen) loadScripts() {
 	var scripts []api.ScriptBasicResponse
+	var req *resty.Request
 
-	resp, err := helper.SendRequest(request.ScriptGetPrivate())
+	switch s.viewType {
+	case own:
+		req = request.ScriptGetOwn()
+	case public:
+		req = request.ScriptGetPublic()
+	}
+
+	resp, err := helper.SendRequest(req)
 
 	if err != nil {
 		s.SetStatusError(err)
@@ -91,4 +123,15 @@ func (s *Screen) loadScripts() {
 
 func (s *Screen) submit() bool {
 	return false
+}
+
+func (s *Screen) switchViewType() {
+	switch s.viewType {
+	case own:
+		s.viewType = public
+		s.Screen.SetTitle(s.titlePublic)
+	case public:
+		s.viewType = own
+		s.Screen.SetTitle(s.titleOwn)
+	}
 }

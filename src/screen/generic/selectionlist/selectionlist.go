@@ -41,9 +41,8 @@ func New[T any](title string, constructor list.ItemConstructor[T],
 	s.loadDataCallback = loadDataCallback
 	s.submitCallback = submitCallback
 
-	s.title = orvyn.NewSimpleRenderable(
-		orvyn.GetTheme().Style(theme.TitleStyleID).Render(title),
-	)
+	s.title = orvyn.NewSimpleRenderable(title)
+	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.list = list.New(constructor)
 
@@ -151,4 +150,12 @@ func (s *Screen[T]) GetFilteringState() list.FilterState {
 
 func (s *Screen[T]) SetSubmitScreenID(id orvyn.ScreenID) {
 	s.submitScreenID = id
+}
+
+func (s *Screen[T]) SetTitle(t string) {
+	s.title.SetValue(t)
+}
+
+func (s *Screen[T]) FocusFirst() {
+	s.list.FocusFirst()
 }

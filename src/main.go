@@ -353,6 +353,25 @@ func registerKeymapContexts() {
 
 	bubblehelp.RegisterContext(keybind.ContextMailWidgetNormalMode, MailWidgetNormalModeKeymap)
 
+	scriptExplorerKeymap := bubblehelp.NewKeymap(3)
+	scriptExplorerKeymap.Style = mainHelpStyle
+	scriptExplorerKeymap.NewKeyBinding(keybind.Up, false)
+	scriptExplorerKeymap.NewKeyBinding(keybind.Down, false)
+	scriptExplorerKeymap.NewKeyBinding(keybind.NKey, true)
+	scriptExplorerKeymap.SetHelpDesc(keybind.NKey, lokyn.L("new"))
+	scriptExplorerKeymap.NewKeyBinding(keybind.EKey, true)
+	scriptExplorerKeymap.SetHelpDesc(keybind.EKey, lokyn.L("edit"))
+	scriptExplorerKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	scriptExplorerKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	scriptExplorerKeymap.NewKeyBinding(keybind.Filter, true)
+	scriptExplorerKeymap.NewKeyBinding(keybind.Enter, true)
+	scriptExplorerKeymap.SetHelpDesc(keybind.Enter, lokyn.L("set active"))
+	scriptExplorerKeymap.NewKeyBinding(keybind.Esc, true)
+	scriptExplorerKeymap.NewKeyBinding(keybind.Quit, true)
+	scriptExplorerKeymap.NewKeyBinding(keybind.Help, true)
+
+	bubblehelp.RegisterContext(keybind.ContextScriptExplorer, scriptExplorerKeymap)
+
 	ScriptEditorWidgetNormalModeKeymap := bubblehelp.NewKeymap(2)
 	ScriptEditorWidgetNormalModeKeymap.Style = style.MainHelpStyle
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Num1Key, false)
