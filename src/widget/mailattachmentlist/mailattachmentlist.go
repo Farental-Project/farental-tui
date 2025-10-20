@@ -48,7 +48,7 @@ func New() *Widget {
 
 	w := new(Widget)
 
-	w.Widget.PreferredSize.Height = 13
+	w.Widget.SetPreferredSize(orvyn.NewSize(0, 13))
 
 	w.Widget = *list.New(mailattachmentlistitem.Constructor)
 	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)

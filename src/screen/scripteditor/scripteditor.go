@@ -28,6 +28,7 @@ import (
 
 type Screen struct {
 	title             *orvyn.SimpleRenderable
+	readOnlyTitle     *orvyn.SimpleRenderable
 	scriptInfo        *scriptinfoinput.Widget
 	list              *scriptrulelist.Widget
 	ruleTypeInspector *ruletypeinspector.Widget
@@ -49,8 +50,14 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
+	ts := orvyn.GetTheme().Style(theme.TitleStyleID)
+
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("Script editor"))
-	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
+	s.title.Style = ts
+
+	s.readOnlyTitle = orvyn.NewSimpleRenderable(lokyn.L("Read only"))
+	s.readOnlyTitle.Style = ts
+	s.readOnlyTitle.SetActive(false)
 
 	s.scriptInfo = scriptinfoinput.New()
 
@@ -65,16 +72,14 @@ func New() *Screen {
 	s.help = help.New()
 
 	s.focusManager = orvyn.NewFocusManager()
-	s.focusManager.Add(s.scriptInfo)
-	s.focusManager.Add(s.list)
-	s.focusManager.Add(s.ruleTypeInspector)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(
 			orvyn.NewSize(10, 4),
-			2,
+			3,
 			[]orvyn.Renderable{
 				s.title,
+				s.readOnlyTitle,
 				orvyn.VGap,
 				layout.NewHBoxFixedRatioLayout(
 					0, 1, 1,
@@ -94,6 +99,15 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	widgets := []orvyn.Focusable{
+		s.scriptInfo,
+		s.list,
+		s.ruleTypeInspector,
+	}
+	s.focusManager.SetWidgets(widgets)
+
+	s.readOnlyTitle.SetActive(false)
+
 	s.scriptInfo.Init()
 	s.list.Init()
 	s.ruleTypeInspector.Init()
@@ -104,6 +118,10 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		s.new = true
 	} else {
 		s.new = false
+
+		if !script.IsEditable {
+			s.setReadOnly()
+		}
 
 		resp, err := helper.SendRequest(request.ScriptGetDetail(script.ID))
 
@@ -143,6 +161,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
+	s.focusManager.BlurCurrent()
 	return s.returnErr
 }
 
@@ -152,7 +171,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		switch {
 		case key.Matches(m, keybind.Help):
-			bubblehelp.ShowAll = !bubblehelp.ShowAll
+			if bubblehelp.IsKeybindVisible(keybind.Help) {
+				bubblehelp.ShowAll = !bubblehelp.ShowAll
+			}
 
 		case key.Matches(m, keybind.Esc):
 			if !s.focusManager.IsInputting() && !s.list.IsInputting() {
@@ -169,8 +190,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(m, keybind.SKeyCtrl):
-			if !s.focusManager.IsInputting() {
-				s.save()
+			if bubblehelp.IsKeybindVisible(keybind.SKeyCtrl) {
+				if !s.focusManager.IsInputting() {
+					s.save()
+				}
 			}
 		}
 	}
@@ -295,4 +318,10 @@ func (s *Screen) dataModified() bool {
 	}
 
 	return false
+}
+
+func (s *Screen) setReadOnly() {
+	s.focusManager.SetWidgets([]orvyn.Focusable{s.list})
+	s.readOnlyTitle.SetActive(true)
+	s.list.SetReadOnly()
 }

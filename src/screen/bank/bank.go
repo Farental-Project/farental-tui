@@ -58,17 +58,15 @@ func New() *Screen {
 	s.characterInventoryTitle.Style = ts
 
 	s.characterInventoryList = list.New(inventorygroupedlistitem.Constructor)
-	s.characterInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
-	s.characterInventoryList.PreferredSize.Height = 80
-	s.characterInventoryList.MinSize.Height = 13
+	s.characterInventoryList.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
+	s.characterInventoryList.SetMinSize(orvyn.NewSize(6, 13))
 
 	s.bankInventoryTitle = orvyn.NewSimpleRenderable("")
 	s.bankInventoryTitle.SizeConstraint = true
 
 	s.bankInventoryList = list.New(inventorygroupedlistitem.Constructor)
-	s.bankInventoryList.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
-	s.bankInventoryList.PreferredSize.Height = 80
-	s.bankInventoryList.MinSize.Height = 13
+	s.bankInventoryList.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
+	s.bankInventoryList.SetMinSize(orvyn.NewSize(6, 13))
 
 	s.statusMessage = statusmessage.New()
 

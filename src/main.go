@@ -400,6 +400,8 @@ func registerKeymapContexts() {
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.Num2Key, lokyn.L("focus rule list"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Num3Key, false)
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.Num3Key, lokyn.L("focus rule inspector"))
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Up, true)
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Down, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.EKey, true)
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.EKey, lokyn.L("edit"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.NKey, true)

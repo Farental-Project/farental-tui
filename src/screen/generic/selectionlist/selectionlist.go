@@ -46,8 +46,8 @@ func New[T any](title string, constructor list.ItemConstructor[T],
 
 	s.list = list.New(constructor)
 
-	s.list.PreferredSize.Width = orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID)
-	s.list.MinSize.Height = 13
+	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 13))
+	s.list.SetMinSize(orvyn.NewSize(6, 13))
 
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()

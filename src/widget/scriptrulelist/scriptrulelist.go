@@ -20,6 +20,7 @@ import (
 
 type Widget struct {
 	list.Widget[Data]
+	readOnly bool
 }
 
 func New() *Widget {
@@ -45,6 +46,8 @@ func (w *Widget) Init() tea.Cmd {
 	cmd := w.Widget.Init()
 
 	w.SetItems([]Data{})
+
+	w.readOnly = false
 
 	return cmd
 }
@@ -89,13 +92,15 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(m, keybind.DKey):
-			w.RemoveItem(w.GetGlobalIndex())
+			if bubblehelp.IsKeybindVisible(keybind.DKey) {
+				w.RemoveItem(w.GetGlobalIndex())
 
-			w.updateRulesOrder()
+				w.updateRulesOrder()
 
-			w.updateKeybind()
+				w.updateKeybind()
 
-			return nil
+				return nil
+			}
 		}
 	}
 
@@ -185,7 +190,23 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 	return nil
 }
 
+func (w *Widget) SetReadOnly() {
+	w.readOnly = true
+}
+
 func (w *Widget) updateKeybind() {
+	if w.readOnly {
+		bubblehelp.SetKeybindVisible(keybind.NKey, false)
+		bubblehelp.SetKeybindVisible(keybind.IKey, false)
+		bubblehelp.SetKeybindVisible(keybind.EKey, false)
+		bubblehelp.SetKeybindVisible(keybind.DKey, false)
+		bubblehelp.SetKeybindVisible(keybind.Tab, false)
+		bubblehelp.SetKeybindVisible(keybind.ShiftTab, false)
+		bubblehelp.SetKeybindVisible(keybind.SKeyCtrl, false)
+		bubblehelp.SetKeybindVisible(keybind.Help, false)
+		return
+	}
+
 	limitReached := len(w.Widget.GetItems()) == data.ConstScriptMaxRules
 
 	bubblehelp.SetKeybindVisible(keybind.NKey, !limitReached)

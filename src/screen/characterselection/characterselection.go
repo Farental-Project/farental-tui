@@ -61,8 +61,8 @@ func New() *Screen {
 	s.list = list.New(characterbasiclistitem.Constructor)
 	s.list.SetFilterable(false)
 
-	s.list.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID)
-	s.list.MinSize.Height = 13
+	s.list.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 13))
+	s.list.SetMinSize(orvyn.NewSize(6, 13))
 
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()

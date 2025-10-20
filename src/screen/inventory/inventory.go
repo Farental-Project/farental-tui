@@ -57,9 +57,8 @@ func New() *Screen {
 
 	s.list = list.New(inventorylistitem.Constructor)
 
-	s.list.PreferredSize.Width = t.Size(ftheme.LayoutWidthSizeID) // border
-	s.list.PreferredSize.Height = 80
-	s.list.MinSize.Height = 13
+	s.list.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
+	s.list.SetMinSize(orvyn.NewSize(30, 13))
 
 	s.inspector = inventorystackinspect.New()
 	s.statusMessage = statusmessage.New()
