@@ -8,6 +8,7 @@ import (
 	"farental/screen"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/scriptexplorerlistitem"
+	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -38,7 +39,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.titleOwn = lokyn.L("My scripts")
+	s.titleOwn = lokyn.L("My scripts (%d/%d)")
 	s.titlePublic = lokyn.L("Public scripts")
 
 	s.viewType = own
@@ -55,6 +56,9 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
+
+	s.viewType = own
+	s.updateOwnTitle()
 
 	bubblehelp.SwitchContext(keybind.ContextScriptExplorer)
 
@@ -125,13 +129,33 @@ func (s *Screen) submit() bool {
 	return false
 }
 
+func (s *Screen) updateOwnTitle() {
+	var count api.ScriptCountResponse
+
+	resp, err := helper.SendRequest(request.ScriptGetCount())
+
+	if err != nil {
+		s.SetStatusError(err)
+		count = api.ScriptCountResponse{
+			Current: 0,
+			Max:     0,
+		}
+	} else {
+		count = *resp.Result().(*api.ScriptCountResponse)
+	}
+
+	title := fmt.Sprintf(s.titleOwn, count.Current, count.Max)
+
+	s.SetTitle(title)
+}
+
 func (s *Screen) switchViewType() {
 	switch s.viewType {
 	case own:
 		s.viewType = public
-		s.Screen.SetTitle(s.titlePublic)
+		s.SetTitle(s.titlePublic)
 	case public:
 		s.viewType = own
-		s.Screen.SetTitle(s.titleOwn)
+		s.updateOwnTitle()
 	}
 }

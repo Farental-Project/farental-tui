@@ -40,6 +40,16 @@ func ScriptGetRuleTypeParamStruct(ruleTypeCode string) *resty.Request {
 
 }
 
+func ScriptGetCount() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodGet
+	r.URL = "/script/count"
+	r.SetResult(api.ScriptCountResponse{})
+
+	return r
+}
+
 func ScriptGetOwn() *resty.Request {
 	r := client.R()
 

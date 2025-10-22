@@ -17,6 +17,11 @@ func (st ScriptTarget) IsValid() bool {
 	return false
 }
 
+type ScriptCountResponse struct {
+	Current int
+	Max     int
+}
+
 type ScriptBody struct {
 	ID          uint
 	Name        string
