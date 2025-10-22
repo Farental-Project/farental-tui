@@ -107,8 +107,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) Render() string {
-	w.updateWidget()
-
 	contentSize := w.GetContentSize()
 
 	return w.GetStyle().
@@ -152,6 +150,8 @@ func (w *Widget) SetData(data *api.ScriptBody) {
 		Description: data.Description,
 		Private:     data.IsPrivate,
 	}
+
+	w.updateWidget()
 }
 
 func (w *Widget) updateData() {
