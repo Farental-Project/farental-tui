@@ -90,40 +90,10 @@ func New() *Screen {
 	return s
 }
 
-func (s *Screen) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keybind.NKeyCtrl):
-			return orvyn.SwitchScreen(screen.IDAccountCreation)
-
-		case key.Matches(msg, keybind.Quit):
-			return tea.Quit
-
-		case key.Matches(msg, keybind.Help):
-			bubblehelp.ShowAll = !bubblehelp.ShowAll
-
-			return nil
-
-		case key.Matches(msg, keybind.Enter):
-			if s.submit() {
-				return s.nextScreen()
-			}
-
-			return nil
-		}
-
-	case gotoCharacterSelectionMsg:
-		return s.nextScreen()
-	}
-
-	s.focusManager.Update(msg)
-
-	return nil
-}
-
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	var cmds []tea.Cmd
+
+	s.statusMessage.Reset()
 
 	cmds = append(cmds, s.tiEmail.Init())
 	cmds = append(cmds, s.tiPassword.Init())
@@ -158,6 +128,38 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
+	return nil
+}
+
+func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.NKeyCtrl):
+			return orvyn.SwitchScreen(screen.IDAccountCreation)
+
+		case key.Matches(msg, keybind.Quit):
+			return tea.Quit
+
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+
+			return nil
+
+		case key.Matches(msg, keybind.Enter):
+			if s.submit() {
+				return s.nextScreen()
+			}
+
+			return nil
+		}
+
+	case gotoCharacterSelectionMsg:
+		return s.nextScreen()
+	}
+
+	s.focusManager.Update(msg)
+
 	return nil
 }
 

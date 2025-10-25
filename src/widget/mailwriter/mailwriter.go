@@ -42,7 +42,7 @@ func New() *Widget {
 	w.taContent = textarea.New()
 	w.taContent.Placeholder = lokyn.L("Mail content")
 	w.taContent.ShowLineNumbers = false
-	w.taContent.MinHeight = 3
+	w.taContent.SetMinSize(orvyn.NewSize(10, 3))
 
 	w.focusManager = orvyn.NewFocusManager()
 	w.focusManager.Add(w.tiReceiver)

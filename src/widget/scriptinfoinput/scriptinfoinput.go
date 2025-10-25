@@ -59,7 +59,7 @@ func New() *Widget {
 	w.description = textarea.New()
 	w.description.Placeholder = lokyn.L("Script description")
 	w.description.ShowLineNumbers = false
-	w.description.MinHeight = 5
+	w.description.SetMinSize(orvyn.NewSize(10, 5))
 
 	w.private = checkbox.New(lokyn.L("Private"))
 

@@ -10,6 +10,8 @@ import (
 	ftheme "farental/internal/theme"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
+	"time"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -19,7 +21,6 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/halsten-dev/orvyn/widget/textarea"
-	"time"
 )
 
 const (
@@ -66,7 +67,7 @@ func New() *Screen {
 
 	s.input = textarea.New()
 	s.input.ShowLineNumbers = false
-	s.input.MinHeight = 5
+	s.input.SetMinSize(orvyn.NewSize(10, 5))
 	s.input.KeyMap.InsertNewline = keybind.YKeyCtrl
 	s.input.Focus()
 

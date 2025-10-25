@@ -326,6 +326,23 @@ func registerKeymapContexts() {
 
 	bubblehelp.RegisterContext(keybind.ContextLocationServices, locationServicesKeymap)
 
+	mailBoxKeymap := bubblehelp.NewKeymap(3)
+	mailBoxKeymap.Style = mainHelpStyle
+	mailBoxKeymap.NewKeyBinding(keybind.Up, false)
+	mailBoxKeymap.NewKeyBinding(keybind.Down, false)
+	mailBoxKeymap.NewKeyBinding(keybind.GotoListStart, false)
+	mailBoxKeymap.NewKeyBinding(keybind.GotoListEnd, false)
+	mailBoxKeymap.NewKeyBinding(keybind.NKey, true)
+	mailBoxKeymap.SetHelpDesc(keybind.NKey, lokyn.L("new"))
+	mailBoxKeymap.NewKeyBinding(keybind.Filter, true)
+	mailBoxKeymap.NewKeyBinding(keybind.Enter, true)
+	mailBoxKeymap.SetHelpDesc(keybind.Enter, lokyn.L("read mail"))
+	mailBoxKeymap.NewKeyBinding(keybind.Esc, true)
+	mailBoxKeymap.NewKeyBinding(keybind.Quit, true)
+	mailBoxKeymap.NewKeyBinding(keybind.Help, true)
+
+	bubblehelp.RegisterContext(keybind.ContextMailBox, mailBoxKeymap)
+
 	mailReaderKeymap := bubblehelp.NewKeymap(3)
 	mailReaderKeymap.Style = mainHelpStyle
 	mailReaderKeymap.NewKeyBinding(keybind.PKey, true)
@@ -366,13 +383,15 @@ func registerKeymapContexts() {
 	scriptExplorerKeymap.NewKeyBinding(keybind.Filter, true)
 	scriptExplorerKeymap.NewKeyBinding(keybind.Enter, true)
 	scriptExplorerKeymap.SetHelpDesc(keybind.Enter, lokyn.L("set active"))
+	scriptExplorerKeymap.NewKeyBinding(keybind.Tab, false)
+	scriptExplorerKeymap.SetHelpDesc(keybind.Tab, lokyn.L("toggle public/own scripts"))
 	scriptExplorerKeymap.NewKeyBinding(keybind.Esc, true)
 	scriptExplorerKeymap.NewKeyBinding(keybind.Quit, true)
 	scriptExplorerKeymap.NewKeyBinding(keybind.Help, true)
 
 	bubblehelp.RegisterContext(keybind.ContextScriptExplorer, scriptExplorerKeymap)
 
-	ScriptEditorWidgetNormalModeKeymap := bubblehelp.NewKeymap(2)
+	ScriptEditorWidgetNormalModeKeymap := bubblehelp.NewKeymap(3)
 	ScriptEditorWidgetNormalModeKeymap.Style = style.MainHelpStyle
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(keybind.Num1Key, false)
 	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(keybind.Num1Key, lokyn.L("focus script info"))
@@ -392,7 +411,7 @@ func registerKeymapContexts() {
 
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorWidgetNormalMode, ScriptEditorWidgetNormalModeKeymap)
 
-	ScriptEditorRulesListKeymap := bubblehelp.NewKeymap(2)
+	ScriptEditorRulesListKeymap := bubblehelp.NewKeymap(3)
 	ScriptEditorRulesListKeymap.Style = style.MainHelpStyle
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.Num1Key, false)
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.Num1Key, lokyn.L("focus script info"))
@@ -420,7 +439,7 @@ func registerKeymapContexts() {
 
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorRulesList, ScriptEditorRulesListKeymap)
 
-	ScriptEditorRuleInspectorKeymap := bubblehelp.NewKeymap(2)
+	ScriptEditorRuleInspectorKeymap := bubblehelp.NewKeymap(3)
 	ScriptEditorRuleInspectorKeymap.Style = style.MainHelpStyle
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.Tab, true)
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(keybind.ShiftTab, true)
