@@ -31,6 +31,7 @@ import (
 type Screen struct {
 	existingAccount    bool
 	currentUpgradeRank int
+	errMsg             error
 
 	characterInventoryTitle *orvyn.SimpleRenderable
 	characterInventoryList  *list.Widget[inventorygroupedlistitem.Data]
@@ -52,6 +53,8 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 	ts := t.Style(theme.TitleStyleID)
+
+	s.errMsg = nil
 
 	s.characterInventoryTitle = orvyn.NewSimpleRenderable(lokyn.L("Inventaire"))
 	s.characterInventoryTitle.SizeConstraint = true
@@ -114,6 +117,10 @@ func New() *Screen {
 func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextBank)
 
+	s.errMsg = nil
+
+	s.statusMessage.Reset()
+
 	s.characterInventoryList.Init()
 	s.bankInventoryList.Init()
 
@@ -136,7 +143,7 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
-	return nil
+	return s.errMsg
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
@@ -171,7 +178,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			val := msg.Param.(uint)
 			switch val {
 			case 1:
-				s.openBankAccount()
+				ok := s.openBankAccount()
+
+				if !ok {
+					return orvyn.SwitchScreen(screen.IDDashBoard)
+				}
 			default:
 				return orvyn.SwitchScreen(screen.IDDashBoard)
 			}
@@ -194,16 +205,20 @@ func (s *Screen) Render() orvyn.Layout {
 	return s.layout
 }
 
-func (s *Screen) openBankAccount() {
+func (s *Screen) openBankAccount() bool {
 	resp, err := helper.SendRequest(request.LocationCreateBankAccount())
 
 	if err != nil {
-		s.statusMessage.SetError(err)
+		s.errMsg = err
+		return false
 	}
 
 	if resp.StatusCode() == http.StatusCreated {
 		s.existingAccount = true
+		return true
 	}
+
+	return false
 }
 
 func (s *Screen) loadInventory() {

@@ -130,6 +130,14 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextGameDashboard)
 
+	s.statusMessage.Reset()
+
+	err, ok := i.(error)
+
+	if ok {
+		s.statusMessage.SetError(err)
+	}
+
 	s.logEvent.SetContent(make([]string, 0))
 
 	s.updateData()
