@@ -101,6 +101,11 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 				return nil
 			}
+
+		case key.Matches(m, keybind.EKey):
+			if !bubblehelp.IsKeybindVisible(keybind.EKey) {
+				return nil
+			}
 		}
 	}
 

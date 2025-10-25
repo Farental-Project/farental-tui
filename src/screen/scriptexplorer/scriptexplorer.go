@@ -16,6 +16,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/widget/list"
 )
 
 type viewType uint8
@@ -31,7 +32,8 @@ type Screen struct {
 	titleOwn    string
 	titlePublic string
 
-	newScript bool
+	newScript       bool
+	duplicateScript bool
 
 	viewType viewType
 }
@@ -57,12 +59,17 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
+	s.newScript = false
+	s.duplicateScript = false
+
 	s.viewType = own
 	s.updateOwnTitle()
 
 	bubblehelp.SwitchContext(keybind.ContextScriptExplorer)
 
 	orvyn.SetPreviousScreen(screen.IDDashBoard)
+
+	s.loadScripts()
 
 	return nil
 }
@@ -74,6 +81,10 @@ func (s *Screen) OnExit() any {
 
 	script := s.GetSelectedItem()
 
+	if s.duplicateScript {
+		script.IsDuplicated = true
+	}
+
 	return &script
 }
 
@@ -83,19 +94,31 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.NKey):
-			s.newScript = true
-			return orvyn.SwitchScreen(screen.IDScriptEditor)
+			if s.GetFilteringState() != list.Filtering {
+				s.newScript = true
+				return orvyn.SwitchScreen(screen.IDScriptEditor)
+			}
 
 		case key.Matches(m, keybind.EKey):
-			s.newScript = false
-			return orvyn.SwitchScreen(screen.IDScriptEditor)
+			if s.GetFilteringState() != list.Filtering {
+				s.newScript = false
+				return orvyn.SwitchScreen(screen.IDScriptEditor)
+			}
+
+		case key.Matches(m, keybind.DKey):
+			if s.GetFilteringState() != list.Filtering {
+				s.duplicateScript = true
+				return orvyn.SwitchScreen(screen.IDScriptEditor)
+			}
 
 		case key.Matches(m, keybind.Tab):
-			s.switchViewType()
-			s.loadScripts()
-			s.FocusFirst()
+			if s.GetFilteringState() != list.Filtering {
+				s.switchViewType()
+				s.loadScripts()
+				s.FocusFirst()
 
-			return nil
+				return nil
+			}
 		}
 	}
 

@@ -71,6 +71,7 @@ func New[T any](title string, constructor list.ItemConstructor[T],
 func (s *Screen[T]) OnEnter(i any) tea.Cmd {
 	s.loadDataCallback()
 	s.list.FocusFirst()
+	s.list.Init()
 
 	s.statusMessage.Reset()
 

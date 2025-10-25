@@ -119,7 +119,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	} else {
 		s.new = false
 
-		if !script.IsEditable {
+		if !script.IsEditable && !script.IsDuplicated {
 			s.setReadOnly()
 		}
 
@@ -143,6 +143,10 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 			Description: scriptDetail.Description,
 			IsPrivate:   scriptDetail.IsPrivate,
 			Rules:       scriptDetail.Rules,
+		}
+
+		if script.IsDuplicated {
+			s.data.Name += fmt.Sprintf(" %s", lokyn.L("(Duplicated)"))
 		}
 
 		s.originData = s.data
@@ -292,6 +296,7 @@ func (s *Screen) save() {
 
 	if resp.StatusCode() == 200 {
 		s.statusMessage.SetMessage(lokyn.L("Script saved successfully."), statusmessage.SuccessMessage)
+		s.originData = s.data
 	}
 }
 

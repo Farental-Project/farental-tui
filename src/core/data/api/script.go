@@ -45,6 +45,9 @@ type ScriptBasicResponse struct {
 	AuthorName  string
 	IsPrivate   bool
 	IsEditable  bool
+
+	// Only used client side
+	IsDuplicated bool
 }
 
 type ScriptResponse struct {
