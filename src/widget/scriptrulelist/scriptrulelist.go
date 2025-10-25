@@ -38,6 +38,7 @@ func New() *Widget {
 
 	w.Widget = *list.New(Constructor)
 	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)
+	w.Widget.AutoFocusNewItem = true
 
 	return w
 }
@@ -46,6 +47,8 @@ func (w *Widget) Init() tea.Cmd {
 	cmd := w.Widget.Init()
 
 	w.SetItems([]Data{})
+
+	w.FocusFirst()
 
 	w.readOnly = false
 
@@ -88,6 +91,21 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 				w.updateRulesOrder()
 
 				w.updateKeybind()
+				return nil
+			}
+
+		case key.Matches(m, keybind.CKey):
+			if bubblehelp.IsKeybindVisible(keybind.CKey) {
+				selectedRule := w.GetSelectedItem()
+
+				selectedRule.Order = 0
+
+				w.Widget.InsertItem(w.GetGlobalIndex(), selectedRule)
+
+				w.updateRulesOrder()
+
+				w.updateKeybind()
+
 				return nil
 			}
 
@@ -203,6 +221,7 @@ func (w *Widget) updateKeybind() {
 	if w.readOnly {
 		bubblehelp.SetKeybindVisible(keybind.NKey, false)
 		bubblehelp.SetKeybindVisible(keybind.IKey, false)
+		bubblehelp.SetKeybindVisible(keybind.CKey, false)
 		bubblehelp.SetKeybindVisible(keybind.EKey, false)
 		bubblehelp.SetKeybindVisible(keybind.DKey, false)
 		bubblehelp.SetKeybindVisible(keybind.Tab, false)
@@ -216,4 +235,5 @@ func (w *Widget) updateKeybind() {
 
 	bubblehelp.SetKeybindVisible(keybind.NKey, !limitReached)
 	bubblehelp.SetKeybindVisible(keybind.IKey, !limitReached)
+	bubblehelp.SetKeybindVisible(keybind.CKey, !limitReached)
 }

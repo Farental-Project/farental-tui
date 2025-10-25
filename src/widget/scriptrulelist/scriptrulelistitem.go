@@ -64,9 +64,9 @@ func Constructor(data Data) list.ListItem[Data] {
 	inputKeymap.NewKeyBinding(keybind.Tab, true)
 	inputKeymap.NewKeyBinding(keybind.ShiftTab, true)
 	inputKeymap.NewKeyBinding(keybind.Space, true)
-	inputKeymap.SetHelpDesc(keybind.Space, lokyn.L("Open selection"))
+	inputKeymap.SetHelpDesc(keybind.Space, lokyn.L("open selection"))
 	inputKeymap.NewKeyBinding(keybind.Esc, true)
-	inputKeymap.SetHelpDesc(keybind.Esc, lokyn.L("Stop editing"))
+	inputKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
 	inputKeymap.NewKeyBinding(keybind.Quit, false)
 
 	bubblehelp.RegisterContext(keybind.ContextScriptEditorRulesListItem, inputKeymap)

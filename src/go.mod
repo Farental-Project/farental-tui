@@ -9,7 +9,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/halsten-dev/bubblehelp v1.0.2
 	github.com/halsten-dev/lokyn v1.0.0
-	github.com/halsten-dev/orvyn v0.0.0-20251025045218-b28fc32649cc
+	github.com/halsten-dev/orvyn v0.0.0-20251025171030-9898884975fc
 	github.com/spf13/viper v1.21.0
 )
 

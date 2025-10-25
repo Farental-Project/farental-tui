@@ -431,6 +431,8 @@ func registerKeymapContexts() {
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.NKey, lokyn.L("new"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.IKey, true)
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.IKey, lokyn.L("insert"))
+	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.CKey, true)
+	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.CKey, lokyn.L(("copy")))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.DKey, true)
 	ScriptEditorRulesListKeymap.SetHelpDesc(keybind.DKey, lokyn.L("delete"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(keybind.SKeyCtrl, true)
