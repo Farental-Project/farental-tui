@@ -108,6 +108,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.readOnlyTitle.SetActive(false)
 
+	s.returnErr = nil
+
 	s.scriptInfo.Init()
 	s.list.Init()
 	s.ruleTypeInspector.Init()

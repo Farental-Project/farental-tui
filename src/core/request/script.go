@@ -92,6 +92,18 @@ func ScriptGetDetail(ID uint) *resty.Request {
 
 }
 
+func ScriptDelete(ID uint) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/script/delete"
+	r.SetBody(api.IDBody{
+		ID: ID,
+	})
+
+	return r
+}
+
 func ScriptSave(script *api.ScriptBody) *resty.Request {
 	r := client.R()
 

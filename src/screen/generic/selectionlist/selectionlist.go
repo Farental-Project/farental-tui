@@ -141,6 +141,10 @@ func (s *Screen[T]) SetStatusError(err error) {
 	s.statusMessage.SetError(err)
 }
 
+func (s *Screen[T]) SetStatusSuccess(str string) {
+	s.statusMessage.SetMessage(str, statusmessage.SuccessMessage)
+}
+
 func (s *Screen[T]) GetSelectedItem() T {
 	return s.list.GetSelectedItem()
 }

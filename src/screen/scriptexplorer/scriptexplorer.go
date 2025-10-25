@@ -6,9 +6,11 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen"
+	"farental/screen/dialog/popup"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/scriptexplorerlistitem"
 	"fmt"
+	"net/http"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -106,6 +108,14 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(m, keybind.DKey):
+			if s.GetFilteringState() != list.Filtering &&
+				bubblehelp.IsKeybindVisible(keybind.DKey) {
+				orvyn.OpenDialog("deleteConfirm", popup.NewYesNo(
+					lokyn.L("Are you sure you want to delete the script ?"),
+				), nil)
+			}
+
+		case key.Matches(m, keybind.CKey):
 			if s.GetFilteringState() != list.Filtering {
 				s.duplicateScript = true
 				return orvyn.SwitchScreen(screen.IDScriptEditor)
@@ -122,7 +132,37 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
+	switch msg := msg.(type) {
+	case orvyn.DialogExitMsg:
+		switch msg.DialogID {
+		case "deleteConfirm":
+			val := msg.Param.(uint)
+
+			switch val {
+			case 1:
+				s.deleteScript()
+			default:
+				return nil
+			}
+		}
+	}
+
 	return cmd
+}
+
+func (s *Screen) deleteScript() {
+	script := s.GetSelectedItem()
+
+	resp, err := helper.SendRequest(request.ScriptDelete(script.ID))
+
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		s.SetStatusSuccess(lokyn.L("Script successfully deleted !"))
+		s.loadScripts()
+	}
 }
 
 func (s *Screen) loadScripts() {
@@ -177,8 +217,12 @@ func (s *Screen) switchViewType() {
 	case own:
 		s.viewType = public
 		s.SetTitle(s.titlePublic)
+
+		bubblehelp.SetKeybindVisible(keybind.DKey, false)
 	case public:
 		s.viewType = own
 		s.updateOwnTitle()
+
+		bubblehelp.SetKeybindVisible(keybind.DKey, true)
 	}
 }
