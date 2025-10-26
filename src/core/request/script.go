@@ -60,6 +60,19 @@ func ScriptGetActive() *resty.Request {
 	return r
 }
 
+func ScriptSetActive(ID uint) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/script/setActive"
+	r.SetBody(api.IDBody{
+		ID: ID,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func ScriptGetOwn() *resty.Request {
 	r := client.R()
 

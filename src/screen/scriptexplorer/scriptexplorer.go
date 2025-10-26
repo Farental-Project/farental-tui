@@ -189,6 +189,23 @@ func (s *Screen) loadScripts() {
 }
 
 func (s *Screen) submit() bool {
+	selectedScript := s.GetSelectedItem()
+
+	if selectedScript.ID == 0 {
+		return false
+	}
+
+	resp, err := helper.SendRequest(request.ScriptSetActive(selectedScript.ID))
+
+	if err != nil {
+		s.SetStatusError(err)
+		return false
+	}
+
+	if resp.StatusCode() == http.StatusOK {
+		return true
+	}
+
 	return false
 }
 
