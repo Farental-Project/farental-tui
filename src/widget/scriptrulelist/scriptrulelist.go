@@ -58,6 +58,20 @@ func (w *Widget) Init() tea.Cmd {
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok && !w.Widget.IsInputting() {
 		switch {
+		case key.Matches(m, keybind.ShiftUp):
+			currentIndex := w.GetGlobalIndex()
+			if currentIndex > 0 {
+				w.MoveItem(currentIndex, currentIndex-1)
+				w.updateRulesOrder()
+			}
+
+		case key.Matches(m, keybind.ShiftDown):
+			currentIndex := w.GetGlobalIndex()
+			if currentIndex < w.Length()-1 {
+				w.MoveItem(currentIndex, currentIndex+1)
+				w.updateRulesOrder()
+			}
+
 		case key.Matches(m, keybind.NKey):
 			if bubblehelp.IsKeybindVisible(keybind.NKey) {
 				w.Widget.AppendItem(
