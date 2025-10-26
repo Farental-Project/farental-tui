@@ -2,6 +2,7 @@ package scriptexplorerlistitem
 
 import (
 	"farental/core/data/api"
+	"farental/internal/context"
 	"fmt"
 	"strings"
 
@@ -72,6 +73,11 @@ func (w *Widget) Render() string {
 		} else {
 			right.WriteString(ds.Render(lokyn.L("Public")))
 		}
+	}
+
+	if w.data.ID == *context.CharacterInfo.ScriptID {
+		right.WriteString("\n")
+		right.WriteString(t.Style(theme.TitleStyleID).Render(lokyn.L("Active")))
 	}
 
 	width1, width2 := orvyn.DivideSizeFull(width)

@@ -7,6 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/widget/characteractivescript"
 	"farental/widget/characterinfo"
 	"farental/widget/equipmentsummary"
 	"farental/widget/help"
@@ -27,6 +28,8 @@ type Screen struct {
 	title *orvyn.SimpleRenderable
 
 	characterInfo *characterinfo.Widget
+
+	characterActiveScript *characteractivescript.Widget
 
 	equipmentSummary *equipmentsummary.Widget
 
@@ -50,6 +53,7 @@ func New() *Screen {
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.characterInfo = characterinfo.New()
+	s.characterActiveScript = characteractivescript.New()
 	s.equipmentSummary = equipmentsummary.New()
 	s.statsSummary = statssummary.New()
 	s.skillsSummary = skillssummary.New()
@@ -72,6 +76,7 @@ func New() *Screen {
 				s.title,
 				orvyn.VGap,
 				s.characterInfo,
+				s.characterActiveScript,
 				s.equipmentSummary,
 				s.statsSkillLayout,
 				s.statusMessage,
@@ -132,6 +137,8 @@ func (s *Screen) updateData() {
 	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+
+	s.characterActiveScript.UpdateData()
 
 	s.equipmentSummary.UpdateData()
 

@@ -50,6 +50,16 @@ func ScriptGetCount() *resty.Request {
 	return r
 }
 
+func ScriptGetActive() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodGet
+	r.URL = "/script/active"
+	r.SetResult(api.ScriptBasicResponse{})
+
+	return r
+}
+
 func ScriptGetOwn() *resty.Request {
 	r := client.R()
 
