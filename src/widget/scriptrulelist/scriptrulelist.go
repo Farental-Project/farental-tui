@@ -77,11 +77,12 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 				w.Widget.AppendItem(
 					Data{
 						ScriptRuleBody: api.ScriptRuleBody{
-							Target:       api.TargetSelf,
-							Order:        len(w.GetItems()) + 1,
-							RuleTypeCode: "",
-							AbilityCode:  "",
-							Parameters:   make([]api.ScriptRuleTypeParam, 0),
+							AbilityTarget:  api.TargetSelf,
+							RuleTypeTarget: nil,
+							Order:          len(w.GetItems()) + 1,
+							RuleTypeCode:   "",
+							AbilityCode:    "",
+							Parameters:     make([]api.ScriptRuleTypeParam, 0),
 						},
 					})
 
@@ -94,11 +95,12 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 				w.Widget.InsertItem(w.GetGlobalIndex(),
 					Data{
 						ScriptRuleBody: api.ScriptRuleBody{
-							Target:       api.TargetSelf,
-							Order:        0,
-							RuleTypeCode: "",
-							AbilityCode:  "",
-							Parameters:   make([]api.ScriptRuleTypeParam, 0),
+							AbilityTarget:  api.TargetSelf,
+							RuleTypeTarget: nil,
+							Order:          0,
+							RuleTypeCode:   "",
+							AbilityCode:    "",
+							Parameters:     make([]api.ScriptRuleTypeParam, 0),
 						},
 					})
 

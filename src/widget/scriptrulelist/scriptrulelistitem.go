@@ -41,14 +41,16 @@ type ListItem struct {
 
 	data Data
 
-	titleOrder    *orvyn.SimpleRenderable
-	titleRuleType *orvyn.SimpleRenderable
-	titleTarget   *orvyn.SimpleRenderable
-	titleAbility  *orvyn.SimpleRenderable
+	titleOrder          *orvyn.SimpleRenderable
+	titleRuleType       *orvyn.SimpleRenderable
+	titleAbilityTarget  *orvyn.SimpleRenderable
+	titleRuleTypeTarget *orvyn.SimpleRenderable
+	titleAbility        *orvyn.SimpleRenderable
 
-	btRuleType *button.Widget
-	mvsTarget  *multivalueselector.Widget[cdata.Target]
-	btAbility  *button.Widget
+	mvsRuleTypeTarget *multivalueselector.Widget[cdata.Target]
+	btRuleType        *button.Widget
+	mvsAbilityTarget  *multivalueselector.Widget[cdata.Target]
+	btAbility         *button.Widget
 
 	btRuleTypePlaceHolder string
 	btAbilityPlaceHolder  string
@@ -85,9 +87,13 @@ func Constructor(data Data) list.ListItem[Data] {
 	w.titleRuleType.Style = dts
 	w.titleRuleType.SizeConstraint = true
 
-	w.titleTarget = orvyn.NewSimpleRenderable(lokyn.L("Target"))
-	w.titleTarget.Style = dts
-	w.titleTarget.SizeConstraint = true
+	w.titleAbilityTarget = orvyn.NewSimpleRenderable(lokyn.L("Ability target"))
+	w.titleAbilityTarget.Style = dts
+	w.titleAbilityTarget.SizeConstraint = true
+
+	w.titleRuleTypeTarget = orvyn.NewSimpleRenderable(lokyn.L("Rule type target"))
+	w.titleRuleTypeTarget.Style = dts
+	w.titleRuleTypeTarget.SizeConstraint = true
 
 	w.titleAbility = orvyn.NewSimpleRenderable(lokyn.L("Ability"))
 	w.titleAbility.Style = dts
@@ -99,41 +105,59 @@ func Constructor(data Data) list.ListItem[Data] {
 	w.btRuleType.OnBlurCallback = w.btOnBlur
 	w.btRuleType.OnClickedCallback = w.btRuleTypeOnClicked
 
+	w.mvsRuleTypeTarget = multivalueselector.New[cdata.Target]()
+	w.mvsRuleTypeTarget.SetValues(cdata.TargetKeys, cdata.Targets)
+	w.mvsRuleTypeTarget.Looping = true
+	w.mvsRuleTypeTarget.OnBlur()
+
 	w.btAbilityPlaceHolder = lokyn.L("Select an ability")
 	w.btAbility = button.New(w.btAbilityPlaceHolder)
 	w.btAbility.OnFocusCallback = w.btOnFocus
 	w.btAbility.OnBlurCallback = w.btOnBlur
 	w.btAbility.OnClickedCallback = w.btAbilityOnClicked
 
-	w.mvsTarget = multivalueselector.New[cdata.Target]()
-	w.mvsTarget.SetValues(cdata.TargetKeys, cdata.Targets)
-	w.mvsTarget.Looping = true
-	w.mvsTarget.OnBlur()
+	w.mvsAbilityTarget = multivalueselector.New[cdata.Target]()
+	w.mvsAbilityTarget.SetValues(cdata.TargetKeys, cdata.Targets)
+	w.mvsAbilityTarget.Looping = true
+	w.mvsAbilityTarget.OnBlur()
 
 	w.focusManager = orvyn.NewFocusManager()
-	w.focusManager.Add(w.btRuleType)
-	w.focusManager.Add(w.mvsTarget)
 	w.focusManager.Add(w.btAbility)
+	w.focusManager.Add(w.mvsAbilityTarget)
+	w.focusManager.Add(w.btRuleType)
+	w.focusManager.Add(w.mvsRuleTypeTarget)
 
-	titleLayout := layout.NewHBoxGrowLayout(1, 1,
+	titles1Layout := layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
-			w.titleRuleType,
-			w.titleTarget,
 			w.titleAbility,
+			w.titleRuleType,
 		})
 
-	controlsLayout := layout.NewHBoxGrowLayout(1, 1,
+	controls1Layout := layout.NewHBoxGrowLayout(1, 1,
 		[]orvyn.Renderable{
-			w.btRuleType,
-			w.mvsTarget,
 			w.btAbility,
+			w.btRuleType,
+		})
+
+	titles2Layout := layout.NewHBoxGrowLayout(1, 1,
+		[]orvyn.Renderable{
+			w.titleAbilityTarget,
+			w.titleRuleTypeTarget,
+		})
+
+	controls2Layout := layout.NewHBoxGrowLayout(1, 1,
+		[]orvyn.Renderable{
+			w.mvsAbilityTarget,
+			w.mvsRuleTypeTarget,
 		})
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
 		[]orvyn.Renderable{
 			w.titleOrder,
-			titleLayout,
-			controlsLayout,
+			titles1Layout,
+			controls1Layout,
+			titles2Layout,
+			controls2Layout,
 		})
 
 	w.OnBlur()
@@ -167,6 +191,9 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 				w.data.AbilityName = val.Name
 				w.data.AbilityCode = val.Code
 				w.btAbility.SetLabel(val.Name)
+
+				// manage target
+				// TODO: Filter values in mvs ? how to ?
 			}
 		}
 
@@ -186,7 +213,7 @@ func (w *ListItem) UpdateData(data Data) {
 	w.data = data
 
 	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
-	w.mvsTarget.SetSelected(int(w.data.Target))
+	w.mvsAbilityTarget.SetSelected(int(w.data.AbilityTarget))
 
 	abilityName := w.btAbilityPlaceHolder
 	ruleTypeName := w.btRuleTypePlaceHolder
@@ -209,19 +236,25 @@ func (w *ListItem) GetData() Data {
 
 // updateData updates the data based on the widgets values
 func (w *ListItem) updateData() {
-	scriptTarget := w.mvsTarget.GetSelectedValue().ScriptTarget
+	scriptTarget := w.mvsAbilityTarget.GetSelectedValue().ScriptTarget
 
-	if w.data.Target != scriptTarget {
-		w.data.Target = scriptTarget
-		w.data.AbilityCode = ""
-		w.data.AbilityName = ""
+	if w.data.AbilityTarget != scriptTarget {
+		w.data.AbilityTarget = scriptTarget
 
-		w.UpdateData(w.data)
+		// TODO: Dynamically hide the ruleTypeTarget and set it to nil
+	}
+
+	ruleTarget := w.mvsRuleTypeTarget.GetSelectedValue().ScriptTarget
+
+	if w.data.RuleTypeTarget == nil {
+		w.data.RuleTypeTarget = &ruleTarget
+	} else if *w.data.RuleTypeTarget != ruleTarget {
+		w.data.RuleTypeTarget = &ruleTarget
 	}
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {
-	size.Height = 7
+	size.Height = 11
 
 	w.BaseWidget.Resize(size)
 
@@ -272,7 +305,7 @@ func (w *ListItem) btRuleTypeOnClicked() tea.Cmd {
 }
 
 func (w *ListItem) btAbilityOnClicked() tea.Cmd {
-	orvyn.OpenDialog("selectAbility", abilityselection.New(), w.data.Target)
+	orvyn.OpenDialog("selectAbility", abilityselection.New(), nil)
 
 	return nil
 }
