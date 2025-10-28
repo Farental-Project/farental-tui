@@ -2,11 +2,12 @@ package characterbar
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Widget struct {
@@ -42,7 +43,7 @@ func (w *Widget) Render() string {
 
 	size := w.GetSize()
 
-	percent := float64((100 * w.CurrentValue / w.MaxValue) / 100)
+	percent := float64(100*w.CurrentValue/w.MaxValue) / 100
 
 	if len(w.title) > 0 {
 		b.WriteString(w.TitleStyle.Render(
