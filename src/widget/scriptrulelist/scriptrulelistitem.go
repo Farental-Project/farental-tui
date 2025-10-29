@@ -257,18 +257,19 @@ func (w *ListItem) updateData() {
 	if scriptTarget == api.TargetSelf || w.data.Ability.TargetGroup {
 		w.mvsRuleTypeTarget.SetActive(true)
 		w.titleRuleTypeTarget.SetActive(true)
+
+		ruleTarget := w.mvsRuleTypeTarget.GetSelectedValue().ScriptTarget
+
+		if w.data.RuleTypeTarget == nil {
+			w.data.RuleTypeTarget = &ruleTarget
+		} else if *w.data.RuleTypeTarget != ruleTarget {
+			w.data.RuleTypeTarget = &ruleTarget
+		}
 	} else {
 		w.mvsRuleTypeTarget.SetActive(false)
 		w.titleRuleTypeTarget.SetActive(false)
 	}
 
-	ruleTarget := w.mvsRuleTypeTarget.GetSelectedValue().ScriptTarget
-
-	if w.data.RuleTypeTarget == nil {
-		w.data.RuleTypeTarget = &ruleTarget
-	} else if *w.data.RuleTypeTarget != ruleTarget {
-		w.data.RuleTypeTarget = &ruleTarget
-	}
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {
