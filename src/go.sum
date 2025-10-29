@@ -24,8 +24,12 @@ github.com/charmbracelet/x/cellbuf v0.0.13 h1:/KBBKHuVRbq1lYx5BzEHBAFBP8VcQzJejZ
 github.com/charmbracelet/x/cellbuf v0.0.13/go.mod h1:xe0nKWGd3eJgtqZRaN9RjMtK7xUYchjzPr7q6kcvCCs=
 github.com/charmbracelet/x/term v0.2.1 h1:AQeHeLZ1OqSXhrAWpYUtZyX1T3zVxfpZuEQMIQaGIAQ=
 github.com/charmbracelet/x/term v0.2.1/go.mod h1:oQ4enTYFV7QN4m0i9mzHrViD7TQKvNEEkHUMCmsxdUg=
+github.com/clipperhouse/stringish v0.1.1 h1:+NSqMOr3GR6k1FdRhhnXrLfztGzuG+VuFDfatpWHKCs=
+github.com/clipperhouse/stringish v0.1.1/go.mod h1:v/WhFtE1q0ovMta2+m+UbpZ+2/HEXNWYXQgCt4hdOzA=
 github.com/clipperhouse/uax29/v2 v2.2.0 h1:ChwIKnQN3kcZteTXMgb1wztSgaU+ZemkgWdohwgs8tY=
 github.com/clipperhouse/uax29/v2 v2.2.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
+github.com/clipperhouse/uax29/v2 v2.3.0 h1:SNdx9DVUqMoBuBoW3iLOj4FQv3dN5mDtuqwuhIGpJy4=
+github.com/clipperhouse/uax29/v2 v2.3.0/go.mod h1:Wn1g7MK6OoeDT0vL+Q0SQLDz/KpfsVRgg6W7ihQeh4g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f h1:Y/CXytFA4m6baUTXGLOoWe4PQhGxaX0KpnayAqC48p4=
@@ -94,6 +98,12 @@ github.com/halsten-dev/orvyn v0.0.0-20251026110417-ea7e97123345 h1:uHMjamkZmX7uB
 github.com/halsten-dev/orvyn v0.0.0-20251026110417-ea7e97123345/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
 github.com/halsten-dev/orvyn v0.0.0-20251026112638-1ec420f84e1e h1:9WSlCRgB2/mjsfzuU1L755cT2pda2407xeQt5yO1TiQ=
 github.com/halsten-dev/orvyn v0.0.0-20251026112638-1ec420f84e1e/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
+github.com/halsten-dev/orvyn v0.0.0-20251029182042-c832801a6d5d h1:M7pal3HqJEbSDMCyZcY99tiAGxIOgsXErgxOS/7JJvU=
+github.com/halsten-dev/orvyn v0.0.0-20251029182042-c832801a6d5d/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
+github.com/halsten-dev/orvyn v0.0.0-20251029183319-ff79c0c8c7b6 h1:DAGxa9Bj+16/z6InhFWxZ+efPXFleFbCrsT+Pd4mriM=
+github.com/halsten-dev/orvyn v0.0.0-20251029183319-ff79c0c8c7b6/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
+github.com/halsten-dev/orvyn v0.0.0-20251029184005-ab89354da38e h1:dRK1hJyIW7q5RFZ7BAGA/FTEAkYz1tKbtQ2DyZX9waM=
+github.com/halsten-dev/orvyn v0.0.0-20251029184005-ab89354da38e/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade/go.mod h1:ZDXo8KHryOWSIqnsb/CiDq7hQUYryCgdVnxbj8tDG7o=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=

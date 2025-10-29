@@ -112,6 +112,7 @@ func (w *ListItem) UpdateData(data ParamData) {
 		w.multiValueSelector.SetValues(keys, data)
 
 		w.multiValueSelector.SetSelected(selectedIndex)
+		w.data.Value = w.multiValueSelector.GetSelectedValue().Key
 
 		return
 	}

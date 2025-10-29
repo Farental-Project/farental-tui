@@ -31,7 +31,7 @@ func ChangedRuleTypeCmd(code string) tea.Cmd {
 
 type Data struct {
 	api.ScriptRuleBody
-	AbilityName  string
+	Ability      api.AbilityResponse
 	RuleTypeName string
 }
 
@@ -94,6 +94,7 @@ func Constructor(data Data) list.ListItem[Data] {
 	w.titleRuleTypeTarget = orvyn.NewSimpleRenderable(lokyn.L("Rule type target"))
 	w.titleRuleTypeTarget.Style = dts
 	w.titleRuleTypeTarget.SizeConstraint = true
+	w.titleRuleTypeTarget.SetActive(false)
 
 	w.titleAbility = orvyn.NewSimpleRenderable(lokyn.L("Ability"))
 	w.titleAbility.Style = dts
@@ -109,6 +110,7 @@ func Constructor(data Data) list.ListItem[Data] {
 	w.mvsRuleTypeTarget.SetValues(cdata.TargetKeys, cdata.Targets)
 	w.mvsRuleTypeTarget.Looping = true
 	w.mvsRuleTypeTarget.OnBlur()
+	w.mvsRuleTypeTarget.SetActive(false)
 
 	w.btAbilityPlaceHolder = lokyn.L("Select an ability")
 	w.btAbility = button.New(w.btAbilityPlaceHolder)
@@ -188,12 +190,12 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 			val, ok := msg.Param.(api.AbilityResponse)
 
 			if ok {
-				w.data.AbilityName = val.Name
+				w.data.Ability = val
 				w.data.AbilityCode = val.Code
 				w.btAbility.SetLabel(val.Name)
 
-				// manage target
-				// TODO: Filter values in mvs ? how to ?
+				// manage target mvs
+				w.updateAbilityTargetValues()
 			}
 		}
 
@@ -213,13 +215,22 @@ func (w *ListItem) UpdateData(data Data) {
 	w.data = data
 
 	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
-	w.mvsAbilityTarget.SetSelected(int(w.data.AbilityTarget))
+
+	w.updateAbilityTargetValues()
+
+	w.mvsAbilityTarget.SetSelectedValue(cdata.GetTarget(w.data.AbilityTarget))
+
+	if w.data.RuleTypeTarget != nil {
+		w.mvsRuleTypeTarget.SetSelectedValue(cdata.GetTarget(*w.data.RuleTypeTarget))
+	}
+
+	w.updateData()
 
 	abilityName := w.btAbilityPlaceHolder
 	ruleTypeName := w.btRuleTypePlaceHolder
 
-	if w.data.AbilityName != "" {
-		abilityName = w.data.AbilityName
+	if w.data.Ability.Name != "" {
+		abilityName = w.data.Ability.Name
 	}
 
 	if w.data.RuleTypeName != "" {
@@ -241,7 +252,14 @@ func (w *ListItem) updateData() {
 	if w.data.AbilityTarget != scriptTarget {
 		w.data.AbilityTarget = scriptTarget
 
-		// TODO: Dynamically hide the ruleTypeTarget and set it to nil
+	}
+
+	if scriptTarget == api.TargetSelf || w.data.Ability.TargetGroup {
+		w.mvsRuleTypeTarget.SetActive(true)
+		w.titleRuleTypeTarget.SetActive(true)
+	} else {
+		w.mvsRuleTypeTarget.SetActive(false)
+		w.titleRuleTypeTarget.SetActive(false)
 	}
 
 	ruleTarget := w.mvsRuleTypeTarget.GetSelectedValue().ScriptTarget
@@ -308,4 +326,20 @@ func (w *ListItem) btAbilityOnClicked() tea.Cmd {
 	orvyn.OpenDialog("selectAbility", abilityselection.New(), nil)
 
 	return nil
+}
+
+func (w *ListItem) updateAbilityTargetValues() {
+	keys, data := cdata.GetFilteredTargets(w.data.Ability.CanTargetSelf,
+		w.data.Ability.CanTargetAllies, w.data.Ability.CanTargetEnemies)
+
+	w.mvsAbilityTarget.SetValues(keys, data)
+	w.mvsAbilityTarget.SetSelected(0)
+
+	if len(keys) == 1 {
+		w.mvsAbilityTarget.ShowControls = false
+		w.focusManager.RemoveWidget(w.mvsAbilityTarget)
+	} else {
+		w.mvsAbilityTarget.ShowControls = true
+		w.focusManager.Insert(1, w.mvsAbilityTarget)
+	}
 }

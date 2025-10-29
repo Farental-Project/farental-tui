@@ -46,7 +46,8 @@ type Widget[T Value] struct {
 
 	contentSize orvyn.Size
 
-	Looping bool
+	Looping      bool
+	ShowControls bool
 }
 
 func New[T Value]() *Widget[T] {
@@ -86,6 +87,7 @@ func New[T Value]() *Widget[T] {
 	w.valueStyle = w.Style.BlurredValue
 
 	w.Looping = false
+	w.ShowControls = true
 
 	w.OnBlur()
 
@@ -142,13 +144,21 @@ func (w *Widget[T]) Render() string {
 
 	size := w.GetContentSize()
 
-	margin = 4 // "< " & " >"
+	margin = 0
 
-	b.WriteString(w.controlStyle.Render("< "))
+	if w.ShowControls {
+		margin = 4 // "< " & " >"
+
+		b.WriteString(w.controlStyle.Render("< "))
+	}
+
 	b.WriteString(w.valueStyle.Width(size.Width - margin).
 		AlignHorizontal(lipgloss.Center).
 		Render(w.GetSelectedValue().RenderValue()))
-	b.WriteString(w.controlStyle.Render(" >"))
+
+	if w.ShowControls {
+		b.WriteString(w.controlStyle.Render(" >"))
+	}
 
 	return w.widgetStyle.
 		Width(size.Width).
@@ -176,4 +186,28 @@ func (w *Widget[T]) SetSelected(index int) {
 	}
 
 	w.selectedIndex = index
+}
+
+func (w *Widget[T]) SetSelectedValue(val T) {
+	var key string
+
+	key = ""
+
+	for k, v := range w.values {
+		if v.RenderValue() == val.RenderValue() {
+			key = k
+			break
+		}
+	}
+
+	if key == "" {
+		return
+	}
+
+	for i, v := range w.keys {
+		if v == key {
+			w.SetSelected(i)
+			return
+		}
+	}
 }

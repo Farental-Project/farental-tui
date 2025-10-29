@@ -175,12 +175,13 @@ func (w *Widget) updateRulesOrder() {
 
 func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 	var listItems []Data
-	var abilityName, ruleTypeName string
+	var ruleTypeName string
+	var ability *api.AbilityResponse
 	var resp *resty.Response
 	var err error
+	var ok bool
 
 	for _, rb := range *data {
-		abilityName = ""
 		ruleTypeName = ""
 
 		if rb.AbilityCode != "" {
@@ -190,13 +191,11 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 				return err
 			}
 
-			ability, ok := resp.Result().(*api.AbilityResponse)
+			ability, ok = resp.Result().(*api.AbilityResponse)
 
 			if !ok {
 				return fmt.Errorf(lokyn.L("Invalid response from server"))
 			}
-
-			abilityName = ability.Name
 		}
 
 		if rb.RuleTypeCode != "" {
@@ -217,7 +216,7 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 
 		item := Data{
 			ScriptRuleBody: rb,
-			AbilityName:    abilityName,
+			Ability:        *ability,
 			RuleTypeName:   ruleTypeName,
 		}
 
