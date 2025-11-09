@@ -114,9 +114,6 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, keybind.Quit):
-			return tea.Quit
-
 		case key.Matches(msg, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
 

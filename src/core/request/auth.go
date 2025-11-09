@@ -36,7 +36,17 @@ func AuthInfo() *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
 	r.URL = "/auth/info"
-	r.SetResult(api.DataResponse[api.UserResponse]{})
+	r.SetResult(api.UserResponse{})
+
+	return r
+}
+
+func AuthSetSettings(body api.UserSettingsBody) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/auth/setSettings"
+	r.SetBody(body)
 
 	return r
 }

@@ -293,6 +293,9 @@ func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 		if s.checkRunningTask() {
 			return orvyn.SwitchScreen(screen.IDScriptExplorer), true
 		}
+
+	case key.Matches(msg, keybind.UKey):
+		return orvyn.SwitchScreen(screen.IDUserSettings), true
 	}
 
 	return nil, false

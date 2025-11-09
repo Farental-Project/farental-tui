@@ -141,6 +141,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.NKey):
 			orvyn.SwitchScreen(screen.IDCharacterCreation)
 
+		case key.Matches(msg, keybind.UKey):
+			return orvyn.SwitchScreen(screen.IDUserSettings)
+
 		case key.Matches(msg, keybind.Esc):
 			context.Logout()
 

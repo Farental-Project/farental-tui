@@ -6,6 +6,7 @@ import (
 
 const (
 	IDLogin              orvyn.ScreenID = "login"
+	IDUserSettings       orvyn.ScreenID = "usersettings"
 	IDAccountCreation    orvyn.ScreenID = "accountcreation"
 	IDCharacterSelection orvyn.ScreenID = "characterselection"
 	IDCharacterCreation  orvyn.ScreenID = "charactercreation"

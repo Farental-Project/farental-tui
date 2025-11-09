@@ -32,6 +32,7 @@ import (
 	"farental/screen/scriptexplorer"
 	"farental/screen/shop"
 	"farental/screen/travel"
+	"farental/screen/usersettings"
 	"fmt"
 	"log"
 
@@ -83,6 +84,7 @@ func main() {
 	registerKeymapContexts()
 
 	orvyn.RegisterScreen(screen.IDLogin, login.New())
+	orvyn.RegisterScreen(screen.IDUserSettings, usersettings.New())
 	orvyn.RegisterScreen(screen.IDAccountCreation, accountcreation.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
@@ -133,6 +135,8 @@ func registerKeymapContexts() {
 	characterSelectionKeymap.NewKeyBinding(keybind.NKey, true)
 	characterSelectionKeymap.NewKeyBinding(keybind.Enter, true)
 	characterSelectionKeymap.SetHelpDesc(keybind.NKey, lokyn.L("new character"))
+	characterSelectionKeymap.NewKeyBinding(keybind.UKey, false)
+	characterSelectionKeymap.SetHelpDesc(keybind.UKey, lokyn.L("user settings"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Esc, true)
 	characterSelectionKeymap.SetHelpDesc(keybind.Esc, lokyn.L("logout"))
 	characterSelectionKeymap.NewKeyBinding(keybind.Quit, false)
@@ -171,6 +175,8 @@ func registerKeymapContexts() {
 	gameDashboardKeymap.NewKeyBinding(keybind.IKey, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.IKey, lokyn.L("inventory"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Space, true)
+	gameDashboardKeymap.NewKeyBinding(keybind.UKey, false)
+	gameDashboardKeymap.SetHelpDesc(keybind.UKey, lokyn.L("user settings"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Esc, false)
 	gameDashboardKeymap.SetHelpDesc(keybind.Esc, lokyn.L("character selection"))
 	gameDashboardKeymap.NewKeyBinding(keybind.Quit, true)
