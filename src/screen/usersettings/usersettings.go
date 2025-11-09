@@ -7,6 +7,7 @@ import (
 	"farental/internal/keybind"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
+	"log"
 	"net/http"
 	"slices"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/checkbox"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/spf13/viper"
 )
 
 type LanguageData struct {
@@ -177,6 +179,14 @@ func (s *Screen) submit() bool {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
+		viper.Set("language", body.LanguageCode)
+
+		err = viper.WriteConfig()
+
+		if err != nil {
+			log.Println(lokyn.L("could not save config : "), err)
+		}
+
 		lokyn.SetLanguage(body.LanguageCode)
 		return true
 	}
