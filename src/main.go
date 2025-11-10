@@ -77,7 +77,8 @@ func main() {
 	// Orvyn
 	orvyn.Init()
 
-	orvyn.SetTheme(ftheme.FarentalTheme{})
+	// orvyn.SetTheme(ftheme.NewFarentalDarkTheme())
+	orvyn.SetTheme(ftheme.NewFarentalLightTheme())
 
 	style.InitHelpStyle()
 
