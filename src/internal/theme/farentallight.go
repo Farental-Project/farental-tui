@@ -30,7 +30,10 @@ func (t FarentalLightTheme) Color(id theme.ColorID) lipgloss.Color {
 	case theme.NeutralDimFontColorID:
 		colorHexCode = "#606060"
 
-	case theme.BlurredBorderColorID, theme.BlurredFontColorID, theme.DimFontColorID:
+	case theme.DimFontColorID:
+		colorHexCode = "#374F37"
+
+	case theme.BlurredBorderColorID, theme.BlurredFontColorID:
 		colorHexCode = "#A3BBA3"
 
 	case theme.HighlightFontColorID:
@@ -40,6 +43,38 @@ func (t FarentalLightTheme) Color(id theme.ColorID) lipgloss.Color {
 		theme.FocusedBorderColorID, theme.FocusedFontColorID:
 		colorHexCode = "#132B18"
 
+	case RacePrataarColorID:
+		colorHexCode = "#056138"
+
+	case RaceGarnothColorID:
+		colorHexCode = "#AB4404"
+
+	case BiomeMountainColorID:
+		colorHexCode = "#535353"
+
+	case BiomeFieldColorID:
+		colorHexCode = "#9EA003"
+
+	case BiomeHillColorID:
+		colorHexCode = "#489B04"
+
+	case BiomeDesertColorID:
+		colorHexCode = "#96A341"
+
+	case BiomeTropicalColorID:
+		colorHexCode = "#ED9302"
+
+	case BiomeForestColorID:
+		colorHexCode = "#067501"
+
+	case BiomeSwampColorID:
+		colorHexCode = "#5F426D"
+
+	case BiomeUndergroundColorID:
+		colorHexCode = "#007C78"
+
+	case BiomeBeachColorID:
+		colorHexCode = "#F8FC05"
 	}
 
 	if colorHexCode != "" {

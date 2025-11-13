@@ -1,6 +1,8 @@
 package style
 
 import (
+	ftheme "farental/internal/theme"
+
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/orvyn"
@@ -34,54 +36,56 @@ func InitHelpStyle() {
 
 func RaceStyle(name string) lipgloss.Style {
 	var style lipgloss.Style
-	var color string
+	var colorID theme.ColorID
 
 	style = lipgloss.NewStyle()
+	t := orvyn.GetTheme()
 
 	switch name {
 	case "Prataar":
-		color = "#05c18c"
+		colorID = ftheme.RacePrataarColorID
 	case "Garnoth":
-		color = "#db8c04"
+		colorID = ftheme.RaceGarnothColorID
 	default:
-		color = ""
+		colorID = theme.NormalFontColorID
 	}
 
-	style = style.Foreground(lipgloss.Color(color))
+	style = style.Foreground(t.Color(colorID))
 
 	return style
 }
 
 func LocationBiomeStyle(code string) lipgloss.Style {
 	var style lipgloss.Style
-	var color string
+	var colorID theme.ColorID
 
 	style = lipgloss.NewStyle()
+	t := orvyn.GetTheme()
 
 	switch code {
 	case "mountain":
-		color = "#939393"
+		colorID = ftheme.BiomeMountainColorID
 	case "field":
-		color = "#9ea003"
+		colorID = ftheme.BiomeFieldColorID
 	case "hill":
-		color = "#489b04"
+		colorID = ftheme.BiomeHillColorID
 	case "desert":
-		color = "#96a341"
+		colorID = ftheme.BiomeDesertColorID
 	case "tropical":
-		color = "#ed9302"
+		colorID = ftheme.BiomeTropicalColorID
 	case "forest":
-		color = "#067501"
+		colorID = ftheme.BiomeForestColorID
 	case "swamp":
-		color = "#5f426d"
+		colorID = ftheme.BiomeSwampColorID
 	case "underground":
-		color = "#007c78"
+		colorID = ftheme.BiomeUndergroundColorID
 	case "beach":
-		color = "#f8fc05"
+		colorID = ftheme.BiomeBeachColorID
 	default:
-		color = ""
+		colorID = theme.NormalFontColorID
 	}
 
-	style = style.Foreground(lipgloss.Color(color))
+	style = style.Foreground(t.Color(colorID))
 
 	return style
 }

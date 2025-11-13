@@ -54,6 +54,38 @@ func (t FarentalDarkTheme) Color(id theme.ColorID) lipgloss.Color {
 	case MPBarColorID:
 		colorHexCode = "#0C67EB"
 
+	case RacePrataarColorID:
+		colorHexCode = "#05C18C"
+
+	case RaceGarnothColorID:
+		colorHexCode = "#DB8C04"
+
+	case BiomeMountainColorID:
+		colorHexCode = "#939393"
+
+	case BiomeFieldColorID:
+		colorHexCode = "#9EA003"
+
+	case BiomeHillColorID:
+		colorHexCode = "#489B04"
+
+	case BiomeDesertColorID:
+		colorHexCode = "#96A341"
+
+	case BiomeTropicalColorID:
+		colorHexCode = "#ED9302"
+
+	case BiomeForestColorID:
+		colorHexCode = "#067501"
+
+	case BiomeSwampColorID:
+		colorHexCode = "#5F426D"
+
+	case BiomeUndergroundColorID:
+		colorHexCode = "#007C78"
+
+	case BiomeBeachColorID:
+		colorHexCode = "#F8FC05"
 	}
 
 	if colorHexCode != "" {

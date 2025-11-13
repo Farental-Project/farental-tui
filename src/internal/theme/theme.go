@@ -12,6 +12,19 @@ const (
 const (
 	HPBarColorID theme.ColorID = iota + 9999
 	MPBarColorID
+
+	RacePrataarColorID
+	RaceGarnothColorID
+
+	BiomeMountainColorID
+	BiomeFieldColorID
+	BiomeHillColorID
+	BiomeDesertColorID
+	BiomeTropicalColorID
+	BiomeForestColorID
+	BiomeSwampColorID
+	BiomeUndergroundColorID
+	BiomeBeachColorID
 )
 
 const (
