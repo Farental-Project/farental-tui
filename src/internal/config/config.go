@@ -2,10 +2,11 @@ package config
 
 import (
 	"errors"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/viper"
 )
 
 func Init() {
@@ -32,6 +33,7 @@ func Init() {
 	viper.SetDefault("lastusedemail", "")
 	viper.SetDefault("logintoken", "")
 	viper.SetDefault("datetimeformat", "02.01.2006 15:04")
+	viper.SetDefault("theme", "dark")
 
 	viper.SetConfigName("farental")
 	viper.SetConfigType("toml")

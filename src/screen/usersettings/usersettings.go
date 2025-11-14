@@ -5,6 +5,7 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	ftheme "farental/internal/theme"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
 	"log"
@@ -36,6 +37,7 @@ type Screen struct {
 
 	mvsLanguage      *multivalueselector.Widget[LanguageData]
 	chkbxNewsletters *checkbox.Widget
+	mvsTheme         *multivalueselector.Widget[ftheme.ThemeData]
 	statusMessage    *statusmessage.Widget
 	help             *help.Widget
 
@@ -54,6 +56,13 @@ func New() *Screen {
 
 	s.mvsLanguage = multivalueselector.New[LanguageData]()
 	s.mvsLanguage.OnBlur()
+	s.mvsLanguage.Looping = true
+
+	s.mvsTheme = multivalueselector.New[ftheme.ThemeData]()
+	s.mvsTheme.OnBlur()
+	s.mvsTheme.Looping = true
+
+	s.mvsTheme.SetValues(ftheme.GetThemeData())
 
 	s.chkbxNewsletters = checkbox.New(lokyn.L("Receive newsletters ?"))
 
@@ -67,6 +76,7 @@ func New() *Screen {
 				s.title,
 				orvyn.VGap,
 				s.mvsLanguage,
+				s.mvsTheme,
 				s.chkbxNewsletters,
 				orvyn.VGap,
 				s.statusMessage,
@@ -76,6 +86,7 @@ func New() *Screen {
 
 	s.focusManager = orvyn.NewFocusManager()
 	s.focusManager.Add(s.mvsLanguage)
+	s.focusManager.Add(s.mvsTheme)
 	s.focusManager.Add(s.chkbxNewsletters)
 
 	return s
@@ -163,6 +174,13 @@ func (s *Screen) loadData() {
 
 	s.mvsLanguage.SetSelected(slices.Index(keys, info.LanguageCode))
 	s.chkbxNewsletters.SetChecked(info.WantsNewsletter)
+
+	currentTheme := viper.GetString("theme")
+	if currentTheme == "" {
+		currentTheme = "dark"
+	}
+
+	s.mvsTheme.SetSelectedKey(currentTheme)
 }
 
 func (s *Screen) submit() bool {
@@ -180,6 +198,7 @@ func (s *Screen) submit() bool {
 
 	if resp.StatusCode() == http.StatusOK {
 		viper.Set("language", body.LanguageCode)
+		viper.Set("theme", s.mvsTheme.GetSelectedValue().Code)
 
 		err = viper.WriteConfig()
 
@@ -188,6 +207,7 @@ func (s *Screen) submit() bool {
 		}
 
 		lokyn.SetLanguage(body.LanguageCode)
+		orvyn.SetTheme(ftheme.GetTheme(viper.GetString("theme")))
 		return true
 	}
 

@@ -211,3 +211,12 @@ func (w *Widget[T]) SetSelectedValue(val T) {
 		}
 	}
 }
+
+func (w *Widget[T]) SetSelectedKey(key string) {
+	for i, v := range w.keys {
+		if v == key {
+			w.SetSelected(i)
+			return
+		}
+	}
+}
