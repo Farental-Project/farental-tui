@@ -4,6 +4,7 @@ import (
 	"farental/art"
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
@@ -33,7 +34,8 @@ func gotoCharacterSelectionCmd() tea.Msg {
 }
 
 type Screen struct {
-	title *orvyn.SimpleRenderable
+	title   *orvyn.SimpleRenderable
+	version *orvyn.SimpleRenderable
 
 	tiEmail    *textinput.Widget
 	tiPassword *textinput.Widget
@@ -55,6 +57,9 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable(fmt.Sprintf("%s",
 		t.Style(theme.TitleStyleID).Render(art.CreateASCIIArtBrokenTitle("farental"))))
 
+	s.version = orvyn.NewSimpleRenderable(config.VERSION)
+	s.version.Style = t.Style(theme.DimTextStyleID)
+
 	s.tiEmail = textinput.New()
 	s.tiEmail.Placeholder = lokyn.L("Email")
 
@@ -72,6 +77,7 @@ func New() *Screen {
 			[]orvyn.Renderable{
 				s.title,
 				orvyn.VGap,
+				s.version,
 				orvyn.VGap,
 				s.tiEmail,
 				s.tiPassword,

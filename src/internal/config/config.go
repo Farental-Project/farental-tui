@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	VERSION = "beta 0.1.0"
+)
+
 func Init() {
 	var configPath string
 	var err error
