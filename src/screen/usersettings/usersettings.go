@@ -20,6 +20,7 @@ import (
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/checkbox"
+	"github.com/halsten-dev/orvyn/widget/label"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/spf13/viper"
 )
@@ -35,11 +36,14 @@ func (l LanguageData) RenderValue() string {
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
+	labelLangage     *label.Widget
 	mvsLanguage      *multivalueselector.Widget[LanguageData]
 	chkbxNewsletters *checkbox.Widget
-	mvsTheme         *multivalueselector.Widget[ftheme.ThemeData]
-	statusMessage    *statusmessage.Widget
-	help             *help.Widget
+
+	labelTheme    *label.Widget
+	mvsTheme      *multivalueselector.Widget[ftheme.ThemeData]
+	statusMessage *statusmessage.Widget
+	help          *help.Widget
 
 	layout *layout.CenterLayout
 
@@ -54,10 +58,12 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("User settings"))
 	s.title.Style = t.Style(theme.TitleStyleID)
 
+	s.labelLangage = label.New(lokyn.L("Language"))
 	s.mvsLanguage = multivalueselector.New[LanguageData]()
 	s.mvsLanguage.OnBlur()
 	s.mvsLanguage.Looping = true
 
+	s.labelTheme = label.New(lokyn.L("Theme (need restart)"))
 	s.mvsTheme = multivalueselector.New[ftheme.ThemeData]()
 	s.mvsTheme.OnBlur()
 	s.mvsTheme.Looping = true
@@ -75,8 +81,12 @@ func New() *Screen {
 			[]orvyn.Renderable{
 				s.title,
 				orvyn.VGap,
+				s.labelLangage,
 				s.mvsLanguage,
+				orvyn.VGap,
+				s.labelTheme,
 				s.mvsTheme,
+				orvyn.VGap,
 				s.chkbxNewsletters,
 				orvyn.VGap,
 				s.statusMessage,
@@ -207,7 +217,6 @@ func (s *Screen) submit() bool {
 		}
 
 		lokyn.SetLanguage(body.LanguageCode)
-		orvyn.SetTheme(ftheme.GetTheme(viper.GetString("theme")))
 		return true
 	}
 
