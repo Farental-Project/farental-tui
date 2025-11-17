@@ -6,7 +6,6 @@ import (
 	"farental/internal/style"
 	ftheme "farental/internal/theme"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -93,15 +92,7 @@ func (w *Widget) constructTitle(location *api.LocationResponse) {
 	if len(location.Features) > 0 {
 		b.WriteString("\n")
 
-		sort.Slice(location.Features, func(i, j int) bool {
-			return location.Features[i].Name < location.Features[j].Name
-		})
-
 		for _, f := range location.Features {
-			if !f.IsAction {
-				continue
-			}
-
 			if features.Len() > 0 {
 				features.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
 			}

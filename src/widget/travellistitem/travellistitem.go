@@ -3,10 +3,12 @@ package travellistitem
 import (
 	"farental/art"
 	"farental/core/data/api"
+	"farental/internal/helper"
 	"farental/internal/style"
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/list"
@@ -35,7 +37,7 @@ func Constructor(data api.TravelResponse) list.ListItem[api.TravelResponse] {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	size.Height = 6
+	size.Height = 5 + lipgloss.Height(w.featuresList)
 
 	w.BaseWidget.Resize(size)
 }
@@ -43,13 +45,11 @@ func (w *Widget) Resize(size orvyn.Size) {
 func (w *Widget) UpdateData(data api.TravelResponse) {
 	var b strings.Builder
 
+	t := orvyn.GetTheme()
+
 	w.data = data
 
 	for _, f := range w.data.DestLocation.Features {
-		if !f.IsAction {
-			continue
-		}
-
 		if b.Len() > 0 {
 			b.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
 		}
@@ -57,7 +57,7 @@ func (w *Widget) UpdateData(data api.TravelResponse) {
 		b.WriteString(f.Name)
 	}
 
-	w.featuresList = b.String()
+	w.featuresList = t.Style(theme.DimTextStyleID).Render(b.String())
 }
 
 func (w *Widget) GetData() api.TravelResponse {
@@ -68,10 +68,18 @@ func (w *Widget) Render() string {
 	t := orvyn.GetTheme()
 	contentSize := w.GetContentSize()
 
+	width1, width2 := orvyn.DivideSizeFull(contentSize.Width)
+
+	left := t.Style(theme.HighlightTextStyleID).
+		Width(width1).AlignHorizontal(lipgloss.Left).
+		Render(w.data.DestLocation.Name)
+	right := t.Style(theme.NormalTextStyleID).
+		Width(width2).AlignHorizontal(lipgloss.Right).
+		Render(helper.HoursDecFormat(w.data.Duration))
+
 	tui := w.GetStyle().Width(contentSize.Width).Render(
 		fmt.Sprintf("%s\n%s\n%s\n%s",
-			t.Style(theme.HighlightTextStyleID).
-				Render(fmt.Sprintf("%s", w.data.DestLocation.Name)),
+			lipgloss.JoinHorizontal(lipgloss.Center, left, right),
 			style.LocationBiomeStyle(w.data.DestLocation.Biome.Code).
 				Render(w.data.DestLocation.Biome.Name),
 			t.Style(theme.NeutralDimTextStyleID).
