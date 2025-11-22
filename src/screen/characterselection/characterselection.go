@@ -69,13 +69,11 @@ func New() *Screen {
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.list,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			s.list,
+			s.statusMessage,
+			s.help,
 		),
 	)
 	return s

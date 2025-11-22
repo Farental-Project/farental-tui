@@ -98,16 +98,14 @@ func New() *Widget {
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
 		7,
-		[]orvyn.Renderable{
-			w.moneyTitle,
-			w.tiMoney,
-			w.tiMoneyStatus,
-			w.paymentTitle,
-			w.tiPayment,
-			w.tiPaymentStatus,
-			w.attachmentListTitle,
-			w.attachmentsList,
-		},
+		w.moneyTitle,
+		w.tiMoney,
+		w.tiMoneyStatus,
+		w.paymentTitle,
+		w.tiPayment,
+		w.tiPaymentStatus,
+		w.attachmentListTitle,
+		w.attachmentsList,
 	)
 
 	w.OnBlur()

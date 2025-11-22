@@ -41,11 +41,10 @@ func New() *Widget {
 	w.barMp = characterbar.New(lokyn.L("MP"), t.Color(ftheme.MPBarColorID))
 
 	w.layout = layout.NewHBoxGrowLayout(1, 1,
-		[]orvyn.Renderable{
-			w.barHp,
-			w.info,
-			w.barMp,
-		})
+		w.barHp,
+		w.info,
+		w.barMp,
+	)
 
 	return w
 }

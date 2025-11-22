@@ -96,27 +96,25 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 
 	s.socialLayout = layout.NewHBoxGrowLayout(1, 0,
-		[]orvyn.Renderable{
-			s.logChat, s.logCharacters,
-		})
+		s.logChat, s.logCharacters,
+	)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(
 			35,
 			t.Size(ftheme.LayoutWidthSizeID),
 			10,
-			[]orvyn.Renderable{
-				s.runningTask,
-				s.characterInfo,
-				s.locationInfo,
-				s.logEvent,
-				layout.NewPileLayout([]orvyn.Renderable{
-					s.socialLayout,
-					s.fullHelp,
-				}),
-				s.statusMessage,
-				s.help,
-			}),
+			s.runningTask,
+			s.characterInfo,
+			s.locationInfo,
+			s.logEvent,
+			layout.NewPileLayout(
+				s.socialLayout,
+				s.fullHelp,
+			),
+			s.statusMessage,
+			s.help,
+		),
 	)
 
 	s.focusManager = orvyn.NewFocusManager()

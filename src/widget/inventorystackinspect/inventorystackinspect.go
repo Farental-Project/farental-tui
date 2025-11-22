@@ -75,17 +75,15 @@ func New() *Widget {
 	w.srResults.SetActive(false)
 
 	w.layout = layout.NewMaxWidthVBoxLayout(1,
-		[]orvyn.Renderable{
-			w.srName,
-			w.srUnique,
-			w.srDescription,
-			w.srStatsTitle,
-			w.srStats,
-			w.srConditionsTitle,
-			w.srConditions,
-			w.srResultsTitle,
-			w.srResults,
-		},
+		w.srName,
+		w.srUnique,
+		w.srDescription,
+		w.srStatsTitle,
+		w.srStats,
+		w.srConditionsTitle,
+		w.srConditions,
+		w.srResultsTitle,
+		w.srResults,
 	)
 
 	return w

@@ -4,6 +4,8 @@ import (
 	"farental/art"
 	"farental/internal/keybind"
 	"fmt"
+	"strings"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -11,7 +13,6 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"strings"
 )
 
 type Option struct {
@@ -90,10 +91,8 @@ func New(config Config) *Screen {
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewVBoxLayout(10,
-			[]orvyn.Renderable{
-				s.content,
-				s.options,
-			},
+			s.content,
+			s.options,
 		),
 	)
 

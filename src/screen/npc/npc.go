@@ -67,21 +67,21 @@ func New() *Screen {
 	s.focusManager.Add(s.list)
 	s.focusManager.Add(s.dialog)
 
-	mainLayout := layout.NewHBoxFixedRatioLayout(0, 1, 0,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.3, s.list),
-			layout.NewFixedRatioRenderable(0.7, s.dialog),
-		})
+	mainElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.3, s.list),
+		layout.NewFixedRatioRenderable(0.7, s.dialog),
+	}
+
+	mainLayout := layout.NewHBoxFixedRatioLayout(0, 1, 0, mainElements...)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				mainLayout,
-				s.statusMessage,
-				s.help,
-			}),
+			s.title,
+			orvyn.VGap,
+			mainLayout,
+			s.statusMessage,
+			s.help,
+		),
 	)
 
 	return s

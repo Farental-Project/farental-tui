@@ -24,6 +24,8 @@ github.com/charmbracelet/x/ansi v0.10.2 h1:ith2ArZS0CJG30cIUfID1LXN7ZFXRCww6RUvA
 github.com/charmbracelet/x/ansi v0.10.2/go.mod h1:HbLdJjQH4UH4AqA2HpRWuWNluRE6zxJH/yteYEYCFa8=
 github.com/charmbracelet/x/ansi v0.11.0 h1:uuIVK7GIplwX6UBIz8S2TF8nkr7xRlygSsBRjSJqIvA=
 github.com/charmbracelet/x/ansi v0.11.0/go.mod h1:uQt8bOrq/xgXjlGcFMc8U2WYbnxyjrKhnvTQluvfCaE=
+github.com/charmbracelet/x/ansi v0.11.1 h1:iXAC8SyMQDJgtcz9Jnw+HU8WMEctHzoTAETIeA3JXMk=
+github.com/charmbracelet/x/ansi v0.11.1/go.mod h1:M49wjzpIujwPceJ+t5w3qh2i87+HRtHohgb5iTyepL0=
 github.com/charmbracelet/x/cellbuf v0.0.13 h1:/KBBKHuVRbq1lYx5BzEHBAFBP8VcQzJejZ/IA3iR28k=
 github.com/charmbracelet/x/cellbuf v0.0.13/go.mod h1:xe0nKWGd3eJgtqZRaN9RjMtK7xUYchjzPr7q6kcvCCs=
 github.com/charmbracelet/x/cellbuf v0.0.14 h1:iUEMryGyFTelKW3THW4+FfPgi4fkmKnnaLOXuc+/Kj4=
@@ -34,6 +36,8 @@ github.com/charmbracelet/x/term v0.2.2 h1:xVRT/S2ZcKdhhOuSP4t5cLi5o+JxklsoEObBSg
 github.com/charmbracelet/x/term v0.2.2/go.mod h1:kF8CY5RddLWrsgVwpw4kAa6TESp6EB5y3uxGLeCqzAI=
 github.com/clipperhouse/displaywidth v0.5.0 h1:AIG5vQaSL2EKqzt0M9JMnvNxOCRTKUc4vUnLWGgP89I=
 github.com/clipperhouse/displaywidth v0.5.0/go.mod h1:R+kHuzaYWFkTm7xoMmK1lFydbci4X2CicfbGstSGg0o=
+github.com/clipperhouse/displaywidth v0.6.0 h1:k32vueaksef9WIKCNcoqRNyKbyvkvkysNYnAWz2fN4s=
+github.com/clipperhouse/displaywidth v0.6.0/go.mod h1:R+kHuzaYWFkTm7xoMmK1lFydbci4X2CicfbGstSGg0o=
 github.com/clipperhouse/stringish v0.1.1 h1:+NSqMOr3GR6k1FdRhhnXrLfztGzuG+VuFDfatpWHKCs=
 github.com/clipperhouse/stringish v0.1.1/go.mod h1:v/WhFtE1q0ovMta2+m+UbpZ+2/HEXNWYXQgCt4hdOzA=
 github.com/clipperhouse/uax29/v2 v2.2.0 h1:ChwIKnQN3kcZteTXMgb1wztSgaU+ZemkgWdohwgs8tY=
@@ -118,6 +122,8 @@ github.com/halsten-dev/orvyn v0.0.0-20251110190628-77ad38006003 h1:jofi8XOO5AG1D
 github.com/halsten-dev/orvyn v0.0.0-20251110190628-77ad38006003/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
 github.com/halsten-dev/orvyn v0.0.0-20251110191335-cabaed82ca56 h1:ZrtlasTqftSzY9kPuX+5ZFSzhtepp+i4vklH4lKckec=
 github.com/halsten-dev/orvyn v0.0.0-20251110191335-cabaed82ca56/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
+github.com/halsten-dev/orvyn v0.0.0-20251122070820-0151b7b09aff h1:Fy8Mxy8y8er7L8JMQW/9ofCFTibgsZKKhTvgmi3fruE=
+github.com/halsten-dev/orvyn v0.0.0-20251122070820-0151b7b09aff/go.mod h1:GE+w9uKEAm57rnZKDbD7sU/xiqpWfUQHfc+kPGuscSI=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade/go.mod h1:ZDXo8KHryOWSIqnsb/CiDq7hQUYryCgdVnxbj8tDG7o=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
@@ -178,6 +184,8 @@ golang.org/x/sys v0.38.0 h1:3yZWxaJjBmCWXqhN1qh02AkOnCQ1poK6oF+a7xWL6Gc=
 golang.org/x/sys v0.38.0/go.mod h1:OgkHotnGiDImocRcuBABYBEXf8A9a87e/uXjp9XT3ks=
 golang.org/x/text v0.30.0 h1:yznKA/E9zq54KzlzBEAWn1NXSQ8DIp/NYMy88xJjl4k=
 golang.org/x/text v0.30.0/go.mod h1:yDdHFIX9t+tORqspjENWgzaCVXgk0yYnYuSZ8UzzBVM=
+golang.org/x/text v0.31.0 h1:aC8ghyu4JhP8VojJ2lEHBnochRno1sgL6nEi9WGFGMM=
+golang.org/x/text v0.31.0/go.mod h1:tKRAlv61yKIjGGHX/4tP1LTbc13YSec1pxVEWXzfoeM=
 golang.org/x/time v0.6.0 h1:eTDhh4ZXt5Qf0augr54TN6suAUudPcawVZeIAPU7D4U=
 golang.org/x/time v0.6.0/go.mod h1:3BpzKBy/shNhVucY/MWOyx10tF3SFh9QdLuxbVysPQM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

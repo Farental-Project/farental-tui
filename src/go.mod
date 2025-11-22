@@ -9,7 +9,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/halsten-dev/bubblehelp v1.0.2
 	github.com/halsten-dev/lokyn v1.0.0
-	github.com/halsten-dev/orvyn v0.0.0-20251110191335-cabaed82ca56
+	github.com/halsten-dev/orvyn v0.0.0-20251122070820-0151b7b09aff
 	github.com/spf13/viper v1.21.0
 )
 
@@ -18,10 +18,10 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/colorprofile v0.3.3 // indirect
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
-	github.com/charmbracelet/x/ansi v0.11.0 // indirect
+	github.com/charmbracelet/x/ansi v0.11.1 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.14 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
-	github.com/clipperhouse/displaywidth v0.5.0 // indirect
+	github.com/clipperhouse/displaywidth v0.6.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
@@ -47,6 +47,6 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/net v0.46.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )

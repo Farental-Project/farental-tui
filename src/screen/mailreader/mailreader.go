@@ -8,6 +8,8 @@ import (
 	"farental/widget/help"
 	"farental/widget/mailcontentreader"
 	"farental/widget/maildetailinspect"
+	"net/http"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -16,7 +18,6 @@ import (
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
-	"net/http"
 )
 
 type Screen struct {
@@ -46,22 +47,21 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
-	s.layoutContent = layout.NewHBoxFixedRatioLayout(10, 1, 0,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.7, s.content),
-			layout.NewFixedRatioRenderable(0.3, s.inspector),
-		})
+	layoutElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.7, s.content),
+		layout.NewFixedRatioRenderable(0.3, s.inspector),
+	}
+
+	s.layoutContent = layout.NewHBoxFixedRatioLayout(10, 1, 0, layoutElements...)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
 			2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.layoutContent,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			s.layoutContent,
+			s.statusMessage,
+			s.help,
 		),
 	)
 

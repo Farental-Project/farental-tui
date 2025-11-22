@@ -60,28 +60,27 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
+	elements := make([]layout.FixedRatioRenderable, 2)
+	elements[0] = layout.NewFixedRatioRenderable(0.30, s.statsSummary)
+	elements[1] = layout.NewFixedRatioRenderable(0.70, s.skillsSummary)
+
 	s.statsSkillLayout = layout.NewHBoxFixedRatioLayout(0, 1,
 		0,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.30, s.statsSummary),
-			layout.NewFixedRatioRenderable(0.70, s.skillsSummary),
-		},
+		elements...,
 	)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(35,
 			orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID),
 			10,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.characterInfo,
-				s.characterActiveScript,
-				s.equipmentSummary,
-				s.statsSkillLayout,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			s.characterInfo,
+			s.characterActiveScript,
+			s.equipmentSummary,
+			s.statsSkillLayout,
+			s.statusMessage,
+			s.help,
 		),
 	)
 

@@ -65,10 +65,8 @@ func New() *Widget {
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
 		1,
-		[]orvyn.Renderable{
-			w.title,
-			w.list,
-		},
+		w.title,
+		w.list,
 	)
 
 	return w

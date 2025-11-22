@@ -118,48 +118,54 @@ func Constructor(data api.AbilityResponse) list.ListItem[api.AbilityResponse] {
 	a.targetTypeValue.SizeConstraint = true
 	a.targetTypeValue.Style = nsAlignRightStyle
 
+	elements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.5, a.titleAbility),
+		layout.NewFixedRatioRenderable(0.5, a.titleSkill),
+	}
+
 	titleLayout := layout.NewHBoxFixedRatioLayout(0, 0,
 		1,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.5, a.titleAbility),
-			layout.NewFixedRatioRenderable(0.5, a.titleSkill),
-		})
+		elements...,
+	)
+
+	powerElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.7, a.powerLabel),
+		layout.NewFixedRatioRenderable(0.3, a.powerValue),
+	}
+
+	manaCostElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.7, a.manaCostLabel),
+		layout.NewFixedRatioRenderable(0.3, a.manaCostValue),
+	}
+
+	cooldownElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.7, a.cooldownLabel),
+		layout.NewFixedRatioRenderable(0.3, a.cooldownValue),
+	}
+
+	targetTypeElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.7, a.targetTypeLabel),
+		layout.NewFixedRatioRenderable(0.3, a.targetTypeValue),
+	}
 
 	infoLayout := layout.NewMaxWidthVBoxLayout(0,
-		[]orvyn.Renderable{
-			layout.NewHBoxFixedRatioLayout(0, 0, 1,
-				[]layout.FixedRatioRenderable{
-					layout.NewFixedRatioRenderable(0.7, a.powerLabel),
-					layout.NewFixedRatioRenderable(0.3, a.powerValue),
-				}),
-			layout.NewHBoxFixedRatioLayout(0, 0, 1,
-				[]layout.FixedRatioRenderable{
-					layout.NewFixedRatioRenderable(0.7, a.manaCostLabel),
-					layout.NewFixedRatioRenderable(0.3, a.manaCostValue),
-				}),
-			layout.NewHBoxFixedRatioLayout(0, 0, 1,
-				[]layout.FixedRatioRenderable{
-					layout.NewFixedRatioRenderable(0.7, a.cooldownLabel),
-					layout.NewFixedRatioRenderable(0.3, a.cooldownValue),
-				}),
-			layout.NewHBoxFixedRatioLayout(0, 0, 1,
-				[]layout.FixedRatioRenderable{
-					layout.NewFixedRatioRenderable(0.7, a.targetTypeLabel),
-					layout.NewFixedRatioRenderable(0.3, a.targetTypeValue),
-				}),
-		})
+		layout.NewHBoxFixedRatioLayout(0, 0, 1, powerElements...),
+		layout.NewHBoxFixedRatioLayout(0, 0, 1, manaCostElements...),
+		layout.NewHBoxFixedRatioLayout(0, 0, 1, cooldownElements...),
+		layout.NewHBoxFixedRatioLayout(0, 0, 1, targetTypeElements...),
+	)
 
-	contentLayout := layout.NewHBoxFixedRatioLayout(0, 0, 1,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.6, a.description),
-			layout.NewFixedRatioRenderable(0.4, infoLayout),
-		})
+	contentElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.6, a.description),
+		layout.NewFixedRatioRenderable(0.4, infoLayout),
+	}
+
+	contentLayout := layout.NewHBoxFixedRatioLayout(0, 0, 1, contentElements...)
 
 	a.layout = layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(0, 0), 1,
-		[]orvyn.Renderable{
-			titleLayout,
-			contentLayout,
-		})
+		titleLayout,
+		contentLayout,
+	)
 
 	a.OnBlur()
 

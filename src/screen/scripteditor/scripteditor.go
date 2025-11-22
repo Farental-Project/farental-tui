@@ -73,25 +73,22 @@ func New() *Screen {
 
 	s.focusManager = orvyn.NewFocusManager()
 
+	inspectorElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.2, s.scriptInfo),
+		layout.NewFixedRatioRenderable(0.6, s.list),
+		layout.NewFixedRatioRenderable(0.2, s.ruleTypeInspector),
+	}
+
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(
 			orvyn.NewSize(10, 4),
 			3,
-			[]orvyn.Renderable{
-				s.title,
-				s.readOnlyTitle,
-				orvyn.VGap,
-				layout.NewHBoxFixedRatioLayout(
-					0, 1, 1,
-					[]layout.FixedRatioRenderable{
-						layout.NewFixedRatioRenderable(0.2, s.scriptInfo),
-						layout.NewFixedRatioRenderable(0.6, s.list),
-						layout.NewFixedRatioRenderable(0.2, s.ruleTypeInspector),
-					},
-				),
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			s.readOnlyTitle,
+			orvyn.VGap,
+			layout.NewHBoxFixedRatioLayout(0, 1, 1, inspectorElements...),
+			s.statusMessage,
+			s.help,
 		),
 	)
 
@@ -128,14 +125,14 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		resp, err := helper.SendRequest(request.ScriptGetDetail(script.ID))
 
 		if err != nil {
-			s.returnErr = fmt.Errorf(lokyn.L("Cannot open selected script"))
+			s.returnErr = fmt.Errorf("%s", lokyn.L("Cannot open selected script"))
 			return orvyn.SwitchToPreviousScreen()
 		}
 
 		scriptDetail, ok := resp.Result().(*api.ScriptResponse)
 
 		if !ok {
-			s.returnErr = fmt.Errorf(lokyn.L("Cannot open selected script"))
+			s.returnErr = fmt.Errorf("%s", lokyn.L("Cannot open selected script"))
 			return orvyn.SwitchToPreviousScreen()
 		}
 

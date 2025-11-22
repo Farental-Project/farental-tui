@@ -59,16 +59,14 @@ func Constructor(data ParamData) list.ListItem[ParamData] {
 	w.focusManager.Add(w.multiValueSelector)
 
 	pileLayout := layout.NewPileLayout(
-		[]orvyn.Renderable{
-			w.inputValue,
-			w.multiValueSelector,
-		})
+		w.inputValue,
+		w.multiValueSelector,
+	)
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
-		[]orvyn.Renderable{
-			w.nameLabel,
-			pileLayout,
-		})
+		w.nameLabel,
+		pileLayout,
+	)
 
 	w.UpdateData(data)
 

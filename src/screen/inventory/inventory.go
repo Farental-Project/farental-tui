@@ -67,23 +67,20 @@ func New() *Screen {
 
 	s.mode = modeInventory
 
-	inventoryLayout := layout.NewHBoxFixedRatioLayout(0, 1,
-		0,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.60, s.list),
-			layout.NewFixedRatioRenderable(0.40, s.inspector),
-		},
-	)
+	inventoryElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.60, s.list),
+		layout.NewFixedRatioRenderable(0.40, s.inspector),
+	}
+
+	inventoryLayout := layout.NewHBoxFixedRatioLayout(0, 1, 0, inventoryElements...)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				inventoryLayout,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			inventoryLayout,
+			s.statusMessage,
+			s.help,
 		),
 	)
 

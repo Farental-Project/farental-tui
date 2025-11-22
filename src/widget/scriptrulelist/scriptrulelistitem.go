@@ -130,37 +130,32 @@ func Constructor(data Data) list.ListItem[Data] {
 	w.focusManager.Add(w.mvsRuleTypeTarget)
 
 	titles1Layout := layout.NewHBoxGrowLayout(1, 1,
-		[]orvyn.Renderable{
-			w.titleAbility,
-			w.titleRuleType,
-		})
+		w.titleAbility,
+		w.titleRuleType,
+	)
 
 	controls1Layout := layout.NewHBoxGrowLayout(1, 1,
-		[]orvyn.Renderable{
-			w.btAbility,
-			w.btRuleType,
-		})
+		w.btAbility,
+		w.btRuleType,
+	)
 
 	titles2Layout := layout.NewHBoxGrowLayout(1, 1,
-		[]orvyn.Renderable{
-			w.titleAbilityTarget,
-			w.titleRuleTypeTarget,
-		})
+		w.titleAbilityTarget,
+		w.titleRuleTypeTarget,
+	)
 
 	controls2Layout := layout.NewHBoxGrowLayout(1, 1,
-		[]orvyn.Renderable{
-			w.mvsAbilityTarget,
-			w.mvsRuleTypeTarget,
-		})
+		w.mvsAbilityTarget,
+		w.mvsRuleTypeTarget,
+	)
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
-		[]orvyn.Renderable{
-			w.titleOrder,
-			titles1Layout,
-			controls1Layout,
-			titles2Layout,
-			controls2Layout,
-		})
+		w.titleOrder,
+		titles1Layout,
+		controls1Layout,
+		titles2Layout,
+		controls2Layout,
+	)
 
 	w.OnBlur()
 

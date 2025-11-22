@@ -194,7 +194,7 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 			ability, ok = resp.Result().(*api.AbilityResponse)
 
 			if !ok {
-				return fmt.Errorf(lokyn.L("Invalid response from server"))
+				return fmt.Errorf("%s", lokyn.L("Invalid response from server"))
 			}
 		}
 
@@ -208,7 +208,7 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 			ruleType, ok := resp.Result().(*api.ScriptRuleTypeResponse)
 
 			if !ok {
-				return fmt.Errorf(lokyn.L("Invalid response from server"))
+				return fmt.Errorf("%s", lokyn.L("Invalid response from server"))
 			}
 
 			ruleTypeName = ruleType.Name

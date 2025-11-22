@@ -55,13 +55,11 @@ func New[T any](title string, constructor list.ItemConstructor[T],
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
 			2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.list,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			s.list,
+			s.statusMessage,
+			s.help,
 		),
 	)
 

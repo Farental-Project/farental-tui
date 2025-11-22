@@ -74,17 +74,15 @@ func New() *Screen {
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewVBoxLayout(10,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.version,
-				orvyn.VGap,
-				s.tiEmail,
-				s.tiPassword,
-				orvyn.VGap,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			s.version,
+			orvyn.VGap,
+			s.tiEmail,
+			s.tiPassword,
+			orvyn.VGap,
+			s.statusMessage,
+			s.help,
 		),
 	)
 

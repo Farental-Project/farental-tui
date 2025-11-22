@@ -13,6 +13,8 @@ import (
 	"farental/widget/mailattachmentselectlistitem"
 	"farental/widget/maildetaileditor"
 	"farental/widget/mailwriter"
+	"net/http"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/go-resty/resty/v2"
@@ -21,7 +23,6 @@ import (
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
-	"net/http"
 )
 
 type Screen struct {
@@ -61,31 +62,28 @@ func New() *Screen {
 	s.focusManager.Add(s.attachmentSelect)
 
 	s.detailLayout = layout.NewPileLayout(
-		[]orvyn.Renderable{
-			s.detailEditor,
-			s.attachmentSelect,
-		},
+		s.detailEditor,
+		s.attachmentSelect,
 	)
 
-	s.editorLayout = layout.NewHBoxFixedRatioLayout(
-		0, 1, 0,
+	editorElements :=
 		[]layout.FixedRatioRenderable{
 			layout.NewFixedRatioRenderable(0.7, s.writer),
 			layout.NewFixedRatioRenderable(0.3, s.detailLayout),
-		},
-	)
+		}
+
+	s.editorLayout = layout.NewHBoxFixedRatioLayout(
+		0, 1, 0, editorElements...)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(
 			orvyn.NewSize(10, 4),
 			2,
-			[]orvyn.Renderable{
-				s.title,
-				orvyn.VGap,
-				s.editorLayout,
-				s.statusMessage,
-				s.help,
-			},
+			s.title,
+			orvyn.VGap,
+			s.editorLayout,
+			s.statusMessage,
+			s.help,
 		),
 	)
 
@@ -127,7 +125,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				orvyn.OpenDialog("quitConfirm", popup.NewYesNo(
 					lokyn.L("Are you sure you want to quit the editor and loose your current progress ?"),
 				), nil)
-			
+
 				return nil
 			}
 

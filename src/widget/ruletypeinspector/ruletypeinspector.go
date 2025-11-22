@@ -121,7 +121,7 @@ func (w *Widget) SetRuleType(code string, data *[]api.ScriptRuleTypeParam) error
 	ruleParamStruct, ok := resp.Result().(*[]api.ScriptRuleTypeStructParam)
 
 	if !ok {
-		return fmt.Errorf(lokyn.L("Invalid response"))
+		return fmt.Errorf("%s", lokyn.L("Invalid response"))
 	}
 
 	paramData = make([]ParamData, 0)

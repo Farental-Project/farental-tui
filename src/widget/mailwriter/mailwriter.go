@@ -52,11 +52,9 @@ func New() *Widget {
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
 		2,
-		[]orvyn.Renderable{
-			w.tiReceiver,
-			w.tiSubject,
-			w.taContent,
-		},
+		w.tiReceiver,
+		w.tiSubject,
+		w.taContent,
 	)
 
 	w.OnBlur()

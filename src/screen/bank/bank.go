@@ -81,33 +81,27 @@ func New() *Screen {
 
 	characterListLayout := layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0), 1,
-		[]orvyn.Renderable{
-			s.characterInventoryTitle,
-			s.characterInventoryList,
-		})
+		s.characterInventoryTitle,
+		s.characterInventoryList,
+	)
 
 	bankListLayout := layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0), 1,
-		[]orvyn.Renderable{
-			s.bankInventoryTitle,
-			s.bankInventoryList,
-		})
+		s.bankInventoryTitle,
+		s.bankInventoryList,
+	)
 
 	listsLayout := layout.NewHBoxFixedRatioLayout(0, 1,
 		1,
-		[]layout.FixedRatioRenderable{
-			layout.NewFixedRatioRenderable(0.50, characterListLayout),
-			layout.NewFixedRatioRenderable(0.50, bankListLayout),
-		},
+		layout.NewFixedRatioRenderable(0.50, characterListLayout),
+		layout.NewFixedRatioRenderable(0.50, bankListLayout),
 	)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 0,
-			[]orvyn.Renderable{
-				listsLayout,
-				s.statusMessage,
-				s.help,
-			},
+			listsLayout,
+			s.statusMessage,
+			s.help,
 		),
 	)
 

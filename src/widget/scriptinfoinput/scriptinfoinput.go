@@ -68,13 +68,11 @@ func New() *Widget {
 	w.focusManager.Add(w.description)
 	w.focusManager.Add(w.private)
 
-	w.layout = layout.NewMaxWidthVBoxLayout(
-		0, []orvyn.Renderable{
-			w.title,
-			w.name,
-			w.description,
-			w.private,
-		},
+	w.layout = layout.NewMaxWidthVBoxLayout(0,
+		w.title,
+		w.name,
+		w.description,
+		w.private,
 	)
 
 	w.OnBlur()
