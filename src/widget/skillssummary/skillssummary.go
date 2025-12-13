@@ -135,7 +135,8 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, column *column) {
 	t := orvyn.GetTheme()
 
-	column.skillStr.WriteString(t.Style(theme.NormalTextStyleID).Render(skill.Name))
+	column.skillStr.WriteString(t.Style(theme.NormalTextStyleID).
+		Render(fmt.Sprintf("  %s", skill.Name)))
 	column.expStr.WriteString(t.Style(theme.NeutralTextStyleID).
 		Render(fmt.Sprintf("(%d / %d)",
 			skill.CurrentXp, skill.NextLevelXp)))
@@ -148,6 +149,16 @@ func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, c
 	}
 }
 
+func (w *Widget) renderCategory(category string, column *column) {
+	ts := orvyn.GetTheme().Style(theme.TitleStyleID)
+
+	column.skillStr.WriteString(ts.Render(category))
+	column.expStr.WriteString("")
+	column.lvlStr.WriteString("")
+
+	column.addReturn()
+}
+
 func (w *Widget) UpdateData(characterInfo *api.CharacterInfoResponse) {
 	w.skills = characterInfo.Skills
 }
@@ -155,10 +166,22 @@ func (w *Widget) UpdateData(characterInfo *api.CharacterInfoResponse) {
 func (w *Widget) refresh() {
 	var col column
 	var addReturn bool
+	var craftCatAdded bool
 
 	addReturn = true
+	craftCatAdded = false
 
 	for i, skill := range w.skills {
+		if i == 0 {
+			w.renderCategory(lokyn.L("Fighting"), &col)
+		}
+
+		if !skill.IsFightingSkill && !craftCatAdded {
+			col.addReturn()
+			w.renderCategory(lokyn.L("Craftsmanship"), &col)
+			craftCatAdded = true
+		}
+
 		if i == len(w.skills)-1 {
 			addReturn = false
 		}

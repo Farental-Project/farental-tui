@@ -27,11 +27,12 @@ type CharacterStatResponse struct {
 }
 
 type CharacterSkillResponse struct {
-	Code        string
-	Name        string
-	Level       int
-	CurrentXp   int
-	NextLevelXp int
+	Code            string
+	Name            string
+	IsFightingSkill bool
+	Level           int
+	CurrentXp       int
+	NextLevelXp     int
 }
 
 type CharacterInfoResponse struct {
