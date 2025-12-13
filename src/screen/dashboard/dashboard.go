@@ -218,6 +218,8 @@ func (s *Screen) showLocationService() {
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureBank)))
 	bubblehelp.SetKeybindVisible(keybind.RKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
+	bubblehelp.SetKeybindVisible(keybind.TKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureTavern)))
 	bubblehelp.SetKeybindVisible(keybind.SKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureMerchant)))
 	bubblehelp.SetKeybindVisible(keybind.MKey,
@@ -314,9 +316,16 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 			return orvyn.SwitchScreen(screen.IDBank), false
 		}
 
+	case key.Matches(msg, keybind.TKey):
+		if bubblehelp.IsKeybindVisible(keybind.TKey) {
+			s.tavernSleep()
+
+			return nil, true
+		}
+
 	case key.Matches(msg, keybind.RKey):
 		if bubblehelp.IsKeybindVisible(keybind.RKey) {
-			s.tavernSleep()
+			s.tavernRegen()
 
 			return nil, true
 		}

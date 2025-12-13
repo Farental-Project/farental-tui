@@ -247,9 +247,12 @@ func InitContexts() {
 	locationServicesKeymap.Style = mainHelpStyle
 	locationServicesKeymap.NewKeyBinding(BKey, true)
 	locationServicesKeymap.SetHelpDesc(BKey, lokyn.L("bank"))
+	locationServicesKeymap.NewKeyBinding(TKey, true)
+	locationServicesKeymap.SetHelpDesc(TKey, fmt.Sprintf(
+		lokyn.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
 	locationServicesKeymap.NewKeyBinding(RKey, true)
 	locationServicesKeymap.SetHelpDesc(RKey, fmt.Sprintf(
-		lokyn.L("sleep in tavern (cost: 10%c)"), art.CharGrynars))
+		lokyn.L("regen HP and MP (cost: 20%c)"), art.CharGrynars))
 	locationServicesKeymap.NewKeyBinding(SKey, true)
 	locationServicesKeymap.SetHelpDesc(SKey, lokyn.L("shop"))
 	locationServicesKeymap.NewKeyBinding(MKey, true)

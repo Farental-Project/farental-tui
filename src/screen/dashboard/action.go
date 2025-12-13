@@ -5,9 +5,10 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
+	"log"
+
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
-	"log"
 )
 
 func (s *Screen) runningTaskError() {
@@ -30,6 +31,22 @@ func (s *Screen) tavernSleep() {
 
 	s.statusMessage.SetMessage(
 		lokyn.L("New respawn location set !"),
+		statusmessage.SuccessMessage,
+	)
+
+	s.updateData()
+}
+
+func (s *Screen) tavernRegen() {
+	_, err := helper.SendRequest(request.LocationTavernRegen())
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	s.statusMessage.SetMessage(
+		lokyn.L("HP and MP fully regenerated !"),
 		statusmessage.SuccessMessage,
 	)
 

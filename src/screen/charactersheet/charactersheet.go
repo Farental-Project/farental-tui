@@ -90,6 +90,8 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterSheet)
 
+	s.statusMessage.Reset()
+
 	s.updateData()
 
 	return nil
