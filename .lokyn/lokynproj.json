@@ -1,1 +1,5 @@
-{"ExportDir":"src/translations","ManagedLanguages":["en","fr","de"]}
+{
+  "LocationPath": "/home/halsten/Dev/Farental/farental-tui/",
+  "ExportDir": "src/translations",
+  "ManagedLanguages": ["en", "fr", "de"]
+}

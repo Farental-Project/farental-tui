@@ -373,7 +373,7 @@ func InitContexts() {
 	ScriptEditorRulesListKeymap.NewKeyBinding(IKey, true)
 	ScriptEditorRulesListKeymap.SetHelpDesc(IKey, lokyn.L("insert"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(CKey, true)
-	ScriptEditorRulesListKeymap.SetHelpDesc(CKey, lokyn.L(("copy")))
+	ScriptEditorRulesListKeymap.SetHelpDesc(CKey, lokyn.L("copy"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(DKey, true)
 	ScriptEditorRulesListKeymap.SetHelpDesc(DKey, lokyn.L("delete"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(SKeyCtrl, true)
