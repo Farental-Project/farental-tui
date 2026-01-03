@@ -73,7 +73,7 @@ func (w *Widget) GetData() Data {
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	size.Height = 7
+	size.Height = 10
 
 	w.BaseWidget.Resize(size)
 }
@@ -143,9 +143,9 @@ func (w *Widget) Render() string {
 			b.WriteString("\n")
 		}
 
-		b.WriteString(fmt.Sprintf("%dx %s",
+		fmt.Fprintf(b, "%dx %s",
 			ingredient.Amount,
-			ingredient.Item.Name))
+			ingredient.Item.Name)
 
 		count++
 	}
