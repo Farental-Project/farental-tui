@@ -42,8 +42,8 @@ func (w *Widget) Render() string {
 		b.WriteString("No attachments")
 	} else {
 		if w.mail.MoneyAmount > 0 {
-			b.WriteString(fmt.Sprintf("%d %s", w.mail.MoneyAmount,
-				t.Style(theme.HighlightTextStyleID).Render(string(art.CharGrynars))))
+			fmt.Fprintf(&b, "%d %s", w.mail.MoneyAmount,
+				t.Style(theme.HighlightTextStyleID).Render(string(art.CharGrynars)))
 			b.WriteString("\n")
 		}
 
@@ -54,8 +54,8 @@ func (w *Widget) Render() string {
 					b.WriteString("\n")
 				}
 
-				b.WriteString(fmt.Sprintf("%c %dx %s",
-					art.CharBullet, a.Amount, a.ItemName))
+				fmt.Fprintf(&b, "%c %dx %s",
+					art.CharBullet, a.Amount, a.ItemName)
 			}
 		}
 

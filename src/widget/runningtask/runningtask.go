@@ -89,8 +89,8 @@ func (w *Widget) Render() string {
 		b.WriteString("\n")
 
 		if context.RunningTask.RemainingTimeHours > 0 {
-			b.WriteString(fmt.Sprintf("%s : %s", lokyn.L("Remaining time"),
-				helper.HoursDecFormat(context.RunningTask.RemainingTimeHours)))
+			fmt.Fprintf(&b, "%s : %s", lokyn.L("Remaining time"),
+				helper.HoursDecFormat(context.RunningTask.RemainingTimeHours))
 			b.WriteString("\n")
 			b.WriteString(w.Style.SpinnerWidget.Render(w.spinner.View()))
 		} else {

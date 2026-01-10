@@ -100,7 +100,7 @@ func (w *Widget) Render() string {
 			left.WriteString("\n")
 		}
 
-		left.WriteString(fmt.Sprintf("%s (%d)", a.Name, a.Power))
+		fmt.Fprintf(&left, "%s (%d)", a.Name, a.Power)
 
 		count++
 	}

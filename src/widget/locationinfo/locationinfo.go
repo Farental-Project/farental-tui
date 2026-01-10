@@ -83,17 +83,16 @@ func (w *Widget) constructTitle(location *api.LocationResponse) {
 	b.WriteString("\n")
 	b.WriteString(t.Style(theme.NeutralDimTextStyleID).Render(location.Continent.Name))
 	b.WriteString("\n")
-	b.WriteString(fmt.Sprintf("%s | %s",
+	fmt.Fprintf(&b, "%s | %s",
 		t.Style(theme.NeutralDimTextStyleID).Render(location.Type.Name),
-		style.LocationBiomeStyle(location.Biome.Code).Render(location.Biome.Name)),
-	)
+		style.LocationBiomeStyle(location.Biome.Code).Render(location.Biome.Name))
 
 	if len(location.Features) > 0 {
 		b.WriteString("\n")
 
 		for _, f := range location.Features {
 			if features.Len() > 0 {
-				features.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
+				fmt.Fprintf(&features, " %c ", art.CharBullet)
 			}
 
 			features.WriteString(f.Name)

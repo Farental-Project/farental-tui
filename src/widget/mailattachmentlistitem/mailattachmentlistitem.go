@@ -53,7 +53,7 @@ func (w *Widget) Render() string {
 
 	s = w.GetStyle()
 
-	b.WriteString(fmt.Sprintf("%dx %s", w.data.Count, w.data.Item.Name))
+	fmt.Fprintf(&b, "%dx %s", w.data.Count, w.data.Item.Name)
 
 	tui := s.Width(width).Render(b.String())
 

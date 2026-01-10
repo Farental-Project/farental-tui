@@ -51,7 +51,7 @@ func (w *Widget) UpdateData(data api.TravelResponse) {
 
 	for _, f := range w.data.DestLocation.Features {
 		if b.Len() > 0 {
-			b.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
+			fmt.Fprintf(&b, " %c ", art.CharBullet)
 		}
 
 		b.WriteString(f.Name)

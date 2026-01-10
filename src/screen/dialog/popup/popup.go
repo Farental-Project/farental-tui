@@ -79,12 +79,12 @@ func New(config Config) *Screen {
 
 	for i, o := range config.Options {
 		if i > 0 {
-			b.WriteString(fmt.Sprintf(" %c ", art.CharBullet))
+			fmt.Fprintf(&b, " %c ", art.CharBullet)
 		}
 
-		b.WriteString(fmt.Sprintf("%s %s",
+		fmt.Fprintf(&b, "%s %s",
 			t.Style(theme.NormalTextStyleID).Render(o.Keybind.Help().Key),
-			t.Style(theme.DimTextStyleID).Render(o.Text)))
+			t.Style(theme.DimTextStyleID).Render(o.Text))
 	}
 
 	s.options = orvyn.NewSimpleRenderable(b.String())

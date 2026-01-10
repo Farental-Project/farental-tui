@@ -1,6 +1,7 @@
 package inventorystackinspect
 
 import (
+	"farental/art"
 	"farental/core/data/api"
 	ftheme "farental/internal/theme"
 	"fmt"
@@ -120,7 +121,7 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 				b.WriteString("\n")
 			}
 
-			b.WriteString(fmt.Sprintf("• %s : %d", s.Stat.Name, s.Value))
+			fmt.Fprintf(&b, "%c %s : %d", art.CharBullet, s.Stat.Name, s.Value)
 		}
 
 		show = b.Len() > 0
@@ -140,7 +141,7 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 					b.WriteString("\n")
 				}
 
-				b.WriteString(fmt.Sprintf("• %s", c))
+				fmt.Fprintf(&b, "%c %s", art.CharBullet, c)
 			}
 		}
 
@@ -168,7 +169,7 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 				b.WriteString("\n")
 			}
 
-			b.WriteString(fmt.Sprintf("• %s", r))
+			fmt.Fprintf(&b, "%c %s", art.CharBullet, r)
 		}
 
 		show = b.Len() > 0
