@@ -355,7 +355,7 @@ func (s *Screen) changeMode() {
 
 func (s *Screen) checkRunningTask() bool {
 	if context.RunningTask != nil {
-		s.statusMessage.SetMessage(lokyn.L("A task is running. Claim it before doing this."), statusmessage.InformationMessage)
+		s.statusMessage.SetMessage(lokyn.L("A task is running. Claim the reward before doing this."), statusmessage.InformationMessage)
 		return false
 	}
 

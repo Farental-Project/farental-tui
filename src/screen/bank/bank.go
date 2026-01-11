@@ -56,7 +56,7 @@ func New() *Screen {
 
 	s.errMsg = nil
 
-	s.characterInventoryTitle = orvyn.NewSimpleRenderable(lokyn.L("Inventaire"))
+	s.characterInventoryTitle = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
 	s.characterInventoryTitle.SizeConstraint = true
 	s.characterInventoryTitle.Style = ts
 

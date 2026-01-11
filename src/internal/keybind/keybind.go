@@ -68,10 +68,10 @@ func Init() {
 		key.WithHelp("→/l", lokyn.L("move right")))
 	ShiftUp = key.NewBinding(
 		key.WithKeys("shift+up", "K"),
-		key.WithHelp("shift + ↑/k", lokyn.L("move up shift")))
+		key.WithHelp("shift + ↑/k", "move up shift"))
 	ShiftDown = key.NewBinding(
 		key.WithKeys("shift+down", "J"),
-		key.WithHelp("shift + ↓/j", lokyn.L("move down shift")))
+		key.WithHelp("shift + ↓/j", "move down shift"))
 	ShiftLeft = key.NewBinding(
 		key.WithKeys("shift+left", "H"),
 		key.WithHelp("shift + ←/h", "move left step"))
