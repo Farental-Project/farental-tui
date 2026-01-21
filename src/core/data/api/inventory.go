@@ -1,7 +1,9 @@
 package api
 
 type InventoryResponse struct {
-	Stacks []StackResponse
+	MaxStacks   int
+	StacksCount int
+	Stacks      []StackResponse
 }
 
 type StackResponse struct {

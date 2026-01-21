@@ -10,6 +10,7 @@ import (
 	"farental/widget/help"
 	"farental/widget/inventorylistitem"
 	"farental/widget/inventorystackinspect"
+	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,11 +36,12 @@ type Screen struct {
 	inventoryTitle string
 	equippedTitle  string
 
-	title         *orvyn.SimpleRenderable
-	list          *list.Widget[api.StackResponse]
-	inspector     *inventorystackinspect.Widget
-	statusMessage *statusmessage.Widget
-	help          *help.Widget
+	title           *orvyn.SimpleRenderable
+	stackCountTitle *orvyn.SimpleRenderable
+	list            *list.Widget[api.StackResponse]
+	inspector       *inventorystackinspect.Widget
+	statusMessage   *statusmessage.Widget
+	help            *help.Widget
 
 	layout *layout.CenterLayout
 }
@@ -54,6 +56,9 @@ func New() *Screen {
 
 	s.title = orvyn.NewSimpleRenderable(s.inventoryTitle)
 	s.title.Style = t.Style(theme.TitleStyleID)
+
+	s.stackCountTitle = orvyn.NewSimpleRenderable("")
+	s.stackCountTitle.Style = t.Style(theme.NormalTextStyleID)
 
 	s.list = list.New(inventorylistitem.Constructor)
 
@@ -75,8 +80,9 @@ func New() *Screen {
 	inventoryLayout := layout.NewHBoxFixedRatioLayout(0, 1, 0, inventoryElements...)
 
 	s.layout = layout.NewCenterLayout(
-		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
+		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 3,
 			s.title,
+			s.stackCountTitle,
 			orvyn.VGap,
 			inventoryLayout,
 			s.statusMessage,
@@ -198,6 +204,9 @@ func (s *Screen) loadInventory() {
 	inventory = *resp.Result().(*api.InventoryResponse)
 
 	s.list.SetItems(inventory.Stacks)
+
+	s.stackCountTitle.SetValue(fmt.Sprintf("%s (%d / %d)",
+		lokyn.L("Stacks"), inventory.StacksCount, inventory.MaxStacks))
 }
 
 func (s *Screen) loadEquippedInventory() {
