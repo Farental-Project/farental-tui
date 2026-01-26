@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type RuleTypeListItem struct {
@@ -22,7 +23,7 @@ type RuleTypeListItem struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data api.ScriptRuleTypeResponse) list.ListItem[api.ScriptRuleTypeResponse] {
+func Constructor(data api.ScriptRuleTypeResponse) widgetlist.ListItem[api.ScriptRuleTypeResponse] {
 	w := new(RuleTypeListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
@@ -76,10 +77,12 @@ func (r *RuleTypeListItem) OnBlur() {
 	r.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
-func (r *RuleTypeListItem) OnEnterInput() {
+func (r *RuleTypeListItem) OnEnterInput() tea.Cmd {
+	return nil
 }
 
-func (r *RuleTypeListItem) OnExitInput() {
+func (r *RuleTypeListItem) OnExitInput() tea.Cmd {
+	return nil
 }
 
 func (r *RuleTypeListItem) FilterValue() string {

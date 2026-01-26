@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Widget struct {
@@ -23,7 +23,7 @@ type Widget struct {
 	featuresList string
 }
 
-func Constructor(data api.TravelResponse) list.ListItem[api.TravelResponse] {
+func Constructor(data api.TravelResponse) widgetlist.ListItem[api.TravelResponse] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()

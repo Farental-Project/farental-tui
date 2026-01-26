@@ -11,14 +11,14 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Screen[T any] struct {
 	title *orvyn.SimpleRenderable
 
-	list *list.Widget[T]
+	list *widgetlist.Widget[T]
 
 	statusMessage *statusmessage.Widget
 
@@ -32,7 +32,7 @@ type Screen[T any] struct {
 	submitCallback   func() bool
 }
 
-func New[T any](title string, constructor list.ItemConstructor[T],
+func New[T any](title string, constructor widgetlist.ItemConstructor[T],
 	loadDataCallback func(), submitCallback func() bool) Screen[T] {
 	s := Screen[T]{}
 
@@ -44,7 +44,7 @@ func New[T any](title string, constructor list.ItemConstructor[T],
 	s.title = orvyn.NewSimpleRenderable(title)
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
-	s.list = list.New(constructor)
+	s.list = widgetlist.New(constructor)
 
 	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 13))
 	s.list.SetMinSize(orvyn.NewSize(6, 13))
@@ -96,12 +96,12 @@ func (s *Screen[T]) Update(msg tea.Msg) tea.Cmd {
 			return tea.Quit
 
 		case key.Matches(msg, keybind.Esc):
-			if s.list.FilterState() == list.Unfiltered {
+			if s.list.FilterState() == widgetlist.Unfiltered {
 				return orvyn.SwitchToPreviousScreen()
 			}
 
 		case key.Matches(msg, keybind.Enter):
-			if s.list.FilterState() != list.Filtering {
+			if s.list.FilterState() != widgetlist.Filtering {
 				if s.submitCallback() {
 					if len(s.submitScreenID) > 0 {
 						return orvyn.SwitchScreen(s.submitScreenID)
@@ -114,7 +114,7 @@ func (s *Screen[T]) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(msg, keybind.Help):
-			if s.list.FilterState() != list.Filtering {
+			if s.list.FilterState() != widgetlist.Filtering {
 				bubblehelp.ShowAll = !bubblehelp.ShowAll
 
 				return nil
@@ -147,7 +147,7 @@ func (s *Screen[T]) GetSelectedItem() T {
 	return s.list.GetSelectedItem()
 }
 
-func (s *Screen[T]) GetFilteringState() list.FilterState {
+func (s *Screen[T]) GetFilteringState() widgetlist.FilterState {
 	return s.list.FilterState()
 }
 

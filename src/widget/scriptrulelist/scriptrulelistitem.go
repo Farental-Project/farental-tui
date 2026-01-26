@@ -18,7 +18,7 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type ChangedRuleTypeMsg string
@@ -60,7 +60,7 @@ type ListItem struct {
 	layout *layout.VBoxLayout
 }
 
-func Constructor(data Data) list.ListItem[Data] {
+func Constructor(data Data) widgetlist.ListItem[Data] {
 	inputKeymap := bubblehelp.NewKeymap(2)
 	inputKeymap.Style = style.MainHelpStyle
 	inputKeymap.NewKeyBinding(keybind.Tab, true)
@@ -284,14 +284,18 @@ func (w *ListItem) Render() string {
 		Render(w.layout.Render())
 }
 
-func (w *ListItem) OnEnterInput() {
+func (w *ListItem) OnEnterInput() tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesListItem)
 	w.focusManager.FocusFirst()
+
+	return nil
 }
 
-func (w *ListItem) OnExitInput() {
+func (w *ListItem) OnExitInput() tea.Cmd {
 	w.focusManager.BlurCurrent()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
+
+	return nil
 }
 
 func (w *ListItem) GetEnterInputKeybind() *key.Binding {

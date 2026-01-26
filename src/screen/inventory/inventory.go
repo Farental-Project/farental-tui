@@ -19,8 +19,8 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type inventoryMode uint8
@@ -38,7 +38,7 @@ type Screen struct {
 
 	title           *orvyn.SimpleRenderable
 	stackCountTitle *orvyn.SimpleRenderable
-	list            *list.Widget[api.StackResponse]
+	list            *widgetlist.Widget[api.StackResponse]
 	inspector       *inventorystackinspect.Widget
 	statusMessage   *statusmessage.Widget
 	help            *help.Widget
@@ -60,7 +60,7 @@ func New() *Screen {
 	s.stackCountTitle = orvyn.NewSimpleRenderable("")
 	s.stackCountTitle.Style = t.Style(theme.NormalTextStyleID)
 
-	s.list = list.New(inventorylistitem.Constructor)
+	s.list = widgetlist.New(inventorylistitem.Constructor)
 
 	s.list.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
 	s.list.SetMinSize(orvyn.NewSize(30, 13))
@@ -124,12 +124,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return tea.Quit
 
 		case key.Matches(msg, keybind.Esc):
-			if s.list.FilterState() == list.Unfiltered {
+			if s.list.FilterState() == widgetlist.Unfiltered {
 				return orvyn.SwitchToPreviousScreen()
 			}
 
 		case key.Matches(msg, keybind.Help):
-			if s.list.FilterState() != list.Filtering {
+			if s.list.FilterState() != widgetlist.Filtering {
 				bubblehelp.ShowAll = !bubblehelp.ShowAll
 			}
 
@@ -149,7 +149,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	if s.list.FilterState() == list.Filtering {
+	if s.list.FilterState() == widgetlist.Filtering {
 		return cmd
 	}
 

@@ -12,7 +12,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type ParamData struct {
@@ -24,7 +24,7 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	parameters *list.Widget[ParamData]
+	parameters *widgetlist.Widget[ParamData]
 }
 
 func New() *Widget {
@@ -33,7 +33,7 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
-	w.parameters = list.New(Constructor)
+	w.parameters = widgetlist.New(Constructor)
 	w.parameters.SetFilterable(false)
 	w.parameters.SetCursorMovementKeybinds(keybind.Tab, keybind.ShiftTab)
 	w.parameters.InfiniteScroll = true
@@ -80,14 +80,18 @@ func (w *Widget) OnBlur() {
 	w.parameters.OnBlur()
 }
 
-func (w *Widget) OnEnterInput() {
+func (w *Widget) OnEnterInput() tea.Cmd {
 	w.parameters.FocusFirst()
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorRuleInspector)
+
+	return nil
 }
 
-func (w *Widget) OnExitInput() {
+func (w *Widget) OnExitInput() tea.Cmd {
 	w.parameters.BlurCurrent()
 	bubblehelp.SwitchToPreviousContext()
+
+	return nil
 }
 
 func (w *Widget) GetFocusKeybind() *key.Binding {

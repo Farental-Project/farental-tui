@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 	"github.com/spf13/viper"
 )
 
@@ -19,7 +19,7 @@ type Widget struct {
 	data api.MailBasicResponse
 }
 
-func Constructor(data api.MailBasicResponse) list.ListItem[api.MailBasicResponse] {
+func Constructor(data api.MailBasicResponse) widgetlist.ListItem[api.MailBasicResponse] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()

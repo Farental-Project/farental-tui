@@ -18,7 +18,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type viewType uint8
@@ -96,19 +96,19 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.NKey):
-			if s.GetFilteringState() != list.Filtering {
+			if s.GetFilteringState() != widgetlist.Filtering {
 				s.newScript = true
 				return orvyn.SwitchScreen(screen.IDScriptEditor)
 			}
 
 		case key.Matches(m, keybind.EKey):
-			if s.GetFilteringState() != list.Filtering {
+			if s.GetFilteringState() != widgetlist.Filtering {
 				s.newScript = false
 				return orvyn.SwitchScreen(screen.IDScriptEditor)
 			}
 
 		case key.Matches(m, keybind.DKey):
-			if s.GetFilteringState() != list.Filtering &&
+			if s.GetFilteringState() != widgetlist.Filtering &&
 				bubblehelp.IsKeybindVisible(keybind.DKey) {
 				orvyn.OpenDialog("deleteConfirm", popup.NewYesNo(
 					lokyn.L("Are you sure you want to delete the script ?"),
@@ -116,13 +116,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(m, keybind.CKey):
-			if s.GetFilteringState() != list.Filtering {
+			if s.GetFilteringState() != widgetlist.Filtering {
 				s.duplicateScript = true
 				return orvyn.SwitchScreen(screen.IDScriptEditor)
 			}
 
 		case key.Matches(m, keybind.Tab):
-			if s.GetFilteringState() != list.Filtering {
+			if s.GetFilteringState() != widgetlist.Filtering {
 				s.switchViewType()
 				s.loadScripts()
 				s.FocusFirst()

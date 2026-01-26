@@ -119,7 +119,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.viewport.Height = contentSize.Height -
 		lipgloss.Height(t.Style(ftheme.DimUnderlinedTextStyleID).Render(" "))
 
-	if !orvyn.SameSize(s, currentSize) {
+	if s != currentSize {
 		w.refresh()
 	}
 }

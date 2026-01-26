@@ -8,8 +8,8 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/widget/label"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/textinput"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type PossibleValueData struct {
@@ -36,7 +36,7 @@ type ListItem struct {
 	layout *layout.VBoxLayout
 }
 
-func Constructor(data ParamData) list.ListItem[ParamData] {
+func Constructor(data ParamData) widgetlist.ListItem[ParamData] {
 	w := new(ListItem)
 
 	w.BaseWidget = orvyn.NewBaseWidget()

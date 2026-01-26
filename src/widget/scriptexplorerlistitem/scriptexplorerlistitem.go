@@ -10,7 +10,7 @@ import (
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Widget struct {
@@ -20,7 +20,7 @@ type Widget struct {
 	data api.ScriptBasicResponse
 }
 
-func Constructor(data api.ScriptBasicResponse) list.ListItem[api.ScriptBasicResponse] {
+func Constructor(data api.ScriptBasicResponse) widgetlist.ListItem[api.ScriptBasicResponse] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()

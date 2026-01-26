@@ -137,7 +137,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.viewport.Width = size.Width
 	w.viewport.Height = size.Height
 
-	if !orvyn.SameSize(size, w.GetSize()) {
+	if size != w.GetSize() {
 		w.refresh()
 	}
 

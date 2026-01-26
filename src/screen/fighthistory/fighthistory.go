@@ -19,14 +19,14 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	list *list.Widget[fighthistorylistitem.Data]
+	list *widgetlist.Widget[fighthistorylistitem.Data]
 	log  *simplelogviewer.Widget
 
 	statusMessage *statusmessage.Widget
@@ -48,7 +48,7 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable("Fight history")
 	s.title.Style = t.Style(theme.TitleStyleID)
 
-	s.list = list.New(fighthistorylistitem.Constructor)
+	s.list = widgetlist.New(fighthistorylistitem.Constructor)
 
 	logStyle := simplelogviewer.Style{
 		FocusedWidget: t.Style(theme.FocusedWidgetStyleID),

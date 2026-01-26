@@ -118,16 +118,20 @@ func (w *Widget) OnFocus() {
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
 }
 
-func (w *Widget) OnEnterInput() {
+func (w *Widget) OnEnterInput() tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextBasicEditMode)
 
 	w.focusManager.FocusFirst()
+
+	return nil
 }
 
-func (w *Widget) OnExitInput() {
+func (w *Widget) OnExitInput() tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
 
 	w.focusManager.BlurCurrent()
+
+	return nil
 }
 
 func (w *Widget) GetFocusKeybind() *key.Binding {

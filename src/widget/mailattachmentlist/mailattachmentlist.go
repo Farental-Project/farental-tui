@@ -11,7 +11,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type ShowAttachmentSelectMsg uint
@@ -29,7 +29,7 @@ func DeleteAttachmentCmd(index int) tea.Cmd {
 }
 
 type Widget struct {
-	list.Widget[api.StackResponse]
+	widgetlist.Widget[api.StackResponse]
 }
 
 func New() *Widget {
@@ -50,7 +50,7 @@ func New() *Widget {
 
 	w.Widget.SetPreferredSize(orvyn.NewSize(0, 13))
 
-	w.Widget = *list.New(mailattachmentlistitem.Constructor)
+	w.Widget = *widgetlist.New(mailattachmentlistitem.Constructor)
 	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)
 	w.Widget.SetFilterable(false)
 

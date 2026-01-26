@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type DurationData struct {
@@ -34,7 +34,7 @@ type Widget struct {
 	data Data
 }
 
-func Constructor(data Data) list.ListItem[Data] {
+func Constructor(data Data) widgetlist.ListItem[Data] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()

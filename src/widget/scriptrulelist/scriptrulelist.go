@@ -15,11 +15,11 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Widget struct {
-	list.Widget[Data]
+	widgetlist.Widget[Data]
 	readOnly bool
 }
 
@@ -36,7 +36,7 @@ func New() *Widget {
 
 	w := new(Widget)
 
-	w.Widget = *list.New(Constructor)
+	w.Widget = *widgetlist.New(Constructor)
 	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)
 	w.Widget.AutoFocusNewItem = true
 

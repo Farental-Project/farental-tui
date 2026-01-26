@@ -19,8 +19,8 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type gotoDashboardMsg int
@@ -38,7 +38,7 @@ func gotoCharacterCreationCmd() tea.Msg {
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	list *list.Widget[api.CharacterBasicResponse]
+	list *widgetlist.Widget[api.CharacterBasicResponse]
 
 	statusMessage *statusmessage.Widget
 
@@ -58,7 +58,7 @@ func New() *Screen {
 		t.Style(theme.TitleStyleID).Render(lokyn.L("Character selection")),
 	)
 
-	s.list = list.New(characterbasiclistitem.Constructor)
+	s.list = widgetlist.New(characterbasiclistitem.Constructor)
 	s.list.SetFilterable(false)
 
 	s.list.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 13))

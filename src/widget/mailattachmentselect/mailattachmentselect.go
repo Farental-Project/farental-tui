@@ -14,7 +14,7 @@ import (
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type HideAttachmentSelectMsg uint
@@ -43,7 +43,7 @@ type Widget struct {
 
 	title *orvyn.SimpleRenderable
 
-	list *list.Widget[mailattachmentselectlistitem.Data]
+	list *widgetlist.Widget[mailattachmentselectlistitem.Data]
 
 	layout *layout.VBoxFullLayout
 }
@@ -60,7 +60,7 @@ func New() *Widget {
 	w.title.Style = t.Style(ftheme.DimUnderlinedTextStyleID)
 	w.title.SizeConstraint = true
 
-	w.list = list.New(mailattachmentselectlistitem.Constructor)
+	w.list = widgetlist.New(mailattachmentselectlistitem.Constructor)
 
 	w.layout = layout.NewMaxWidthVBoxFullLayout(
 		orvyn.NewSize(0, 0),
@@ -81,7 +81,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keybind.Enter):
-			if w.list.FilterState() != list.Filtering {
+			if w.list.FilterState() != widgetlist.Filtering {
 				selectedItem := w.list.GetSelectedItem()
 
 				if selectedItem.Amount > 0 {
@@ -90,7 +90,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(msg, keybind.Esc):
-			if w.list.FilterState() == list.Unfiltered {
+			if w.list.FilterState() == widgetlist.Unfiltered {
 				return HideAttachmentSelectCmd
 			}
 
@@ -121,16 +121,18 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.layout.Resize(w.GetContentSize())
 }
 
-func (w *Widget) OnEnterInput() {
+func (w *Widget) OnEnterInput() tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListIncDec)
+	return nil
 }
 
-func (w *Widget) OnExitInput() {
+func (w *Widget) OnExitInput() tea.Cmd {
 	bubblehelp.SwitchToPreviousContext()
+	return nil
 }
 
 func (w *Widget) CanExitInputting() bool {
-	return w.list.FilterState() == list.Unfiltered
+	return w.list.FilterState() == widgetlist.Unfiltered
 }
 
 func (w *Widget) LoadData(filterItems []mailattachmentselectlistitem.Data) {

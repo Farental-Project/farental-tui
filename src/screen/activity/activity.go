@@ -7,6 +7,7 @@ import (
 	"farental/internal/keybind"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/activitylistitem"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"

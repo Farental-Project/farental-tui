@@ -11,7 +11,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Screen struct {
@@ -35,7 +35,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.Enter):
-			if s.GetFilteringState() != list.Filtering {
+			if s.GetFilteringState() != widgetlist.Filtering {
 				if s.submit() {
 					s.submitted = true
 					return orvyn.CloseDialog()
@@ -43,7 +43,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			}
 
 		case key.Matches(m, keybind.Esc):
-			if s.GetFilteringState() == list.Unfiltered {
+			if s.GetFilteringState() == widgetlist.Unfiltered {
 				return orvyn.CloseDialog()
 			}
 		}

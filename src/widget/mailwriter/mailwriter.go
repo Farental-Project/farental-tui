@@ -107,14 +107,18 @@ func (w *Widget) OnFocus() {
 	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
 }
 
-func (w *Widget) OnEnterInput() {
+func (w *Widget) OnEnterInput() tea.Cmd {
 	w.focusManager.Focus(0)
 	bubblehelp.SwitchContext(keybind.ContextBasicEditMode)
+
+	return nil
 }
 
-func (w *Widget) OnExitInput() {
+func (w *Widget) OnExitInput() tea.Cmd {
 	w.focusManager.BlurCurrent()
 	bubblehelp.SwitchContext(keybind.ContextMailWidgetNormalMode)
+
+	return nil
 }
 
 func (w *Widget) GetEnterInputKeybind() *key.Binding {

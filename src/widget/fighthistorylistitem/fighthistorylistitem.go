@@ -13,7 +13,7 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 	"github.com/spf13/viper"
 )
 
@@ -31,7 +31,7 @@ type Widget struct {
 	paginator paginator.Model
 }
 
-func Constructor(data Data) list.ListItem[Data] {
+func Constructor(data Data) widgetlist.ListItem[Data] {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()

@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type AbilityListItem struct {
@@ -43,7 +44,7 @@ type AbilityListItem struct {
 	contentSize orvyn.Size
 }
 
-func Constructor(data api.AbilityResponse) list.ListItem[api.AbilityResponse] {
+func Constructor(data api.AbilityResponse) widgetlist.ListItem[api.AbilityResponse] {
 	a := new(AbilityListItem)
 
 	t := orvyn.GetTheme()
@@ -207,12 +208,12 @@ func (a *AbilityListItem) OnBlur() {
 	a.style = orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
 }
 
-func (a *AbilityListItem) OnEnterInput() {
-
+func (a *AbilityListItem) OnEnterInput() tea.Cmd {
+	return nil
 }
 
-func (a *AbilityListItem) OnExitInput() {
-
+func (a *AbilityListItem) OnExitInput() tea.Cmd {
+	return nil
 }
 
 func (a *AbilityListItem) FilterValue() string {

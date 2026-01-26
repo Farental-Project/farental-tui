@@ -20,14 +20,14 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	inventoryList *list.Widget[inventoryshoplistitem.Data]
+	inventoryList *widgetlist.Widget[inventoryshoplistitem.Data]
 
 	statusMessage *statusmessage.Widget
 
@@ -44,7 +44,7 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable(lokyn.L("Shop"))
 	s.title.Style = t.Style(theme.TitleStyleID)
 
-	s.inventoryList = list.New(inventoryshoplistitem.Constructor)
+	s.inventoryList = widgetlist.New(inventoryshoplistitem.Constructor)
 
 	s.statusMessage = statusmessage.New()
 

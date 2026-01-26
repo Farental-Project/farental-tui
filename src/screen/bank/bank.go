@@ -24,8 +24,8 @@ import (
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/list"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
 type Screen struct {
@@ -34,10 +34,10 @@ type Screen struct {
 	errMsg             error
 
 	characterInventoryTitle *orvyn.SimpleRenderable
-	characterInventoryList  *list.Widget[inventorygroupedlistitem.Data]
+	characterInventoryList  *widgetlist.Widget[inventorygroupedlistitem.Data]
 
 	bankInventoryTitle *orvyn.SimpleRenderable
-	bankInventoryList  *list.Widget[inventorygroupedlistitem.Data]
+	bankInventoryList  *widgetlist.Widget[inventorygroupedlistitem.Data]
 
 	statusMessage *statusmessage.Widget
 
@@ -60,14 +60,14 @@ func New() *Screen {
 	s.characterInventoryTitle.SizeConstraint = true
 	s.characterInventoryTitle.Style = ts
 
-	s.characterInventoryList = list.New(inventorygroupedlistitem.Constructor)
+	s.characterInventoryList = widgetlist.New(inventorygroupedlistitem.Constructor)
 	s.characterInventoryList.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
 	s.characterInventoryList.SetMinSize(orvyn.NewSize(6, 13))
 
 	s.bankInventoryTitle = orvyn.NewSimpleRenderable("")
 	s.bankInventoryTitle.SizeConstraint = true
 
-	s.bankInventoryList = list.New(inventorygroupedlistitem.Constructor)
+	s.bankInventoryList = widgetlist.New(inventorygroupedlistitem.Constructor)
 	s.bankInventoryList.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
 	s.bankInventoryList.SetMinSize(orvyn.NewSize(6, 13))
 
@@ -146,11 +146,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.statusMessage.Reset()
 		switch {
 		case key.Matches(msg, keybind.Esc):
-			if s.currentListFilterState() == list.Unfiltered {
+			if s.currentListFilterState() == widgetlist.Unfiltered {
 				return orvyn.SwitchScreen(screen.IDDashBoard)
 			}
 		case key.Matches(msg, keybind.TKey):
-			s.transfertItem()
+			s.transferItem()
 
 			return nil
 
@@ -294,7 +294,7 @@ func (s *Screen) initListItems(inventory *api.InventoryResponse) []inventorygrou
 	return listItemsData
 }
 
-func (s *Screen) transfertItem() {
+func (s *Screen) transferItem() {
 	var item inventorygroupedlistitem.Data
 	var toBank bool
 	var req *resty.Request
@@ -355,7 +355,7 @@ func (s *Screen) buyUpgrade() {
 	}
 }
 
-func (s *Screen) currentListFilterState() list.FilterState {
+func (s *Screen) currentListFilterState() widgetlist.FilterState {
 	tabIndex := s.focusManager.TabIndex()
 
 	switch tabIndex {
@@ -365,7 +365,7 @@ func (s *Screen) currentListFilterState() list.FilterState {
 		return s.bankInventoryList.FilterState()
 	}
 
-	return list.Unfiltered
+	return widgetlist.Unfiltered
 }
 
 func findItemIndex(itemID uint, data *[]inventorygroupedlistitem.Data) int {
