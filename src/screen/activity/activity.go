@@ -5,8 +5,9 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/screen/generic/selectionlist"
+	"farental/screen/generic/skillgroupedselectionlist"
 	"farental/widget/activitylistitem"
+	"farental/widget/skillgrouplistitem"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -14,13 +15,13 @@ import (
 )
 
 type Screen struct {
-	selectionlist.Screen[activitylistitem.Data]
+	skillgroupedselectionlist.Screen[activitylistitem.Data]
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Activities"), activitylistitem.Constructor,
+	s.Screen = skillgroupedselectionlist.New(lokyn.L("Activities"), activitylistitem.Constructor,
 		s.loadActivities, s.submit)
 
 	return s
@@ -36,6 +37,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) loadActivities() {
 	var activities []api.ActivityResponse
+	var groups []skillgrouplistitem.Data[activitylistitem.Data]
 
 	resp, err := helper.SendRequest(request.ActivityGetAvailable())
 
@@ -45,17 +47,31 @@ func (s *Screen) loadActivities() {
 	}
 
 	activities = *resp.Result().(*[]api.ActivityResponse)
-
-	data := make([]activitylistitem.Data, 0)
+	currentSkillID := uint(0)
+	currentGroupIndex := -1
 
 	for _, a := range activities {
-		data = append(data, activitylistitem.Data{
+		if currentSkillID != a.Skill.ID {
+			currentSkillID = a.Skill.ID
+			currentGroupIndex++
+
+			group := skillgrouplistitem.Data[activitylistitem.Data]{
+				Items:     make([]activitylistitem.Data, 0),
+				SkillName: a.Skill.Name,
+			}
+
+			groups = append(groups, group)
+		}
+
+		item := activitylistitem.Data{
 			ActivityResponse: a,
 			DurationIndex:    0,
-		})
+		}
+
+		groups[currentGroupIndex].Items = append(groups[currentGroupIndex].Items, item)
 	}
 
-	s.SetItems(data)
+	s.SetItems(groups)
 }
 
 func (s *Screen) submit() bool {

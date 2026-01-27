@@ -5,22 +5,25 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/screen/generic/selectionlist"
+	"farental/screen/generic/skillgroupedselectionlist"
 	"farental/widget/craftlistitem"
+	"farental/widget/skillgrouplistitem"
+	"log"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
-	"log"
 )
 
 type Screen struct {
-	selectionlist.Screen[craftlistitem.Data]
+	skillgroupedselectionlist.Screen[craftlistitem.Data]
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Crafts"), craftlistitem.Constructor,
+	s.Screen = skillgroupedselectionlist.New(lokyn.L("Crafts"),
+		craftlistitem.Constructor,
 		s.loadCrafts, s.submit)
 
 	return s
@@ -36,7 +39,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) loadCrafts() {
 	var crafts []api.RecipeResponse
-	var data []craftlistitem.Data
+	var groups []skillgrouplistitem.Data[craftlistitem.Data]
 
 	resp, err := helper.SendRequest(request.CraftGetAvailable())
 
@@ -46,19 +49,31 @@ func (s *Screen) loadCrafts() {
 	}
 
 	crafts = *resp.Result().(*[]api.RecipeResponse)
+	currentSkillID := uint(0)
+	currentGroupIndex := -1
 
 	for _, c := range crafts {
+		if currentSkillID != c.Skill.ID {
+			currentSkillID = c.Skill.ID
+			currentGroupIndex++
+
+			group := skillgrouplistitem.Data[craftlistitem.Data]{
+				Items:     make([]craftlistitem.Data, 0),
+				SkillName: c.Skill.Name,
+			}
+
+			groups = append(groups, group)
+		}
+
 		item := craftlistitem.Data{
 			RecipeResponse: c,
 			CraftAmount:    0,
 		}
 
-		data = append(data, item)
+		groups[currentGroupIndex].Items = append(groups[currentGroupIndex].Items, item)
 	}
 
-	s.SetItems(data)
-
-	return
+	s.SetItems(groups)
 }
 
 func (s *Screen) submit() bool {
