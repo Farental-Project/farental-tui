@@ -96,6 +96,8 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextInventory)
 
+	s.statusMessage.Reset()
+
 	s.loadInventory()
 	s.list.FocusFirst()
 
