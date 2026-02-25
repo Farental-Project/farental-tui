@@ -10,4 +10,5 @@ const (
 	FeatureLake              LocationFeature = "lake"
 	FeatureRiver             LocationFeature = "river"
 	FeatureFishermanWorkshop LocationFeature = "fisherman_workshop"
+	FeatureTravelRelay       LocationFeature = "travel_relay"
 )
