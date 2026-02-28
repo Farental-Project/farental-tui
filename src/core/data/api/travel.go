@@ -4,6 +4,10 @@ type TravelStartBody struct {
 	TravelID uint `validate:"required"`
 }
 
+type TravelRelayStartBody struct {
+	DestLocationID uint `validate:"required"`
+}
+
 type TravelResponse struct {
 	ID                      uint
 	FromLocation            LocationResponse
@@ -12,4 +16,10 @@ type TravelResponse struct {
 	Duration                float64
 	Price                   int
 	RequiredLocationFeature LocationFeatureResponse
+}
+
+type TravelRelayResponse struct {
+	DestLocation LocationResponse
+	Duration     float64
+	Price        int
 }
