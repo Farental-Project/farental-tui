@@ -2,6 +2,7 @@ package request
 
 import (
 	"farental/core/data/api"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -15,12 +16,34 @@ func TravelGetAvailable() *resty.Request {
 	return r
 }
 
+func TravelRelayGetAvailable() *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodGet
+	r.URL = "/travel/relay/available"
+	r.SetResult([]api.TravelRelayResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func TravelStart(travelID uint) *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodPost
 	r.URL = "/travel/start"
 	r.SetBody(api.TravelStartBody{
 		TravelID: travelID,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
+func TravelRelayStart(destLocationID uint) *resty.Request {
+	r := client.R()
+	r.Method = resty.MethodPost
+	r.URL = "/travel/relay/start"
+	r.SetBody(api.TravelRelayStartBody{
+		DestLocationID: destLocationID,
 	})
 	r.SetError(api.ErrorResponse{})
 

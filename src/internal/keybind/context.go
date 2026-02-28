@@ -21,6 +21,7 @@ const (
 	ContextFilterSelectionListWithNew     bubblehelp.KeymapContext = "filterSelectionListWithNew"
 	ContextCraft                          bubblehelp.KeymapContext = "craft"
 	ContextInventory                      bubblehelp.KeymapContext = "inventory"
+	ContextTravel                         bubblehelp.KeymapContext = "travel"
 	ContextChat                           bubblehelp.KeymapContext = "chat"
 	ContextLocationServices               bubblehelp.KeymapContext = "locationServices"
 	ContextMailBox                        bubblehelp.KeymapContext = "mailBox"
@@ -222,6 +223,22 @@ func InitContexts() {
 	inventoryKeymap.NewKeyBinding(Help, true)
 
 	bubblehelp.RegisterContext(ContextInventory, inventoryKeymap)
+
+	travelKeymap := bubblehelp.NewKeymap(3)
+	travelKeymap.Style = mainHelpStyle
+	travelKeymap.NewKeyBinding(Up, false)
+	travelKeymap.NewKeyBinding(Down, false)
+	travelKeymap.NewKeyBinding(GotoListStart, false)
+	travelKeymap.NewKeyBinding(GotoListEnd, false)
+	travelKeymap.NewKeyBinding(Filter, true)
+	travelKeymap.NewKeyBinding(Enter, true)
+	travelKeymap.NewKeyBinding(Tab, true)
+	travelKeymap.SetHelpDesc(Tab, lokyn.L("travel relays"))
+	travelKeymap.NewKeyBinding(Esc, true)
+	travelKeymap.NewKeyBinding(Quit, true)
+	travelKeymap.NewKeyBinding(Help, true)
+
+	bubblehelp.RegisterContext(ContextTravel, travelKeymap)
 
 	chatKeymap := bubblehelp.NewKeymap(3)
 	chatKeymap.Style = mainHelpStyle
