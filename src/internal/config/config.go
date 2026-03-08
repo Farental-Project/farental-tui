@@ -13,6 +13,8 @@ const (
 	VERSION = "beta 0.1.0"
 )
 
+var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)
+
 func Init() {
 	var configPath string
 	var err error
@@ -32,7 +34,7 @@ func Init() {
 	}
 
 	// Set defaults
-	viper.SetDefault("baseurl", "http://127.0.0.1:3000")
+	viper.SetDefault("baseurl", BaseURL)
 	viper.SetDefault("language", "en")
 	viper.SetDefault("lastusedemail", "")
 	viper.SetDefault("logintoken", "")

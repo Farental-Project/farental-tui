@@ -17,6 +17,7 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/halsten-dev/orvyn/widget/textinput"
+	"github.com/spf13/viper"
 )
 
 type Screen struct {
@@ -169,6 +170,7 @@ func (s *Screen) submit() bool {
 		s.tiEmail.Value(),
 		s.tiPassword.Value(),
 		s.tiConfirmPassword.Value(),
+		viper.GetString("language"),
 	)
 
 	_, err := helper.SendRequest(req)

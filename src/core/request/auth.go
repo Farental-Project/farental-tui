@@ -16,11 +16,12 @@ func Login() *resty.Request {
 	return r
 }
 
-func SignUp(username, email, password, confirmPassword string) *resty.Request {
+func SignUp(username, email, password, confirmPassword, lang string) *resty.Request {
 	r := client.R()
 
 	r.Method = resty.MethodPost
 	r.URL = "/auth/register"
+	r.SetQueryParam("lang", lang)
 	r.SetBody(api.AuthSignUpBody{
 		Username:        username,
 		Email:           email,
