@@ -14,6 +14,7 @@ const (
 )
 
 var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)
+var ConfigFileName = "farental_dev"   // valuer par défaut (dev)
 
 func Init() {
 	var configPath string
@@ -41,7 +42,7 @@ func Init() {
 	viper.SetDefault("datetimeformat", "02.01.2006 15:04")
 	viper.SetDefault("theme", "dark")
 
-	viper.SetConfigName("farental")
+	viper.SetConfigName(ConfigFileName)
 	viper.SetConfigType("toml")
 
 	viper.AddConfigPath(filepath.Join(cfgDir, "farental_tui"))

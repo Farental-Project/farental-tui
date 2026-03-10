@@ -36,6 +36,7 @@ func gotoCharacterSelectionCmd() tea.Msg {
 type Screen struct {
 	title   *orvyn.SimpleRenderable
 	version *orvyn.SimpleRenderable
+	server  *orvyn.SimpleRenderable
 
 	tiEmail    *textinput.Widget
 	tiPassword *textinput.Widget
@@ -58,6 +59,7 @@ func New() *Screen {
 		t.Style(theme.TitleStyleID).Render(art.CreateASCIIArtBrokenTitle("farental"))))
 
 	s.version = orvyn.NewSimpleRenderable(config.VERSION)
+	s.server = orvyn.NewSimpleRenderable(config.BaseURL)
 	s.version.Style = t.Style(theme.DimTextStyleID)
 
 	s.tiEmail = textinput.New()
@@ -77,6 +79,7 @@ func New() *Screen {
 			s.title,
 			orvyn.VGap,
 			s.version,
+			s.server,
 			orvyn.VGap,
 			s.tiEmail,
 			s.tiPassword,

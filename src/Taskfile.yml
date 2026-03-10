@@ -1,12 +1,16 @@
 # https://taskfile.dev
 
-version: '3'
+version: "3"
 
 vars:
   OUTPUT_NAME: Farental
   BASE_URL: https://api.farental.ch
+  CONFIG_FILE_NAME: farental
+  LDFLAGS: >-
+    -X 'farental/internal/config.BaseURL={{.BASE_URL}}'
+    -X 'farental/internal/config.ConfigFileName={{.CONFIG_FILE_NAME}}'
 
 tasks:
   release:
     cmds:
-      - go build -o {{.OUTPUT_NAME}} -ldflags "-X 'farental/internal/config.BaseURL={{.BASE_URL}}'"
+      - go build -o {{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"

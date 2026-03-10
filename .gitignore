@@ -28,3 +28,4 @@ go.work.sum
 src/farental
 src/debug.log
 lokyn-cli
+/src/Farental
