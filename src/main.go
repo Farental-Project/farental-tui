@@ -3,9 +3,11 @@ package main
 import (
 	"embed"
 	"farental/core/data"
+	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/config"
 	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/style"
 	ftheme "farental/internal/theme"
@@ -32,6 +34,7 @@ import (
 	"farental/screen/shop"
 	"farental/screen/travel"
 	"farental/screen/usersettings"
+	"fmt"
 	"log"
 
 	"github.com/halsten-dev/orvyn"
@@ -66,6 +69,24 @@ func main() {
 
 	lokyn.SetLanguage(viper.GetString("language"))
 
+	// Check version
+	reqVer := request.VersionGet()
+	respVer, err := helper.SendRequest(reqVer)
+
+	if err != nil {
+		fmt.Println(lokyn.L("Cannot verify server version. Please retry later."))
+		return
+	}
+
+	version := respVer.Result().(*api.DbVersion)
+
+	if config.REQUIRED_STRUCTURE_VERSION != version.Structure {
+		fmt.Println(lokyn.L("Your client version is outdated. Please update it."))
+		fmt.Println(lokyn.L("Visit https://www.farental.ch for more informations."))
+		return
+	}
+
+	// Other init
 	keybind.Init()
 
 	bubblehelp.Init()
