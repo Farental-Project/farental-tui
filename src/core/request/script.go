@@ -60,12 +60,12 @@ func ScriptGetActive() *resty.Request {
 	return r
 }
 
-func ScriptSetActive(ID uint) *resty.Request {
+func ScriptSetActive(ID []byte) *resty.Request {
 	r := client.R()
 
 	r.Method = resty.MethodPost
 	r.URL = "/script/setActive"
-	r.SetBody(api.IDBody{
+	r.SetBody(api.UUIDBody{
 		ID: ID,
 	})
 	r.SetError(api.ErrorResponse{})
@@ -103,11 +103,11 @@ func ScriptGetPublic() *resty.Request {
 	return r
 }
 
-func ScriptGetDetail(ID uint) *resty.Request {
+func ScriptGetDetail(ID []byte) *resty.Request {
 	r := client.R()
 	r.Method = resty.MethodGet
 	r.URL = "/script/detail"
-	r.SetQueryParam("scriptID", fmt.Sprintf("%d", ID))
+	r.SetQueryParam("scriptID", fmt.Sprintf("%x", ID))
 	r.SetResult(api.ScriptResponse{})
 	r.SetError(api.ErrorResponse{})
 
@@ -115,12 +115,12 @@ func ScriptGetDetail(ID uint) *resty.Request {
 
 }
 
-func ScriptDelete(ID uint) *resty.Request {
+func ScriptDelete(ID []byte) *resty.Request {
 	r := client.R()
 
 	r.Method = resty.MethodPost
 	r.URL = "/script/delete"
-	r.SetBody(api.IDBody{
+	r.SetBody(api.UUIDBody{
 		ID: ID,
 	})
 

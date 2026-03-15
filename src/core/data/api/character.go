@@ -41,7 +41,7 @@ type CharacterInfoResponse struct {
 	LastName  string
 	RaceName  string
 	Power     int
-	ScriptID  *uint
+	ScriptID  []byte
 
 	Stats  []CharacterStatResponse
 	Skills []CharacterSkillResponse

@@ -1,6 +1,7 @@
 package scriptexplorerlistitem
 
 import (
+	"bytes"
 	"farental/core/data/api"
 	"farental/internal/context"
 	"fmt"
@@ -75,7 +76,7 @@ func (w *Widget) Render() string {
 		}
 	}
 
-	if w.data.ID == *context.CharacterInfo.ScriptID {
+	if bytes.Equal(w.data.ID, context.CharacterInfo.ScriptID) {
 		right.WriteString("\n")
 		right.WriteString(t.Style(theme.TitleStyleID).Render(lokyn.L("Active")))
 	}

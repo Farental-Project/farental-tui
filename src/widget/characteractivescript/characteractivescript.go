@@ -43,7 +43,7 @@ func (w *Widget) Render() string {
 	size := w.GetContentSize()
 	width := size.Width
 
-	if w.data.ID == 0 {
+	if len(w.data.ID) == 0 {
 		content = ds.Render(lokyn.L("No active script selected"))
 	} else {
 		left.WriteString(t.Style(theme.TitleStyleID).Render(w.data.Name))
@@ -85,14 +85,14 @@ func (w *Widget) UpdateData() {
 	resp, err := helper.SendRequest(request.ScriptGetActive())
 
 	if err != nil {
-		w.data.ID = 0
+		w.data.ID = nil
 		return
 	}
 
 	activeScript, ok := resp.Result().(*api.ScriptBasicResponse)
 
 	if !ok {
-		w.data.ID = 0
+		w.data.ID = nil
 		return
 	}
 

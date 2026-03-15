@@ -23,7 +23,7 @@ type ScriptCountResponse struct {
 }
 
 type ScriptBody struct {
-	ID          uint
+	ID          []byte
 	Name        string
 	Description string
 	IsPrivate   bool
@@ -40,7 +40,7 @@ type ScriptRuleBody struct {
 }
 
 type ScriptBasicResponse struct {
-	ID          uint
+	ID          []byte
 	Name        string
 	Description string
 	AuthorName  string

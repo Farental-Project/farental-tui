@@ -191,7 +191,7 @@ func (s *Screen) loadScripts() {
 func (s *Screen) submit() bool {
 	selectedScript := s.GetSelectedItem()
 
-	if selectedScript.ID == 0 {
+	if len(selectedScript.ID) == 0 {
 		return false
 	}
 
