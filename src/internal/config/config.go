@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	VERSION                    = "1.0.0"
-	REQUIRED_STRUCTURE_VERSION = "1.0.0"
+	VERSION = "1.0.0"
 )
 
 var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)

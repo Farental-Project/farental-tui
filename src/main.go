@@ -80,8 +80,8 @@ func main() {
 
 	version := respVer.Result().(*api.DbVersion)
 
-	if config.REQUIRED_STRUCTURE_VERSION != version.Structure {
-		fmt.Println(lokyn.L("Your client version is outdated. Please update it."))
+	if config.VERSION != version.Client {
+		fmt.Println(lokyn.L("Your client version is not aligned with the server. Please update it."))
 		fmt.Println(lokyn.L("Visit https://www.farental.ch for more informations."))
 		return
 	}
