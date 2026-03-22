@@ -475,9 +475,11 @@ func InitContexts() {
 	ShopKeymap := bubblehelp.NewKeymap(2)
 	ShopKeymap.Style = style.MainHelpStyle
 	ShopKeymap.NewKeyBinding(Enter, true)
+	ShopKeymap.SetHelpDesc(Enter, lokyn.L("buy"))
 	ShopKeymap.NewKeyBinding(Up, false)
 	ShopKeymap.NewKeyBinding(Down, false)
-	ShopKeymap.SetHelpDesc(Enter, lokyn.L("sell items"))
+	ShopKeymap.NewKeyBinding(Tab, true)
+	ShopKeymap.SetHelpDesc(Tab, lokyn.L("sell items"))
 	ShopKeymap.NewKeyBinding(Esc, true)
 	ShopKeymap.NewKeyBinding(Quit, false)
 

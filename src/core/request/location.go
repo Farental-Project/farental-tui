@@ -34,6 +34,31 @@ func LocationTavernRegen() *resty.Request {
 	return r
 }
 
+func LocationMerchantBuyItem(itemID uint, amount int) *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodPost
+	r.URL = "/location/merchant/buyItem"
+	r.SetBody(api.IDAmountBody{
+		ID:     itemID,
+		Amount: amount,
+	})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
+func LocationMerchantGetBuyableItem() *resty.Request {
+	r := client.R()
+
+	r.Method = resty.MethodGet
+	r.URL = "/location/merchant/buyableItems"
+	r.SetResult([]api.ItemResponse{})
+	r.SetError(api.ErrorResponse{})
+
+	return r
+}
+
 func LocationMerchantSellItem(itemID uint, amount int) *resty.Request {
 	r := client.R()
 

@@ -22,6 +22,7 @@ type Data struct {
 	api.ItemResponse
 	Count  int
 	Amount int
+	Buying bool
 }
 
 type Widget struct {
@@ -62,13 +63,16 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msgType, keybind.Right):
 			w.data.Amount++
 
-			w.data.Amount = min(w.data.Amount, w.data.Count)
+			if w.data.Count > 0 {
+				w.data.Amount = min(w.data.Amount, w.data.Count)
+			}
 
 		case key.Matches(msgType, keybind.ShiftRight):
 			w.data.Amount += helper.Next10Inc(w.data.Amount)
 
-			w.data.Amount = min(w.data.Amount, w.data.Count)
-
+			if w.data.Count > 0 {
+				w.data.Amount = min(w.data.Amount, w.data.Count)
+			}
 		}
 	}
 
@@ -103,17 +107,30 @@ func (w *Widget) Render() string {
 	ns := lipgloss.NewStyle()
 	hs := t.Style(theme.HighlightTextStyleID)
 
+	var priceFormat string
+	var price int
+
+	if w.data.Buying {
+		priceFormat = lokyn.L("Buy price : %d%c")
+		price = w.data.BuyPrice
+	} else {
+		priceFormat = lokyn.L("Sell price : %d%c")
+		price = w.data.SellPrice
+	}
+
 	left.WriteString(w.data.Name)
 	left.WriteString("\n")
 	left.WriteString(t.Style(theme.DimTextStyleID).Render(
-		fmt.Sprintf(lokyn.L("Sell price : %d%c"),
-			w.data.SellPrice, art.CharGrynars)),
+		fmt.Sprintf(priceFormat,
+			price, art.CharGrynars)),
 	)
 
-	right.WriteString(t.Style(theme.DimTextStyleID).Render(
-		fmt.Sprintf("%d", w.data.Count),
-	))
-	right.WriteString("\n")
+	if !w.data.Buying {
+		right.WriteString(t.Style(theme.DimTextStyleID).Render(
+			fmt.Sprintf("%d", w.data.Count),
+		))
+		right.WriteString("\n")
+	}
 
 	// Amount control
 	right.WriteString(hs.Render("< "))
