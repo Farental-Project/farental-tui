@@ -22,6 +22,19 @@ import (
 	"github.com/halsten-dev/orvyn/widget/textinput"
 )
 
+type GenderData int
+
+func (g GenderData) RenderValue() string {
+	switch g {
+	case 1:
+		return lokyn.L("Male")
+	case 2:
+		return lokyn.L("Female")
+	}
+
+	return lokyn.L("Neutral")
+}
+
 type RaceData struct {
 	api.RaceResponse
 }
@@ -37,6 +50,7 @@ type Screen struct {
 
 	tiFirstname *textinput.Widget
 	tiLastname  *textinput.Widget
+	mvsGender   *multivalueselector.Widget[GenderData]
 	mvsRace     *multivalueselector.Widget[RaceData]
 
 	raceDescription *orvyn.SimpleRenderable
@@ -68,6 +82,9 @@ func New() *Screen {
 	s.tiLastname = textinput.New()
 	s.tiLastname.Placeholder = lokyn.L("Last name")
 
+	s.mvsGender = multivalueselector.New[GenderData]()
+	s.mvsGender.OnBlur()
+
 	s.mvsRace = multivalueselector.New[RaceData]()
 	s.mvsRace.OnBlur()
 
@@ -90,6 +107,7 @@ func New() *Screen {
 			orvyn.VGap,
 			s.tiFirstname,
 			s.tiLastname,
+			s.mvsGender,
 			s.mvsRace,
 			s.raceDescription,
 			orvyn.VGap,
@@ -101,6 +119,7 @@ func New() *Screen {
 	s.focusManager = orvyn.NewFocusManager()
 	s.focusManager.Add(s.tiFirstname)
 	s.focusManager.Add(s.tiLastname)
+	s.focusManager.Add(s.mvsGender)
 	s.focusManager.Add(s.mvsRace)
 	s.focusManager.FocusFirst()
 
@@ -123,10 +142,12 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.tiFirstname.SetValue("")
 	s.tiLastname.SetValue("")
+	s.mvsGender.SetSelected(0)
 	s.mvsRace.SetSelected(0)
 
 	s.focusManager.FocusFirst()
 
+	s.loadGenders()
 	s.loadRaces()
 
 	s.raceDescription.SetValue(
@@ -189,6 +210,7 @@ func (s *Screen) submit() bool {
 		api.CharacterCreateBody{
 			FirstName: s.tiFirstname.Value(),
 			LastName:  s.tiLastname.Value(),
+			Gender:    int(s.mvsGender.GetSelectedValue()),
 			RaceID:    s.mvsRace.GetSelectedValue().ID,
 		})
 
@@ -201,6 +223,21 @@ func (s *Screen) submit() bool {
 
 	return true
 
+}
+
+func (s *Screen) loadGenders() {
+	genderValues := make(map[string]GenderData, 3)
+	keys := make([]string, 3)
+
+	keys[0] = lokyn.L("Neutral")
+	genderValues[keys[0]] = 0
+	keys[1] = lokyn.L("Male")
+	genderValues[keys[1]] = 1
+	keys[2] = lokyn.L("Female")
+	genderValues[keys[2]] = 2
+
+	s.mvsGender.SetValues(keys, genderValues)
+	s.mvsGender.SetSelected(0)
 }
 
 func (s *Screen) loadRaces() {

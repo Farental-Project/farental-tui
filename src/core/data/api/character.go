@@ -4,6 +4,7 @@ type CharacterCreateBody struct {
 	FirstName string `validate:"required,alpha"`
 	LastName  string `validate:"required,alpha"`
 	RaceID    uint   `validate:"required,number"`
+	Gender    int    `validate:"required"`
 }
 
 type CharacterBasicResponse struct {
@@ -12,6 +13,7 @@ type CharacterBasicResponse struct {
 	FirstName    string
 	LastName     string
 	LocationName string
+	Gender       string
 }
 
 type CharacterBasicWithActivityResponse struct {
@@ -40,6 +42,7 @@ type CharacterInfoResponse struct {
 	FirstName string
 	LastName  string
 	RaceName  string
+	Gender    string
 	Power     int
 	ScriptID  []byte
 

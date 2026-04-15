@@ -98,7 +98,7 @@ func (w *Widget) constructInfo(info *api.CharacterInfoResponse, money int) {
 
 	b.WriteString(fullName)
 	b.WriteString("\n")
-	b.WriteString(raceStyle.Render(raceName))
+	fmt.Fprintf(&b, "%s - %s", raceStyle.Render(raceName), info.Gender)
 	b.WriteString("\n")
 	b.WriteString(t.Style(theme.NormalTextStyleID).Render(
 		fmt.Sprintf("%d %c", money, art.CharGrynars),
