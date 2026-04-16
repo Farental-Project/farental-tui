@@ -277,16 +277,10 @@ func (s *Screen) equipItem(index int, item *api.StackResponse) {
 		return
 	}
 
-	item.Count--
+	s.loadInventory()
+	s.list.FocusFirst()
 
 	s.statusMessage.SetMessage(lokyn.L("Item equipped !"), statusmessage.SuccessMessage)
-
-	if item.Count == 0 {
-		s.removeItem(index)
-		return
-	}
-
-	s.list.SetItem(index, *item)
 }
 
 func (s *Screen) unequipItem(index int, item *api.StackResponse) {

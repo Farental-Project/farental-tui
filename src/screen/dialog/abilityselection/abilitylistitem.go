@@ -174,7 +174,7 @@ func Constructor(data api.AbilityResponse) widgetlist.ListItem[api.AbilityRespon
 }
 
 func (a *AbilityListItem) Resize(size orvyn.Size) {
-	size.Height = 7
+	size.Height = 8
 
 	a.BaseWidget.Resize(size)
 
