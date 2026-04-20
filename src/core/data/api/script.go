@@ -78,3 +78,8 @@ type ScriptRuleTypeResponse struct {
 	Name        string
 	Description string
 }
+
+type ScriptSetActiveResponse struct {
+	ScriptActivated bool
+	WarningMessage  string
+}

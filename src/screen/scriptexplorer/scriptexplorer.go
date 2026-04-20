@@ -6,6 +6,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen"
+	"farental/screen/dashboard"
 	"farental/screen/dialog/popup"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/scriptexplorerlistitem"
@@ -18,6 +19,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
@@ -36,6 +38,8 @@ type Screen struct {
 
 	newScript       bool
 	duplicateScript bool
+	selectScript    bool
+	selectWarning   string
 
 	viewType viewType
 }
@@ -77,8 +81,18 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
-	if s.newScript {
+	switch {
+	case s.newScript:
 		return nil
+	case s.selectScript:
+		if s.selectWarning != "" {
+			statusMessage := dashboard.StatusMessageParam{
+				Content: s.selectWarning,
+				Type:    statusmessage.WarningMessage,
+			}
+
+			return statusMessage
+		}
 	}
 
 	script := s.GetSelectedItem()
@@ -203,6 +217,11 @@ func (s *Screen) submit() bool {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
+		response := *resp.Result().(*api.ScriptSetActiveResponse)
+
+		s.selectScript = true
+		s.selectWarning = response.WarningMessage
+
 		return true
 	}
 

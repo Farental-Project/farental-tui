@@ -6,6 +6,7 @@ vars:
   OUTPUT_NAME: Farental
   BASE_URL: https://api.farental.ch
   CONFIG_FILE_NAME: farental
+  DIST_DIR: dist
   LDFLAGS: >-
     -X 'farental/internal/config.BaseURL={{.BASE_URL}}'
     -X 'farental/internal/config.ConfigFileName={{.CONFIG_FILE_NAME}}'
@@ -14,3 +15,42 @@ tasks:
   release:
     cmds:
       - go build -o {{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
+
+  build:linux:
+    desc: Build for Linux (amd64)
+    cmds:
+      - mkdir -p {{.DIST_DIR}}/linux-amd64
+      - go build -o {{.DIST_DIR}}/linux-amd64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
+    env:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+
+  build:windows:
+    desc: Build for Windows (amd64)
+    cmds:
+      - mkdir -p {{.DIST_DIR}}/windows-amd64
+      - go build -o {{.DIST_DIR}}/windows-amd64/{{.OUTPUT_NAME}}.exe -ldflags "{{.LDFLAGS}}"
+    env:
+      GOOS: windows
+      GOARCH: amd64
+      CGO_ENABLED: 0
+
+  build:macos:
+    desc: Build for macOS (amd64 and arm64)
+    cmds:
+      - mkdir -p {{.DIST_DIR}}/darwin-amd64 {{.DIST_DIR}}/darwin-arm64
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/darwin-amd64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
+      - GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/darwin-arm64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
+
+  build:all:
+    desc: Build for Linux, Windows and macOS
+    deps:
+      - build:linux
+      - build:windows
+      - build:macos
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -rf {{.DIST_DIR}}

@@ -68,6 +68,7 @@ func ScriptSetActive(ID []byte) *resty.Request {
 	r.SetBody(api.UUIDBody{
 		ID: ID,
 	})
+	r.SetResult(api.ScriptSetActiveResponse{})
 	r.SetError(api.ErrorResponse{})
 
 	return r

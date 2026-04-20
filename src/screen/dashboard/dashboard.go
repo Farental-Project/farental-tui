@@ -130,10 +130,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.statusMessage.Reset()
 
-	err, ok := i.(error)
-
-	if ok {
-		s.statusMessage.SetError(err)
+	switch param := i.(type) {
+	case error:
+		s.statusMessage.SetError(param)
+	case StatusMessageParam:
+		s.statusMessage.SetMessage(param.Content, param.Type)
 	}
 
 	s.logEvent.SetContent(make([]string, 0))

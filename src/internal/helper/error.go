@@ -9,11 +9,16 @@ import (
 )
 
 func ExtractError(resp *resty.Response) error {
-	var b strings.Builder
 
 	if resp.StatusCode() == 200 || resp.StatusCode() == 201 || resp.StatusCode() == 302 {
 		return nil
 	}
+
+	return ExtractErrorMessage(resp)
+}
+
+func ExtractErrorMessage(resp *resty.Response) error {
+	var b strings.Builder
 
 	if resp.Error() != nil {
 		errorResp, ok := resp.Error().(*api.ErrorResponse)
