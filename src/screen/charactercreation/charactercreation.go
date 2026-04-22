@@ -150,8 +150,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.loadGenders()
 	s.loadRaces()
 
-	s.raceDescription.SetValue(
-		s.mvsRace.GetSelectedValue().Description)
+	s.raceChanged(s.mvsRace.GetSelectedValue())
 
 	s.statusMessage.Reset()
 
@@ -193,8 +192,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	s.focusManager.Update(msg)
 
-	s.raceDescription.SetValue(
-		s.mvsRace.GetSelectedValue().Description)
+	s.raceChanged(s.mvsRace.GetSelectedValue())
 
 	return nil
 }
@@ -223,6 +221,17 @@ func (s *Screen) submit() bool {
 
 	return true
 
+}
+
+func (s *Screen) raceChanged(race RaceData) {
+	s.raceDescription.SetValue(race.Description)
+
+	if race.HasGender {
+		s.mvsGender.SetActive(true)
+	} else {
+		s.mvsGender.SetActive(false)
+		s.mvsGender.SetSelected(0)
+	}
 }
 
 func (s *Screen) loadGenders() {

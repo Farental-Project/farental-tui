@@ -14,7 +14,7 @@ const (
 )
 
 var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)
-var ConfigFileName = "farental_dev"   // valuer par défaut (dev)
+var ConfigFileName = "farental_dev"   // valeur par défaut (dev)
 
 func Init() {
 	var configPath string

@@ -18,4 +18,5 @@ type RaceResponse struct {
 	Name             string
 	Description      string
 	StartingLocation LocationResponse
+	HasGender        bool
 }
