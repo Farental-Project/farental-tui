@@ -35,6 +35,7 @@ const (
 	ContextScriptEditorRulesList          bubblehelp.KeymapContext = "scriptEditorRulesList"
 	ContextScriptEditorRulesListItem      bubblehelp.KeymapContext = "scriptEditorRulesListItem"
 	ContextScriptEditorRuleInspector      bubblehelp.KeymapContext = "scriptEditorRuleInspector"
+	ContextScriptAbilitySelection         bubblehelp.KeymapContext = "scriptAbilitySelection"
 	ContextBasicEditMode                  bubblehelp.KeymapContext = "basicEditMode"
 	ContextBank                           bubblehelp.KeymapContext = "bank"
 	ContextNpc                            bubblehelp.KeymapContext = "npc"
@@ -413,6 +414,22 @@ func InitContexts() {
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(Help, true)
 
 	bubblehelp.RegisterContext(ContextScriptEditorRuleInspector, ScriptEditorRuleInspectorKeymap)
+
+	filterScriptAbilitySel := bubblehelp.NewKeymap(3)
+	filterScriptAbilitySel.Style = mainHelpStyle
+	filterScriptAbilitySel.NewKeyBinding(Tab, true)
+	filterScriptAbilitySel.SetHelpDesc(Tab, lokyn.L("description / conditions"))
+	filterScriptAbilitySel.NewKeyBinding(Up, false)
+	filterScriptAbilitySel.NewKeyBinding(Down, false)
+	filterScriptAbilitySel.NewKeyBinding(GotoListStart, false)
+	filterScriptAbilitySel.NewKeyBinding(GotoListEnd, false)
+	filterScriptAbilitySel.NewKeyBinding(Filter, true)
+	filterScriptAbilitySel.NewKeyBinding(Enter, true)
+	filterScriptAbilitySel.NewKeyBinding(Esc, true)
+	filterScriptAbilitySel.NewKeyBinding(Quit, true)
+	filterScriptAbilitySel.NewKeyBinding(Help, true)
+
+	bubblehelp.RegisterContext(ContextScriptAbilitySelection, filterScriptAbilitySel)
 
 	BasicEditModeKeymap := bubblehelp.NewKeymap(2)
 	BasicEditModeKeymap.Style = style.MainHelpStyle

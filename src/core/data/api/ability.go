@@ -20,4 +20,6 @@ type AbilityResponse struct {
 	CanTargetEnemies bool
 	CanTargetAllies  bool
 	CanTargetSelf    bool
+
+	Conditions []string
 }

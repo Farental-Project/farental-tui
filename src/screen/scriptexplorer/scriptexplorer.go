@@ -107,6 +107,8 @@ func (s *Screen) OnExit() any {
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	cmd := s.Screen.Update(msg)
 
+	script := s.GetSelectedItem()
+
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.NKey):
@@ -117,6 +119,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(m, keybind.EKey):
 			if s.GetFilteringState() != widgetlist.Filtering {
+				if script.ID == nil {
+					return nil
+				}
+
 				s.newScript = false
 				return orvyn.SwitchScreen(screen.IDScriptEditor)
 			}
@@ -124,6 +130,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.DKey):
 			if s.GetFilteringState() != widgetlist.Filtering &&
 				bubblehelp.IsKeybindVisible(keybind.DKey) {
+
+				if script.ID == nil {
+					return nil
+				}
+
 				orvyn.OpenDialog("deleteConfirm", popup.NewYesNo(
 					lokyn.L("Are you sure you want to delete the script ?"),
 				), nil)
@@ -131,6 +142,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(m, keybind.CKey):
 			if s.GetFilteringState() != widgetlist.Filtering {
+				if script.ID == nil {
+					return nil
+				}
+
 				s.duplicateScript = true
 				return orvyn.SwitchScreen(screen.IDScriptEditor)
 			}

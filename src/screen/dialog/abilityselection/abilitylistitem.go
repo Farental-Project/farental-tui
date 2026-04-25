@@ -2,10 +2,12 @@ package abilityselection
 
 import (
 	"farental/core/data/api"
+	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
@@ -22,6 +24,8 @@ type AbilityListItem struct {
 	titleAbility *orvyn.SimpleRenderable
 	titleSkill   *orvyn.SimpleRenderable
 	description  *orvyn.SimpleRenderable
+
+	conditionViewer *AbilityConditionViewer
 
 	powerLabel *orvyn.SimpleRenderable
 	powerValue *orvyn.SimpleRenderable
@@ -78,6 +82,9 @@ func Constructor(data api.AbilityResponse) widgetlist.ListItem[api.AbilityRespon
 	a.description = orvyn.NewSimpleRenderable(data.Description)
 	a.description.SizeConstraint = true
 	a.description.Style = t.Style(theme.DimTextStyleID).AlignVertical(lipgloss.Top)
+
+	a.conditionViewer = NewAbilityConditionViewer(a.data.Conditions)
+	a.conditionViewer.SetActive(false)
 
 	nsAlignRightStyle := t.Style(theme.NormalTextStyleID).AlignHorizontal(lipgloss.Right)
 	dsAlignRightStyle := t.Style(theme.DimTextStyleID).AlignHorizontal(lipgloss.Right)
@@ -156,8 +163,10 @@ func Constructor(data api.AbilityResponse) widgetlist.ListItem[api.AbilityRespon
 		layout.NewHBoxFixedRatioLayout(0, 0, 1, targetTypeElements...),
 	)
 
+	descriptionLayout := layout.NewPileLayout(a.description, a.conditionViewer)
+
 	contentElements := []layout.FixedRatioRenderable{
-		layout.NewFixedRatioRenderable(0.6, a.description),
+		layout.NewFixedRatioRenderable(0.6, descriptionLayout),
 		layout.NewFixedRatioRenderable(0.4, infoLayout),
 	}
 
@@ -193,6 +202,21 @@ func (a *AbilityListItem) GetData() api.AbilityResponse {
 	return a.data
 }
 
+func (a *AbilityListItem) Update(msg tea.Msg) tea.Cmd {
+	if k, ok := orvyn.GetKeyMsg(msg); ok {
+		switch {
+		case key.Matches(k, keybind.Tab):
+			a.switchMode()
+		}
+	}
+
+	if a.conditionViewer.IsActive() {
+		a.conditionViewer.Update(msg)
+	}
+
+	return nil
+}
+
 func (a *AbilityListItem) Render() string {
 	return a.style.
 		Width(a.contentSize.Width).
@@ -214,6 +238,16 @@ func (a *AbilityListItem) OnEnterInput() tea.Cmd {
 
 func (a *AbilityListItem) OnExitInput() tea.Cmd {
 	return nil
+}
+
+func (a *AbilityListItem) switchMode() {
+	if a.description.IsActive() {
+		a.description.SetActive(false)
+		a.conditionViewer.SetActive(true)
+	} else {
+		a.description.SetActive(true)
+		a.conditionViewer.SetActive(false)
+	}
 }
 
 func (a *AbilityListItem) FilterValue() string {

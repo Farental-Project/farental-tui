@@ -58,7 +58,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	cmd := s.Screen.OnEnter(i)
 
-	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListBasic)
+	bubblehelp.SwitchContext(keybind.ContextScriptAbilitySelection)
 
 	return cmd
 }
@@ -84,6 +84,7 @@ func (s *Screen) loadData() {
 	abilities = *resp.Result().(*[]api.AbilityResponse)
 
 	s.SetItems(abilities)
+
 }
 
 func (s *Screen) submit() bool {
