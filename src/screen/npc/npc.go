@@ -90,6 +90,8 @@ func New() *Screen {
 func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextNpc)
 
+	s.dialog.SetContent([]string{})
+
 	s.focusManager.FocusFirst()
 
 	s.loadNpc()
@@ -135,6 +137,7 @@ func (s *Screen) loadNpc() {
 	npcs := resp.Result().(*[]api.NpcResponse)
 
 	s.list.SetItems(*npcs)
+	s.list.FocusFirst()
 }
 
 func (s *Screen) speakToNpc() {
