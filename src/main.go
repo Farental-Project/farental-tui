@@ -24,6 +24,7 @@ import (
 	"farental/screen/fight"
 	"farental/screen/fighthistory"
 	"farental/screen/inventory"
+	"farental/screen/locationinfo"
 	"farental/screen/login"
 	"farental/screen/mailbox"
 	"farental/screen/maileditor"
@@ -125,6 +126,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDBank, bank.New())
 	orvyn.RegisterScreen(screen.IDNpc, npc.New())
 	orvyn.RegisterScreen(screen.IDShop, shop.New())
+	orvyn.RegisterScreen(screen.IDLocationInfo, locationinfo.New())
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 

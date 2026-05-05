@@ -27,4 +27,5 @@ const (
 	IDBank               orvyn.ScreenID = "bank"
 	IDNpc                orvyn.ScreenID = "npc"
 	IDShop               orvyn.ScreenID = "shop"
+	IDLocationInfo       orvyn.ScreenID = "locationinfo"
 )

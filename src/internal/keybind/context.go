@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	ContextBackAndQuit                    bubblehelp.KeymapContext = "backAndQuit"
 	ContextLogin                          bubblehelp.KeymapContext = "login"
 	ContextCharacterSel                   bubblehelp.KeymapContext = "characterSelection"
 	ContextCharacterCreation              bubblehelp.KeymapContext = "characterCreation"
@@ -45,6 +46,13 @@ const (
 
 func InitContexts() {
 	mainHelpStyle := style.MainHelpStyle
+
+	backAndQuit := bubblehelp.NewKeymap(2)
+	backAndQuit.Style = mainHelpStyle
+	backAndQuit.NewKeyBinding(Esc, true)
+	backAndQuit.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextBackAndQuit, backAndQuit)
 
 	loginKeymap := bubblehelp.NewKeymap(2)
 	loginKeymap.Style = mainHelpStyle
@@ -98,6 +106,8 @@ func InitContexts() {
 	gameDashboardKeymap.SetHelpDesc(YKey, lokyn.L("chat"))
 	gameDashboardKeymap.NewKeyBinding(LKey, false)
 	gameDashboardKeymap.SetHelpDesc(LKey, lokyn.L("location service"))
+	gameDashboardKeymap.NewKeyBinding(MKey, false)
+	gameDashboardKeymap.SetHelpDesc(MKey, lokyn.L("more location info"))
 	gameDashboardKeymap.NewKeyBinding(NKey, false)
 	gameDashboardKeymap.SetHelpDesc(NKey, lokyn.L("npcs"))
 	gameDashboardKeymap.NewKeyBinding(SKey, false)
