@@ -10,6 +10,7 @@ import (
 	"farental/internal/keybind"
 	"farental/screen"
 	"farental/widget/help"
+	"farental/widget/languageindicator"
 	"fmt"
 	"log"
 	"net/http"
@@ -41,6 +42,8 @@ type Screen struct {
 	tiEmail    *textinput.Widget
 	tiPassword *textinput.Widget
 
+	languageIndicator *languageindicator.Widget
+
 	statusMessage *statusmessage.Widget
 
 	help *help.Widget
@@ -63,14 +66,15 @@ func New() *Screen {
 	s.version.Style = t.Style(theme.DimTextStyleID)
 
 	s.tiEmail = textinput.New()
-	s.tiEmail.Placeholder = lokyn.L("Email")
 
 	s.tiPassword = textinput.New()
-	s.tiPassword.Placeholder = lokyn.L("Password")
 	s.tiPassword.EchoMode = teatextinput.EchoPassword
 	s.tiPassword.EchoCharacter = art.CharBullet
 
+	s.languageIndicator = languageindicator.New()
+
 	s.statusMessage = statusmessage.New()
+	s.statusMessage.SetMinSize(orvyn.NewSize(30, 1))
 
 	s.help = help.New()
 
@@ -83,6 +87,8 @@ func New() *Screen {
 			orvyn.VGap,
 			s.tiEmail,
 			s.tiPassword,
+			orvyn.VGap,
+			s.languageIndicator,
 			orvyn.VGap,
 			s.statusMessage,
 			s.help,
@@ -99,6 +105,9 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	var cmds []tea.Cmd
+
+	s.tiEmail.Placeholder = lokyn.L("Email")
+	s.tiPassword.Placeholder = lokyn.L("Password")
 
 	s.statusMessage.Reset()
 
@@ -142,6 +151,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, keybind.LKeyCtrl):
+			s.languageIndicator.SwitchLanguage()
+			return orvyn.SwitchScreen(screen.IDLogin)
+
 		case key.Matches(msg, keybind.NKeyCtrl):
 			return orvyn.SwitchScreen(screen.IDAccountCreation)
 

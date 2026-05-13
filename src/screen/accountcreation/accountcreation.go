@@ -42,27 +42,23 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(
-		t.Style(theme.TitleStyleID).Render(lokyn.L("New account")),
-	)
+	s.title = orvyn.NewSimpleRenderable("")
+	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.tiUsername = textinput.New()
-	s.tiUsername.Placeholder = lokyn.L("Username")
 
 	s.tiEmail = textinput.New()
-	s.tiEmail.Placeholder = lokyn.L("Email address")
 
 	s.tiPassword = textinput.New()
-	s.tiPassword.Placeholder = lokyn.L("Password")
 	s.tiPassword.EchoMode = teatextinput.EchoPassword
 	s.tiPassword.EchoCharacter = art.CharBullet
 
 	s.tiConfirmPassword = textinput.New()
-	s.tiConfirmPassword.Placeholder = lokyn.L("Confirm password")
 	s.tiConfirmPassword.EchoMode = teatextinput.EchoPassword
 	s.tiConfirmPassword.EchoCharacter = art.CharBullet
 
 	s.statusMessage = statusmessage.New()
+	s.statusMessage.SetMinSize(orvyn.NewSize(30, 1))
 
 	s.help = help.New()
 
@@ -92,6 +88,12 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterCreation)
+
+	s.title.SetValue(lokyn.L("New account"))
+	s.tiUsername.Placeholder = lokyn.L("Username")
+	s.tiEmail.Placeholder = lokyn.L("Email address")
+	s.tiPassword.Placeholder = lokyn.L("Password")
+	s.tiConfirmPassword.Placeholder = lokyn.L("Confirm password")
 
 	s.tiUsername.SetValue("")
 	s.tiEmail.SetValue("")

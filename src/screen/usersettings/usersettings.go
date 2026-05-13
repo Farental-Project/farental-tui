@@ -3,12 +3,12 @@ package usersettings
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
-	"log"
 	"net/http"
 	"slices"
 
@@ -206,16 +206,8 @@ func (s *Screen) submit() bool {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		viper.Set("language", body.LanguageCode)
 		viper.Set("theme", s.mvsTheme.GetSelectedValue().Code)
-
-		err = viper.WriteConfig()
-
-		if err != nil {
-			log.Println(lokyn.L("could not save config : "), err)
-		}
-
-		lokyn.SetLanguage(body.LanguageCode)
+		config.ChangeLanguage(body.LanguageCode)
 		return true
 	}
 

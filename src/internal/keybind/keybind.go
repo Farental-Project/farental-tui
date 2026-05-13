@@ -38,6 +38,7 @@ var (
 	HKey          key.Binding
 	IKey          key.Binding
 	LKey          key.Binding
+	LKeyCtrl      key.Binding
 	MKey          key.Binding
 	NKey          key.Binding
 	NKeyCtrl      key.Binding
@@ -150,6 +151,9 @@ func Init() {
 	LKey = key.NewBinding(
 		key.WithKeys("l"),
 		key.WithHelp("l", "l key"))
+	LKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+l"),
+		key.WithHelp("ctrl+l", "ctrl+l key"))
 	MKey = key.NewBinding(
 		key.WithKeys("m"),
 		key.WithHelp("m", "m key"))

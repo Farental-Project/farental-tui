@@ -209,6 +209,7 @@ func (s *Screen) openBankAccount() bool {
 
 	if resp.StatusCode() == http.StatusCreated {
 		s.existingAccount = true
+		s.currentUpgradeRank = 1
 		return true
 	}
 

@@ -112,8 +112,11 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 func (w *Widget) Render() string {
 	var b strings.Builder
 
-	b.WriteString(w.titleStyle.Render(w.title))
-	b.WriteString("\n")
+	if w.title != "" {
+		b.WriteString(w.titleStyle.Render(w.title))
+		b.WriteString("\n")
+	}
+
 	b.WriteString(w.viewport.View())
 
 	return w.widgetStyle.Render(b.String())
@@ -205,4 +208,8 @@ func (w *Widget) refresh() {
 
 func (w *Widget) SetAutoScroll(b bool) {
 	w.autoScroll = b
+}
+
+func (w *Widget) SetTitle(title string) {
+	w.title = title
 }

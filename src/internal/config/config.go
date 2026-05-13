@@ -2,10 +2,12 @@ package config
 
 import (
 	"errors"
+	"farental/internal/keybind"
 	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/halsten-dev/lokyn"
 	"github.com/spf13/viper"
 )
 
@@ -59,4 +61,18 @@ func Init() {
 			log.Panic("error while reading the config file : ", err)
 		}
 	}
+}
+
+func ChangeLanguage(code string) {
+	viper.Set("language", code)
+
+	err := viper.WriteConfig()
+
+	if err != nil {
+		log.Println(lokyn.L("could not save config : "), err)
+	}
+
+	lokyn.SetLanguage(code)
+	keybind.Init()
+	keybind.InitContexts()
 }

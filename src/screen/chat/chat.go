@@ -55,11 +55,10 @@ func New() *Screen {
 		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
 
-	s.title = orvyn.NewSimpleRenderable(
-		t.Style(theme.TitleStyleID).Render(lokyn.L("Chat")),
-	)
+	s.title = orvyn.NewSimpleRenderable("Chat")
+	s.title.Style = t.Style(theme.TitleStyleID)
 
-	s.logChat = simplelogviewer.New(lokyn.L("Chat"))
+	s.logChat = simplelogviewer.New("")
 	s.logChat.Style = logStyle
 	s.logChat.Keybind.ScrollUp = keybind.PrevPage
 	s.logChat.Keybind.ScrollDown = keybind.NextPage
@@ -92,6 +91,8 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextChat)
+
+	s.title.SetValue(lokyn.L("Chat"))
 
 	cmd := s.input.Init()
 

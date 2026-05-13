@@ -75,7 +75,7 @@ func New() *Screen {
 		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
 
-	s.dialog = simplelogviewer.New(lokyn.L("Dialog"))
+	s.dialog = simplelogviewer.New("Dialog")
 	s.dialog.Style = logStyle
 	s.dialog.OnBlur()
 
@@ -109,6 +109,9 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextNpc)
+
+	s.title.SetValue(lokyn.L("NPCs"))
+	s.dialog.SetTitle(lokyn.L("Dialog"))
 
 	s.dialog.SetContent([]string{})
 

@@ -53,9 +53,6 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.buyTitle = lokyn.L("Shop - Buy")
-	s.sellTitle = lokyn.L("Shop - Sell")
-
 	s.title = orvyn.NewSimpleRenderable(s.buyTitle)
 	s.title.Style = t.Style(theme.TitleStyleID)
 
@@ -82,6 +79,9 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.statusMessage.Reset()
 
 	bubblehelp.SwitchContext(keybind.ContextShop)
+
+	s.buyTitle = lokyn.L("Shop - Buy")
+	s.sellTitle = lokyn.L("Shop - Sell")
 
 	s.mode = modeBuy
 
