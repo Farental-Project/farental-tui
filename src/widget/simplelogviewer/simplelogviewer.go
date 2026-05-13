@@ -162,6 +162,25 @@ func (w *Widget) AppendContent(content string) {
 	w.refresh()
 }
 
+func (w *Widget) AppendRune(character rune) {
+	var line int
+
+	line = len(w.content) - 1
+
+	if line == -1 {
+		w.content = append(w.content, "")
+		line++
+	}
+
+	if character == '\n' {
+		w.content = append(w.content, "")
+		return
+	}
+
+	w.content[line] += string(character)
+	w.refresh()
+}
+
 func (w *Widget) GetContent() []string {
 	return w.content
 }
