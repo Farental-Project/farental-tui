@@ -276,5 +276,20 @@ func (s *Screen) getActiveCharacter() bool {
 }
 
 func (s *Screen) nextScreen() tea.Cmd {
+	// Set the right language
+	resp, err := helper.SendRequest(request.AuthInfo())
+
+	if err != nil {
+		return orvyn.SwitchScreen(screen.IDCharacterSelection)
+	}
+
+	info, ok := resp.Result().(*api.UserResponse)
+
+	if !ok {
+		return orvyn.SwitchScreen(screen.IDCharacterSelection)
+	}
+
+	config.ChangeLanguage(info.LanguageCode)
+
 	return orvyn.SwitchScreen(screen.IDCharacterSelection)
 }

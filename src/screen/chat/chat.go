@@ -121,6 +121,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			s.sendMessage()
 			return nil
 
+		case key.Matches(msg, keybind.Help):
+			bubblehelp.ShowAll = !bubblehelp.ShowAll
+			return nil
+
 		}
 
 	case orvyn.TickMsg:

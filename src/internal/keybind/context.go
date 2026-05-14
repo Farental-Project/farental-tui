@@ -257,8 +257,13 @@ func InitContexts() {
 	chatKeymap.SetHelpDesc(Enter, lokyn.L("send message"))
 	chatKeymap.NewKeyBinding(YKeyCtrl, true)
 	chatKeymap.SetHelpDesc(YKeyCtrl, lokyn.L("new line"))
+	chatKeymap.NewKeyBinding(NextPage, false)
+	chatKeymap.SetHelpDesc(NextPage, lokyn.L("scroll down"))
+	chatKeymap.NewKeyBinding(PrevPage, false)
+	chatKeymap.SetHelpDesc(PrevPage, lokyn.L("scroll up"))
 	chatKeymap.NewKeyBinding(Esc, true)
 	chatKeymap.NewKeyBinding(Quit, true)
+	chatKeymap.NewKeyBinding(Help, true)
 
 	bubblehelp.RegisterContext(ContextChat, chatKeymap)
 
