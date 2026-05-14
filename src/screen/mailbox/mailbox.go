@@ -46,6 +46,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
+	s.Screen.SetTitle(lokyn.L("Mailbox"))
 
 	bubblehelp.SwitchContext(keybind.ContextFilterSelectionListWithNew)
 

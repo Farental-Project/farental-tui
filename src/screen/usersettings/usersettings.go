@@ -55,22 +55,22 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("User settings"))
+	s.title = orvyn.NewSimpleRenderable("User settings")
 	s.title.Style = t.Style(theme.TitleStyleID)
 
-	s.labelLangage = label.New(lokyn.L("Language"))
+	s.labelLangage = label.New("Language")
 	s.mvsLanguage = multivalueselector.New[LanguageData]()
 	s.mvsLanguage.OnBlur()
 	s.mvsLanguage.Looping = true
 
-	s.labelTheme = label.New(lokyn.L("Theme (need restart)"))
+	s.labelTheme = label.New("Theme (need restart)")
 	s.mvsTheme = multivalueselector.New[ftheme.ThemeData]()
 	s.mvsTheme.OnBlur()
 	s.mvsTheme.Looping = true
 
 	s.mvsTheme.SetValues(ftheme.GetThemeData())
 
-	s.chkbxNewsletters = checkbox.New(lokyn.L("Receive newsletters ?"))
+	s.chkbxNewsletters = checkbox.New("Receive newsletters ?")
 
 	s.statusMessage = statusmessage.New()
 
@@ -103,6 +103,11 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterCreation)
+
+	s.title.SetValue(lokyn.L("User settings"))
+	s.labelLangage.SetValue(lokyn.L("Language"))
+	s.labelTheme.SetValue(lokyn.L("Theme (need restart)"))
+	s.chkbxNewsletters.SetLabel(lokyn.L("Receive newsletters ?"))
 
 	s.statusMessage.Reset()
 

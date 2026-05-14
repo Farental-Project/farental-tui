@@ -72,21 +72,18 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(
-		t.Style(theme.TitleStyleID).Render(lokyn.L("New character")),
-	)
+	s.title = orvyn.NewSimpleRenderable("New character")
+	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.tiFirstname = textinput.New()
-	s.tiFirstname.Placeholder = lokyn.L("First name")
 
-	s.lblGender = label.New(lokyn.L("Gender"))
-	s.lblRace = label.New(lokyn.L("Race"))
+	s.lblGender = label.New("Gender")
+	s.lblRace = label.New("Race")
 
 	minSize := s.tiFirstname.GetMinSize()
 	preferredSize := s.tiFirstname.GetPreferredSize()
 
 	s.tiLastname = textinput.New()
-	s.tiLastname.Placeholder = lokyn.L("Last name")
 
 	s.mvsGender = multivalueselector.New[GenderData]()
 	s.mvsGender.OnBlur()
@@ -138,6 +135,12 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterCreation)
+
+	s.title.SetValue(lokyn.L("New character"))
+	s.lblGender.SetValue(lokyn.L("Gender"))
+	s.lblRace.SetValue(lokyn.L("Race"))
+	s.tiFirstname.Placeholder = lokyn.L("First name")
+	s.tiLastname.Placeholder = lokyn.L("Last name")
 
 	s.logoutOnEsc = false
 

@@ -91,6 +91,8 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	s.title.SetValue(lokyn.L("New mail"))
+
 	s.writer.Init()
 	s.detailEditor.Init()
 	s.attachmentSelect.Init()

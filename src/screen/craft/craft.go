@@ -31,6 +31,7 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
+	s.Screen.SetTitle(lokyn.L("Crafts"))
 
 	bubblehelp.SwitchContext(keybind.ContextCraft)
 

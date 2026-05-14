@@ -49,7 +49,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("Character"))
+	s.title = orvyn.NewSimpleRenderable("Character")
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.characterInfo = characterinfo.New()
@@ -89,6 +89,8 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterSheet)
+
+	s.title.SetValue(lokyn.L("Character"))
 
 	s.statusMessage.Reset()
 

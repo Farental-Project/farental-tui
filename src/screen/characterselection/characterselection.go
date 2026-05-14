@@ -54,9 +54,8 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(
-		t.Style(theme.TitleStyleID).Render(lokyn.L("Character selection")),
-	)
+	s.title = orvyn.NewSimpleRenderable("Character selection")
+	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.list = widgetlist.New(characterbasiclistitem.Constructor)
 	s.list.SetFilterable(false)
@@ -83,6 +82,8 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	var cmd tea.Cmd
 
 	bubblehelp.SwitchContext(keybind.ContextCharacterSel)
+
+	s.title.SetValue(lokyn.L("Character selection"))
 
 	s.loadCharacters()
 

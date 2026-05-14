@@ -52,10 +52,10 @@ func New() *Screen {
 
 	ts := orvyn.GetTheme().Style(theme.TitleStyleID)
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("Script editor"))
+	s.title = orvyn.NewSimpleRenderable("Script editor")
 	s.title.Style = ts
 
-	s.readOnlyTitle = orvyn.NewSimpleRenderable(lokyn.L("Read only"))
+	s.readOnlyTitle = orvyn.NewSimpleRenderable("Read only")
 	s.readOnlyTitle.Style = ts
 	s.readOnlyTitle.SetActive(false)
 
@@ -102,6 +102,9 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		s.ruleTypeInspector,
 	}
 	s.focusManager.SetWidgets(widgets)
+
+	s.title.SetValue(lokyn.L("Script editor"))
+	s.readOnlyTitle.SetValue(lokyn.L("Read only"))
 
 	s.readOnlyTitle.SetActive(false)
 

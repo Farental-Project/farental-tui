@@ -44,7 +44,9 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.currentMode = modeTravelSelection
 
 	s.travelSelectionScreen.OnEnter(i)
+	s.travelSelectionScreen.SetTitle(lokyn.L("Travels"))
 	s.travelRelaySelectionScreen.OnEnter(i)
+	s.travelRelaySelectionScreen.SetTitle(lokyn.L("Relays"))
 
 	bubblehelp.SwitchContext(keybind.ContextTravel)
 

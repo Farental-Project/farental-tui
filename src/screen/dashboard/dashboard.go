@@ -128,6 +128,10 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextGameDashboard)
 
+	s.logEvent.SetTitle(lokyn.L("Events"))
+	s.logChat.SetTitle(lokyn.L("Chat"))
+	s.logCharacters.SetTitle(lokyn.L("Characters"))
+
 	s.statusMessage.Reset()
 
 	switch param := i.(type) {

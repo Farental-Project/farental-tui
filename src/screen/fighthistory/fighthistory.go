@@ -57,7 +57,7 @@ func New() *Screen {
 		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
 
-	s.log = simplelogviewer.New(lokyn.L("Fight log"))
+	s.log = simplelogviewer.New("Fight log")
 	s.log.Style = logStyle
 	s.log.SetAutoScroll(false)
 	s.log.OnBlur()
@@ -92,6 +92,9 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextFightHistory)
+
+	s.title.SetValue(lokyn.L("Fight history"))
+	s.log.SetTitle(lokyn.L("Fight log"))
 
 	s.loadedLogsCache = make(map[uint]api.EventLogResponse)
 

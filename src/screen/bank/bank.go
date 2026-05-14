@@ -56,7 +56,7 @@ func New() *Screen {
 
 	s.errMsg = nil
 
-	s.characterInventoryTitle = orvyn.NewSimpleRenderable(lokyn.L("Inventory"))
+	s.characterInventoryTitle = orvyn.NewSimpleRenderable("Inventory")
 	s.characterInventoryTitle.SizeConstraint = true
 	s.characterInventoryTitle.Style = ts
 
@@ -110,6 +110,8 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextBank)
+
+	s.characterInventoryTitle.SetValue(lokyn.L("Inventory"))
 
 	s.errMsg = nil
 

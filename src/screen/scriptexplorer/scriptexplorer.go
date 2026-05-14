@@ -47,9 +47,6 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.titleOwn = lokyn.L("My scripts (%d/%d)")
-	s.titlePublic = lokyn.L("Public scripts")
-
 	s.viewType = own
 
 	s.Screen = selectionlist.New(
@@ -64,6 +61,9 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
+
+	s.titleOwn = lokyn.L("My scripts (%d/%d)")
+	s.titlePublic = lokyn.L("Public scripts")
 
 	s.newScript = false
 	s.duplicateScript = false

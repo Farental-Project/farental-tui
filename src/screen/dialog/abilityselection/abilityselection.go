@@ -58,6 +58,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	cmd := s.Screen.OnEnter(i)
 
+	s.Screen.SetTitle(lokyn.L("Abilities"))
+
 	bubblehelp.SwitchContext(keybind.ContextScriptAbilitySelection)
 
 	return cmd

@@ -39,7 +39,7 @@ type Screen struct {
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("Read mail"))
+	s.title = orvyn.NewSimpleRenderable("Read mail")
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.content = mailcontentreader.New()
@@ -70,6 +70,8 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextMailReader)
+
+	s.title.SetValue(lokyn.L("Read mail"))
 
 	s.statusMessage.Reset()
 

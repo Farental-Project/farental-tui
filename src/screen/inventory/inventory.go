@@ -51,9 +51,6 @@ func New() *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.inventoryTitle = lokyn.L("Inventory")
-	s.equippedTitle = lokyn.L("Equipped items")
-
 	s.title = orvyn.NewSimpleRenderable(s.inventoryTitle)
 	s.title.Style = t.Style(theme.TitleStyleID)
 
@@ -95,6 +92,9 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextInventory)
+
+	s.inventoryTitle = lokyn.L("Inventory")
+	s.equippedTitle = lokyn.L("Equipped items")
 
 	s.statusMessage.Reset()
 
