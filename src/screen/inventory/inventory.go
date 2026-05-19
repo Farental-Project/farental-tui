@@ -144,12 +144,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	selectedItem := s.list.GetSelectedItem()
 	index := s.list.GetGlobalIndex()
 
-	if selectedItem.ID > 0 {
-		if s.inspector.GetCurrentStackItemID() != selectedItem.ItemID {
-			s.updateInspector(&selectedItem)
-			s.updateKeybind(&selectedItem.Item)
-		}
-	}
+	s.updateTUI()
 
 	if s.list.FilterState() == widgetlist.Filtering {
 		return cmd
@@ -166,7 +161,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 						s.useItem(index, &selectedItem)
 						return cmd
 					case modeEquipped:
-						s.unequipItem(index, &selectedItem)
+						s.unequipItem(&selectedItem)
 						return cmd
 					}
 				}
@@ -175,7 +170,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.EKey):
 			if bubblehelp.IsKeybindVisible(keybind.EKey) {
 				if s.checkRunningTask() {
-					s.equipItem(index, &selectedItem)
+					s.equipItem(&selectedItem)
 					return cmd
 				}
 			}
@@ -241,6 +236,17 @@ func (s *Screen) submit() bool {
 	return false
 }
 
+func (s *Screen) updateTUI() {
+	selectedItem := s.list.GetSelectedItem()
+
+	if selectedItem.Item.ID > 0 {
+		if s.inspector.GetCurrentStackItemID() != selectedItem.ItemID {
+			s.updateInspector(&selectedItem)
+			s.updateKeybind(&selectedItem.Item)
+		}
+	}
+}
+
 func (s *Screen) updateInspector(item *api.StackResponse) {
 	s.inspector.UpdateData(item)
 }
@@ -267,7 +273,7 @@ func (s *Screen) useItem(index int, item *api.StackResponse) {
 	s.list.SetItem(index, *item)
 }
 
-func (s *Screen) equipItem(index int, item *api.StackResponse) {
+func (s *Screen) equipItem(item *api.StackResponse) {
 	req := request.InventoryEquipItem(item.ItemID)
 
 	_, err := helper.SendRequest(req)
@@ -279,11 +285,12 @@ func (s *Screen) equipItem(index int, item *api.StackResponse) {
 
 	s.loadInventory()
 	s.list.FocusFirst()
+	s.updateTUI()
 
 	s.statusMessage.SetMessage(lokyn.L("Item equipped !"), statusmessage.SuccessMessage)
 }
 
-func (s *Screen) unequipItem(index int, item *api.StackResponse) {
+func (s *Screen) unequipItem(item *api.StackResponse) {
 	req := request.InventoryUnequipItem(item.ItemID)
 
 	_, err := helper.SendRequest(req)
@@ -293,7 +300,9 @@ func (s *Screen) unequipItem(index int, item *api.StackResponse) {
 		return
 	}
 
-	s.removeItem(index)
+	s.loadEquippedInventory()
+	s.list.FocusFirst()
+	s.updateTUI()
 
 	s.statusMessage.SetMessage(lokyn.L("Item unequipped !"), statusmessage.SuccessMessage)
 }
@@ -304,6 +313,7 @@ func (s *Screen) removeItem(index int) {
 	selectedItem := s.list.GetSelectedItem()
 
 	s.updateKeybind(&selectedItem.Item)
+	s.updateTUI()
 }
 
 func (s *Screen) updateKeybind(item *api.ItemResponse) {
