@@ -52,13 +52,15 @@ import (
 var translations embed.FS
 
 func main() {
+	var err error
+
 	// Debug
-	/*f, err := tea.LogToFile("debug.log", "debug")
+	f, err := tea.LogToFile("debug_farental.log", "debug")
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()*/
+	defer f.Close()
 
 	config.Init()
 	context.Init()

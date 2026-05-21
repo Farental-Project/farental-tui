@@ -36,7 +36,7 @@ func Constructor(data api.ScriptRuleTypeResponse) widgetlist.ListItem[api.Script
 }
 
 func (r *RuleTypeListItem) Resize(size orvyn.Size) {
-	size.Height = 3
+	size.Height = 4
 
 	r.BaseWidget.Resize(size)
 
