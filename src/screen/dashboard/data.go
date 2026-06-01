@@ -70,14 +70,17 @@ func (s *Screen) updateData() {
 func (s *Screen) updateEventLog() {
 	var req *resty.Request
 	var queryParam string
+	var firstInit bool
 
 	req = request.CharacterGetEventLog()
 
+	firstInit = true
 	queryParam = ""
 	length := len(s.logEvent.GetContent())
 
 	if length > 0 {
 		queryParam = s.lastEventLogTimestamp.Format(time.DateTime)
+		firstInit = false
 	}
 
 	req.SetQueryParam("lastTimestamp", queryParam)
@@ -97,12 +100,30 @@ func (s *Screen) updateEventLog() {
 
 	ts := orvyn.GetTheme().Style(theme.TitleStyleID)
 
-	for _, entry := range eventLog.Entries {
-		s.logEvent.AppendContent(fmt.Sprintf("%s - %s",
-			ts.Render(
-				entry.Timestamp.Format(viper.GetString("datetimeformat"))),
-			entry.Value,
-		))
+	format := viper.GetString("datetimeformat")
+
+	if firstInit {
+		var content []string
+
+		for _, entry := range eventLog.Entries {
+			log := fmt.Sprintf("%s - %s",
+				ts.Render(
+					entry.Timestamp.Format(format)),
+				entry.Value,
+			)
+
+			content = append(content, log)
+		}
+
+		s.logEvent.SetContent(content)
+	} else {
+		for _, entry := range eventLog.Entries {
+			s.logEvent.AppendContent(fmt.Sprintf("%s - %s",
+				ts.Render(
+					entry.Timestamp.Format(format)),
+				entry.Value,
+			))
+		}
 	}
 
 	s.lastEventLogTimestamp = eventLog.Entries[len(eventLog.Entries)-1].Timestamp

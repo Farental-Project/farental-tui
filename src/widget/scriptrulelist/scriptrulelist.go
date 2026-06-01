@@ -74,17 +74,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(m, keybind.NKey):
 			if bubblehelp.IsKeybindVisible(keybind.NKey) {
-				w.Widget.AppendItem(
-					Data{
-						ScriptRuleBody: api.ScriptRuleBody{
-							AbilityTarget:  api.TargetSelf,
-							RuleTypeTarget: nil,
-							Order:          len(w.GetItems()) + 1,
-							RuleTypeCode:   "",
-							AbilityCode:    "",
-							Parameters:     make([]api.ScriptRuleTypeParam, 0),
-						},
-					})
+				w.Widget.AppendItem(w.getNewRuleData())
 
 				w.updateKeybind()
 				return nil
@@ -92,17 +82,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(m, keybind.IKey):
 			if bubblehelp.IsKeybindVisible(keybind.IKey) {
-				w.Widget.InsertItem(w.GetGlobalIndex(),
-					Data{
-						ScriptRuleBody: api.ScriptRuleBody{
-							AbilityTarget:  api.TargetSelf,
-							RuleTypeTarget: nil,
-							Order:          0,
-							RuleTypeCode:   "",
-							AbilityCode:    "",
-							Parameters:     make([]api.ScriptRuleTypeParam, 0),
-						},
-					})
+				w.Widget.InsertItem(w.GetGlobalIndex(), w.getNewRuleData())
 
 				w.updateRulesOrder()
 
@@ -199,19 +179,11 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 		}
 
 		if rb.RuleTypeCode != "" {
-			resp, err = helper.SendRequest(request.ScriptGetRuleType(rb.RuleTypeCode))
+			ruleTypeName, err = w.getRuleTypeName(rb.RuleTypeCode)
 
 			if err != nil {
 				return err
 			}
-
-			ruleType, ok := resp.Result().(*api.ScriptRuleTypeResponse)
-
-			if !ok {
-				return fmt.Errorf("%s", lokyn.L("Invalid response from server"))
-			}
-
-			ruleTypeName = ruleType.Name
 		}
 
 		item := Data{
@@ -251,4 +223,44 @@ func (w *Widget) updateKeybind() {
 	bubblehelp.SetKeybindVisible(keybind.NKey, !limitReached)
 	bubblehelp.SetKeybindVisible(keybind.IKey, !limitReached)
 	bubblehelp.SetKeybindVisible(keybind.CKey, !limitReached)
+}
+
+func (w *Widget) getRuleTypeName(code string) (string, error) {
+	resp, err := helper.SendRequest(request.ScriptGetRuleType(code))
+
+	if err != nil {
+		return "", err
+	}
+
+	ruleType, ok := resp.Result().(*api.ScriptRuleTypeResponse)
+
+	if !ok {
+		return "", fmt.Errorf("%s", lokyn.L("Invalid response from server"))
+	}
+
+	return ruleType.Name, nil
+}
+
+func (w *Widget) getNewRuleData() Data {
+	var ruleTypeCode, ruleTypeName string
+
+	ruleTypeCode = "All"
+	ruleTypeName, err := w.getRuleTypeName(ruleTypeCode)
+
+	if err != nil {
+		ruleTypeCode = ""
+		ruleTypeName = ""
+	}
+
+	return Data{
+		ScriptRuleBody: api.ScriptRuleBody{
+			AbilityTarget:  api.TargetSelf,
+			RuleTypeTarget: nil,
+			Order:          len(w.GetItems()) + 1,
+			RuleTypeCode:   ruleTypeCode,
+			AbilityCode:    "",
+			Parameters:     make([]api.ScriptRuleTypeParam, 0),
+		},
+		RuleTypeName: ruleTypeName,
+	}
 }
