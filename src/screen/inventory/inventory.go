@@ -7,6 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/widget/characterinfo"
 	"farental/widget/help"
 	"farental/widget/inventorylistitem"
 	"farental/widget/inventorystackinspect"
@@ -38,6 +39,7 @@ type Screen struct {
 
 	title           *orvyn.SimpleRenderable
 	stackCountTitle *orvyn.SimpleRenderable
+	characterInfo   *characterinfo.Widget
 	list            *widgetlist.Widget[api.StackResponse]
 	inspector       *inventorystackinspect.Widget
 	statusMessage   *statusmessage.Widget
@@ -56,6 +58,8 @@ func New() *Screen {
 
 	s.stackCountTitle = orvyn.NewSimpleRenderable("")
 	s.stackCountTitle.Style = t.Style(theme.NormalTextStyleID)
+
+	s.characterInfo = characterinfo.New()
 
 	s.list = widgetlist.New(inventorylistitem.Constructor)
 
@@ -80,7 +84,7 @@ func New() *Screen {
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 3,
 			s.title,
 			s.stackCountTitle,
-			orvyn.VGap,
+			s.characterInfo,
 			inventoryLayout,
 			s.statusMessage,
 			s.help,
@@ -93,10 +97,22 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextInventory)
 
+	s.statusMessage.Reset()
+
 	s.inventoryTitle = lokyn.L("Inventory")
 	s.equippedTitle = lokyn.L("Equipped items")
 
-	s.statusMessage.Reset()
+	resp, err := helper.SendRequest(
+		request.CharacterGetCurrencyAmount(api.Grynars))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return nil
+	}
+
+	currencyResp := resp.Result().(*api.CurrencyResponse)
+
+	s.characterInfo.UpdateData(context.CharacterInfo, currencyResp.Amount)
 
 	s.loadInventory()
 	s.list.FocusFirst()

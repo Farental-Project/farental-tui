@@ -92,6 +92,7 @@ func New() *Widget {
 
 func (w *Widget) Render() string {
 	return w.GetStyle().
+		Width(w.GetContentSize().Width).
 		Height(w.GetContentSize().Height).
 		Render(w.layout.Render())
 }
