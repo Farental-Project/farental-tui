@@ -102,17 +102,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.inventoryTitle = lokyn.L("Inventory")
 	s.equippedTitle = lokyn.L("Equipped items")
 
-	resp, err := helper.SendRequest(
-		request.CharacterGetCurrencyAmount(api.Grynars))
-
-	if err != nil {
-		s.statusMessage.SetError(err)
-		return nil
-	}
-
-	currencyResp := resp.Result().(*api.CurrencyResponse)
-
-	s.characterInfo.UpdateData(context.CharacterInfo, currencyResp.Amount)
+	s.updateCharacterInfo()
 
 	s.loadInventory()
 	s.list.FocusFirst()
@@ -127,6 +117,31 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.updateKeybind(&selectedItem.Item)
 
 	return nil
+}
+
+func (s *Screen) updateCharacterInfo() {
+	resp, err := helper.SendRequest(request.CharacterGetInfo())
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	characterInfo := resp.Result().(*api.CharacterInfoResponse)
+
+	context.CharacterInfo = characterInfo
+
+	resp, err = helper.SendRequest(
+		request.CharacterGetCurrencyAmount(api.Grynars))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	currencyResp := resp.Result().(*api.CurrencyResponse)
+
+	s.characterInfo.UpdateData(context.CharacterInfo, currencyResp.Amount)
 }
 
 func (s *Screen) OnExit() any {
@@ -281,6 +296,8 @@ func (s *Screen) useItem(index int, item *api.StackResponse) {
 
 	s.statusMessage.SetMessage(lokyn.L("Item used !"), statusmessage.SuccessMessage)
 
+	s.updateCharacterInfo()
+
 	if item.Count == 0 {
 		s.removeItem(index)
 		return
@@ -302,6 +319,7 @@ func (s *Screen) equipItem(item *api.StackResponse) {
 	s.loadInventory()
 	s.list.FocusFirst()
 	s.updateTUI()
+	s.updateCharacterInfo()
 
 	s.statusMessage.SetMessage(lokyn.L("Item equipped !"), statusmessage.SuccessMessage)
 }
@@ -319,6 +337,7 @@ func (s *Screen) unequipItem(item *api.StackResponse) {
 	s.loadEquippedInventory()
 	s.list.FocusFirst()
 	s.updateTUI()
+	s.updateCharacterInfo()
 
 	s.statusMessage.SetMessage(lokyn.L("Item unequipped !"), statusmessage.SuccessMessage)
 }
