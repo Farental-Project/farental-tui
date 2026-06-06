@@ -108,8 +108,6 @@ func (a *AbilityConditionViewer) Render() string {
 		list.WriteString(hs.Render("< "))
 		list.WriteString(a.paginator.View())
 		list.WriteString(hs.Render(" >"))
-	} else {
-		//list.WriteString("\n")
 	}
 
 	return ds.Render(list.String())
