@@ -50,6 +50,8 @@ github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/halsten-dev/bubblehelp v1.0.2 h1:FiNgy+37cIiDkUOaUK1ShCzPYbhJ7ksff7w3rw5Dnj0=
 github.com/halsten-dev/bubblehelp v1.0.2/go.mod h1:tIMQHQB2dkLJ7wgdURUs118NO2kG1tstbRVsmjI2P9A=
+github.com/halsten-dev/bubblehelp v1.0.3-0.20260606083144-f827c8298985 h1:eWGViHSGd7uBSgQt8YTWabrk06OnL6uwjwmmohPk7JI=
+github.com/halsten-dev/bubblehelp v1.0.3-0.20260606083144-f827c8298985/go.mod h1:tIMQHQB2dkLJ7wgdURUs118NO2kG1tstbRVsmjI2P9A=
 github.com/halsten-dev/lokyn v1.0.0 h1:T4XGe2N9kQyjv+hRD/G9Clo5luhFzBosrZcqDFytW3M=
 github.com/halsten-dev/lokyn v1.0.0/go.mod h1:qGTNdCXIBmFcpP7puv/fEdrjZhAI16DV4v9N9OE2QOw=
 github.com/halsten-dev/lokyn v1.0.1 h1:njVTnJDcgDlQ456jbsbAtlDyzFPQOq9UbMb7mLJUDoo=
@@ -64,6 +66,8 @@ github.com/halsten-dev/orvyn v0.0.0-20260505182246-839ffb1f5b16 h1:VeKv0Wnr7/iQq
 github.com/halsten-dev/orvyn v0.0.0-20260505182246-839ffb1f5b16/go.mod h1:ywQTQudr6ZQHggklB+4vVgOqI/WfqUVyU44tQcv7xp8=
 github.com/halsten-dev/orvyn v0.0.0-20260604183332-446ba7785ed0 h1:3Rf1PEk8Dq0tVMMQQigCScGBz6lzmqcuNjHKaf/QU3M=
 github.com/halsten-dev/orvyn v0.0.0-20260604183332-446ba7785ed0/go.mod h1:ywQTQudr6ZQHggklB+4vVgOqI/WfqUVyU44tQcv7xp8=
+github.com/halsten-dev/orvyn v0.0.0-20260605195508-9806f5103b2c h1:e1Tfdvx3qQvvzG9MZGetaGRlZRUdubLcrT2lRdyp4HQ=
+github.com/halsten-dev/orvyn v0.0.0-20260605195508-9806f5103b2c/go.mod h1:ywQTQudr6ZQHggklB+4vVgOqI/WfqUVyU44tQcv7xp8=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade h1:FmusiCI1wHw+XQbvL9M+1r/C3SPqKrmBaIOYwVfQoDE=
 github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade/go.mod h1:ZDXo8KHryOWSIqnsb/CiDq7hQUYryCgdVnxbj8tDG7o=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=

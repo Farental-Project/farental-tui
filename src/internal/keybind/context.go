@@ -10,38 +10,39 @@ import (
 )
 
 const (
-	ContextBackAndQuit                    bubblehelp.KeymapContext = "backAndQuit"
-	ContextLogin                          bubblehelp.KeymapContext = "login"
-	ContextCharacterSel                   bubblehelp.KeymapContext = "characterSelection"
-	ContextCharacterCreation              bubblehelp.KeymapContext = "characterCreation"
-	ContextCharacterSheet                 bubblehelp.KeymapContext = "characterSheet"
-	ContextGameDashboard                  bubblehelp.KeymapContext = "gameDashboard"
-	ContextFilterSelectionListBasic       bubblehelp.KeymapContext = "filterSelectionListBasic"
-	ContextFilterSelectionListIncDec      bubblehelp.KeymapContext = "filterSelectionListIncDec"
-	ContextFightList                      bubblehelp.KeymapContext = "fightList"
-	ContextFilterSelectionListWithNew     bubblehelp.KeymapContext = "filterSelectionListWithNew"
-	ContextCraft                          bubblehelp.KeymapContext = "craft"
-	ContextInventory                      bubblehelp.KeymapContext = "inventory"
-	ContextTravel                         bubblehelp.KeymapContext = "travel"
-	ContextChat                           bubblehelp.KeymapContext = "chat"
-	ContextLocationServices               bubblehelp.KeymapContext = "locationServices"
-	ContextMailBox                        bubblehelp.KeymapContext = "mailBox"
-	ContextMailReader                     bubblehelp.KeymapContext = "mailReader"
-	ContextMailWidgetNormalMode           bubblehelp.KeymapContext = "mailWidgetNormalMode"
-	ContextMailWriterEditMode             bubblehelp.KeymapContext = "mailWriterEditMode"
-	ContextMailDetailEditorEditMode       bubblehelp.KeymapContext = "mailDetailEditorEditMode"
-	ContextMailDetailEditorAttachmentList bubblehelp.KeymapContext = "mailDetailEditorAttachmentList"
-	ContextScriptExplorer                 bubblehelp.KeymapContext = "scriptExplorer"
-	ContextScriptEditorWidgetNormalMode   bubblehelp.KeymapContext = "scriptEditorWidgetNormalMode"
-	ContextScriptEditorRulesList          bubblehelp.KeymapContext = "scriptEditorRulesList"
-	ContextScriptEditorRulesListItem      bubblehelp.KeymapContext = "scriptEditorRulesListItem"
-	ContextScriptEditorRuleInspector      bubblehelp.KeymapContext = "scriptEditorRuleInspector"
-	ContextScriptAbilitySelection         bubblehelp.KeymapContext = "scriptAbilitySelection"
-	ContextBasicEditMode                  bubblehelp.KeymapContext = "basicEditMode"
-	ContextBank                           bubblehelp.KeymapContext = "bank"
-	ContextNpc                            bubblehelp.KeymapContext = "npc"
-	ContextFightHistory                   bubblehelp.KeymapContext = "fightHistory"
-	ContextShop                           bubblehelp.KeymapContext = "shop"
+	ContextBackAndQuit                         bubblehelp.KeymapContext = "backAndQuit"
+	ContextLogin                               bubblehelp.KeymapContext = "login"
+	ContextCharacterSel                        bubblehelp.KeymapContext = "characterSelection"
+	ContextCharacterCreation                   bubblehelp.KeymapContext = "characterCreation"
+	ContextCharacterSheet                      bubblehelp.KeymapContext = "characterSheet"
+	ContextGameDashboard                       bubblehelp.KeymapContext = "gameDashboard"
+	ContextFilterSelectionListBasic            bubblehelp.KeymapContext = "filterSelectionListBasic"
+	ContextFilterSelectionListIncDec           bubblehelp.KeymapContext = "filterSelectionListIncDec"
+	ContextFightList                           bubblehelp.KeymapContext = "fightList"
+	ContextFilterSelectionListWithNew          bubblehelp.KeymapContext = "filterSelectionListWithNew"
+	ContextCraft                               bubblehelp.KeymapContext = "craft"
+	ContextInventory                           bubblehelp.KeymapContext = "inventory"
+	ContextTravel                              bubblehelp.KeymapContext = "travel"
+	ContextChat                                bubblehelp.KeymapContext = "chat"
+	ContextLocationServices                    bubblehelp.KeymapContext = "locationServices"
+	ContextMailBox                             bubblehelp.KeymapContext = "mailBox"
+	ContextMailReader                          bubblehelp.KeymapContext = "mailReader"
+	ContextMailWidgetNormalMode                bubblehelp.KeymapContext = "mailWidgetNormalMode"
+	ContextMailWriterEditMode                  bubblehelp.KeymapContext = "mailWriterEditMode"
+	ContextMailDetailEditorEditMode            bubblehelp.KeymapContext = "mailDetailEditorEditMode"
+	ContextMailDetailEditorAttachmentList      bubblehelp.KeymapContext = "mailDetailEditorAttachmentList"
+	ContextScriptExplorer                      bubblehelp.KeymapContext = "scriptExplorer"
+	ContextScriptEditorWidgetNormalMode        bubblehelp.KeymapContext = "scriptEditorWidgetNormalMode"
+	ContextScriptEditorRulesList               bubblehelp.KeymapContext = "scriptEditorRulesList"
+	ContextScriptEditorRulesListItem           bubblehelp.KeymapContext = "scriptEditorRulesListItem"
+	ContextScriptEditorRuleInspectorNormalMode bubblehelp.KeymapContext = "scriptEditorRuleInspectorNormalMode"
+	ContextScriptEditorRuleInspector           bubblehelp.KeymapContext = "scriptEditorRuleInspector"
+	ContextScriptAbilitySelection              bubblehelp.KeymapContext = "scriptAbilitySelection"
+	ContextBasicEditMode                       bubblehelp.KeymapContext = "basicEditMode"
+	ContextBank                                bubblehelp.KeymapContext = "bank"
+	ContextNpc                                 bubblehelp.KeymapContext = "npc"
+	ContextFightHistory                        bubblehelp.KeymapContext = "fightHistory"
+	ContextShop                                bubblehelp.KeymapContext = "shop"
 )
 
 func InitContexts() {
@@ -385,6 +386,28 @@ func InitContexts() {
 
 	bubblehelp.RegisterContext(ContextScriptEditorWidgetNormalMode, ScriptEditorWidgetNormalModeKeymap)
 
+	ScriptEditorRuleInspectorNormalKeymap := bubblehelp.NewKeymap(3)
+	ScriptEditorRuleInspectorNormalKeymap.Style = style.MainHelpStyle
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Num1Key, false)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(Num1Key, lokyn.L("focus script info"))
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Num2Key, false)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(Num2Key, lokyn.L("focus rule list"))
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Num3Key, false)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(Num3Key, lokyn.L("focus rule inspector"))
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(EKey, true)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(EKey, lokyn.L("edit"))
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(SKeyCtrl, true)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(SKeyCtrl, lokyn.L("save script"))
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(EKeyCtrl, true)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(EKeyCtrl, lokyn.L("focus rule list"))
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Tab, true)
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(ShiftTab, true)
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Esc, true)
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Quit, false)
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Help, true)
+
+	bubblehelp.RegisterContext(ContextScriptEditorRuleInspectorNormalMode, ScriptEditorRuleInspectorNormalKeymap)
+
 	ScriptEditorRulesListKeymap := bubblehelp.NewKeymap(3)
 	ScriptEditorRulesListKeymap.Style = style.MainHelpStyle
 	ScriptEditorRulesListKeymap.NewKeyBinding(Num1Key, false)
@@ -393,6 +416,8 @@ func InitContexts() {
 	ScriptEditorRulesListKeymap.SetHelpDesc(Num2Key, lokyn.L("focus rule list"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(Num3Key, false)
 	ScriptEditorRulesListKeymap.SetHelpDesc(Num3Key, lokyn.L("focus rule inspector"))
+	ScriptEditorRulesListKeymap.NewKeyBinding(EKeyCtrl, true)
+	ScriptEditorRulesListKeymap.SetHelpDesc(EKeyCtrl, lokyn.L("edit rule parameters"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(Up, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(Down, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(ShiftUp, false)
@@ -419,10 +444,26 @@ func InitContexts() {
 
 	bubblehelp.RegisterContext(ContextScriptEditorRulesList, ScriptEditorRulesListKeymap)
 
+	ScriptEditorRulesListItemKeymap := bubblehelp.NewKeymap(2)
+	ScriptEditorRulesListItemKeymap.Style = style.MainHelpStyle
+	ScriptEditorRulesListItemKeymap.NewKeyBinding(Tab, true)
+	ScriptEditorRulesListItemKeymap.NewKeyBinding(ShiftTab, true)
+	ScriptEditorRulesListItemKeymap.NewKeyBinding(Space, true)
+	ScriptEditorRulesListItemKeymap.SetHelpDesc(Space, lokyn.L("open selection"))
+	ScriptEditorRulesListItemKeymap.NewKeyBinding(EKeyCtrl, true)
+	ScriptEditorRulesListItemKeymap.SetHelpDesc(EKeyCtrl, lokyn.L("edit rule parameters"))
+	ScriptEditorRulesListItemKeymap.NewKeyBinding(Esc, true)
+	ScriptEditorRulesListItemKeymap.SetHelpDesc(Esc, lokyn.L("stop editing"))
+	ScriptEditorRulesListItemKeymap.NewKeyBinding(Quit, false)
+
+	bubblehelp.RegisterContext(ContextScriptEditorRulesListItem, ScriptEditorRulesListItemKeymap)
+
 	ScriptEditorRuleInspectorKeymap := bubblehelp.NewKeymap(3)
 	ScriptEditorRuleInspectorKeymap.Style = style.MainHelpStyle
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(Tab, true)
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(ShiftTab, true)
+	ScriptEditorRuleInspectorKeymap.NewKeyBinding(EKeyCtrl, true)
+	ScriptEditorRuleInspectorKeymap.SetHelpDesc(EKeyCtrl, lokyn.L("focus rule list"))
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(Esc, true)
 	ScriptEditorRuleInspectorKeymap.SetHelpDesc(Esc, lokyn.L("stop editing"))
 	ScriptEditorRuleInspectorKeymap.NewKeyBinding(Quit, false)

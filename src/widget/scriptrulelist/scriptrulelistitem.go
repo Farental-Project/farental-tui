@@ -4,7 +4,6 @@ import (
 	cdata "farental/core/data"
 	"farental/core/data/api"
 	"farental/internal/keybind"
-	"farental/internal/style"
 	"farental/screen/dialog/abilityselection"
 	"farental/screen/dialog/ruletypeselection"
 	"farental/widget/button"
@@ -61,18 +60,6 @@ type ListItem struct {
 }
 
 func Constructor(data Data) widgetlist.ListItem[Data] {
-	inputKeymap := bubblehelp.NewKeymap(2)
-	inputKeymap.Style = style.MainHelpStyle
-	inputKeymap.NewKeyBinding(keybind.Tab, true)
-	inputKeymap.NewKeyBinding(keybind.ShiftTab, true)
-	inputKeymap.NewKeyBinding(keybind.Space, true)
-	inputKeymap.SetHelpDesc(keybind.Space, lokyn.L("open selection"))
-	inputKeymap.NewKeyBinding(keybind.Esc, true)
-	inputKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
-	inputKeymap.NewKeyBinding(keybind.Quit, false)
-
-	bubblehelp.RegisterContext(keybind.ContextScriptEditorRulesListItem, inputKeymap)
-
 	w := new(ListItem)
 
 	t := orvyn.GetTheme()
@@ -168,6 +155,12 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, keybind.EKeyCtrl):
+			return FocusInspectorCmd
+		}
+
 	case orvyn.DialogExitMsg:
 		switch msg.DialogID {
 		case "selectRuleType":

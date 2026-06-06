@@ -7,9 +7,9 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/go-resty/resty/v2 v2.17.2
-	github.com/halsten-dev/bubblehelp v1.0.2
+	github.com/halsten-dev/bubblehelp v1.0.3-0.20260606083144-f827c8298985
 	github.com/halsten-dev/lokyn v1.0.1
-	github.com/halsten-dev/orvyn v0.0.0-20260604183332-446ba7785ed0
+	github.com/halsten-dev/orvyn v0.0.0-20260605195508-9806f5103b2c
 	github.com/spf13/viper v1.21.0
 )
 

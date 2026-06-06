@@ -208,6 +208,16 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	case scriptrulelist.ChangedRuleTypeMsg:
 		s.inspectorUpdate(string(msg), nil)
 
+	case scriptrulelist.FocusInspectorMsg:
+		if !s.ruleTypeInspector.IsEmpty() {
+			s.focusManager.Focus(2)
+			s.focusManager.ForceInput(2)
+			return nil
+		}
+
+	case ruletypeinspector.FocusRuleListMsg:
+		s.focusManager.Focus(1)
+
 	case orvyn.DialogExitMsg:
 		switch msg.DialogID {
 		case "quitConfirm":

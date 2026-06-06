@@ -6,7 +6,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/internal/style"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -18,22 +17,18 @@ import (
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
+type FocusInspectorMsg int
+
+func FocusInspectorCmd() tea.Msg {
+	return FocusInspectorMsg(1)
+}
+
 type Widget struct {
 	widgetlist.Widget[Data]
 	readOnly bool
 }
 
 func New() *Widget {
-	listKeymap := bubblehelp.NewKeymap(2)
-	listKeymap.Style = style.MainHelpStyle
-	listKeymap.NewKeyBinding(keybind.Tab, true)
-	listKeymap.NewKeyBinding(keybind.ShiftTab, true)
-	listKeymap.NewKeyBinding(keybind.Esc, true)
-	listKeymap.SetHelpDesc(keybind.Esc, lokyn.L("stop editing"))
-	listKeymap.NewKeyBinding(keybind.Quit, false)
-
-	bubblehelp.RegisterContext(keybind.ContextBasicEditMode, listKeymap)
-
 	w := new(Widget)
 
 	w.Widget = *widgetlist.New(Constructor)
@@ -120,6 +115,9 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 			if !bubblehelp.IsKeybindVisible(keybind.EKey) {
 				return nil
 			}
+
+		case key.Matches(m, keybind.EKeyCtrl):
+			return FocusInspectorCmd
 		}
 	}
 
@@ -136,7 +134,7 @@ func (w *Widget) GetFocusKeybind() *key.Binding {
 
 func (w *Widget) OnFocus() {
 	w.Widget.OnFocus()
-	bubblehelp.SwitchContext(keybind.ContextScriptEditorRulesList)
+	bubblehelp.SoftSwitchContext(keybind.ContextScriptEditorRulesList)
 	w.updateKeybind()
 }
 

@@ -12,8 +12,15 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
+
+type FocusRuleListMsg int
+
+func FocusRuleListCmd() tea.Msg {
+	return FocusRuleListMsg(1)
+}
 
 type ParamData struct {
 	api.ScriptRuleTypeStructParam
@@ -25,6 +32,8 @@ type Widget struct {
 	orvyn.BaseFocusable
 
 	parameters *widgetlist.Widget[ParamData]
+
+	noParamText *orvyn.SimpleRenderable
 }
 
 func New() *Widget {
@@ -35,9 +44,13 @@ func New() *Widget {
 
 	w.parameters = widgetlist.New(Constructor)
 	w.parameters.SetFilterable(false)
-	w.parameters.SetCursorMovementKeybinds(keybind.Tab, keybind.ShiftTab)
+	w.parameters.SetCursorMovementKeybinds(keybind.ShiftTab, keybind.Tab)
 	w.parameters.InfiniteScroll = true
 	w.parameters.CursorMovedCallback = w.cursorMoved
+
+	w.noParamText = orvyn.NewSimpleRenderable("")
+	w.noParamText.SizeConstraint = true
+	w.noParamText.Style = orvyn.GetTheme().Style(theme.DimTextStyleID)
 
 	w.OnBlur()
 
@@ -49,11 +62,20 @@ func (w *Widget) Init() tea.Cmd {
 
 	cmd := w.parameters.Init()
 
+	w.noParamText.SetValue(lokyn.L("No parameters"))
+
 	return cmd
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
+
+	if k, ok := orvyn.GetKeyMsg(msg); ok {
+		switch {
+		case key.Matches(k, keybind.EKeyCtrl):
+			return FocusRuleListCmd
+		}
+	}
 
 	if w.IsInputting() {
 		cmd = w.parameters.Update(msg)
@@ -68,12 +90,21 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) Render() string {
-	return w.parameters.Render()
+	ws := orvyn.GetTheme().Style(theme.BlurredWidgetStyleID)
+
+	if w.IsEmpty() {
+		contentSize := w.GetContentSize()
+		return ws.Width(contentSize.Width).
+			Height(contentSize.Height).
+			Render(w.noParamText.Render())
+	} else {
+		return w.parameters.Render()
+	}
 }
 
 func (w *Widget) OnFocus() {
 	w.parameters.OnFocus()
-	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
+	bubblehelp.SoftSwitchContext(keybind.ContextScriptEditorRuleInspectorNormalMode)
 }
 
 func (w *Widget) OnBlur() {
@@ -153,6 +184,8 @@ func (w *Widget) SetRuleType(code string, data *[]api.ScriptRuleTypeParam) error
 	w.parameters.SetItems(paramData)
 	w.parameters.BlurCurrent()
 
+	w.SetActive(!w.IsEmpty())
+
 	return nil
 }
 
@@ -170,4 +203,12 @@ func (w *Widget) GetItemsData() []api.ScriptRuleTypeParam {
 	}
 
 	return items
+}
+
+func (w *Widget) IsEmpty() bool {
+	if w.parameters.Length() == 0 {
+		return true
+	}
+
+	return false
 }

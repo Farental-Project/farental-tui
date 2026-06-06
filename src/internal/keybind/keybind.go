@@ -34,6 +34,7 @@ var (
 	CKey          key.Binding
 	DKey          key.Binding
 	EKey          key.Binding
+	EKeyCtrl      key.Binding
 	FKey          key.Binding
 	HKey          key.Binding
 	IKey          key.Binding
@@ -139,6 +140,9 @@ func Init() {
 	EKey = key.NewBinding(
 		key.WithKeys("e"),
 		key.WithHelp("e", "e key"))
+	EKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+e"),
+		key.WithHelp("ctrl+e", "ctrl+e key"))
 	FKey = key.NewBinding(
 		key.WithKeys("f"),
 		key.WithHelp("f", "f key"))

@@ -115,7 +115,7 @@ func (w *Widget) Render() string {
 
 func (w *Widget) OnFocus() {
 	w.BaseFocusable.OnFocus()
-	bubblehelp.SwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
+	bubblehelp.SoftSwitchContext(keybind.ContextScriptEditorWidgetNormalMode)
 }
 
 func (w *Widget) OnEnterInput() tea.Cmd {
