@@ -49,6 +49,8 @@ func New[T any](title string, constructor widgetlist.ItemConstructor[T],
 	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 13))
 	s.list.SetMinSize(orvyn.NewSize(6, 13))
 
+	s.list.Filter = widgetlist.BasicFilter
+
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 

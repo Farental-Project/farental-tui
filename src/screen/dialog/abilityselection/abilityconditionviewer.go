@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget"
@@ -63,6 +64,10 @@ func (a *AbilityConditionViewer) Render() string {
 
 	width = size.Width
 
+	if len(a.data) == 0 {
+		return ds.Width(width).Render(lokyn.L("No conditions"))
+	}
+
 	width1, width2 := orvyn.DivideSizeFull(width)
 
 	perPage := a.paginator.PerPage
@@ -104,7 +109,7 @@ func (a *AbilityConditionViewer) Render() string {
 		list.WriteString(a.paginator.View())
 		list.WriteString(hs.Render(" >"))
 	} else {
-		list.WriteString("\n")
+		//list.WriteString("\n")
 	}
 
 	return ds.Render(list.String())
