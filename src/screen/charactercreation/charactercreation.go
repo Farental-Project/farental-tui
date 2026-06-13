@@ -257,9 +257,9 @@ func (s *Screen) loadGenders() {
 	keys := make([]string, 2)
 
 	keys[0] = lokyn.L("Male")
-	genderValues[keys[1]] = 1
+	genderValues[keys[0]] = 1
 	keys[1] = lokyn.L("Female")
-	genderValues[keys[2]] = 2
+	genderValues[keys[1]] = 2
 
 	s.mvsGender.SetValues(keys, genderValues)
 	s.mvsGender.SetSelected(0)
