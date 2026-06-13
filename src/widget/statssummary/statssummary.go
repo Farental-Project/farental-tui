@@ -73,7 +73,6 @@ func (w *Widget) Render() string {
 	w.renderStat(data.STRStat, true, &col)
 	w.renderStat(data.INTStat, true, &col)
 	w.renderStat(data.LUKStat, true, &col)
-	w.renderStat(data.PREStat, true, &col)
 	w.renderStat(data.AGIStat, true, &col)
 	w.renderStat(data.DEFStat, true, &col)
 	w.renderStat(data.MDEStat, true, &col)

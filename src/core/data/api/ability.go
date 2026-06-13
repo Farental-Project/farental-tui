@@ -12,7 +12,7 @@ type AbilityResponse struct {
 	SkillLevelMin int
 	SkillLevelMax int
 
-	Power    int
+	Dice     string
 	Cooldown int
 	ManaCost int
 

@@ -27,8 +27,8 @@ type AbilityListItem struct {
 
 	conditionViewer *AbilityConditionViewer
 
-	powerLabel *orvyn.SimpleRenderable
-	powerValue *orvyn.SimpleRenderable
+	diceLabel *orvyn.SimpleRenderable
+	diceValue *orvyn.SimpleRenderable
 
 	manaCostLabel *orvyn.SimpleRenderable
 	manaCostValue *orvyn.SimpleRenderable
@@ -89,12 +89,12 @@ func Constructor(data api.AbilityResponse) widgetlist.ListItem[api.AbilityRespon
 	nsAlignRightStyle := t.Style(theme.NormalTextStyleID).AlignHorizontal(lipgloss.Right)
 	dsAlignRightStyle := t.Style(theme.DimTextStyleID).AlignHorizontal(lipgloss.Right)
 
-	a.powerLabel = orvyn.NewSimpleRenderable(fmt.Sprintf("%s :", lokyn.L("Power")))
-	a.powerLabel.SizeConstraint = true
-	a.powerLabel.Style = dsAlignRightStyle
-	a.powerValue = orvyn.NewSimpleRenderable(fmt.Sprintf("%d", data.Power))
-	a.powerValue.SizeConstraint = true
-	a.powerValue.Style = nsAlignRightStyle
+	a.diceLabel = orvyn.NewSimpleRenderable(fmt.Sprintf("%s :", lokyn.L("Power")))
+	a.diceLabel.SizeConstraint = true
+	a.diceLabel.Style = dsAlignRightStyle
+	a.diceValue = orvyn.NewSimpleRenderable(fmt.Sprintf("%s", data.Dice))
+	a.diceValue.SizeConstraint = true
+	a.diceValue.Style = nsAlignRightStyle
 
 	a.manaCostLabel = orvyn.NewSimpleRenderable(fmt.Sprintf("%s :", lokyn.L("Mana cost")))
 	a.manaCostLabel.SizeConstraint = true
@@ -137,8 +137,8 @@ func Constructor(data api.AbilityResponse) widgetlist.ListItem[api.AbilityRespon
 	)
 
 	powerElements := []layout.FixedRatioRenderable{
-		layout.NewFixedRatioRenderable(0.7, a.powerLabel),
-		layout.NewFixedRatioRenderable(0.3, a.powerValue),
+		layout.NewFixedRatioRenderable(0.7, a.diceLabel),
+		layout.NewFixedRatioRenderable(0.3, a.diceValue),
 	}
 
 	manaCostElements := []layout.FixedRatioRenderable{
