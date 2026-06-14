@@ -32,7 +32,7 @@ type Screen[T any] struct {
 	submitCallback   func() bool
 }
 
-func New[T any](title string, constructor widgetlist.ItemConstructor[T],
+func new[T any](title string, constructor widgetlist.ItemConstructor[T],
 	loadDataCallback func(), submitCallback func() bool) Screen[T] {
 	s := Screen[T]{}
 
@@ -46,19 +46,45 @@ func New[T any](title string, constructor widgetlist.ItemConstructor[T],
 
 	s.list = widgetlist.New(constructor)
 
-	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 13))
-	s.list.SetMinSize(orvyn.NewSize(6, 13))
+	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 6))
+	s.list.SetMinSize(orvyn.NewSize(6, 6))
 
 	s.list.Filter = widgetlist.BasicFilter
 
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
+	return s
+}
+
+func New[T any](title string, constructor widgetlist.ItemConstructor[T],
+	loadDataCallback func(), submitCallback func() bool) Screen[T] {
+	s := new(title, constructor, loadDataCallback, submitCallback)
+
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
 			2,
 			s.title,
 			orvyn.VGap,
+			s.list,
+			s.statusMessage,
+			s.help,
+		),
+	)
+
+	return s
+}
+
+func NewWithHeader[T any](title string, constructor widgetlist.ItemConstructor[T],
+	loadDataCallback func(), submitCallback func() bool, headerLayout orvyn.Layout) Screen[T] {
+
+	s := new(title, constructor, loadDataCallback, submitCallback)
+
+	s.layout = layout.NewCenterLayout(
+		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
+			2,
+			s.title,
+			headerLayout,
 			s.list,
 			s.statusMessage,
 			s.help,

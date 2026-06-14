@@ -81,6 +81,22 @@ func (w *Widget) Render() string {
 		Width(size.Width).Render(content)
 }
 
+func (w *Widget) GetMinSize() orvyn.Size {
+	height := orvyn.GetRenderSize(lipgloss.NewStyle(), w.data.Description).Height
+
+	height += 5
+
+	return orvyn.NewSize(30, height)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	height := orvyn.GetRenderSize(lipgloss.NewStyle(), w.data.Description).Height
+
+	height += 5
+
+	return orvyn.NewSize(45, height)
+}
+
 func (w *Widget) UpdateData() {
 	resp, err := helper.SendRequest(request.ScriptGetActive())
 

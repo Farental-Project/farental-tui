@@ -60,11 +60,11 @@ func (w *Widget) Resize(size orvyn.Size) {
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(30, 4)
+	return orvyn.NewSize(30, 6)
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(45, 4)
+	return orvyn.NewSize(45, 6)
 }
 
 func (w *Widget) UpdateData(info *api.CharacterInfoResponse, money int) {

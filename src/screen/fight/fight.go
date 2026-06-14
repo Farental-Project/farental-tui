@@ -3,10 +3,13 @@ package fight
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen"
 	"farental/screen/generic/selectionlist"
+	"farental/widget/characteractivescript"
+	"farental/widget/characterinfo"
 	"farental/widget/fightlistitem"
 	"log"
 
@@ -15,30 +18,63 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
 )
 
 type Screen struct {
 	selectionlist.Screen[fightlistitem.Data]
+
+	characterInfo         *characterinfo.Widget
+	characterActiveScript *characteractivescript.Widget
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.Screen = selectionlist.New(lokyn.L("Fights"), fightlistitem.Constructor,
-		s.loadFights, s.submit)
+	s.characterInfo = characterinfo.New()
+	s.characterActiveScript = characteractivescript.New()
+
+	headerLayout := layout.NewMaxWidthVBoxLayout(0,
+		s.characterInfo,
+		s.characterActiveScript)
+
+	s.Screen = selectionlist.NewWithHeader(lokyn.L("Fights"), fightlistitem.Constructor,
+		s.loadFights, s.submit, headerLayout)
 
 	return s
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
+
 	s.Screen.SetTitle(lokyn.L("Fights"))
 
 	orvyn.SetPreviousScreen(screen.IDDashBoard)
 
 	bubblehelp.SwitchContext(keybind.ContextFightList)
 
+	s.updateData()
+
 	return nil
+}
+
+func (s *Screen) updateData() {
+	characterInfo := context.CharacterInfo
+
+	req := request.CharacterGetCurrencyAmount(api.Grynars)
+
+	resp, err := helper.SendRequest(req)
+
+	if err != nil {
+		s.Screen.SetStatusError(err)
+		return
+	}
+
+	currencyResp := resp.Result().(*api.CurrencyResponse)
+
+	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+
+	s.characterActiveScript.UpdateData()
 }
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
