@@ -64,6 +64,8 @@ func (w *Widget) Init() tea.Cmd {
 
 	w.noParamText.SetValue(lokyn.L("No parameters"))
 
+	w.SetActive(!w.IsEmpty())
+
 	return cmd
 }
 

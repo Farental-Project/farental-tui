@@ -12,3 +12,7 @@ type IDAmountBody struct {
 	ID     uint `validate:"required"`
 	Amount int  `validate:"required,number"`
 }
+
+type UUIDResponse struct {
+	ID []byte
+}

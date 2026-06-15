@@ -308,6 +308,12 @@ func (s *Screen) save() {
 
 	if resp.StatusCode() == 200 {
 		s.statusMessage.SetMessage(lokyn.L("Script saved successfully."), statusmessage.SuccessMessage)
+		uuidResp, ok := resp.Result().(*api.UUIDResponse)
+
+		if ok {
+			s.data.ID = uuidResp.ID
+		}
+
 		s.originData = s.data
 	}
 }

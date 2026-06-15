@@ -134,6 +134,7 @@ func ScriptSave(script *api.ScriptBody) *resty.Request {
 	r.Method = resty.MethodPost
 	r.URL = "/script/save"
 	r.SetBody(script)
+	r.SetResult(api.UUIDResponse{})
 	r.SetError(api.ErrorResponse{})
 
 	return r

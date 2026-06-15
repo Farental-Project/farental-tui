@@ -215,6 +215,7 @@ func (s *Screen) loadScripts() {
 	scripts = *resp.Result().(*[]api.ScriptBasicResponse)
 
 	s.SetItems(scripts)
+	s.FocusFirst()
 }
 
 func (s *Screen) submit() bool {
