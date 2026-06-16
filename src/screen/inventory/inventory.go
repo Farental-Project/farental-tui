@@ -231,6 +231,12 @@ func (s *Screen) loadInventory() {
 
 	inventory = *resp.Result().(*api.InventoryResponse)
 
+	// Reset any active filter before swapping items: the widgetlist keeps
+	// stale filtered indices that would point past the new (smaller) list.
+	if s.list.FilterState() != widgetlist.Unfiltered {
+		s.list.Init()
+	}
+
 	s.list.SetItems(inventory.Stacks)
 
 	s.stackCountTitle.SetValue(fmt.Sprintf("%s (%d / %d)",
@@ -258,6 +264,12 @@ func (s *Screen) loadEquippedInventory() {
 		}
 
 		stacks = append(stacks, stack)
+	}
+
+	// Reset any active filter before swapping items: the widgetlist keeps
+	// stale filtered indices that would point past the new (smaller) list.
+	if s.list.FilterState() != widgetlist.Unfiltered {
+		s.list.Init()
 	}
 
 	s.list.SetItems(stacks)
@@ -304,6 +316,29 @@ func (s *Screen) useItem(index int, item *api.StackResponse) {
 	}
 
 	s.list.SetItem(index, *item)
+
+	// SetItem re-runs the filter when one is applied, which resets the cursor
+	// to the first match. Keep the used item selected when the stack remains.
+	s.reselectGlobalIndex(index)
+
+	selectedItem := s.list.GetSelectedItem()
+	s.updateInspector(&selectedItem)
+}
+
+// reselectGlobalIndex moves the cursor back onto the item at the given global
+// index. Navigation is routed through the widget's Update so the focused style
+// stays in sync (NextItem alone does not re-focus the item when filtered).
+// No-op when it is already selected (the unfiltered case).
+func (s *Screen) reselectGlobalIndex(target int) {
+	downKey := tea.KeyMsg{Type: tea.KeyDown}
+
+	for i := 0; i < s.list.Length(); i++ {
+		if s.list.GetGlobalIndex() == target {
+			return
+		}
+
+		s.list.Update(downKey)
+	}
 }
 
 func (s *Screen) equipItem(item *api.StackResponse) {
