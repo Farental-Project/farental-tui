@@ -129,6 +129,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 	marginW += w.widgetStyle.GetBorderRightSize()
 
 	marginH += w.widgetStyle.GetBorderTopSize()
+	marginH += w.widgetStyle.GetBorderBottomSize()
 
 	size.Width -= marginW
 	size.Height -= w.titleHeight + marginH
