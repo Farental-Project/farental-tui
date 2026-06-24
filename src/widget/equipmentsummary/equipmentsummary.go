@@ -135,22 +135,22 @@ func (w *Widget) UpdateData() {
 	Equipments = make(map[string]EquipmentSlot)
 
 	// Get all slots
-	resp, err := helper.SendRequest(request.DataGetEquipmentSlots())
+	slotsRes, err := helper.Fetch[[]api.BasicInfoResponse](request.DataGetEquipmentSlots())
 
 	if err != nil {
 		return
 	}
 
-	slots = *resp.Result().(*[]api.BasicInfoResponse)
+	slots = *slotsRes
 
 	// Get equipped items
-	resp, err = helper.SendRequest(request.InventoryGetEquippedItems())
+	equippedItemsRes, err := helper.Fetch[[]api.ItemResponse](request.InventoryGetEquippedItems())
 
 	if err != nil {
 		return
 	}
 
-	equippedItems = *resp.Result().(*[]api.ItemResponse)
+	equippedItems = *equippedItemsRes
 
 	for _, s := range slots {
 		es := EquipmentSlot{

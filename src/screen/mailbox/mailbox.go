@@ -66,14 +66,14 @@ func (s *Screen) OnExit() any {
 func (s *Screen) loadData() {
 	var mails []api.MailBasicResponse
 
-	resp, err := helper.SendRequest(request.MailGetAll())
+	res, err := helper.Fetch[[]api.MailBasicResponse](request.MailGetAll())
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	mails = *resp.Result().(*[]api.MailBasicResponse)
+	mails = *res
 
 	s.SetItems(mails)
 }

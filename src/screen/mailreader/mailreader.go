@@ -146,14 +146,12 @@ func (s *Screen) Render() orvyn.Layout {
 func (s *Screen) updateData() {
 	req := request.MailGetOne(s.mail.ID)
 
-	resp, err := helper.SendRequest(req)
+	mail, err := helper.Fetch[api.MailBasicResponse](req)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	mail := resp.Result().(*api.MailBasicResponse)
 
 	s.mail = mail
 
@@ -168,14 +166,14 @@ func (s *Screen) updateAttachments() {
 
 	req := request.MailGetAttachments(s.mail.ID)
 
-	resp, err := helper.SendRequest(req)
+	res, err := helper.Fetch[[]api.MailAttachmentResponse](req)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	s.attachments = *resp.Result().(*[]api.MailAttachmentResponse)
+	s.attachments = *res
 
 	s.inspector.UpdateData(s.mail, &s.attachments)
 }

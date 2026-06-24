@@ -266,14 +266,14 @@ func (s *Screen) loadGenders() {
 }
 
 func (s *Screen) loadRaces() {
-	resp, err := helper.SendRequest(request.DataGetAllRace())
+	res, err := helper.Fetch[[]api.RaceResponse](request.DataGetAllRace())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	races := *resp.Result().(*[]api.RaceResponse)
+	races := *res
 
 	raceValues := make(map[string]RaceData, len(races))
 	keys := make([]string, len(races))

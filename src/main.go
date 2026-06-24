@@ -76,14 +76,12 @@ func main() {
 
 	// Check version
 	reqVer := request.VersionGet()
-	respVer, err := helper.SendRequest(reqVer)
+	version, err := helper.Fetch[api.DbVersion](reqVer)
 
 	if err != nil {
 		fmt.Println(lokyn.L("Cannot verify server version. Please retry later."))
 		return
 	}
-
-	version := respVer.Result().(*api.DbVersion)
 
 	if !strings.HasPrefix(config.VERSION, version.ClientTui) {
 		fmt.Println(lokyn.L("Your client version is not aligned with the server. Please update it."))

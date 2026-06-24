@@ -138,14 +138,12 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) loadFightHistory() {
-	resp, err := helper.SendRequest(request.FightGetFinished())
+	fights, err := helper.Fetch[[]api.FightResponse](request.FightGetFinished())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	fights := resp.Result().(*[]api.FightResponse)
 
 	data := make([]fighthistorylistitem.Data, 0)
 
@@ -165,14 +163,14 @@ func (s *Screen) loadLog() {
 
 	if !ok {
 
-		resp, err := helper.SendRequest(request.FightGetLog(fight.ID))
+		res, err := helper.Fetch[api.EventLogResponse](request.FightGetLog(fight.ID))
 
 		if err != nil {
 			s.statusMessage.SetError(err)
 			return
 		}
 
-		log = *resp.Result().(*api.EventLogResponse)
+		log = *res
 	}
 
 	logData := make([]string, 0)

@@ -73,14 +73,14 @@ func (s *Screen) OnExit() any {
 func (s *Screen) loadData() {
 	var ruleTypes []api.ScriptRuleTypeResponse
 
-	resp, err := helper.SendRequest(request.ScriptGetRuleTypes())
+	res, err := helper.Fetch[[]api.ScriptRuleTypeResponse](request.ScriptGetRuleTypes())
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	ruleTypes = *resp.Result().(*[]api.ScriptRuleTypeResponse)
+	ruleTypes = *res
 
 	s.SetItems(ruleTypes)
 }

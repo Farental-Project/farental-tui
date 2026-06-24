@@ -33,13 +33,11 @@ func (s *Screen) updateData() {
 
 	defer s.updateErr(&err)
 
-	resp, err := helper.SendRequest(request.CharacterGetInfo())
+	characterInfo, err := helper.Fetch[api.CharacterInfoResponse](request.CharacterGetInfo())
 
 	if err != nil {
 		return
 	}
-
-	characterInfo := resp.Result().(*api.CharacterInfoResponse)
 
 	// If the character changed of location
 	if context.CharacterInfo == nil ||
@@ -50,14 +48,12 @@ func (s *Screen) updateData() {
 	context.CharacterID = characterInfo.ID
 	context.CharacterInfo = characterInfo
 
-	resp, err = helper.SendRequest(
+	currencyResp, err := helper.Fetch[api.CurrencyResponse](
 		request.CharacterGetCurrencyAmount(api.Grynars))
 
 	if err != nil {
 		return
 	}
-
-	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
 	s.locationInfo.UpdateData(&characterInfo.Location)
@@ -85,14 +81,12 @@ func (s *Screen) updateEventLog() {
 
 	req.SetQueryParam("lastTimestamp", queryParam)
 
-	resp, err := helper.SendRequest(req)
+	eventLog, err := helper.Fetch[api.EventLogResponse](req)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	eventLog := resp.Result().(*api.EventLogResponse)
 
 	if len(eventLog.Entries) == 0 {
 		return
@@ -153,14 +147,14 @@ func (s *Screen) updateChat() {
 func (s *Screen) updateVisibleCharacters() {
 	var str []string
 
-	resp, err := helper.SendRequest(request.LocationGetCharacters())
+	res, err := helper.Fetch[[]api.CharacterBasicWithActivityResponse](request.LocationGetCharacters())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	characters := *resp.Result().(*[]api.CharacterBasicWithActivityResponse)
+	characters := *res
 
 	str = make([]string, 0)
 

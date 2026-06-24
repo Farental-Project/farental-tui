@@ -194,14 +194,14 @@ func (s *Screen) submit() bool {
 func (s *Screen) loadCharacters() {
 	var characters []api.CharacterBasicResponse
 
-	resp, err := helper.SendRequest(request.CharacterGetAll())
+	res, err := helper.Fetch[[]api.CharacterBasicResponse](request.CharacterGetAll())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	characters = *resp.Result().(*[]api.CharacterBasicResponse)
+	characters = *res
 
 	if characters == nil {
 		return

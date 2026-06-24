@@ -120,26 +120,22 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) updateCharacterInfo() {
-	resp, err := helper.SendRequest(request.CharacterGetInfo())
+	characterInfo, err := helper.Fetch[api.CharacterInfoResponse](request.CharacterGetInfo())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	characterInfo := resp.Result().(*api.CharacterInfoResponse)
-
 	context.CharacterInfo = characterInfo
 
-	resp, err = helper.SendRequest(
+	currencyResp, err := helper.Fetch[api.CurrencyResponse](
 		request.CharacterGetCurrencyAmount(api.Grynars))
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	s.characterInfo.UpdateData(context.CharacterInfo, currencyResp.Amount)
 }
@@ -222,14 +218,14 @@ func (s *Screen) Render() orvyn.Layout {
 func (s *Screen) loadInventory() {
 	var inventory api.InventoryResponse
 
-	resp, err := helper.SendRequest(request.InventoryGetFull())
+	res, err := helper.Fetch[api.InventoryResponse](request.InventoryGetFull())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	inventory = *resp.Result().(*api.InventoryResponse)
+	inventory = *res
 
 	// Reset any active filter before swapping items: the widgetlist keeps
 	// stale filtered indices that would point past the new (smaller) list.
@@ -246,14 +242,14 @@ func (s *Screen) loadInventory() {
 func (s *Screen) loadEquippedInventory() {
 	var stacks []api.StackResponse
 
-	resp, err := helper.SendRequest(request.InventoryGetEquippedItems())
+	res, err := helper.Fetch[[]api.ItemResponse](request.InventoryGetEquippedItems())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	equippedItems := *resp.Result().(*[]api.ItemResponse)
+	equippedItems := *res
 
 	for _, item := range equippedItems {
 		stack := api.StackResponse{

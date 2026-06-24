@@ -140,13 +140,13 @@ func (w *Widget) LoadData(filterItems []mailattachmentselectlistitem.Data) {
 
 	items := make([]mailattachmentselectlistitem.Data, 0)
 
-	resp, err := helper.SendRequest(request.InventoryGetShareable())
+	res, err := helper.Fetch[api.InventoryResponse](request.InventoryGetShareable())
 
 	if err != nil {
 		return
 	}
 
-	inventory := *resp.Result().(*api.InventoryResponse)
+	inventory := *res
 
 	for _, s := range inventory.Stacks {
 		index := FindItemIndex(s.ItemID, &items)

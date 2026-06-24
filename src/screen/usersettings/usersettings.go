@@ -148,16 +148,10 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) loadData() {
-	resp, err := helper.SendRequest(request.LangGetAll())
+	languages, err := helper.Fetch[[]api.LanguageResponse](request.LangGetAll())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
-		return
-	}
-
-	languages, ok := resp.Result().(*[]api.LanguageResponse)
-
-	if !ok {
 		return
 	}
 
@@ -173,16 +167,10 @@ func (s *Screen) loadData() {
 
 	s.mvsLanguage.SetValues(keys, data)
 
-	resp, err = helper.SendRequest(request.AuthInfo())
+	info, err := helper.Fetch[api.UserResponse](request.AuthInfo())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
-		return
-	}
-
-	info, ok := resp.Result().(*api.UserResponse)
-
-	if !ok {
 		return
 	}
 

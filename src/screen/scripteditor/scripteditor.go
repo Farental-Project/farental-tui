@@ -125,16 +125,9 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 			s.setReadOnly()
 		}
 
-		resp, err := helper.SendRequest(request.ScriptGetDetail(script.ID))
+		scriptDetail, err := helper.Fetch[api.ScriptResponse](request.ScriptGetDetail(script.ID))
 
 		if err != nil {
-			s.returnErr = fmt.Errorf("%s", lokyn.L("Cannot open selected script"))
-			return orvyn.SwitchToPreviousScreen()
-		}
-
-		scriptDetail, ok := resp.Result().(*api.ScriptResponse)
-
-		if !ok {
 			s.returnErr = fmt.Errorf("%s", lokyn.L("Cannot open selected script"))
 			return orvyn.SwitchToPreviousScreen()
 		}

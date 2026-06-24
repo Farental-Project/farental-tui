@@ -6,13 +6,10 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/bubblehelp"
-	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
@@ -155,24 +152,16 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 	var listItems []Data
 	var ruleTypeName string
 	var ability *api.AbilityResponse
-	var resp *resty.Response
 	var err error
-	var ok bool
 
 	for _, rb := range *data {
 		ruleTypeName = ""
 
 		if rb.AbilityCode != "" {
-			resp, err = helper.SendRequest(request.AbilityGet(rb.AbilityCode))
+			ability, err = helper.Fetch[api.AbilityResponse](request.AbilityGet(rb.AbilityCode))
 
 			if err != nil {
 				return err
-			}
-
-			ability, ok = resp.Result().(*api.AbilityResponse)
-
-			if !ok {
-				return fmt.Errorf("%s", lokyn.L("Invalid response from server"))
 			}
 		}
 
@@ -224,16 +213,10 @@ func (w *Widget) updateKeybind() {
 }
 
 func (w *Widget) getRuleTypeName(code string) (string, error) {
-	resp, err := helper.SendRequest(request.ScriptGetRuleType(code))
+	ruleType, err := helper.Fetch[api.ScriptRuleTypeResponse](request.ScriptGetRuleType(code))
 
 	if err != nil {
 		return "", err
-	}
-
-	ruleType, ok := resp.Result().(*api.ScriptRuleTypeResponse)
-
-	if !ok {
-		return "", fmt.Errorf("%s", lokyn.L("Invalid response from server"))
 	}
 
 	return ruleType.Name, nil

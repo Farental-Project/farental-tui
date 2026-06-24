@@ -63,14 +63,12 @@ func (s *Screen) updateData() {
 
 	req := request.CharacterGetCurrencyAmount(api.Grynars)
 
-	resp, err := helper.SendRequest(req)
+	currencyResp, err := helper.Fetch[api.CurrencyResponse](req)
 
 	if err != nil {
 		s.Screen.SetStatusError(err)
 		return
 	}
-
-	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
 
@@ -95,14 +93,14 @@ func (s *Screen) loadFights() {
 
 	data := make([]fightlistitem.Data, 0)
 
-	resp, err := helper.SendRequest(request.FightGetAvailable())
+	res, err := helper.Fetch[[]api.FightCompositionResponse](request.FightGetAvailable())
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	fights = *resp.Result().(*[]api.FightCompositionResponse)
+	fights = *res
 
 	for _, f := range fights {
 		item := fightlistitem.Data{

@@ -205,14 +205,14 @@ func (s *Screen) loadScripts() {
 		req = request.ScriptGetPublic()
 	}
 
-	resp, err := helper.SendRequest(req)
+	res, err := helper.Fetch[[]api.ScriptBasicResponse](req)
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	scripts = *resp.Result().(*[]api.ScriptBasicResponse)
+	scripts = *res
 
 	s.SetItems(scripts)
 	s.FocusFirst()
@@ -247,7 +247,7 @@ func (s *Screen) submit() bool {
 func (s *Screen) updateOwnTitle() {
 	var count api.ScriptCountResponse
 
-	resp, err := helper.SendRequest(request.ScriptGetCount())
+	res, err := helper.Fetch[api.ScriptCountResponse](request.ScriptGetCount())
 
 	if err != nil {
 		s.SetStatusError(err)
@@ -256,7 +256,7 @@ func (s *Screen) updateOwnTitle() {
 			Max:     0,
 		}
 	} else {
-		count = *resp.Result().(*api.ScriptCountResponse)
+		count = *res
 	}
 
 	title := fmt.Sprintf(s.titleOwn, count.Current, count.Max)

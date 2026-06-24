@@ -40,14 +40,14 @@ func (s *Screen) loadActivities() {
 	var activities []api.ActivityResponse
 	var groups []skillgrouplistitem.Data[activitylistitem.Data]
 
-	resp, err := helper.SendRequest(request.ActivityGetAvailable())
+	res, err := helper.Fetch[[]api.ActivityResponse](request.ActivityGetAvailable())
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	activities = *resp.Result().(*[]api.ActivityResponse)
+	activities = *res
 	currentSkillID := uint(0)
 	currentGroupIndex := -1
 

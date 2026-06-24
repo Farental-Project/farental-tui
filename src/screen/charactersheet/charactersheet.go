@@ -130,14 +130,12 @@ func (s *Screen) updateData() {
 
 	req := request.CharacterGetCurrencyAmount(api.Grynars)
 
-	resp, err := helper.SendRequest(req)
+	currencyResp, err := helper.Fetch[api.CurrencyResponse](req)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	currencyResp := resp.Result().(*api.CurrencyResponse)
 
 	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
 

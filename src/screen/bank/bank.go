@@ -219,16 +219,12 @@ func (s *Screen) openBankAccount() bool {
 }
 
 func (s *Screen) loadInventory() {
-	var inventory *api.InventoryResponse
-
-	resp, err := helper.SendRequest(request.InventoryGetFull())
+	inventory, err := helper.Fetch[api.InventoryResponse](request.InventoryGetFull())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	inventory = resp.Result().(*api.InventoryResponse)
 
 	listItems := s.initListItems(inventory)
 
@@ -236,14 +232,12 @@ func (s *Screen) loadInventory() {
 }
 
 func (s *Screen) loadBankAccount() {
-	resp, err := helper.SendRequest(request.LocationBankGetAccount())
+	bankAccount, err := helper.Fetch[api.BankAccountResponse](request.LocationBankGetAccount())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	bankAccount := resp.Result().(*api.BankAccountResponse)
 
 	listItems := s.initListItems(&bankAccount.Inventory)
 

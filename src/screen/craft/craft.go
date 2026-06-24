@@ -42,14 +42,14 @@ func (s *Screen) loadCrafts() {
 	var crafts []api.RecipeResponse
 	var groups []skillgrouplistitem.Data[craftlistitem.Data]
 
-	resp, err := helper.SendRequest(request.CraftGetAvailable())
+	res, err := helper.Fetch[[]api.RecipeResponse](request.CraftGetAvailable())
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	crafts = *resp.Result().(*[]api.RecipeResponse)
+	crafts = *res
 	currentSkillID := uint(0)
 	currentGroupIndex := -1
 

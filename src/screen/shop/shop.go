@@ -199,27 +199,23 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) loadBuyableItems() {
-	resp, err := helper.SendRequest(request.LocationMerchantGetBuyableItem())
+	items, err := helper.Fetch[[]api.ItemResponse](request.LocationMerchantGetBuyableItem())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	items := resp.Result().(*[]api.ItemResponse)
 
 	s.list.SetItems(s.initListItems(items))
 }
 
 func (s *Screen) loadInventory() {
-	resp, err := helper.SendRequest(request.InventoryGetSellable())
+	inventory, err := helper.Fetch[api.InventoryResponse](request.InventoryGetSellable())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	inventory := resp.Result().(*api.InventoryResponse)
 
 	s.list.SetItems(s.initListItemsFromInventory(inventory))
 }

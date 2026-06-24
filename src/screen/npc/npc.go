@@ -164,14 +164,12 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) loadNpc() {
-	resp, err := helper.SendRequest(request.NpcGetAvailable())
+	npcs, err := helper.Fetch[[]api.NpcResponse](request.NpcGetAvailable())
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	npcs := resp.Result().(*[]api.NpcResponse)
 
 	s.list.SetItems(*npcs)
 	s.list.FocusFirst()
@@ -184,14 +182,12 @@ func (s *Screen) speakToNpc() {
 		return
 	}
 
-	resp, err := helper.SendRequest(request.NpcTalkTo(npc.ID))
+	dialog, err := helper.Fetch[api.NpcDialogResponse](request.NpcTalkTo(npc.ID))
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
-
-	dialog := resp.Result().(*api.NpcDialogResponse)
 
 	switch {
 	case s.currentNPCID == npc.ID && s.dialogAnimating:

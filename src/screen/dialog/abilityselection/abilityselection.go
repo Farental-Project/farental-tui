@@ -76,14 +76,14 @@ func (s *Screen) OnExit() any {
 func (s *Screen) loadData() {
 	var abilities []api.AbilityResponse
 
-	resp, err := helper.SendRequest(request.AbilityGetAll())
+	res, err := helper.Fetch[[]api.AbilityResponse](request.AbilityGetAll())
 
 	if err != nil {
 		s.SetStatusError(err)
 		return
 	}
 
-	abilities = *resp.Result().(*[]api.AbilityResponse)
+	abilities = *res
 
 	s.SetItems(abilities)
 

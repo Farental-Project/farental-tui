@@ -98,16 +98,9 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 }
 
 func (w *Widget) UpdateData() {
-	resp, err := helper.SendRequest(request.ScriptGetActive())
+	activeScript, err := helper.Fetch[api.ScriptBasicResponse](request.ScriptGetActive())
 
 	if err != nil {
-		w.data.ID = nil
-		return
-	}
-
-	activeScript, ok := resp.Result().(*api.ScriptBasicResponse)
-
-	if !ok {
 		w.data.ID = nil
 		return
 	}

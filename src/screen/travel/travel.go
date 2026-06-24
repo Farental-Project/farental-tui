@@ -105,19 +105,10 @@ func (s *Screen) submit() bool {
 }
 
 func (s *Screen) loadTravels() {
-	var travels *[]api.TravelResponse
-	var ok bool
-
-	resp, err := helper.SendRequest(request.TravelGetAvailable())
+	travels, err := helper.Fetch[[]api.TravelResponse](request.TravelGetAvailable())
 
 	if err != nil {
 		s.travelSelectionScreen.SetStatusError(err)
-		return
-	}
-
-	travels, ok = resp.Result().(*[]api.TravelResponse)
-
-	if !ok {
 		return
 	}
 
@@ -144,19 +135,10 @@ func (s *Screen) submitRelay() bool {
 }
 
 func (s *Screen) loadTravelRelays() {
-	var travels *[]api.TravelRelayResponse
-	var ok bool
-
-	resp, err := helper.SendRequest(request.TravelRelayGetAvailable())
+	travels, err := helper.Fetch[[]api.TravelRelayResponse](request.TravelRelayGetAvailable())
 
 	if err != nil {
 		s.travelRelaySelectionScreen.SetStatusError(err)
-		return
-	}
-
-	travels, ok = resp.Result().(*[]api.TravelRelayResponse)
-
-	if !ok {
 		return
 	}
 

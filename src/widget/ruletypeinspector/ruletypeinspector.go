@@ -5,7 +5,6 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -149,16 +148,10 @@ func (w *Widget) SetRuleType(code string, data *[]api.ScriptRuleTypeParam) error
 		return nil
 	}
 
-	resp, err := helper.SendRequest(request.ScriptGetRuleTypeParamStruct(code))
+	ruleParamStruct, err := helper.Fetch[[]api.ScriptRuleTypeStructParam](request.ScriptGetRuleTypeParamStruct(code))
 
 	if err != nil {
 		return err
-	}
-
-	ruleParamStruct, ok := resp.Result().(*[]api.ScriptRuleTypeStructParam)
-
-	if !ok {
-		return fmt.Errorf("%s", lokyn.L("Invalid response"))
 	}
 
 	paramData = make([]ParamData, 0)

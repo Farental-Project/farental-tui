@@ -67,14 +67,14 @@ func UpdateChat() {
 
 	req.SetQueryParam("lastTimestamp", queryParam)
 
-	resp, err := helper.SendRequest(req)
+	res, err := helper.Fetch[[]api.ChatMessageResponse](req)
 
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	chatMessages := *resp.Result().(*[]api.ChatMessageResponse)
+	chatMessages := *res
 
 	if len(chatMessages) == 0 {
 		return
