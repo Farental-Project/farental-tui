@@ -10,7 +10,7 @@ import (
 	"farental/widget/characterinfo"
 	"farental/widget/help"
 	"farental/widget/inventorylistitem"
-	"farental/widget/inventorystackinspect"
+	"farental/widget/iteminspect"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -41,7 +41,7 @@ type Screen struct {
 	stackCountTitle *orvyn.SimpleRenderable
 	characterInfo   *characterinfo.Widget
 	list            *widgetlist.Widget[api.StackResponse]
-	inspector       *inventorystackinspect.Widget
+	inspector       *iteminspect.Widget
 	statusMessage   *statusmessage.Widget
 	help            *help.Widget
 
@@ -66,7 +66,7 @@ func New() *Screen {
 	s.list.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
 	s.list.SetMinSize(orvyn.NewSize(30, 13))
 
-	s.inspector = inventorystackinspect.New()
+	s.inspector = iteminspect.New()
 	s.statusMessage = statusmessage.New()
 
 	s.help = help.New()
@@ -283,7 +283,7 @@ func (s *Screen) updateTUI() {
 	selectedItem := s.list.GetSelectedItem()
 
 	if selectedItem.Item.ID > 0 {
-		if s.inspector.GetCurrentStackItemID() != selectedItem.ItemID {
+		if s.inspector.GetCurrentItemID() != selectedItem.ItemID {
 			s.updateInspector(&selectedItem)
 			s.updateKeybind(&selectedItem.Item)
 		}
@@ -291,7 +291,7 @@ func (s *Screen) updateTUI() {
 }
 
 func (s *Screen) updateInspector(item *api.StackResponse) {
-	s.inspector.UpdateData(item)
+	s.inspector.UpdateData(&item.Item)
 }
 
 func (s *Screen) useItem(index int, item *api.StackResponse) {

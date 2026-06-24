@@ -6,10 +6,12 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	ftheme "farental/internal/theme"
 	"farental/screen"
 	"farental/screen/dialog/popup"
 	"farental/widget/help"
 	"farental/widget/inventoryshoplistitem"
+	"farental/widget/iteminspect"
 	"fmt"
 	"net/http"
 
@@ -41,6 +43,8 @@ type Screen struct {
 
 	list *widgetlist.Widget[inventoryshoplistitem.Data]
 
+	inspector *iteminspect.Widget
+
 	statusMessage *statusmessage.Widget
 
 	help *help.Widget
@@ -58,15 +62,27 @@ func New() *Screen {
 
 	s.list = widgetlist.New(inventoryshoplistitem.Constructor)
 
+	s.list.SetPreferredSize(orvyn.NewSize(t.Size(ftheme.LayoutWidthSizeID), 80))
+	s.list.SetMinSize(orvyn.NewSize(30, 13))
+
+	s.inspector = iteminspect.New()
+
 	s.statusMessage = statusmessage.New()
 
 	s.help = help.New()
+
+	shopElements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.60, s.list),
+		layout.NewFixedRatioRenderable(0.40, s.inspector),
+	}
+
+	shopLayout := layout.NewHBoxFixedRatioLayout(0, 1, 0, shopElements...)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
 			s.title,
 			orvyn.VGap,
-			s.list,
+			shopLayout,
 			s.statusMessage,
 			s.help,
 		),
@@ -86,9 +102,12 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.mode = modeBuy
 
 	s.list.Init()
-	s.list.FocusFirst()
 
 	s.loadBuyableItems()
+
+	s.list.FocusFirst()
+
+	s.updateInspector()
 
 	return nil
 }
@@ -158,7 +177,21 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	cmd := s.list.Update(msg)
 
+	s.updateInspector()
+
 	return cmd
+}
+
+func (s *Screen) updateInspector() {
+	item := s.list.GetSelectedItem()
+
+	if item.ID == 0 {
+		return
+	}
+
+	if s.inspector.GetCurrentItemID() != item.ID {
+		s.inspector.UpdateData(&item.ItemResponse)
+	}
 }
 
 func (s *Screen) Render() orvyn.Layout {
@@ -324,4 +357,5 @@ func (s *Screen) changeMode() {
 	selectedItem := s.list.GetSelectedItem()
 
 	s.updateKeybind(&selectedItem)
+	s.updateInspector()
 }

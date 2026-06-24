@@ -1,4 +1,4 @@
-package inventorystackinspect
+package iteminspect
 
 import (
 	"farental/art"
@@ -28,7 +28,7 @@ type Widget struct {
 
 	layout *layout.VBoxLayout
 
-	currentStackItemID uint
+	currentItemID uint
 }
 
 func New() *Widget {
@@ -103,21 +103,21 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.layout.Resize(w.GetContentSize())
 }
 
-func (w *Widget) UpdateData(stack *api.StackResponse) {
+func (w *Widget) UpdateData(item *api.ItemResponse) {
 	var b strings.Builder
 	var show bool
 
-	w.currentStackItemID = stack.ItemID
+	w.currentItemID = item.ID
 
-	w.srName.SetValue(stack.Item.Name)
-	w.srDescription.SetValue(stack.Item.Description)
-	w.srUnique.SetActive(stack.Item.IsUnique)
+	w.srName.SetValue(item.Name)
+	w.srDescription.SetValue(item.Description)
+	w.srUnique.SetActive(item.IsUnique)
 
-	isEquipment := stack.Item.EquipmentSlot != nil
+	isEquipment := item.EquipmentSlot != nil
 
 	if isEquipment {
 		// Stats
-		for i, s := range *stack.Item.EquipmentStats {
+		for i, s := range *item.EquipmentStats {
 			if i > 0 {
 				b.WriteString("\n")
 			}
@@ -135,9 +135,9 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 			b.Reset()
 		}
 
-		if stack.Item.Conditions != nil {
+		if item.Conditions != nil {
 			// Conditions
-			for i, c := range *stack.Item.Conditions {
+			for i, c := range *item.Conditions {
 				if i > 0 {
 					b.WriteString("\n")
 				}
@@ -162,10 +162,10 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 		w.srConditions.SetActive(false)
 	}
 
-	isUseable := stack.Item.Results != nil
+	isUseable := item.Results != nil
 
 	if isUseable {
-		for i, r := range *stack.Item.Results {
+		for i, r := range *item.Results {
 			if i > 0 {
 				b.WriteString("\n")
 			}
@@ -187,6 +187,6 @@ func (w *Widget) UpdateData(stack *api.StackResponse) {
 	}
 }
 
-func (w *Widget) GetCurrentStackItemID() uint {
-	return w.currentStackItemID
+func (w *Widget) GetCurrentItemID() uint {
+	return w.currentItemID
 }
