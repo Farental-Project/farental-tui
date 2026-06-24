@@ -8,134 +8,53 @@ import (
 )
 
 func ScriptGetRuleTypes() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/ruletypes"
-	r.SetResult([]api.ScriptRuleTypeResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/script/ruletypes").SetResult([]api.ScriptRuleTypeResponse{})
 }
 
 func ScriptGetRuleType(code string) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/ruleType"
-	r.SetQueryParam("Code", code)
-	r.SetResult(api.ScriptRuleTypeResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/script/ruleType").SetResult(api.ScriptRuleTypeResponse{}).SetQueryParam("Code", code)
 }
 
 func ScriptGetRuleTypeParamStruct(ruleTypeCode string) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/ruleTypeParamStruct"
-	r.SetQueryParam("Code", ruleTypeCode)
-	r.SetResult([]api.ScriptRuleTypeStructParam{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
-
+	return get("/script/ruleTypeParamStruct").SetResult([]api.ScriptRuleTypeStructParam{}).SetQueryParam("Code", ruleTypeCode)
 }
 
 func ScriptGetCount() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/script/count"
-	r.SetResult(api.ScriptCountResponse{})
-
-	return r
+	return get("/script/count").SetResult(api.ScriptCountResponse{})
 }
 
 func ScriptGetActive() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/script/active"
-	r.SetResult(api.ScriptBasicResponse{})
-
-	return r
+	return get("/script/active").SetResult(api.ScriptBasicResponse{})
 }
 
 func ScriptSetActive(ID []byte) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodPost
-	r.URL = "/script/setActive"
-	r.SetBody(api.UUIDBody{
+	return post("/script/setActive").SetResult(api.ScriptSetActiveResponse{}).SetBody(api.UUIDBody{
 		ID: ID,
 	})
-	r.SetResult(api.ScriptSetActiveResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
 }
 
 func ScriptGetOwn() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/script/own"
-	r.SetResult([]api.ScriptBasicResponse{})
-
-	return r
+	return get("/script/own").SetResult([]api.ScriptBasicResponse{})
 }
 
 func ScriptGetPrivate() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/script/private"
-	r.SetResult([]api.ScriptBasicResponse{})
-
-	return r
+	return get("/script/private").SetResult([]api.ScriptBasicResponse{})
 }
 
 func ScriptGetPublic() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/script/public"
-	r.SetResult([]api.ScriptBasicResponse{})
-
-	return r
+	return get("/script/public").SetResult([]api.ScriptBasicResponse{})
 }
 
 func ScriptGetDetail(ID []byte) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/detail"
-	r.SetQueryParam("scriptID", fmt.Sprintf("%x", ID))
-	r.SetResult(api.ScriptResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
-
+	return get("/script/detail").SetResult(api.ScriptResponse{}).SetQueryParam("scriptID", fmt.Sprintf("%x", ID))
 }
 
 func ScriptDelete(ID []byte) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodPost
-	r.URL = "/script/delete"
-	r.SetBody(api.UUIDBody{
+	return post("/script/delete").SetBody(api.UUIDBody{
 		ID: ID,
 	})
-
-	return r
 }
 
 func ScriptSave(script *api.ScriptBody) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodPost
-	r.URL = "/script/save"
-	r.SetBody(script)
-	r.SetResult(api.UUIDResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/script/save").SetResult(api.UUIDResponse{}).SetBody(script)
 }

@@ -7,11 +7,5 @@ import (
 )
 
 func VersionGet() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/version"
-	r.SetResult(api.DbVersion{})
-
-	return r
+	return get("/version").SetResult(api.DbVersion{})
 }

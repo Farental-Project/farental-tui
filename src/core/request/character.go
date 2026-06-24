@@ -8,82 +8,35 @@ import (
 )
 
 func CharacterGetAll() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/character/all"
-	r.SetResult([]api.CharacterBasicResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/character/all").SetResult([]api.CharacterBasicResponse{})
 }
 
 func CharacterCreate() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPost
-	r.URL = "/character/create"
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/character/create")
 }
 
 func CharacterGetInfo() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/character/info"
-	r.SetResult(api.CharacterInfoResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/character/info").SetResult(api.CharacterInfoResponse{})
 }
 
 func CharacterSetActive(id uint) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPut
-	r.URL = "/character/setActive"
-	r.SetQueryParam("characterID", fmt.Sprint(id))
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return put("/character/setActive").SetQueryParam("characterID", fmt.Sprint(id))
 }
 
 func CharacterGetActive() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/character/active"
-	r.SetResult(api.CharacterBasicResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/character/active").SetResult(api.CharacterBasicResponse{})
 }
 
 func CharacterGetEventLog() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/character/eventLog"
-	r.SetResult(api.EventLogResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/character/eventLog").SetResult(api.EventLogResponse{})
 }
 
 func CharacterGetCurrencyAmount(currencyCode api.CurrencyCode) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/character/currencyAmount"
-
-	r.SetQueryParam("currencyCode", fmt.Sprint(currencyCode))
-
-	r.SetResult(api.CurrencyResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/character/currencyAmount").
+		SetResult(api.CurrencyResponse{}).
+		SetQueryParam("currencyCode", fmt.Sprint(currencyCode))
 }
 
 func CharacterHaveBankAccount() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/character/haveBankAccount"
-
-	return r
+	return get("/character/haveBankAccount")
 }

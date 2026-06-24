@@ -7,45 +7,21 @@ import (
 )
 
 func TravelGetAvailable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/travel/available"
-	r.SetResult([]api.TravelResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/travel/available").SetResult([]api.TravelResponse{})
 }
 
 func TravelRelayGetAvailable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/travel/relay/available"
-	r.SetResult([]api.TravelRelayResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/travel/relay/available").SetResult([]api.TravelRelayResponse{})
 }
 
 func TravelStart(travelID uint) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPost
-	r.URL = "/travel/start"
-	r.SetBody(api.TravelStartBody{
+	return post("/travel/start").SetBody(api.TravelStartBody{
 		TravelID: travelID,
 	})
-	r.SetError(api.ErrorResponse{})
-
-	return r
 }
 
 func TravelRelayStart(destLocationID uint) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPost
-	r.URL = "/travel/relay/start"
-	r.SetBody(api.TravelRelayStartBody{
+	return post("/travel/relay/start").SetBody(api.TravelRelayStartBody{
 		DestLocationID: destLocationID,
 	})
-	r.SetError(api.ErrorResponse{})
-
-	return r
 }

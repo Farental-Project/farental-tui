@@ -6,24 +6,12 @@ import (
 )
 
 func CraftGetAvailable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/craft/available"
-	r.SetResult([]api.RecipeResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/craft/available").SetResult([]api.RecipeResponse{})
 }
 
 func CraftStart(craftID uint, amount int) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPost
-	r.URL = "/craft/start"
-	r.SetBody(api.CraftStartBody{
+	return post("/craft/start").SetBody(api.CraftStartBody{
 		RecipeID: craftID,
 		Amount:   amount,
 	})
-	r.SetError(api.ErrorResponse{})
-
-	return r
 }

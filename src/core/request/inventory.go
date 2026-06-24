@@ -7,79 +7,29 @@ import (
 )
 
 func InventoryGetFull() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/inventory/full"
-	r.SetResult(api.InventoryResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/inventory/full").SetResult(api.InventoryResponse{})
 }
 
 func InventoryGetShareable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/inventory/shareable"
-	r.SetResult(api.InventoryResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/inventory/shareable").SetResult(api.InventoryResponse{})
 }
 
 func InventoryGetSellable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/inventory/sellable"
-	r.SetResult(api.InventoryResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/inventory/sellable").SetResult(api.InventoryResponse{})
 }
 
 func InventoryUseItem(itemID uint) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPost
-	r.URL = "/inventory/useItem"
-	r.SetBody(api.IDBody{
-		ID: itemID,
-	})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/inventory/useItem").SetBody(api.IDBody{ID: itemID})
 }
 
 func InventoryEquipItem(itemID uint) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodPost
-	r.URL = "/inventory/equipItem"
-	r.SetBody(api.IDBody{
-		ID: itemID,
-	})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/inventory/equipItem").SetBody(api.IDBody{ID: itemID})
 }
 
 func InventoryUnequipItem(itemID uint) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodPost
-	r.URL = "/inventory/unequipItem"
-	r.SetBody(api.IDBody{
-		ID: itemID,
-	})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/inventory/unequipItem").SetBody(api.IDBody{ID: itemID})
 }
 
 func InventoryGetEquippedItems() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/inventory/equippedItems"
-	r.SetResult([]api.ItemResponse{})
-
-	return r
+	return get("/inventory/equippedItems").SetResult([]api.ItemResponse{})
 }

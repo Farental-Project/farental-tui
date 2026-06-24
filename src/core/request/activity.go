@@ -6,21 +6,9 @@ import (
 )
 
 func ActivityGetAvailable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/activity/available"
-	r.SetResult([]api.ActivityResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/activity/available").SetResult([]api.ActivityResponse{})
 }
 
 func ActivityStart(activityID, durationID uint) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodPost
-	r.URL = "/activity/start"
-	r.SetBody(api.ActivityStartBody{ActivityID: activityID, DurationID: durationID})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/activity/start").SetBody(api.ActivityStartBody{ActivityID: activityID, DurationID: durationID})
 }

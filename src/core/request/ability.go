@@ -7,32 +7,13 @@ import (
 )
 
 func AbilityGetAll() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/abilities"
-	r.SetResult([]api.AbilityResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/script/abilities").SetResult([]api.AbilityResponse{})
 }
 
 func AbilityGet(code string) *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/ability"
-	r.SetQueryParam("Code", code)
-	r.SetResult(api.AbilityResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/script/ability").SetResult(api.AbilityResponse{}).SetQueryParam("Code", code)
 }
 
 func AbilityGetAvailable() *resty.Request {
-	r := client.R()
-	r.Method = resty.MethodGet
-	r.URL = "/script/availableAbilities"
-	r.SetResult([]api.AbilityResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/script/availableAbilities").SetResult([]api.AbilityResponse{})
 }

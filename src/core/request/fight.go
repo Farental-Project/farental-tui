@@ -8,45 +8,19 @@ import (
 )
 
 func FightGetFinished() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/fight/finished"
-	r.SetResult([]api.FightResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/fight/finished").SetResult([]api.FightResponse{})
 }
 
 func FightGetLog(fightID uint) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/fight/eventLog"
-	r.SetQueryParam("fightID", fmt.Sprintf("%d", fightID))
-	r.SetResult(api.EventLogResponse{})
-
-	return r
+	return get("/fight/eventLog").
+		SetResult(api.EventLogResponse{}).
+		SetQueryParam("fightID", fmt.Sprintf("%d", fightID))
 }
 
 func FightGetAvailable() *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodGet
-	r.URL = "/fight/available"
-	r.SetResult([]api.FightCompositionResponse{})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return get("/fight/available").SetResult([]api.FightCompositionResponse{})
 }
 
 func FightStart(fightCompoID uint) *resty.Request {
-	r := client.R()
-
-	r.Method = resty.MethodPost
-	r.URL = "/fight/start"
-	r.SetBody(api.IDBody{ID: fightCompoID})
-	r.SetError(api.ErrorResponse{})
-
-	return r
+	return post("/fight/start").SetBody(api.IDBody{ID: fightCompoID})
 }
