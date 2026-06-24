@@ -47,10 +47,6 @@ func (a *AbilityConditionViewer) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (a *AbilityConditionViewer) Resize(size orvyn.Size) {
-	a.BaseWidget.Resize(size)
-}
-
 func (a *AbilityConditionViewer) Render() string {
 	var list, left, right strings.Builder
 	var b *strings.Builder

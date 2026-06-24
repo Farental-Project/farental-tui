@@ -104,7 +104,6 @@ func (w *Widget) renderStat(statCode data.StatCode, addReturn bool, column *colu
 	s := w.statMap[statCode]
 
 	column.statStr.WriteString(orvyn.GetTheme().Style(theme.NormalTextStyleID).Render(s.Name))
-	// column.sepStr.WriteString(style.DimTextStyle.Render(" : "))
 	column.valStr.WriteString(lipgloss.NewStyle().
 		Render(strconv.Itoa(s.Value)))
 

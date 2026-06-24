@@ -275,10 +275,6 @@ func (s *Screen) loadEquippedInventory() {
 	s.list.SetItems(stacks)
 }
 
-func (s *Screen) submit() bool {
-	return false
-}
-
 func (s *Screen) updateTUI() {
 	selectedItem := s.list.GetSelectedItem()
 

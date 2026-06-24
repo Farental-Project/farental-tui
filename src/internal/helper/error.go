@@ -14,10 +14,10 @@ func ExtractError(resp *resty.Response) error {
 		return nil
 	}
 
-	return ExtractErrorMessage(resp)
+	return extractErrorMessage(resp)
 }
 
-func ExtractErrorMessage(resp *resty.Response) error {
+func extractErrorMessage(resp *resty.Response) error {
 	var b strings.Builder
 
 	if resp.Error() != nil {

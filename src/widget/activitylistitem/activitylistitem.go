@@ -14,14 +14,6 @@ import (
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
-type DurationData struct {
-	api.DurationResponse
-}
-
-func (d DurationData) RenderValue() string {
-	return helper.HoursDecFormat(d.Duration)
-}
-
 type Data struct {
 	api.ActivityResponse
 	DurationIndex int
