@@ -48,7 +48,7 @@ func (s *Screen) loadActivities() {
 	}
 
 	activities = *res
-	currentSkillID := uint(0)
+	currentSkillID := uint(9999999)
 	currentGroupIndex := -1
 
 	for _, a := range activities {
@@ -56,9 +56,17 @@ func (s *Screen) loadActivities() {
 			currentSkillID = a.Skill.ID
 			currentGroupIndex++
 
+			// No skill (SkillID nil server-side) → Skill.ID 0, empty name.
+			// Group them under "General"; an empty name is unselectable in the
+			// grouped list (it guards on SkillName != "").
+			skillName := a.Skill.Name
+			if a.Skill.ID == 0 {
+				skillName = lokyn.L("General")
+			}
+
 			group := skillgrouplistitem.Data[activitylistitem.Data]{
 				Items:     make([]activitylistitem.Data, 0),
-				SkillName: a.Skill.Name,
+				SkillName: skillName,
 			}
 
 			groups = append(groups, group)
