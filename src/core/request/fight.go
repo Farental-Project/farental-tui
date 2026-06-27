@@ -21,6 +21,10 @@ func FightGetAvailable() *resty.Request {
 	return get("/fight/available").SetResult([]api.FightCompositionResponse{})
 }
 
-func FightStart(fightCompoID uint) *resty.Request {
-	return post("/fight/start").SetBody(api.IDBody{ID: fightCompoID})
+func FightStart(fightCompoID uint, amount int) *resty.Request {
+	return post("/fight/start").SetBody(
+		api.FightStartBody{
+			ID:     fightCompoID,
+			Amount: amount,
+		})
 }

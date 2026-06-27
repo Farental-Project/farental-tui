@@ -130,6 +130,7 @@ func (s *Screen[T]) Update(msg tea.Msg) tea.Cmd {
 				if s.groupSelection {
 					if s.groupList.GetSelectedItem().SkillName != "" {
 						s.elementList.SetItems(s.groupList.GetSelectedItem().Items)
+						s.elementList.FocusFirst()
 
 						s.SetGroupSelection(!s.groupSelection)
 					}

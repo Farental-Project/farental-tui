@@ -4,6 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/widget/numericalselector"
 	"fmt"
 	"strconv"
 	"strings"
@@ -20,15 +21,18 @@ import (
 type Data struct {
 	api.FightCompositionResponse
 	TotalPower int
+	TotalTime  float64
+	Amount     int
 }
 
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
-	data Data
+	amountSelector *numericalselector.Widget
+	paginator      paginator.Model
 
-	paginator paginator.Model
+	data Data
 }
 
 func Constructor(data Data) widgetlist.ListItem[Data] {
@@ -37,15 +41,16 @@ func Constructor(data Data) widgetlist.ListItem[Data] {
 	w.BaseWidget = orvyn.NewBaseWidget()
 	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
-	w.UpdateData(data)
-
+	w.amountSelector = numericalselector.New(1, 100, 1)
 	w.paginator = paginator.New()
 	w.paginator.Type = paginator.Dots
 	w.paginator.PerPage = 4
 	widget.UpdatePaginatorTheme(&w.paginator)
 	w.paginator.SetTotalPages(len(data.Actors))
-	w.paginator.KeyMap.NextPage = keybind.Right
-	w.paginator.KeyMap.PrevPage = keybind.Left
+	w.paginator.KeyMap.NextPage = keybind.NextPage
+	w.paginator.KeyMap.PrevPage = keybind.PrevPage
+
+	w.UpdateData(data)
 
 	w.OnBlur()
 
@@ -53,17 +58,40 @@ func Constructor(data Data) widgetlist.ListItem[Data] {
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	if w.amountSelector.IsActive() {
+		w.amountSelector.Update(msg)
+	}
+
 	w.paginator, _ = w.paginator.Update(msg)
 
+	w.data.Amount = w.amountSelector.GetValue()
+
+	w.recalcTotalPower()
+	w.recalcTotalTime()
+
 	return nil
+}
+
+func (w *Widget) recalcTotalTime() {
+	w.data.TotalTime = w.data.FightCompositionResponse.Duration.Duration * float64(w.data.Amount)
+}
+
+func (w *Widget) recalcTotalPower() {
+	w.data.TotalPower = 0
+
+	for _, a := range w.data.Actors {
+		w.data.TotalPower += a.Power
+	}
+
+	w.data.TotalPower *= w.data.Amount
 }
 
 func (w *Widget) UpdateData(data Data) {
 	w.data = data
 
-	for _, a := range w.data.Actors {
-		w.data.TotalPower += a.Power
-	}
+	w.recalcTotalPower()
+
+	w.amountSelector.SetActive(w.data.FightCompositionResponse.Simple)
 }
 
 func (w *Widget) GetData() Data {
@@ -119,9 +147,14 @@ func (w *Widget) Render() string {
 	}
 
 	right.WriteString(hs.Render(strconv.Itoa(w.data.TotalPower)))
-	right.WriteString("\n\n\n\n")
+	right.WriteString("\n")
 	right.WriteString(t.Style(theme.NeutralTextStyleID).Bold(true).Render(
-		helper.HoursDecFormat(w.data.Duration.Duration)))
+		helper.HoursDecFormat(w.data.TotalTime)))
+	right.WriteString("\n\n\n")
+
+	if w.amountSelector.IsActive() {
+		right.WriteString(w.amountSelector.Render())
+	}
 
 	width1, width2 := orvyn.DivideSizeFull(width)
 

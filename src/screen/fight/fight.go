@@ -106,6 +106,7 @@ func (s *Screen) loadFights() {
 		item := fightlistitem.Data{
 			FightCompositionResponse: f,
 			TotalPower:               0,
+			Amount:                   1,
 		}
 
 		data = append(data, item)
@@ -117,7 +118,7 @@ func (s *Screen) loadFights() {
 func (s *Screen) submit() bool {
 	i := s.GetSelectedItem()
 
-	req := request.FightStart(i.ID)
+	req := request.FightStart(i.ID, i.Amount)
 
 	resp, err := helper.SendRequest(req)
 

@@ -58,12 +58,18 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (w *Widget) UpdateData(data Data) {
-	w.data = data
-
+func (w *Widget) recalcTotalPower() {
 	for _, a := range w.data.Composition.Actors {
 		w.data.TotalPower += a.Power
 	}
+
+	w.data.TotalPower *= max(1, w.data.FightResponse.Amount)
+}
+
+func (w *Widget) UpdateData(data Data) {
+	w.data = data
+
+	w.recalcTotalPower()
 }
 
 func (w *Widget) GetData() Data {
@@ -90,6 +96,7 @@ func (w *Widget) Render() string {
 	t := orvyn.GetTheme()
 	hs := t.Style(theme.HighlightTextStyleID)
 	ns := lipgloss.NewStyle()
+	ts := t.Style(theme.TitleStyleID)
 
 	perPage := w.paginator.PerPage
 	count := 0
@@ -119,7 +126,13 @@ func (w *Widget) Render() string {
 	}
 
 	right.WriteString(hs.Render(strconv.Itoa(w.data.TotalPower)))
-	right.WriteString("\n\n\n\n")
+	right.WriteString("\n")
+
+	if w.data.Amount > 1 {
+		right.WriteString(ts.Render(fmt.Sprintf("x%d", w.data.Amount)))
+	}
+
+	right.WriteString("\n\n\n")
 	right.WriteString(t.Style(theme.NeutralTextStyleID).Bold(true).Render(
 		w.data.ResolvedTimestamp.Format(viper.GetString("datetimeformat"))),
 	)
