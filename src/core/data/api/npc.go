@@ -1,10 +1,11 @@
 package api
 
 type NpcResponse struct {
-	ID        uint
-	FirstName string
-	LastName  string
-	RaceName  string
+	ID          uint
+	FirstName   string
+	LastName    string
+	RaceName    string
+	Description string
 }
 
 type NpcDialogResponse struct {

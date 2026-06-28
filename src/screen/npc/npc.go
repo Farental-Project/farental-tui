@@ -38,8 +38,9 @@ func TickCmd(milliseconds time.Duration, tag uint) tea.Cmd {
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	list   *widgetlist.Widget[api.NpcResponse]
-	dialog *simplelogviewer.Widget
+	list        *widgetlist.Widget[api.NpcResponse]
+	description *simplelogviewer.Widget
+	dialog      *simplelogviewer.Widget
 
 	statusMessage *statusmessage.Widget
 
@@ -75,6 +76,11 @@ func New() *Screen {
 		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
 
+	s.description = simplelogviewer.New("Description")
+	s.description.Style = logStyle
+	s.description.OnBlur()
+	s.description.SetMinSize(orvyn.NewSize(3, 7))
+
 	s.dialog = simplelogviewer.New("Dialog")
 	s.dialog.Style = logStyle
 	s.dialog.OnBlur()
@@ -85,11 +91,17 @@ func New() *Screen {
 
 	s.focusManager = orvyn.NewFocusManager()
 	s.focusManager.Add(s.list)
+	s.focusManager.Add(s.description)
 	s.focusManager.Add(s.dialog)
+
+	dialogLayout := layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(0, 0), 1,
+		s.description,
+		s.dialog,
+	)
 
 	mainElements := []layout.FixedRatioRenderable{
 		layout.NewFixedRatioRenderable(0.3, s.list),
-		layout.NewFixedRatioRenderable(0.7, s.dialog),
+		layout.NewFixedRatioRenderable(0.7, dialogLayout),
 	}
 
 	mainLayout := layout.NewHBoxFixedRatioLayout(0, 1, 0, mainElements...)
@@ -111,9 +123,11 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextNpc)
 
 	s.title.SetValue(lokyn.L("NPCs"))
+	s.description.SetTitle(lokyn.L("Description"))
 	s.dialog.SetTitle(lokyn.L("Dialog"))
 
 	s.dialog.SetContent([]string{})
+	s.description.SetActive(false)
 
 	s.focusManager.FocusFirst()
 
@@ -188,6 +202,9 @@ func (s *Screen) speakToNpc() {
 		s.statusMessage.SetError(err)
 		return
 	}
+
+	s.description.SetContent(strings.Split(npc.Description, "\n"))
+	s.description.SetActive(true)
 
 	switch {
 	case s.currentNPCID == npc.ID && s.dialogAnimating:

@@ -67,6 +67,8 @@ func New(title string) *Widget {
 		line: lipgloss.NewStyle(),
 	}
 
+	w.SetStyle(lipgloss.NewStyle())
+
 	w.Keybind = Keybind{
 		ScrollUp: key.NewBinding(
 			key.WithKeys("up"),
@@ -131,25 +133,18 @@ func (w *Widget) Resize(size orvyn.Size) {
 	marginH += w.widgetStyle.GetBorderTopSize()
 	marginH += w.widgetStyle.GetBorderBottomSize()
 
-	size.Width -= marginW
-	size.Height -= w.titleHeight + marginH
+	innerW := max(size.Width-marginW, 0)
+	innerH := max(size.Height-marginH, 0)
 
-	size.Width = max(size.Width, 0)
-	size.Height = max(size.Height, 0)
-
-	w.titleStyle = w.titleStyle.Width(size.Width)
-	w.viewport.Width = size.Width
-	w.viewport.Height = size.Height
+	w.titleStyle = w.titleStyle.Width(innerW)
+	w.viewport.Width = innerW
+	w.viewport.Height = max(innerH-w.titleHeight, 0)
 
 	if size != w.GetSize() {
 		w.refresh()
 	}
 
 	w.BaseWidget.Resize(size)
-}
-
-func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(10, w.titleHeight+1)
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
