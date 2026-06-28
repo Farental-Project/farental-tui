@@ -7,6 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen"
+	"farental/screen/dialog/fightinspector"
 	"farental/screen/generic/selectionlist"
 	"farental/widget/characteractivescript"
 	"farental/widget/characterinfo"
@@ -80,8 +81,20 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
+		case key.Matches(m, keybind.IKey):
+			orvyn.OpenDialog("fightInspector",
+				fightinspector.New(s.Screen.GetSelectedItem().Actors), nil)
+
+			return nil
 		case key.Matches(m, keybind.HKey):
 			return orvyn.SwitchScreen(screen.IDFightHistory)
+		}
+	}
+
+	switch msg := msg.(type) {
+	case orvyn.DialogExitMsg:
+		if msg.DialogID == "fightInspector" {
+			bubblehelp.SwitchContext(keybind.ContextFightList)
 		}
 	}
 

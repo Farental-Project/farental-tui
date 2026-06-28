@@ -24,6 +24,9 @@ type FightCompositionResponse struct {
 }
 
 type FightActorResponse struct {
-	Name  string
-	Power int
+	Name               string
+	RaceName           string
+	Description        string
+	Power              int
+	SpecialDescription bool
 }

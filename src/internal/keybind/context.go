@@ -19,6 +19,7 @@ const (
 	ContextFilterSelectionListBasic            bubblehelp.KeymapContext = "filterSelectionListBasic"
 	ContextFilterSelectionListIncDec           bubblehelp.KeymapContext = "filterSelectionListIncDec"
 	ContextFightList                           bubblehelp.KeymapContext = "fightList"
+	ContextFightInspector                      bubblehelp.KeymapContext = "fightInspector"
 	ContextFilterSelectionListWithNew          bubblehelp.KeymapContext = "filterSelectionListWithNew"
 	ContextCraft                               bubblehelp.KeymapContext = "craft"
 	ContextInventory                           bubblehelp.KeymapContext = "inventory"
@@ -167,6 +168,8 @@ func InitContexts() {
 	fightListKeymap.NewKeyBinding(GotoListStart, false)
 	fightListKeymap.NewKeyBinding(GotoListEnd, false)
 	fightListKeymap.NewKeyBinding(Filter, true)
+	fightListKeymap.NewKeyBinding(IKey, true)
+	fightListKeymap.SetHelpDesc(IKey, lokyn.L("informations"))
 	fightListKeymap.NewKeyBinding(HKey, true)
 	fightListKeymap.SetHelpDesc(HKey, lokyn.L("fight history"))
 	fightListKeymap.NewKeyBinding(Enter, true)
@@ -175,6 +178,16 @@ func InitContexts() {
 	fightListKeymap.NewKeyBinding(Help, true)
 
 	bubblehelp.RegisterContext(ContextFightList, fightListKeymap)
+
+	fightInspectorKeymap := bubblehelp.NewKeymap(3)
+	fightInspectorKeymap.Style = mainHelpStyle
+	fightInspectorKeymap.NewKeyBinding(Up, true)
+	fightInspectorKeymap.NewKeyBinding(Down, true)
+	fightInspectorKeymap.NewKeyBinding(Tab, true)
+	fightInspectorKeymap.NewKeyBinding(Esc, true)
+	fightInspectorKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextFightInspector, fightInspectorKeymap)
 
 	filterSelListBasicKeymapWithNew := bubblehelp.NewKeymap(3)
 	filterSelListBasicKeymapWithNew.Style = mainHelpStyle
