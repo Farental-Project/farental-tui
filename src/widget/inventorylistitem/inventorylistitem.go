@@ -3,9 +3,11 @@ package inventorylistitem
 import (
 	"farental/core/data/api"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
@@ -16,6 +18,8 @@ type Widget struct {
 	orvyn.BaseFocusable
 
 	data api.StackResponse
+
+	stackCount int
 }
 
 func Constructor(data api.StackResponse) widgetlist.ListItem[api.StackResponse] {
@@ -24,7 +28,7 @@ func Constructor(data api.StackResponse) widgetlist.ListItem[api.StackResponse] 
 	w.BaseWidget = orvyn.NewBaseWidget()
 	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
-	w.data = data
+	w.UpdateData(data)
 
 	w.OnBlur()
 
@@ -39,6 +43,8 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 func (w *Widget) UpdateData(data api.StackResponse) {
 	w.data = data
+
+	w.stackCount = int(math.Ceil(float64(w.data.Count) / float64(w.data.Item.MaxStackCount)))
 }
 
 func (w *Widget) GetData() api.StackResponse {
@@ -62,7 +68,7 @@ func (w *Widget) Render() string {
 
 	if w.data.Count > 0 {
 		right.WriteString(t.Style(theme.DimTextStyleID).Render(
-			fmt.Sprintf("%d / %d", w.data.Count, w.data.Item.MaxStackCount)))
+			fmt.Sprintf("x%d | %d %s", w.data.Count, w.stackCount, lokyn.L("Stacks"))))
 	}
 
 	width1, width2 := orvyn.DivideSizeFull(width)

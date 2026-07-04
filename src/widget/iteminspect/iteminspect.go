@@ -19,6 +19,7 @@ type Widget struct {
 	srName            *orvyn.SimpleRenderable
 	srUnique          *orvyn.SimpleRenderable
 	srDescription     *orvyn.SimpleRenderable
+	srMaxStackCount   *orvyn.SimpleRenderable
 	srStatsTitle      *orvyn.SimpleRenderable
 	srStats           *orvyn.SimpleRenderable
 	srConditionsTitle *orvyn.SimpleRenderable
@@ -38,6 +39,7 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 
 	titleStyle := t.Style(ftheme.DimUnderlinedTextStyleID)
+	dimNeutral := t.Style(theme.NeutralDimTextStyleID)
 
 	w.srName = orvyn.NewSimpleRenderable("")
 	w.srName.Style = titleStyle
@@ -47,6 +49,10 @@ func New() *Widget {
 	w.srUnique.SetActive(false)
 	w.srDescription = orvyn.NewSimpleRenderable("")
 	w.srDescription.SizeConstraint = true
+
+	w.srMaxStackCount = orvyn.NewSimpleRenderable("")
+	w.srMaxStackCount.Style = dimNeutral
+	w.srMaxStackCount.SizeConstraint = true
 
 	w.srStatsTitle = orvyn.NewSimpleRenderable(
 		fmt.Sprintf("\n%s", lokyn.L("Stats")))
@@ -75,9 +81,11 @@ func New() *Widget {
 	w.srResultsTitle.SetActive(false)
 	w.srResults.SetActive(false)
 
-	w.layout = layout.NewMaxWidthVBoxLayout(1,
+	w.layout = layout.NewMaxWidthVBoxLayout(0,
 		w.srName,
+		w.srMaxStackCount,
 		w.srUnique,
+		orvyn.VGap,
 		w.srDescription,
 		w.srStatsTitle,
 		w.srStats,
@@ -112,6 +120,8 @@ func (w *Widget) UpdateData(item *api.ItemResponse) {
 	w.srName.SetValue(item.Name)
 	w.srDescription.SetValue(item.Description)
 	w.srUnique.SetActive(item.IsUnique)
+	w.srMaxStackCount.SetValue(fmt.Sprintf(lokyn.L("%d per stack"), item.MaxStackCount))
+	w.srMaxStackCount.SetActive(!item.IsUnique)
 
 	isEquipment := item.EquipmentSlot != nil
 

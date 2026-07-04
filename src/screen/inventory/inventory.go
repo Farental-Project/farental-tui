@@ -12,6 +12,7 @@ import (
 	"farental/widget/inventorylistitem"
 	"farental/widget/iteminspect"
 	"fmt"
+	"slices"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -217,6 +218,7 @@ func (s *Screen) Render() orvyn.Layout {
 
 func (s *Screen) loadInventory() {
 	var inventory api.InventoryResponse
+	var items []api.StackResponse
 
 	res, err := helper.Fetch[api.InventoryResponse](request.InventoryGetFull())
 
@@ -227,13 +229,32 @@ func (s *Screen) loadInventory() {
 
 	inventory = *res
 
+	items = make([]api.StackResponse, 0)
+
+	for _, s := range inventory.Stacks {
+		index := slices.IndexFunc(items,
+			func(stack api.StackResponse) bool {
+				return stack.ItemID == s.ItemID
+			})
+
+		// Non-existing index
+		if index == -1 {
+			listItem := s
+
+			items = append(items, listItem)
+			continue
+		}
+
+		items[index].Count += s.Count
+	}
+
 	// Reset any active filter before swapping items: the widgetlist keeps
 	// stale filtered indices that would point past the new (smaller) list.
 	if s.list.FilterState() != widgetlist.Unfiltered {
 		s.list.Init()
 	}
 
-	s.list.SetItems(inventory.Stacks)
+	s.list.SetItems(items)
 
 	s.stackCountTitle.SetValue(fmt.Sprintf("%s (%d / %d)",
 		lokyn.L("Stacks"), inventory.StacksCount, inventory.MaxStacks))
