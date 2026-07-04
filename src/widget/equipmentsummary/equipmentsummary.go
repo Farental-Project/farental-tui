@@ -81,7 +81,7 @@ func (w *Widget) Render() string {
 	leftCol = col.render()
 	col.reset()
 
-	w.renderEquipmentSlot(data.SlotShield, true, &col)
+	w.renderEquipmentSlot(data.SlotLeftHand, true, &col)
 	w.renderEquipmentSlot(data.SlotHands, true, &col)
 	w.renderEquipmentSlot(data.SlotLegs, true, &col)
 	w.renderEquipmentSlot(data.SlotFeet, false, &col)

@@ -10,5 +10,5 @@ const (
 	SlotLegs     SlotCode = "leg"
 	SlotFeet     SlotCode = "fee"
 	SlotWeapon   SlotCode = "wea"
-	SlotShield   SlotCode = "shi"
+	SlotLeftHand SlotCode = "leh"
 )

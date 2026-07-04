@@ -7,6 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/screen"
 	"farental/widget/characteractivescript"
 	"farental/widget/characterinfo"
 	"farental/widget/equipmentsummary"
@@ -94,6 +95,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.statusMessage.Reset()
 
+	orvyn.SetPreviousScreen(screen.IDDashBoard)
+
 	s.updateData()
 
 	return nil
@@ -112,6 +115,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(msg, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
+
+		case key.Matches(msg, keybind.IKey):
+			return orvyn.SwitchScreen(screen.IDInventory)
 
 		}
 	}

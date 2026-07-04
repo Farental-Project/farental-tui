@@ -282,6 +282,8 @@ func InitContexts() {
 
 	characterSheetKeymap := bubblehelp.NewKeymap(3)
 	characterSheetKeymap.Style = mainHelpStyle
+	characterSheetKeymap.NewKeyBinding(IKey, true)
+	characterSheetKeymap.SetHelpDesc(IKey, lokyn.L("inventory"))
 	characterSheetKeymap.NewKeyBinding(PrevPage, false)
 	characterSheetKeymap.NewKeyBinding(NextPage, false)
 	characterSheetKeymap.NewKeyBinding(Esc, true)
