@@ -156,16 +156,20 @@ func (s *Screen) updateData(data *api.LocationResponse) {
 
 	s.featuresList.SetContent([]string{})
 
-	for i, f := range data.Features {
-		featureLine.Reset()
+	if len(data.Features) == 0 {
+		s.featuresList.AppendContent(ds.Render(lokyn.L("No features in this location")))
+	} else {
+		for i, f := range data.Features {
+			featureLine.Reset()
 
-		if i > 0 {
-			featureLine.WriteString("\n")
+			if i > 0 {
+				featureLine.WriteString("\n")
+			}
+
+			fmt.Fprintf(&featureLine, "%s\n", ts.Render(f.Name))
+			featureLine.WriteString(ds.Render(f.Description))
+
+			s.featuresList.AppendContent(featureLine.String())
 		}
-
-		fmt.Fprintf(&featureLine, "%s\n", ts.Render(f.Name))
-		featureLine.WriteString(ds.Render(f.Description))
-
-		s.featuresList.AppendContent(featureLine.String())
 	}
 }
