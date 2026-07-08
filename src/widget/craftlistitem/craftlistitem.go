@@ -2,6 +2,7 @@ package craftlistitem
 
 import (
 	"farental/core/data/api"
+	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
@@ -9,6 +10,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -56,6 +58,22 @@ func Constructor(data Data) widgetlist.ListItem[Data] {
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	if k, ok := orvyn.GetKeyMsg(msg); ok {
+		switch {
+		case key.Matches(k, keybind.MKey):
+			maxAmount, err := helper.Fetch[api.MaxCraftableAmount](
+				request.CraftGetMaxCraftable(w.data.RecipeResponse.ID))
+
+			if err != nil {
+				return nil
+			}
+
+			w.data.CraftAmount = maxAmount.Amount
+			w.amountSelector.SetValue(maxAmount.Amount)
+			return nil
+		}
+	}
+
 	w.amountSelector.Update(msg)
 	w.paginator, _ = w.paginator.Update(msg)
 

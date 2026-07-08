@@ -209,6 +209,8 @@ func InitContexts() {
 	craftKeymap.Style = mainHelpStyle
 	craftKeymap.NewKeyBinding(Up, false)
 	craftKeymap.NewKeyBinding(Down, false)
+	craftKeymap.NewKeyBinding(MKey, true)
+	craftKeymap.SetHelpDesc(MKey, lokyn.L("max craftable amount"))
 	craftKeymap.NewKeyBinding(Left, false)
 	craftKeymap.SetHelpDesc(Left, lokyn.L("decrease"))
 	craftKeymap.NewKeyBinding(ShiftLeft, false)

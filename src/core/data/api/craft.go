@@ -25,3 +25,8 @@ type RecipeResponse struct {
 
 	Item ItemResponse
 }
+
+type MaxCraftableAmount struct {
+	RecipeID uint
+	Amount   int
+}

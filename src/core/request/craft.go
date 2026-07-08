@@ -2,6 +2,8 @@ package request
 
 import (
 	"farental/core/data/api"
+	"fmt"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -14,4 +16,10 @@ func CraftStart(craftID uint, amount int) *resty.Request {
 		RecipeID: craftID,
 		Amount:   amount,
 	})
+}
+
+func CraftGetMaxCraftable(recipeID uint) *resty.Request {
+	return get("/craft/maxCraftableAmount").
+		SetResult(api.MaxCraftableAmount{}).
+		SetQueryParam("recipeID", fmt.Sprintf("%d", recipeID))
 }

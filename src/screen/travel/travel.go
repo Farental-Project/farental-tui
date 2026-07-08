@@ -70,7 +70,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				return nil
 			case modeTravelRelaySelection:
 				s.currentMode = modeTravelSelection
-				bubblehelp.UpdateKeybindHelpDesc(keybind.Tab, lokyn.L("")) // Default
+				bubblehelp.UpdateKeybindHelpDesc(keybind.Tab, "") // Default
 				return nil
 			}
 		}

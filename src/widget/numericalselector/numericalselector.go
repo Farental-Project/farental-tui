@@ -88,3 +88,7 @@ func (w *Widget) Render() string {
 func (w *Widget) GetValue() int {
 	return w.value
 }
+
+func (w *Widget) SetValue(v int) {
+	w.value = v
+}
