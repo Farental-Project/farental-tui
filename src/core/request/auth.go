@@ -28,3 +28,7 @@ func AuthInfo() *resty.Request {
 func AuthSetSettings(body api.UserSettingsBody) *resty.Request {
 	return post("/auth/setSettings").SetBody(body)
 }
+
+func AuthSendFeedback(body api.SendFeedbackBody) *resty.Request {
+	return post("/auth/sendFeedback").SetBody(body)
+}

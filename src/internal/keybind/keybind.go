@@ -31,6 +31,7 @@ var (
 	Num3Key       key.Binding
 	AKey          key.Binding
 	BKey          key.Binding
+	BKeyCtrl      key.Binding
 	CKey          key.Binding
 	DKey          key.Binding
 	EKey          key.Binding
@@ -131,6 +132,9 @@ func Init() {
 	BKey = key.NewBinding(
 		key.WithKeys("b"),
 		key.WithHelp("b", "b key"))
+	BKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+b"),
+		key.WithHelp("ctrl+b", "ctrl+b key"))
 	CKey = key.NewBinding(
 		key.WithKeys("c"),
 		key.WithHelp("c", "c key"))

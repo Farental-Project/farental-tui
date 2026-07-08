@@ -122,6 +122,8 @@ func InitContexts() {
 	gameDashboardKeymap.SetHelpDesc(Esc, lokyn.L("character selection"))
 	gameDashboardKeymap.NewKeyBinding(Quit, true)
 	gameDashboardKeymap.NewKeyBinding(Help, true)
+	gameDashboardKeymap.NewKeyBinding(BKeyCtrl, true)
+	gameDashboardKeymap.SetHelpDesc(BKeyCtrl, lokyn.L("send feedback"))
 
 	bubblehelp.RegisterContext(ContextGameDashboard, gameDashboardKeymap)
 

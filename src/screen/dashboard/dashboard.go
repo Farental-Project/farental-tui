@@ -260,6 +260,9 @@ func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 			s.showLocationService()
 		}
 
+	case key.Matches(msg, keybind.BKeyCtrl):
+		return orvyn.SwitchScreen(screen.IDSendFeedback), true
+
 	case key.Matches(msg, keybind.TKey):
 		if s.checkRunningTask() {
 			return orvyn.SwitchScreen(screen.IDTravel), true

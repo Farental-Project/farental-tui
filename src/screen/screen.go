@@ -28,4 +28,5 @@ const (
 	IDNpc                orvyn.ScreenID = "npc"
 	IDShop               orvyn.ScreenID = "shop"
 	IDLocationInfo       orvyn.ScreenID = "locationinfo"
+	IDSendFeedback       orvyn.ScreenID = "sendfeedback"
 )

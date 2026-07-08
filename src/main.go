@@ -32,6 +32,7 @@ import (
 	"farental/screen/npc"
 	"farental/screen/scripteditor"
 	"farental/screen/scriptexplorer"
+	"farental/screen/sendfeedback"
 	"farental/screen/shop"
 	"farental/screen/travel"
 	"farental/screen/usersettings"
@@ -128,6 +129,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDNpc, npc.New())
 	orvyn.RegisterScreen(screen.IDShop, shop.New())
 	orvyn.RegisterScreen(screen.IDLocationInfo, locationinfo.New())
+	orvyn.RegisterScreen(screen.IDSendFeedback, sendfeedback.New())
 
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 

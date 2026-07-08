@@ -123,7 +123,7 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextNpc)
 
 	s.title.SetValue(lokyn.L("NPCs"))
-	s.description.SetTitle(lokyn.L("Description"))
+	s.description.SetTitle(lokyn.L("description_label"))
 	s.dialog.SetTitle(lokyn.L("Dialog"))
 
 	s.dialog.SetContent([]string{})
