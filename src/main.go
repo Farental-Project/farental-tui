@@ -86,7 +86,7 @@ func main() {
 
 	if !strings.HasPrefix(config.VERSION, version.ClientTui) {
 		fmt.Println(lokyn.L("Your client version is not aligned with the server. Please update it."))
-		fmt.Println(lokyn.L("Visit https://www.farental.ch for more informations."))
+		fmt.Println(lokyn.L("Visit https://www.farental.ch for more information."))
 		return
 	}
 

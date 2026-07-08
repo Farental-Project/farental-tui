@@ -171,7 +171,7 @@ func InitContexts() {
 	fightListKeymap.NewKeyBinding(GotoListEnd, false)
 	fightListKeymap.NewKeyBinding(Filter, true)
 	fightListKeymap.NewKeyBinding(IKey, true)
-	fightListKeymap.SetHelpDesc(IKey, lokyn.L("informations"))
+	fightListKeymap.SetHelpDesc(IKey, lokyn.L("Information"))
 	fightListKeymap.NewKeyBinding(HKey, true)
 	fightListKeymap.SetHelpDesc(HKey, lokyn.L("fight history"))
 	fightListKeymap.NewKeyBinding(Enter, true)

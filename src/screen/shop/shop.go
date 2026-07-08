@@ -231,7 +231,7 @@ func (s *Screen) buyItems() {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		s.statusMessage.SetMessage(lokyn.L("Items successfully buy !"),
+		s.statusMessage.SetMessage(lokyn.L("Items successfully bought !"),
 			statusmessage.SuccessMessage)
 		s.loadBuyableItems()
 	}
@@ -314,10 +314,10 @@ func (s *Screen) getConfirmationMessageFormat() string {
 
 	switch s.mode {
 	case modeBuy:
-		format = lokyn.L("Are sure you want to buy %dx %s for a total of %d%c ?")
+		format = lokyn.L("Are you sure you want to buy %dx %s for a total of %d%c ?")
 
 	case modeSell:
-		format = lokyn.L("Are sure you want to sell %dx %s for a total of %d%c ?")
+		format = lokyn.L("Are you sure you want to sell %dx %s for a total of %d%c ?")
 	}
 
 	return format

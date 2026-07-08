@@ -42,7 +42,7 @@ func New(actors []api.FightActorResponse) *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(lokyn.L("Fight informations"))
+	s.title = orvyn.NewSimpleRenderable(lokyn.L("Fight information"))
 	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.list = widgetlist.New(widgetlist.SimpleListItemConstructor)

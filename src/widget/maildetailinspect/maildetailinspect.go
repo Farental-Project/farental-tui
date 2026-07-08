@@ -69,7 +69,7 @@ func (w *Widget) Render() string {
 			b.WriteString("\n\n")
 			b.WriteString(lipgloss.NewStyle().Width(contentSize.Width).
 				Render(fmt.Sprintf(
-					lokyn.L("The sender ask you to pay %d %c to access the attachments."),
+					lokyn.L("The sender asks you to pay %d %c to access the attachments."),
 					w.mail.PaymentAmount, art.CharGrynars)))
 		}
 	}

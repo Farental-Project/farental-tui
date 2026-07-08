@@ -146,7 +146,7 @@ func (s *Screen) submit() bool {
 	confirmPassword := s.tiConfirmPassword.Value()
 
 	if username == "" {
-		s.statusMessage.SetMessage(lokyn.L("Please enter an username"), statusmessage.ErrorMessage)
+		s.statusMessage.SetMessage(lokyn.L("Please enter a username"), statusmessage.ErrorMessage)
 		return false
 	}
 

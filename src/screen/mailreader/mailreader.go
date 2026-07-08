@@ -222,7 +222,7 @@ func (s *Screen) transferAttachments() {
 	}
 
 	if resp.StatusCode() == http.StatusOK {
-		s.statusMessage.SetMessage(lokyn.L("Mail attachments transfered !"),
+		s.statusMessage.SetMessage(lokyn.L("Mail attachments transferred !"),
 			statusmessage.SuccessMessage)
 		s.updateData()
 		s.updateKeymap()
