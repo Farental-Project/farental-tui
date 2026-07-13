@@ -24,7 +24,7 @@ import (
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	description *orvyn.SimpleRenderable
+	description *simplelogviewer.Widget
 
 	featuresList *simplelogviewer.Widget
 
@@ -37,6 +37,8 @@ type Screen struct {
 	help *help.Widget
 
 	layout *layout.CenterLayout
+
+	focusManager *orvyn.FocusManager
 }
 
 func New() *Screen {
@@ -45,7 +47,7 @@ func New() *Screen {
 	t := orvyn.GetTheme()
 	ts := t.Style(theme.TitleStyleID)
 	ws := t.Style(theme.BlurredWidgetStyleID)
-	ns := t.Style(theme.NormalTextStyleID)
+	// ns := t.Style(theme.NormalTextStyleID)
 
 	logStyle := simplelogviewer.Style{
 		FocusedWidget: t.Style(theme.FocusedWidgetStyleID),
@@ -57,15 +59,15 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable("")
 	s.title.Style = ts
 
-	s.description = orvyn.NewSimpleRenderable("")
-	s.description.SizeConstraint = true
-	s.description.Style = ns.Border(ws.GetBorderStyle()).
-		BorderForeground(ws.GetBorderTopForeground()).
-		AlignHorizontal(lipgloss.Center)
+	s.description = simplelogviewer.New("Description")
+	s.description.Style = logStyle
+	s.description.SetAutoScroll(false)
+	s.description.OnBlur()
 
-	s.featuresList = simplelogviewer.New(lokyn.L("Features"))
+	s.featuresList = simplelogviewer.New("Features")
 	s.featuresList.Style = logStyle
 	s.featuresList.SetAutoScroll(false)
+	s.featuresList.OnBlur()
 
 	s.continentCard = card.New("", "")
 
@@ -101,15 +103,22 @@ func New() *Screen {
 		),
 	)
 
+	s.focusManager = orvyn.NewFocusManager()
+	s.focusManager.Add(s.description)
+	s.focusManager.Add(s.featuresList)
+
 	return s
 }
 
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextBackAndQuit)
 
+	s.description.SetTitle(lokyn.L("description_key"))
+	s.featuresList.SetTitle(lokyn.L("Features"))
+
 	s.updateData(&context.CharacterInfo.Location)
 
-	s.featuresList.OnFocus()
+	s.focusManager.FocusFirst()
 
 	return nil
 }
@@ -126,7 +135,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
-	cmd := s.featuresList.Update(msg)
+	cmd := s.focusManager.Update(msg)
 
 	return cmd
 }
@@ -143,7 +152,16 @@ func (s *Screen) updateData(data *api.LocationResponse) {
 	ds := t.Style(theme.DimTextStyleID)
 
 	s.title.SetValue(data.Name)
-	s.description.SetValue(data.Description)
+
+	description := ""
+
+	if data.LongDescription != "" {
+		description = data.LongDescription
+	} else {
+		description = data.Description
+	}
+
+	s.description.SetContent(strings.Split(ds.Render(description), "\n"))
 
 	s.continentCard.Title = data.Continent.Name
 	s.continentCard.Content = data.Continent.Description

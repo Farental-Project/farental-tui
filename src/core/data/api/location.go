@@ -1,9 +1,10 @@
 package api
 
 type LocationResponse struct {
-	ID          uint
-	Name        string
-	Description string
+	ID              uint
+	Name            string
+	Description     string
+	LongDescription string
 
 	Biome     LocationInfoResponse
 	Type      LocationInfoResponse

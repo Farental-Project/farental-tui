@@ -7,7 +7,14 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
+)
+
+const (
+	arrowUp   = "↑"
+	arrowDown = "↓"
 )
 
 type Style struct {
@@ -36,6 +43,7 @@ type Widget struct {
 
 	widgetStyle lipgloss.Style
 	titleStyle  lipgloss.Style
+	arrowStyle  lipgloss.Style
 
 	titleHeight int
 
@@ -86,12 +94,14 @@ func New(title string) *Widget {
 func (w *Widget) OnFocus() {
 	w.widgetStyle = w.Style.FocusedWidget
 	w.titleStyle = w.Style.FocusedTitle
+	w.arrowStyle = orvyn.GetTheme().Style(theme.NormalTextStyleID)
 	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
 }
 
 func (w *Widget) OnBlur() {
 	w.widgetStyle = w.Style.BlurredWidget
 	w.titleStyle = w.Style.BlurredTitle
+	w.arrowStyle = orvyn.GetTheme().Style(theme.DimTextStyleID)
 	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
 }
 
@@ -119,9 +129,47 @@ func (w *Widget) Render() string {
 		b.WriteString("\n")
 	}
 
-	b.WriteString(w.viewport.View())
+	b.WriteString(w.renderViewport())
 
 	return w.widgetStyle.Render(b.String())
+}
+
+// renderViewport renders the viewport and overlays scroll indicators on the
+// last column: an up arrow on the first line when there is content above, and
+// a down arrow on the last line when there is content below.
+func (w *Widget) renderViewport() string {
+	view := w.viewport.View()
+
+	if w.viewport.Width < 1 || w.viewport.Height < 1 {
+		return view
+	}
+
+	lines := strings.Split(view, "\n")
+
+	if !w.viewport.AtTop() {
+		lines[0] = overlayArrow(lines[0], w.viewport.Width, w.arrowStyle.Render(arrowUp))
+	}
+
+	if !w.viewport.AtBottom() {
+		last := len(lines) - 1
+		lines[last] = overlayArrow(lines[last], w.viewport.Width, w.arrowStyle.Render(arrowDown))
+	}
+
+	return strings.Join(lines, "\n")
+}
+
+// overlayArrow places arrow (already styled) on the last column (width-1) of
+// line, preserving the preceding content and padding with spaces when the line
+// is too short. ANSI styling on arrow does not count toward its display width.
+func overlayArrow(line string, width int, arrow string) string {
+	left := ansi.Truncate(line, width-1, "")
+
+	pad := (width - 1) - ansi.StringWidth(left)
+	if pad > 0 {
+		left += strings.Repeat(" ", pad)
+	}
+
+	return left + arrow
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
