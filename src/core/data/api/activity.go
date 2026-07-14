@@ -12,6 +12,8 @@ type ActivityResponse struct {
 
 	Skill SkillResponse
 
+	Price int
+
 	Duration DurationTemplateResponse
 }
 

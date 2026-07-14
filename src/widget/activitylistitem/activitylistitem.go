@@ -1,14 +1,17 @@
 package activitylistitem
 
 import (
+	"farental/art"
 	"farental/core/data/api"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
@@ -100,9 +103,15 @@ func (w *Widget) Render() string {
 	left.WriteString(ds.Render(w.data.Description))
 
 	right.WriteString(ds.Render(w.data.Skill.Name))
-	right.WriteString("\n\n\n")
+	right.WriteString("\n\n")
 
-	if len(w.data.Duration.Durations) > 0 {
+	if w.data.Price > 0 {
+		right.WriteString(hs.Render(fmt.Sprintf("%s : %d%c\n", lokyn.L("cost"), w.data.Price, art.CharGrynars)))
+	} else {
+		right.WriteString("\n")
+	}
+
+	if len(w.data.Duration.Durations) > 1 {
 		right.WriteString(hs.Render("< "))
 		right.WriteString(t.Style(theme.NormalTextStyleID).
 			Bold(true).Render(helper.HoursDecFormat(

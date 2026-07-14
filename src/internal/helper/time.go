@@ -2,16 +2,16 @@ package helper
 
 import (
 	"fmt"
+	"math"
+
 	"github.com/halsten-dev/lokyn"
-	"time"
 )
 
 func HoursDecFormat(hours float64) string {
 	var formatted string
 
-	duration := time.Duration(hours * float64(time.Hour))
-	h := int(duration.Hours())
-	m := int(duration.Minutes()) % 60
+	total := int(math.Round(hours * 60))
+	h, m := total/60, total%60
 
 	if h == 0 && m == 0 {
 		m = 1
