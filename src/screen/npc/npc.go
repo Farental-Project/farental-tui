@@ -79,7 +79,8 @@ func New() *Screen {
 	s.description = simplelogviewer.New("Description")
 	s.description.Style = logStyle
 	s.description.OnBlur()
-	s.description.SetMinSize(orvyn.NewSize(3, 7))
+	s.description.SetAutoScroll(false)
+	s.description.SetMinSize(orvyn.NewSize(3, 10))
 
 	s.dialog = simplelogviewer.New("Dialog")
 	s.dialog.Style = logStyle
@@ -203,15 +204,15 @@ func (s *Screen) speakToNpc() {
 		return
 	}
 
-	s.description.SetContent(strings.Split(npc.Description, "\n"))
-	s.description.SetActive(true)
-
 	switch {
 	case s.currentNPCID == npc.ID && s.dialogAnimating:
 		s.dialog.SetContent(strings.Split(dialog.Dialog, "\n"))
 		s.dialogAnimating = false
 	default:
 		s.dialog.SetContent([]string{})
+		s.description.SetContent(strings.Split(npc.Description, "\n"))
+		s.description.SetActive(true)
+		s.description.ScrollUp(999)
 		s.launchAnimation(dialog.Dialog, npc.ID)
 	}
 

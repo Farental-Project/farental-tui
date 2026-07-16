@@ -48,10 +48,18 @@ func (w *Widget) Render() string {
 	t := orvyn.GetTheme()
 	contentSize := w.GetContentSize()
 
+	name := ""
+
+	if w.data.Name != "" {
+		name = w.data.Name
+	} else {
+		name = fmt.Sprintf("%s %s", w.data.FirstName, w.data.LastName)
+	}
+
 	str := w.GetStyle().Width(contentSize.Width).
 		Height(contentSize.Height).Render(
 		fmt.Sprintf("%s\n%s",
-			t.Style(theme.HighlightTextStyleID).Render(fmt.Sprintf("%s %s", w.data.FirstName, w.data.LastName)),
+			t.Style(theme.HighlightTextStyleID).Render(name),
 			style.RaceStyle(w.data.RaceName).Render(w.data.RaceName),
 		),
 	)
