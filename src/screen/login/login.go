@@ -63,6 +63,7 @@ func New() *Screen {
 
 	s.version = orvyn.NewSimpleRenderable(config.VERSION)
 	s.server = orvyn.NewSimpleRenderable(config.BaseURL)
+	s.server.SetActive(false)
 	s.version.Style = t.Style(theme.DimTextStyleID)
 
 	s.tiEmail = textinput.New()
