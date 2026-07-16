@@ -57,6 +57,8 @@ func InitContexts() {
 
 	loginKeymap := bubblehelp.NewKeymap(2)
 	loginKeymap.Style = mainHelpStyle
+	loginKeymap.NewKeyBinding(LKeyCtrl, true)
+	loginKeymap.SetHelpDesc(LKeyCtrl, lokyn.L("switch languages"))
 	loginKeymap.NewKeyBinding(Tab, false)
 	loginKeymap.NewKeyBinding(ShiftTab, false)
 	loginKeymap.NewKeyBinding(NKeyCtrl, true)
