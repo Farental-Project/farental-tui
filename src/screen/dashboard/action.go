@@ -1,25 +1,15 @@
 package dashboard
 
 import (
-	"errors"
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
-	"log"
+	"farental/screen/dialog/popup"
 
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
-
-func (s *Screen) runningTaskError() {
-	if context.RunningTask.IsRunning {
-		s.statusMessage.SetError(
-			errors.New(lokyn.L("A task is currently running.")))
-	} else {
-		s.statusMessage.SetError(
-			errors.New(lokyn.L("Please claim your reward first.")))
-	}
-}
 
 func (s *Screen) tavernSleep() {
 	_, err := helper.SendRequest(request.LocationTavernSleep())
@@ -59,13 +49,21 @@ func (s *Screen) claim() {
 	}
 
 	if context.RunningTask.IsRunning {
-		s.runningTaskError()
+		orvyn.OpenDialog("earlyClaimConfirm", popup.NewYesNo(
+			lokyn.L("Are you sure you want to claim the current unfinished task? Rewards might be lost."),
+		), nil)
+
+		return
 	}
 
+	s.doClaim()
+}
+
+func (s *Screen) doClaim() {
 	_, err := helper.SendRequest(request.TaskClaim())
 
 	if err != nil {
-		log.Println(err)
+		s.statusMessage.SetError(err)
 		return
 	}
 

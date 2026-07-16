@@ -183,6 +183,18 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			}
 		}
 
+	case orvyn.DialogExitMsg:
+		if msg.DialogID == "earlyClaimConfirm" {
+			if msg.Param.(uint) == 1 {
+				s.doClaim()
+			}
+		}
+
+		// While a dialog is open orvyn routes every message to it, so the
+		// dashboard's spinner and refresh tick loops stop being fed and die.
+		// Re-arm both on close, mirroring OnEnter, or the animation freezes.
+		return tea.Batch(s.runningTask.Init(), orvyn.TickCmd(tick, s.tickTag))
+
 	case orvyn.TickMsg:
 		if msg.Tag != s.tickTag {
 			return nil
