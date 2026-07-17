@@ -62,7 +62,7 @@ func UpdateChat() {
 	length := len(ChatContent)
 
 	if length > 0 {
-		queryParam = LastChatTimestamp.Format(time.DateTime)
+		queryParam = LastChatTimestamp.UTC().Format(time.DateTime)
 	}
 
 	req.SetQueryParam("lastTimestamp", queryParam)
@@ -84,7 +84,7 @@ func UpdateChat() {
 
 	for _, message := range chatMessages {
 		chatMessage := fmt.Sprintf("%s %s - %s",
-			titleStyle.Render(message.Timestamp.Format(time.TimeOnly)),
+			titleStyle.Render(message.Timestamp.Local().Format(time.TimeOnly)),
 			titleStyle.Render(message.Name),
 			message.Message)
 

@@ -134,7 +134,7 @@ func (w *Widget) Render() string {
 
 	right.WriteString("\n\n\n")
 	right.WriteString(t.Style(theme.NeutralTextStyleID).Bold(true).Render(
-		w.data.ResolvedTimestamp.Format(viper.GetString("datetimeformat"))),
+		w.data.ResolvedTimestamp.Local().Format(viper.GetString("datetimeformat"))),
 	)
 
 	width1, width2 := orvyn.DivideSizeFull(width)

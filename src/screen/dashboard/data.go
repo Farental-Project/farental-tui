@@ -75,7 +75,7 @@ func (s *Screen) updateEventLog() {
 	length := len(s.logEvent.GetContent())
 
 	if length > 0 {
-		queryParam = s.lastEventLogTimestamp.Format(time.DateTime)
+		queryParam = s.lastEventLogTimestamp.UTC().Format(time.DateTime)
 		firstInit = false
 	}
 
@@ -102,7 +102,7 @@ func (s *Screen) updateEventLog() {
 		for _, entry := range eventLog.Entries {
 			log := fmt.Sprintf("%s - %s",
 				ts.Render(
-					entry.Timestamp.Format(format)),
+					entry.Timestamp.Local().Format(format)),
 				entry.Value,
 			)
 
@@ -114,7 +114,7 @@ func (s *Screen) updateEventLog() {
 		for _, entry := range eventLog.Entries {
 			s.logEvent.AppendContent(fmt.Sprintf("%s - %s",
 				ts.Render(
-					entry.Timestamp.Format(format)),
+					entry.Timestamp.Local().Format(format)),
 				entry.Value,
 			))
 		}

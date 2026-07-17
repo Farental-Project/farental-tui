@@ -60,7 +60,7 @@ func (w *Widget) Render() string {
 	ns := lipgloss.NewStyle()
 
 	left.WriteString(t.Style(theme.NormalTextStyleID).Render(
-		fmt.Sprint(w.data.DeliveredAt.Format(
+		fmt.Sprint(w.data.DeliveredAt.Local().Format(
 			viper.GetString("datetimeformat")))))
 	left.WriteString("\n")
 	left.WriteString(t.Style(theme.TitleStyleID).Render(w.data.SenderName))
@@ -89,7 +89,7 @@ func (w *Widget) Render() string {
 func (w *Widget) FilterValue() string {
 	var b strings.Builder
 
-	b.WriteString(w.data.DeliveredAt.Format(viper.GetString("datetimeformat")))
+	b.WriteString(w.data.DeliveredAt.Local().Format(viper.GetString("datetimeformat")))
 	b.WriteString(" ")
 	b.WriteString(w.data.SenderName)
 	b.WriteString(" ")
