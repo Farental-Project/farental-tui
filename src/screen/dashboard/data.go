@@ -33,31 +33,19 @@ func (s *Screen) updateData() {
 
 	defer s.updateErr(&err)
 
-	characterInfo, err := helper.Fetch[api.CharacterInfoResponse](request.CharacterGetInfo())
+	characterInfo, currency, err := context.RefreshCharacterInfo(true)
 
 	if err != nil {
 		return
 	}
 
-	// If the character changed of location
-	if context.CharacterInfo == nil ||
-		context.CharacterInfo.Location.ID != characterInfo.Location.ID {
-		context.ChatContent = make([]string, 0)
-	}
-
-	context.CharacterID = characterInfo.ID
-	context.CharacterInfo = characterInfo
-
-	currencyResp, err := helper.Fetch[api.CurrencyResponse](
-		request.CharacterGetCurrencyAmount(api.Grynars))
-
-	if err != nil {
-		return
-	}
-
-	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+	s.characterInfo.UpdateData(characterInfo, currency)
 	s.locationInfo.UpdateData(&characterInfo.Location)
-	s.updateRunningTask()
+
+	if refreshErr := context.RefreshRunningTask(); refreshErr != nil {
+		log.Println(refreshErr)
+	}
+
 	s.updateEventLog()
 	s.updateChat()
 	s.updateVisibleCharacters()
@@ -166,22 +154,4 @@ func (s *Screen) updateVisibleCharacters() {
 	}
 
 	s.logCharacters.SetContent(str)
-}
-
-func (s *Screen) updateRunningTask() {
-	resp, err := helper.SendRequest(request.TaskGetRunning())
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if resp.StatusCode() == 404 {
-		context.RunningTask = nil
-		return
-	}
-
-	task := resp.Result().(*api.TaskResponse)
-
-	context.RunningTask = task
 }

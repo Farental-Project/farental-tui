@@ -5,6 +5,7 @@ import (
 	"farental/internal/context"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/internal/ticker"
 	"farental/screen"
 	"farental/widget/characterinfo"
 	"farental/widget/fullhelp"
@@ -24,12 +25,8 @@ import (
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 )
 
-const (
-	tick time.Duration = 60
-)
-
 type Screen struct {
-	tickTag uint
+	ticker *ticker.Ticker
 
 	runningTask *runningtask.Widget
 
@@ -122,6 +119,8 @@ func New() *Screen {
 	s.focusManager.Add(s.logChat)
 	s.focusManager.Add(s.logCharacters)
 
+	s.ticker = ticker.New(60, s.updateData)
+
 	return s
 }
 
@@ -151,7 +150,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	cmd := s.runningTask.Init()
 
-	return tea.Batch(cmd, orvyn.TickCmd(tick, s.tickTag))
+	return tea.Batch(cmd, s.ticker.Start())
 }
 
 func (s *Screen) OnExit() any {
@@ -193,17 +192,16 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		// While a dialog is open orvyn routes every message to it, so the
 		// dashboard's spinner and refresh tick loops stop being fed and die.
 		// Re-arm both on close, mirroring OnEnter, or the animation freezes.
-		return tea.Batch(s.runningTask.Init(), orvyn.TickCmd(tick, s.tickTag))
+		return tea.Batch(s.runningTask.Init(), s.ticker.Restart())
 
 	case orvyn.TickMsg:
-		if msg.Tag != s.tickTag {
+		handled, cmd := s.ticker.Handle(msg)
+
+		if !handled {
 			return nil
 		}
 
-		s.updateData()
-
-		s.tickTag++
-		return orvyn.TickCmd(tick, s.tickTag)
+		return cmd
 	}
 
 	s.focusManager.Update(msg)
