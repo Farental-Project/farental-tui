@@ -121,24 +121,14 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) updateCharacterInfo() {
-	characterInfo, err := helper.Fetch[api.CharacterInfoResponse](request.CharacterGetInfo())
+	characterInfo, currency, err := context.RefreshCharacterInfo(true)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	context.CharacterInfo = characterInfo
-
-	currencyResp, err := helper.Fetch[api.CurrencyResponse](
-		request.CharacterGetCurrencyAmount(api.Grynars))
-
-	if err != nil {
-		s.statusMessage.SetError(err)
-		return
-	}
-
-	s.characterInfo.UpdateData(context.CharacterInfo, currencyResp.Amount)
+	s.characterInfo.UpdateData(characterInfo, currency)
 }
 
 func (s *Screen) OnExit() any {
