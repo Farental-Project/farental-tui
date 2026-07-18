@@ -8,6 +8,7 @@ import (
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/screen"
+	"farental/screen/dialog/popup"
 	"farental/widget/characterbasiclistitem"
 	"farental/widget/help"
 	"net/http"
@@ -144,9 +145,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return orvyn.SwitchScreen(screen.IDUserSettings)
 
 		case key.Matches(msg, keybind.Esc):
-			context.Logout()
+			orvyn.OpenDialog("logoutConfirm", popup.NewYesNo(
+				lokyn.L("Are you sure you want to logout?"),
+			), nil)
 
-			return orvyn.SwitchScreen(screen.IDLogin)
+			return nil
 		}
 	case gotoDashboardMsg:
 		return orvyn.SwitchScreen(screen.IDDashBoard)
@@ -154,6 +157,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	case gotoCharacterCreationMsg:
 		return orvyn.SwitchScreen(screen.IDCharacterCreation)
 
+	case orvyn.DialogExitMsg:
+		if msg.DialogID == "logoutConfirm" && msg.Param.(uint) == 1 {
+			context.Logout()
+
+			return orvyn.SwitchScreen(screen.IDLogin)
+		}
 	}
 
 	s.list.Update(msg)

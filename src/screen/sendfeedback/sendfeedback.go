@@ -6,8 +6,10 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen/dashboard"
+	"farental/screen/dialog/popup"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
+	"strings"
 
 	ftheme "farental/internal/theme"
 	"github.com/charmbracelet/bubbles/key"
@@ -150,6 +152,19 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return orvyn.SwitchToPreviousScreen()
 
 		case key.Matches(msg, keybind.Enter):
+			if !s.validate() {
+				return nil
+			}
+
+			orvyn.OpenDialog("feedbackSendConfirm", popup.NewYesNo(
+				lokyn.L("Are you sure you want to send this feedback?"),
+			), nil)
+
+			return nil
+		}
+
+	case orvyn.DialogExitMsg:
+		if msg.DialogID == "feedbackSendConfirm" && msg.Param.(uint) == 1 {
 			ret := s.submit()
 
 			if ret {
@@ -157,6 +172,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				return orvyn.SwitchToPreviousScreen()
 			}
 		}
+
+		return nil
 	}
 
 	cmd := s.focusManager.Update(msg)
@@ -217,6 +234,26 @@ func (s *Screen) activatePlatformSelection() {
 		s.mvsPlatform.SetActive(false)
 		s.selectedPlatform = api.PlatformUndefined
 	}
+}
+
+// validate checks the form is complete before letting the user confirm sending it.
+func (s *Screen) validate() bool {
+	if strings.TrimSpace(s.tiSubject.Value()) == "" {
+		s.statusMessage.SetMessage(lokyn.L("Subject cannot be empty."), statusmessage.ErrorMessage)
+		return false
+	}
+
+	if strings.TrimSpace(s.taMessage.Value()) == "" {
+		s.statusMessage.SetMessage(lokyn.L("Message cannot be empty."), statusmessage.ErrorMessage)
+		return false
+	}
+
+	if s.mvsKind.GetSelectedValue() == FeedbackKindData(api.KindBugReport) && s.selectedPlatform == api.PlatformUndefined {
+		s.statusMessage.SetMessage(lokyn.L("Please select a platform."), statusmessage.ErrorMessage)
+		return false
+	}
+
+	return true
 }
 
 func (s *Screen) submit() bool {
