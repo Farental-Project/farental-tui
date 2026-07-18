@@ -1,10 +1,7 @@
 package charactersheet
 
 import (
-	"farental/core/data/api"
-	"farental/core/request"
 	"farental/internal/context"
-	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/screen"
@@ -132,18 +129,14 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) updateData() {
-	characterInfo := context.CharacterInfo
-
-	req := request.CharacterGetCurrencyAmount(api.Grynars)
-
-	currencyResp, err := helper.Fetch[api.CurrencyResponse](req)
+	characterInfo, currency, err := context.RefreshCharacterInfo(false)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
-	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+	s.characterInfo.UpdateData(characterInfo, currency)
 
 	s.characterActiveScript.UpdateData()
 
