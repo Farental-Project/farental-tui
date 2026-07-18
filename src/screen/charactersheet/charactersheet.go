@@ -4,13 +4,16 @@ import (
 	"farental/internal/context"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/internal/ticker"
 	"farental/screen"
 	"farental/widget/characteractivescript"
 	"farental/widget/characterinfo"
 	"farental/widget/equipmentsummary"
 	"farental/widget/help"
+	"farental/widget/runningtask"
 	"farental/widget/skillssummary"
 	"farental/widget/statssummary"
+	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,6 +27,10 @@ import (
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
+
+	runningTask *runningtask.Widget
+
+	ticker *ticker.Ticker
 
 	characterInfo *characterinfo.Widget
 
@@ -51,6 +58,7 @@ func New() *Screen {
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.characterInfo = characterinfo.New()
+	s.runningTask = runningtask.New()
 	s.characterActiveScript = characteractivescript.New()
 	s.equipmentSummary = equipmentsummary.New()
 	s.statsSummary = statssummary.New()
@@ -73,6 +81,7 @@ func New() *Screen {
 			10,
 			s.title,
 			orvyn.VGap,
+			s.runningTask,
 			s.characterInfo,
 			s.characterActiveScript,
 			s.equipmentSummary,
@@ -81,6 +90,12 @@ func New() *Screen {
 			s.help,
 		),
 	)
+
+	s.ticker = ticker.New(60, func() {
+		if err := context.RefreshRunningTask(); err != nil {
+			log.Println(err)
+		}
+	})
 
 	return s
 }
@@ -96,7 +111,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.updateData()
 
-	return nil
+	if err := context.RefreshRunningTask(); err != nil {
+		log.Println(err)
+	}
+
+	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
 
 func (s *Screen) OnExit() any {
@@ -117,11 +136,20 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return orvyn.SwitchScreen(screen.IDInventory)
 
 		}
+
+	case orvyn.TickMsg:
+		handled, cmd := s.ticker.Handle(msg)
+
+		if !handled {
+			return nil
+		}
+
+		return cmd
 	}
 
 	s.skillsSummary.Update(msg)
 
-	return nil
+	return s.runningTask.Update(msg)
 }
 
 func (s *Screen) Render() orvyn.Layout {
