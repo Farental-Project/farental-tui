@@ -60,18 +60,14 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) updateData() {
-	characterInfo := context.CharacterInfo
-
-	req := request.CharacterGetCurrencyAmount(api.Grynars)
-
-	currencyResp, err := helper.Fetch[api.CurrencyResponse](req)
+	characterInfo, currency, err := context.RefreshCharacterInfo(false)
 
 	if err != nil {
 		s.Screen.SetStatusError(err)
 		return
 	}
 
-	s.characterInfo.UpdateData(characterInfo, currencyResp.Amount)
+	s.characterInfo.UpdateData(characterInfo, currency)
 
 	s.characterActiveScript.UpdateData()
 }
