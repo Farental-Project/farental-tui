@@ -240,7 +240,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			case 1:
 				return orvyn.SwitchScreen(screen.IDScriptExplorer)
 			default:
-				return s.ticker.Restart()
+				return tea.Batch(s.runningTask.Init(), s.ticker.Restart())
 			}
 		}
 
