@@ -10,7 +10,9 @@ import (
 	ftheme "farental/internal/theme"
 	"farental/internal/ticker"
 	"farental/widget/help"
+	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
+	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -27,6 +29,8 @@ type Screen struct {
 	ticker *ticker.Ticker
 
 	title *orvyn.SimpleRenderable
+
+	runningTask *runningtask.Widget
 
 	logChat *simplelogviewer.Widget
 
@@ -54,6 +58,8 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable("Chat")
 	s.title.Style = t.Style(theme.TitleStyleID)
 
+	s.runningTask = runningtask.New()
+
 	s.logChat = simplelogviewer.New("")
 	s.logChat.Style = logStyle
 	s.logChat.Keybind.ScrollUp = keybind.PrevPage
@@ -75,6 +81,7 @@ func New() *Screen {
 			2,
 			s.title,
 			orvyn.VGap,
+			s.runningTask,
 			s.logChat,
 			s.input,
 			s.statusMessage,
@@ -82,7 +89,7 @@ func New() *Screen {
 		),
 	)
 
-	s.ticker = ticker.New(15, s.loadChat)
+	s.ticker = ticker.New(15, s.refreshData)
 
 	return s
 }
@@ -96,7 +103,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.loadChat()
 
-	return tea.Batch(s.ticker.Start(), cmd)
+	if err := context.RefreshRunningTask(); err != nil {
+		log.Println(err)
+	}
+
+	return tea.Batch(s.ticker.Start(), s.runningTask.Init(), cmd)
 }
 
 func (s *Screen) OnExit() any {
@@ -136,7 +147,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	s.logChat.Update(msg)
 
-	return cmd
+	return tea.Batch(cmd, s.runningTask.Update(msg))
 }
 
 func (s *Screen) Render() orvyn.Layout {
@@ -171,6 +182,14 @@ func (s *Screen) sendMessage() {
 
 	s.input.SetValue("")
 	s.loadChat()
+}
+
+func (s *Screen) refreshData() {
+	s.loadChat()
+
+	if err := context.RefreshRunningTask(); err != nil {
+		log.Println(err)
+	}
 }
 
 func (s *Screen) loadChat() {
