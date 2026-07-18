@@ -8,9 +8,9 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/internal/ticker"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
-	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,12 +23,8 @@ import (
 	"github.com/halsten-dev/orvyn/widget/textarea"
 )
 
-const (
-	tick time.Duration = 15
-)
-
 type Screen struct {
-	tickTag uint
+	ticker *ticker.Ticker
 
 	title *orvyn.SimpleRenderable
 
@@ -86,6 +82,8 @@ func New() *Screen {
 		),
 	)
 
+	s.ticker = ticker.New(15, s.loadChat)
+
 	return s
 }
 
@@ -98,7 +96,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.loadChat()
 
-	return tea.Batch(orvyn.TickCmd(tick, s.tickTag), cmd)
+	return tea.Batch(s.ticker.Start(), cmd)
 }
 
 func (s *Screen) OnExit() any {
@@ -124,14 +122,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		}
 
 	case orvyn.TickMsg:
-		if msg.Tag != s.tickTag {
+		handled, cmd := s.ticker.Handle(msg)
+
+		if !handled {
 			return nil
 		}
 
-		s.loadChat()
-
-		s.tickTag++
-		return orvyn.TickCmd(tick, s.tickTag)
+		return cmd
 
 	}
 
