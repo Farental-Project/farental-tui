@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/internal/ticker"
 	"farental/screen"
 	"farental/screen/dialog/popup"
 	"farental/widget/help"
 	"farental/widget/ruletypeinspector"
+	"farental/widget/runningtask"
 	"farental/widget/scriptinfoinput"
 	"farental/widget/scriptrulelist"
 	"fmt"
@@ -34,6 +37,10 @@ type Screen struct {
 	ruleTypeInspector *ruletypeinspector.Widget
 	statusMessage     *statusmessage.Widget
 	help              *help.Widget
+
+	runningTask *runningtask.Widget
+
+	ticker *ticker.Ticker
 
 	focusManager *orvyn.FocusManager
 
@@ -71,6 +78,8 @@ func New() *Screen {
 	s.statusMessage = statusmessage.New()
 	s.help = help.New()
 
+	s.runningTask = runningtask.New()
+
 	s.focusManager = orvyn.NewFocusManager()
 
 	inspectorElements := []layout.FixedRatioRenderable{
@@ -86,11 +95,18 @@ func New() *Screen {
 			s.title,
 			s.readOnlyTitle,
 			orvyn.VGap,
+			s.runningTask,
 			layout.NewHBoxFixedRatioLayout(0, 1, 1, inspectorElements...),
 			s.statusMessage,
 			s.help,
 		),
 	)
+
+	s.ticker = ticker.New(60, func() {
+		if err := context.RefreshRunningTask(); err != nil {
+			log.Println(err)
+		}
+	})
 
 	return s
 }
@@ -156,7 +172,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.focusManager.FocusFirst()
 
-	return nil
+	if err := context.RefreshRunningTask(); err != nil {
+		log.Println(err)
+	}
+
+	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
 
 func (s *Screen) OnExit() any {
@@ -220,15 +240,24 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			case 1:
 				return orvyn.SwitchScreen(screen.IDScriptExplorer)
 			default:
-				return nil
+				return s.ticker.Restart()
 			}
 		}
+
+	case orvyn.TickMsg:
+		handled, cmd := s.ticker.Handle(msg)
+
+		if !handled {
+			return nil
+		}
+
+		return cmd
 
 	}
 
 	cmd := s.focusManager.Update(msg)
 
-	return cmd
+	return tea.Batch(cmd, s.runningTask.Update(msg))
 }
 
 func (s *Screen) Render() orvyn.Layout {
