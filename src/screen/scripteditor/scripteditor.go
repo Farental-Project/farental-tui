@@ -137,6 +137,9 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	if !ok || script == nil {
 		s.new = true
+
+		s.data = api.ScriptBody{}
+		s.originData = api.ScriptBody{}
 	} else {
 		s.new = false
 
@@ -222,6 +225,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		}
 	}
 
+	var dialogCmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case scriptrulelist.ChangedRuleTypeMsg:
 		s.inspectorUpdate(string(msg), nil)
@@ -237,15 +242,17 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.focusManager.Focus(1)
 
 	case orvyn.DialogExitMsg:
-		// Re-arm unconditionally: orvyn routes every message to whichever dialog is
-		// open, so the ticker and the running-task spinner die while ANY dialog is
-		// open here - not just "quitConfirm" (the rule list also opens "selectRuleType"
-		// and "selectAbility" via widget/scriptrulelist/scriptrulelistitem.go).
 		if msg.DialogID == "quitConfirm" && msg.Param.(uint) == 1 {
 			return orvyn.SwitchScreen(screen.IDScriptExplorer)
 		}
 
-		return tea.Batch(s.runningTask.Init(), s.ticker.Restart())
+		// Re-arm unconditionally: orvyn routes every message to whichever dialog is
+		// open, so the ticker and the running-task spinner die while ANY dialog is
+		// open here - not just "quitConfirm" (the rule list also opens "selectRuleType"
+		// and "selectAbility" via widget/scriptrulelist/scriptrulelistitem.go).
+		// Must NOT return here: this message still needs to reach focusManager.Update
+		// below so the rule list item that owns the dialog can consume its result.
+		dialogCmd = tea.Batch(s.runningTask.Init(), s.ticker.Restart())
 
 	case orvyn.TickMsg:
 		handled, cmd := s.ticker.Handle(msg)
@@ -260,7 +267,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	cmd := s.focusManager.Update(msg)
 
-	return tea.Batch(cmd, s.runningTask.Update(msg))
+	return tea.Batch(cmd, dialogCmd, s.runningTask.Update(msg))
 }
 
 func (s *Screen) Render() orvyn.Layout {
