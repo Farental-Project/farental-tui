@@ -78,7 +78,7 @@ func New() *Screen {
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
-			2,
+			3,
 			s.title,
 			orvyn.VGap,
 			s.runningTask,
