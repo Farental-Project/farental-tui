@@ -43,7 +43,11 @@ func (w *Widget) Render() string {
 
 	size := w.GetSize()
 
-	percent := float64(100*w.CurrentValue/w.MaxValue) / 100
+	var percent float64
+
+	if w.MaxValue > 0 {
+		percent = float64(100*w.CurrentValue/w.MaxValue) / 100
+	}
 
 	if len(w.title) > 0 {
 		b.WriteString(w.TitleStyle.Render(
