@@ -160,6 +160,13 @@ func (s *Screen[T]) Render() orvyn.Layout {
 }
 
 func (s *Screen[T]) SetItems(items []T) {
+	// Reset any active filter before swapping items: widgetlist.Widget.SetItems
+	// replaces the item list but keeps the old filtered indices, which then
+	// point past the new (possibly shorter or empty) list and panic on render.
+	if s.list.FilterState() != widgetlist.Unfiltered {
+		s.list.Init()
+	}
+
 	s.list.SetItems(items)
 }
 
