@@ -9,9 +9,11 @@ import (
 	"farental/widget/button"
 	"farental/widget/multivalueselector"
 	"fmt"
+	"slices"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -30,8 +32,9 @@ func ChangedRuleTypeCmd(code string) tea.Cmd {
 
 type Data struct {
 	api.ScriptRuleBody
-	Ability      api.AbilityResponse
-	RuleTypeName string
+	Ability            api.AbilityResponse
+	RuleTypeName       string
+	AvailableAbilities *[]api.AbilityResponse
 }
 
 type ListItem struct {
@@ -202,7 +205,7 @@ func (w *ListItem) Update(msg tea.Msg) tea.Cmd {
 func (w *ListItem) UpdateData(data Data) {
 	w.data = data
 
-	w.titleOrder.SetValue(fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order))
+	w.updateOrderTitle()
 
 	w.updateAbilityTargetValues()
 
@@ -316,14 +319,43 @@ func (w *ListItem) btRuleTypeOnClicked() tea.Cmd {
 }
 
 func (w *ListItem) btAbilityOnClicked() tea.Cmd {
-	orvyn.OpenDialog("selectAbility", abilityselection.New(), nil)
+	orvyn.OpenDialog("selectAbility", abilityselection.New(), w.data.AvailableAbilities)
 
 	return nil
+}
+
+func (w *ListItem) updateOrderTitle() {
+	var titleOrder string
+
+	abilityAvailable := true
+
+	titleOrder = fmt.Sprintf(lokyn.L("Order : %d"), w.data.Order)
+
+	if w.data.AvailableAbilities != nil {
+		index := slices.IndexFunc(*w.data.AvailableAbilities, func(a api.AbilityResponse) bool {
+			return a.ID == w.data.Ability.ID
+		})
+
+		if index < 0 {
+			abilityAvailable = false
+		}
+	}
+
+	if abilityAvailable {
+		w.titleOrder.Style = lipgloss.NewStyle()
+	} else {
+		titleOrder += fmt.Sprintf(" (%s)", lokyn.L("Not available"))
+		w.titleOrder.Style = orvyn.GetTheme().Style(theme.NeutralDimTextStyleID)
+	}
+
+	w.titleOrder.SetValue(titleOrder)
 }
 
 func (w *ListItem) updateAbilityTargetValues() {
 	keys, data := cdata.GetFilteredTargets(w.data.Ability.CanTargetSelf,
 		w.data.Ability.CanTargetAllies, w.data.Ability.CanTargetEnemies)
+
+	w.updateOrderTitle()
 
 	w.mvsAbilityTarget.SetValues(keys, data)
 	w.mvsAbilityTarget.SetSelected(0)

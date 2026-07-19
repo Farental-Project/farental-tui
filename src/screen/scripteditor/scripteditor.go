@@ -26,6 +26,7 @@ import (
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
+	"github.com/spf13/viper"
 )
 
 type Screen struct {
@@ -49,6 +50,10 @@ type Screen struct {
 	originData api.ScriptBody
 
 	new bool
+
+	showAllAbilities bool
+
+	availableAbilities *[]api.AbilityResponse
 
 	returnErr error
 }
@@ -112,6 +117,10 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	var err error
+
+	s.showAllAbilities = viper.GetBool("scriptallabilities")
+
 	widgets := []orvyn.Focusable{
 		s.scriptInfo,
 		s.list,
@@ -129,6 +138,16 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.scriptInfo.Init()
 	s.list.Init()
 	s.ruleTypeInspector.Init()
+
+	if !s.showAllAbilities {
+		s.availableAbilities, err = helper.Fetch[[]api.AbilityResponse](request.AbilityGetAvailable())
+
+		if err != nil {
+			s.availableAbilities = nil
+		}
+	} else {
+		s.availableAbilities = nil
+	}
 
 	script, ok := i.(*api.ScriptBasicResponse)
 
@@ -168,7 +187,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		s.scriptInfo.SetData(&s.data)
 
 		if len(s.data.Rules) > 0 {
-			s.list.SetData(&s.data.Rules)
+			s.list.SetData(&s.data.Rules, s.availableAbilities)
 			s.ruleListCursorMoved(0)
 		}
 	}

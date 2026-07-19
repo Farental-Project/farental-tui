@@ -18,7 +18,8 @@ import (
 type Screen struct {
 	selectionlist.Screen[api.AbilityResponse]
 
-	submitted bool
+	submitted          bool
+	availableAbilities *[]api.AbilityResponse
 }
 
 func New() *Screen {
@@ -56,6 +57,14 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	availableAbilities, ok := i.(*[]api.AbilityResponse)
+
+	if !ok {
+		availableAbilities = nil
+	}
+
+	s.availableAbilities = availableAbilities
+
 	cmd := s.Screen.OnEnter(i)
 
 	s.Screen.SetTitle(lokyn.L("Abilities"))
@@ -76,14 +85,18 @@ func (s *Screen) OnExit() any {
 func (s *Screen) loadData() {
 	var abilities []api.AbilityResponse
 
-	res, err := helper.Fetch[[]api.AbilityResponse](request.AbilityGetAll())
+	if s.availableAbilities != nil {
+		abilities = *s.availableAbilities
+	} else {
+		res, err := helper.Fetch[[]api.AbilityResponse](request.AbilityGetAll())
 
-	if err != nil {
-		s.SetStatusError(err)
-		return
+		if err != nil {
+			s.SetStatusError(err)
+			return
+		}
+
+		abilities = *res
 	}
-
-	abilities = *res
 
 	s.SetItems(abilities)
 

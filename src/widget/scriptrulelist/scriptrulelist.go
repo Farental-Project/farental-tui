@@ -148,7 +148,7 @@ func (w *Widget) updateRulesOrder() {
 	}
 }
 
-func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
+func (w *Widget) SetData(data *[]api.ScriptRuleBody, availableAbilities *[]api.AbilityResponse) error {
 	var listItems []Data
 	var ruleTypeName string
 	var ability *api.AbilityResponse
@@ -174,9 +174,10 @@ func (w *Widget) SetData(data *[]api.ScriptRuleBody) error {
 		}
 
 		item := Data{
-			ScriptRuleBody: rb,
-			Ability:        *ability,
-			RuleTypeName:   ruleTypeName,
+			ScriptRuleBody:     rb,
+			Ability:            *ability,
+			RuleTypeName:       ruleTypeName,
+			AvailableAbilities: availableAbilities,
 		}
 
 		listItems = append(listItems, item)
