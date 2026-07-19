@@ -111,7 +111,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
-	bubblehelp.SwitchContext(keybind.ContextChat)
+	bubblehelp.SwitchContext(keybind.ContextFeedback)
 
 	s.title.SetValue(lokyn.L("Send feedback"))
 

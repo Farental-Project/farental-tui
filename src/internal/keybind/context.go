@@ -44,6 +44,7 @@ const (
 	ContextFightHistory                        bubblehelp.KeymapContext = "fightHistory"
 	ContextShop                                bubblehelp.KeymapContext = "shop"
 	ContextFullLog                             bubblehelp.KeymapContext = "fullLog"
+	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 )
 
 func InitContexts() {
@@ -287,6 +288,19 @@ func InitContexts() {
 	chatKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextChat, chatKeymap)
+
+	feedbackKeymap := bubblehelp.NewKeymap(3)
+	feedbackKeymap.Style = mainHelpStyle
+	feedbackKeymap.NewKeyBinding(Enter, true)
+	feedbackKeymap.SetHelpDesc(Enter, lokyn.L("send message"))
+	feedbackKeymap.NewKeyBinding(YKeyCtrl, true)
+	feedbackKeymap.SetHelpDesc(YKeyCtrl, lokyn.L("new line"))
+	feedbackKeymap.NewKeyBinding(Tab, true)
+	feedbackKeymap.NewKeyBinding(ShiftTab, true)
+	feedbackKeymap.NewKeyBinding(Esc, true)
+	feedbackKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextFeedback, feedbackKeymap)
 
 	characterSheetKeymap := bubblehelp.NewKeymap(3)
 	characterSheetKeymap.Style = mainHelpStyle
