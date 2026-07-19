@@ -11,6 +11,7 @@ require (
 	github.com/halsten-dev/bubblehelp v1.0.3-0.20260606083144-f827c8298985
 	github.com/halsten-dev/lokyn v1.0.1
 	github.com/halsten-dev/orvyn v0.0.0-20260628064511-c463bfb1d1ea
+	github.com/muesli/termenv v0.16.0
 	github.com/spf13/viper v1.21.0
 )
 
@@ -33,7 +34,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

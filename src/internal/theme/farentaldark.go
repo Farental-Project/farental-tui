@@ -3,6 +3,7 @@ package theme
 import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/orvyn/theme"
+	"github.com/muesli/termenv"
 )
 
 type FarentalDarkTheme struct {
@@ -48,6 +49,19 @@ func (t FarentalDarkTheme) Color(id theme.ColorID) lipgloss.Color {
 	color := t.DefaultDarkTheme.Color(id)
 
 	switch id {
+	case theme.DimFontColorID, theme.BlurredBorderColorID, theme.BlurredFontColorID:
+		// This and the unlisted-default green used for focused/normal text
+		// (#18B718) are both nearest to the same standard ANSI green under
+		// a reduced (ANSI/Ascii) color profile, so they become
+		// indistinguishable there. Only fall back to gray in that case -
+		// full-color terminals (TrueColor/ANSI256) keep the intended
+		// darker green, which has plenty of resolution to stay distinct.
+		if lipgloss.ColorProfile() <= termenv.ANSI256 {
+			colorHexCode = "#186318"
+		} else {
+			colorHexCode = "#5C5C5C"
+		}
+
 	case HPBarColorID:
 		colorHexCode = "#EB1F1F"
 
