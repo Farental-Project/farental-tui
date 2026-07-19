@@ -4,11 +4,13 @@ import (
 	"farental/art"
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/screen"
 	"farental/screen/dialog/popup"
+	"farental/widget/characterinfo"
 	"farental/widget/help"
 	"farental/widget/inventoryshoplistitem"
 	"farental/widget/iteminspect"
@@ -41,6 +43,8 @@ type Screen struct {
 
 	title *orvyn.SimpleRenderable
 
+	characterInfo *characterinfo.Widget
+
 	list *widgetlist.Widget[inventoryshoplistitem.Data]
 
 	inspector *iteminspect.Widget
@@ -59,6 +63,8 @@ func New() *Screen {
 
 	s.title = orvyn.NewSimpleRenderable(s.buyTitle)
 	s.title.Style = t.Style(theme.TitleStyleID)
+
+	s.characterInfo = characterinfo.New()
 
 	s.list = widgetlist.New(inventoryshoplistitem.Constructor)
 
@@ -81,7 +87,7 @@ func New() *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4), 2,
 			s.title,
-			orvyn.VGap,
+			s.characterInfo,
 			shopLayout,
 			s.statusMessage,
 			s.help,
@@ -100,6 +106,7 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.sellTitle = lokyn.L("Shop - Sell")
 
 	s.mode = modeBuy
+	s.title.SetValue(s.buyTitle)
 
 	s.list.Init()
 
@@ -108,6 +115,8 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.list.FocusFirst()
 
 	s.updateInspector()
+
+	s.updateCharacterInfo()
 
 	return nil
 }
@@ -182,6 +191,17 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
+func (s *Screen) updateCharacterInfo() {
+	characterInfo, currency, err := context.RefreshCharacterInfo(true)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	s.characterInfo.UpdateData(characterInfo, currency)
+}
+
 func (s *Screen) updateInspector() {
 	item := s.list.GetSelectedItem()
 
@@ -234,6 +254,7 @@ func (s *Screen) buyItems() {
 		s.statusMessage.SetMessage(lokyn.L("Items successfully bought !"),
 			statusmessage.SuccessMessage)
 		s.loadBuyableItems()
+		s.updateCharacterInfo()
 	}
 }
 
@@ -251,6 +272,7 @@ func (s *Screen) sellItems() {
 		s.statusMessage.SetMessage(lokyn.L("Items successfully sold !"),
 			statusmessage.SuccessMessage)
 		s.loadInventory()
+		s.updateCharacterInfo()
 	}
 }
 

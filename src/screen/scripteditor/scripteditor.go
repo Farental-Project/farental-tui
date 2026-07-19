@@ -79,6 +79,7 @@ func New() *Screen {
 	s.help = help.New()
 
 	s.runningTask = runningtask.New()
+	s.runningTask.SetActive(false)
 
 	s.focusManager = orvyn.NewFocusManager()
 
@@ -106,6 +107,8 @@ func New() *Screen {
 		if err := context.RefreshRunningTask(); err != nil {
 			log.Println(err)
 		}
+
+		s.runningTask.SetActive(context.RunningTask != nil)
 	})
 
 	return s
@@ -176,6 +179,8 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		log.Println(err)
 	}
 
+	s.runningTask.SetActive(context.RunningTask != nil)
+
 	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
 
@@ -232,17 +237,15 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		s.focusManager.Focus(1)
 
 	case orvyn.DialogExitMsg:
-		switch msg.DialogID {
-		case "quitConfirm":
-			val := msg.Param.(uint)
-
-			switch val {
-			case 1:
-				return orvyn.SwitchScreen(screen.IDScriptExplorer)
-			default:
-				return tea.Batch(s.runningTask.Init(), s.ticker.Restart())
-			}
+		// Re-arm unconditionally: orvyn routes every message to whichever dialog is
+		// open, so the ticker and the running-task spinner die while ANY dialog is
+		// open here - not just "quitConfirm" (the rule list also opens "selectRuleType"
+		// and "selectAbility" via widget/scriptrulelist/scriptrulelistitem.go).
+		if msg.DialogID == "quitConfirm" && msg.Param.(uint) == 1 {
+			return orvyn.SwitchScreen(screen.IDScriptExplorer)
 		}
+
+		return tea.Batch(s.runningTask.Init(), s.ticker.Restart())
 
 	case orvyn.TickMsg:
 		handled, cmd := s.ticker.Handle(msg)

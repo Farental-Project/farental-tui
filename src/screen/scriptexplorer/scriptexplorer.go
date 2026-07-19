@@ -3,14 +3,18 @@ package scriptexplorer
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/internal/ticker"
 	"farental/screen"
 	"farental/screen/dashboard"
 	"farental/screen/dialog/popup"
 	"farental/screen/generic/selectionlist"
+	"farental/widget/runningtask"
 	"farental/widget/scriptexplorerlistitem"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -19,6 +23,7 @@ import (
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
@@ -42,6 +47,10 @@ type Screen struct {
 	selectWarning   string
 
 	viewType viewType
+
+	runningTask *runningtask.Widget
+
+	ticker *ticker.Ticker
 }
 
 func New() *Screen {
@@ -49,12 +58,26 @@ func New() *Screen {
 
 	s.viewType = own
 
-	s.Screen = selectionlist.New(
+	s.runningTask = runningtask.New()
+	s.runningTask.SetActive(false)
+
+	headerLayout := layout.NewMaxWidthVBoxLayout(0, s.runningTask)
+
+	s.Screen = selectionlist.NewWithHeader(
 		s.titleOwn,
 		scriptexplorerlistitem.Constructor,
 		s.loadScripts,
 		s.submit,
+		headerLayout,
 	)
+
+	s.ticker = ticker.New(60, func() {
+		if err := context.RefreshRunningTask(); err != nil {
+			log.Println(err)
+		}
+
+		s.runningTask.SetActive(context.RunningTask != nil)
+	})
 
 	return s
 }
@@ -77,7 +100,13 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.loadScripts()
 
-	return nil
+	if err := context.RefreshRunningTask(); err != nil {
+		log.Println(err)
+	}
+
+	s.runningTask.SetActive(context.RunningTask != nil)
+
+	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
 
 func (s *Screen) OnExit() any {
@@ -163,20 +192,26 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	switch msg := msg.(type) {
 	case orvyn.DialogExitMsg:
-		switch msg.DialogID {
-		case "deleteConfirm":
-			val := msg.Param.(uint)
-
-			switch val {
-			case 1:
-				s.deleteScript()
-			default:
-				return nil
-			}
+		if msg.DialogID == "deleteConfirm" && msg.Param.(uint) == 1 {
+			s.deleteScript()
 		}
+
+		// Re-arm unconditionally: orvyn routes every message to whichever dialog is
+		// open, so the ticker and the running-task spinner die while any dialog here
+		// is open, not just "deleteConfirm".
+		return tea.Batch(cmd, s.runningTask.Init(), s.ticker.Restart())
+
+	case orvyn.TickMsg:
+		handled, tickCmd := s.ticker.Handle(msg)
+
+		if !handled {
+			return cmd
+		}
+
+		return tea.Batch(cmd, tickCmd)
 	}
 
-	return cmd
+	return tea.Batch(cmd, s.runningTask.Update(msg))
 }
 
 func (s *Screen) deleteScript() {

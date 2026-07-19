@@ -106,7 +106,11 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.GetRenderSize(w.Style.Widget, " ")
+	if context.RunningTask != nil {
+		return orvyn.NewSize(10, 7)
+	} else {
+		return orvyn.NewSize(10, 3)
+	}
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
