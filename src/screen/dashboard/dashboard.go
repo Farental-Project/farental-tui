@@ -85,6 +85,7 @@ func New() *Screen {
 	s.logCharacters = simplelogviewer.New(lokyn.L("Characters"))
 	s.logCharacters.Style = logStyle
 	s.logCharacters.OnBlur()
+	s.logCharacters.SetAutoScroll(false)
 
 	s.help = help.New()
 
