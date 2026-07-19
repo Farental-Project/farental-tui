@@ -36,8 +36,11 @@ import (
 	"farental/screen/shop"
 	"farental/screen/travel"
 	"farental/screen/usersettings"
+	"errors"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/halsten-dev/orvyn"
@@ -52,18 +55,49 @@ import (
 //go:embed translations
 var translations embed.FS
 
+// maxLogSize is the size threshold past which debug_farental.log gets
+// rotated out on startup, so it doesn't grow unbounded across every run.
+const maxLogSize = 5 * 1024 * 1024 // 5MB
+
+// rotateLogIfTooLarge renames path to path+".old" (replacing any previous
+// backup) when it exceeds maxSize.
+func rotateLogIfTooLarge(path string, maxSize int64) error {
+	info, err := os.Stat(path)
+
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if info.Size() < maxSize {
+		return nil
+	}
+
+	return os.Rename(path, path+".old")
+}
+
 func main() {
 	var err error
 
+	config.Init()
+
+	logPath := filepath.Join(config.Dir, "debug_farental.log")
+
+	if err := rotateLogIfTooLarge(logPath, maxLogSize); err != nil {
+		log.Println(err)
+	}
+
 	// Debug
-	f, err := tea.LogToFile("debug_farental.log", "debug")
+	f, err := tea.LogToFile(logPath, "debug")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close()
 
-	config.Init()
 	context.Init()
 	request.Init(context.Client)
 	lokyn.Init()
@@ -80,7 +114,7 @@ func main() {
 	version, err := helper.Fetch[api.DbVersion](reqVer)
 
 	if err != nil {
-		fmt.Println(lokyn.L("Cannot verify server version. Please retry later."))
+		fmt.Println(err.Error())
 		return
 	}
 

@@ -12,11 +12,14 @@ import (
 )
 
 const (
-	VERSION = "1.0.0"
+	VERSION = "1.1.0"
 )
 
 var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)
 var ConfigFileName = "farental_dev"   // valeur par défaut (dev)
+
+// Dir holds the directory containing the config file, set by Init.
+var Dir string
 
 func Init() {
 	var configPath string
@@ -35,6 +38,8 @@ func Init() {
 	if err != nil {
 		log.Panic("Failed to create the config directory : ", err)
 	}
+
+	Dir = configPath
 
 	// Set defaults
 	viper.SetDefault("baseurl", BaseURL)
