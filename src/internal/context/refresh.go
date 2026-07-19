@@ -4,6 +4,7 @@ import (
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/helper"
+	"fmt"
 )
 
 // RefreshCharacterInfo fetches the current currency amount and, when fresh is
@@ -43,8 +44,12 @@ func RefreshCharacterInfo(fresh bool) (*api.CharacterInfoResponse, int, error) {
 
 // RefreshRunningTask fetches the player's current running task, if any, and
 // updates RunningTask. No widget update call is needed afterwards —
-// runningtask.Widget reads RunningTask directly in its Render().
+// runningtask.Widget reads RunningTask directly in its Render(). Rings the
+// terminal bell exactly once, the moment the task transitions from running
+// to claimable, regardless of which screen's ticker triggered this refresh.
 func RefreshRunningTask() error {
+	wasRunning := RunningTask != nil && RunningTask.RemainingTimeHours > 0
+
 	resp, err := helper.SendRequest(request.TaskGetRunning())
 
 	if err != nil {
@@ -57,6 +62,10 @@ func RefreshRunningTask() error {
 	}
 
 	RunningTask = resp.Result().(*api.TaskResponse)
+
+	if wasRunning && RunningTask.RemainingTimeHours <= 0 {
+		fmt.Print("\a")
+	}
 
 	return nil
 }
