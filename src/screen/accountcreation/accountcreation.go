@@ -5,6 +5,7 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/widget"
 	"farental/widget/help"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -35,6 +36,8 @@ type Screen struct {
 	layout *layout.CenterLayout
 
 	focusManager *orvyn.FocusManager
+
+	accountCreated bool
 }
 
 func New() *Screen {
@@ -70,8 +73,8 @@ func New() *Screen {
 			s.tiEmail,
 			s.tiPassword,
 			s.tiConfirmPassword,
-			orvyn.VGap,
 			s.statusMessage,
+			orvyn.VGap,
 			s.help,
 		),
 	)
@@ -88,6 +91,8 @@ func New() *Screen {
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextCharacterCreation)
+
+	s.accountCreated = false
 
 	s.title.SetValue(lokyn.L("New account"))
 	s.tiUsername.Placeholder = lokyn.L("Username")
@@ -108,6 +113,13 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
+	if s.accountCreated {
+		return widget.StatusMessageParam{
+			Content: lokyn.L("A confirmation e-mail was sent."),
+			Type:    statusmessage.SuccessMessage,
+		}
+	}
+
 	return nil
 }
 
@@ -122,6 +134,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			ok := s.submit()
 
 			if ok {
+				s.accountCreated = true
 				return orvyn.SwitchToPreviousScreen()
 			}
 

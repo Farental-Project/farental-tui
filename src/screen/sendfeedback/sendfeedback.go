@@ -5,13 +5,14 @@ import (
 	"farental/core/request"
 	"farental/internal/helper"
 	"farental/internal/keybind"
-	"farental/screen/dashboard"
 	"farental/screen/dialog/popup"
+	"farental/widget"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
 	"strings"
 
 	ftheme "farental/internal/theme"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
@@ -134,7 +135,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) OnExit() any {
 	if s.sendedFeedback {
-		return dashboard.StatusMessageParam{
+		return widget.StatusMessageParam{
 			Content: lokyn.L("Thanks for your feedback. It will be analysed by the team."),
 			Type:    statusmessage.SuccessMessage,
 		}

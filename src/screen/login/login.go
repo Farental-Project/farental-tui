@@ -9,6 +9,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen"
+	"farental/widget"
 	"farental/widget/help"
 	"farental/widget/languageindicator"
 	"fmt"
@@ -104,13 +105,20 @@ func New() *Screen {
 	return s
 }
 
-func (s *Screen) OnEnter(_ any) tea.Cmd {
+func (s *Screen) OnEnter(i any) tea.Cmd {
 	var cmds []tea.Cmd
+
+	s.statusMessage.Reset()
+
+	switch param := i.(type) {
+	case error:
+		s.statusMessage.SetError(param)
+	case widget.StatusMessageParam:
+		s.statusMessage.SetMessage(param.Content, param.Type)
+	}
 
 	s.tiEmail.Placeholder = lokyn.L("Email")
 	s.tiPassword.Placeholder = lokyn.L("Password")
-
-	s.statusMessage.Reset()
 
 	cmds = append(cmds, s.tiEmail.Init())
 	cmds = append(cmds, s.tiPassword.Init())

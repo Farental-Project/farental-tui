@@ -7,6 +7,7 @@ import (
 	ftheme "farental/internal/theme"
 	"farental/internal/ticker"
 	"farental/screen"
+	"farental/widget"
 	"farental/widget/characterinfo"
 	"farental/widget/fullhelp"
 	"farental/widget/help"
@@ -136,7 +137,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	switch param := i.(type) {
 	case error:
 		s.statusMessage.SetError(param)
-	case StatusMessageParam:
+	case widget.StatusMessageParam:
 		s.statusMessage.SetMessage(param.Content, param.Type)
 	}
 

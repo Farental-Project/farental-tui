@@ -12,14 +12,8 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-	"github.com/halsten-dev/orvyn/widget/statusmessage"
 	"github.com/spf13/viper"
 )
-
-type StatusMessageParam struct {
-	Content string
-	Type    statusmessage.MessageType
-}
 
 // updateErr used as defer to replace the error message only when necessary.
 func (s *Screen) updateErr(err *error) {

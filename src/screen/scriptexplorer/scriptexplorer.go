@@ -8,9 +8,9 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/ticker"
 	"farental/screen"
-	"farental/screen/dashboard"
 	"farental/screen/dialog/popup"
 	"farental/screen/generic/selectionlist"
+	"farental/widget"
 	"farental/widget/runningtask"
 	"farental/widget/scriptexplorerlistitem"
 	"fmt"
@@ -115,7 +115,7 @@ func (s *Screen) OnExit() any {
 		return nil
 	case s.selectScript:
 		if s.selectWarning != "" {
-			statusMessage := dashboard.StatusMessageParam{
+			statusMessage := widget.StatusMessageParam{
 				Content: s.selectWarning,
 				Type:    statusmessage.WarningMessage,
 			}
