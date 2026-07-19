@@ -370,7 +370,7 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 }
 
 func (s *Screen) checkRunningTask() bool {
-	if context.RunningTask != nil {
+	if s.runningTask.GetData() != nil {
 		s.statusMessage.SetMessage(lokyn.L("A task is running. Claim the reward before doing this."), statusmessage.InformationMessage)
 		return false
 	}

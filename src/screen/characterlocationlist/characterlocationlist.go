@@ -58,7 +58,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 func (s *Screen) OnExit() any {
 	if s.selectedCharacter != nil {
-		return s.selectedCharacter
+		return s.selectedCharacter.ID
 	}
 
 	return nil
@@ -85,7 +85,6 @@ func (s *Screen) loadData() {
 }
 
 func (s *Screen) submit() bool {
-	// TODO : Go to characterInspector screen
 	s.SetSubmitScreenID(screen.IDCharacterInspector)
 	s.selectedCharacter = s.getSelectedCharacter()
 

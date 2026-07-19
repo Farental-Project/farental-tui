@@ -20,7 +20,6 @@ var (
 
 	CharacterID   uint
 	CharacterInfo *api.CharacterInfoResponse
-	RunningTask   *api.TaskResponse
 
 	// ChatContent is in the context because it needs to stay coherent between gamedashboard and chat model.
 	ChatContent       []string
@@ -32,7 +31,6 @@ func Init() {
 	Client.SetBaseURL(viper.GetString("baseurl"))
 
 	CharacterID = 0
-	RunningTask = nil
 	ChatContent = make([]string, 0)
 }
 
@@ -40,7 +38,6 @@ func Reset() {
 	var zeroTime time.Time
 
 	CharacterInfo = nil
-	RunningTask = nil
 	ChatContent = make([]string, 0)
 	LastChatTimestamp = zeroTime
 }

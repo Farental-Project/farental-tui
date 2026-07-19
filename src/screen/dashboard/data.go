@@ -8,7 +8,6 @@ import (
 	"farental/internal/style"
 	"farental/widget/characterinfo"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -40,9 +39,7 @@ func (s *Screen) updateData() {
 	s.characterInfo.UpdateData(data)
 	s.locationInfo.UpdateData(&characterInfo.Location)
 
-	if refreshErr := context.RefreshRunningTask(); refreshErr != nil {
-		log.Println(refreshErr)
-	}
+	s.runningTask.RefreshCurrentCharacter()
 
 	s.updateEventLog()
 	s.updateChat()

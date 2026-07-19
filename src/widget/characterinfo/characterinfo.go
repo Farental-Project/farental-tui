@@ -122,17 +122,14 @@ func (w *Widget) constructInfo(info *CharacterInfoData) {
 		b.WriteString(t.Style(theme.NormalTextStyleID).Render(
 			fmt.Sprintf("%d %c", info.Money, art.CharGrynars),
 		))
-	} else {
-		b.WriteString("\n")
 	}
+
 	b.WriteString("\n")
 
 	if w.ShowPower {
 		b.WriteString(t.Style(theme.HighlightTextStyleID).Render(
 			fmt.Sprintf("%s : %d", lokyn.L("Power"), power),
 		))
-	} else {
-		b.WriteString("\n")
 	}
 
 	w.info.SetValue(b.String())
@@ -150,7 +147,7 @@ func ConvertCharacterInfoResponseToData(character *api.CharacterInfoResponse, mo
 	}
 }
 
-func ConvertCharacterBasicResponseToData(character *api.CharacterBasicResponse) *CharacterInfoData {
+func ConvertCharacterInspectResponseToData(character *api.CharacterInspectResponse) *CharacterInfoData {
 	return &CharacterInfoData{
 		FirstName: character.FirstName,
 		LastName:  character.LastName,

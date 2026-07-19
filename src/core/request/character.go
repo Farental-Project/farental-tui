@@ -19,6 +19,12 @@ func CharacterGetInfo() *resty.Request {
 	return get("/character/info").SetResult(api.CharacterInfoResponse{})
 }
 
+func CharacterInspect(id uint) *resty.Request {
+	return get("/character/inspect").
+		SetQueryParam("characterID", fmt.Sprint(id)).
+		SetResult(api.CharacterInspectResponse{})
+}
+
 func CharacterSetActive(id uint) *resty.Request {
 	return put("/character/setActive").SetQueryParam("characterID", fmt.Sprint(id))
 }

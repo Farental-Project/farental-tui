@@ -13,7 +13,6 @@ import (
 	"farental/widget/runningtask"
 	"farental/widget/skillssummary"
 	"farental/widget/statssummary"
-	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -92,9 +91,7 @@ func New() *Screen {
 	)
 
 	s.ticker = ticker.New(60, func() {
-		if err := context.RefreshRunningTask(); err != nil {
-			log.Println(err)
-		}
+		s.runningTask.RefreshCurrentCharacter()
 	})
 
 	return s
@@ -111,9 +108,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.updateData()
 
-	if err := context.RefreshRunningTask(); err != nil {
-		log.Println(err)
-	}
+	s.runningTask.RefreshCurrentCharacter()
 
 	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
@@ -169,7 +164,7 @@ func (s *Screen) updateData() {
 
 	s.characterActiveScript.UpdateData()
 
-	s.equipmentSummary.UpdateData()
+	s.equipmentSummary.UpdateData(characterInfo.Equipments)
 
 	s.statsSummary.UpdateData(characterInfo.Stats)
 

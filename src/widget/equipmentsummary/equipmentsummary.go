@@ -127,7 +127,7 @@ func (w *Widget) renderEquipmentSlot(slotCode data.SlotCode, addReturn bool, col
 	}
 }
 
-func (w *Widget) UpdateData() {
+func (w *Widget) UpdateData(equipments []api.ItemResponse) {
 	var slots []api.BasicInfoResponse
 	var equippedItems []api.ItemResponse
 	var Equipments map[string]EquipmentSlot
@@ -144,13 +144,7 @@ func (w *Widget) UpdateData() {
 	slots = *slotsRes
 
 	// Get equipped items
-	equippedItemsRes, err := helper.Fetch[[]api.ItemResponse](request.InventoryGetEquippedItems())
-
-	if err != nil {
-		return
-	}
-
-	equippedItems = *equippedItemsRes
+	equippedItems = equipments
 
 	for _, s := range slots {
 		es := EquipmentSlot{

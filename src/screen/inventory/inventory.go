@@ -443,8 +443,16 @@ func (s *Screen) changeMode() {
 }
 
 func (s *Screen) checkRunningTask() bool {
-	if context.RunningTask != nil {
-		s.statusMessage.SetMessage(lokyn.L("A task is running. Claim the reward before doing this."), statusmessage.InformationMessage)
+	task, err := helper.Fetch[api.TaskResponse](request.TaskGetRunning())
+
+	if err != nil {
+		return true
+	}
+
+	if task != nil {
+		s.statusMessage.SetMessage(
+			lokyn.L("A task is running. Claim the reward before doing this."),
+			statusmessage.InformationMessage)
 		return false
 	}
 

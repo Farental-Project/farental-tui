@@ -2,7 +2,8 @@ package characterinspector
 
 import (
 	"farental/core/data/api"
-	"farental/internal/context"
+	"farental/core/request"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/internal/ticker"
@@ -12,7 +13,6 @@ import (
 	"farental/widget/runningtask"
 	"farental/widget/skillssummary"
 	"farental/widget/statssummary"
-	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -47,7 +47,7 @@ type Screen struct {
 
 	layout *layout.CenterLayout
 
-	character *api.CharacterBasicResponse
+	character *api.CharacterInspectResponse
 }
 
 func New() *Screen {
@@ -57,6 +57,8 @@ func New() *Screen {
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.characterInfo = characterinfo.New()
+	s.characterInfo.ShowMoney = false
+	s.characterInfo.ShowPower = false
 	s.runningTask = runningtask.New()
 	s.equipmentSummary = equipmentsummary.New()
 	s.statsSummary = statssummary.New()
@@ -89,39 +91,32 @@ func New() *Screen {
 	)
 
 	s.ticker = ticker.New(60, func() {
-		if err := context.RefreshRunningTask(); err != nil {
-			log.Println(err)
-		}
+		s.runningTask.RefreshInspectCharacter(s.character.ID)
 	})
 
 	return s
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
-	// TODO : create basic context
 	bubblehelp.SwitchContext(keybind.ContextCharacterSheet)
 
 	bubblehelp.SetKeybindVisible(keybind.IKey, false)
 
 	s.character = nil
 
-	character, ok := i.(*api.CharacterBasicResponse)
+	characterID, ok := i.(uint)
 
-	if !ok {
+	if !ok || characterID <= 0 {
 		return orvyn.SwitchToPreviousScreen()
 	}
-
-	s.character = character
 
 	s.title.SetValue(lokyn.L("Character inspector"))
 
 	s.statusMessage.Reset()
 
-	s.updateData()
+	s.updateData(characterID)
 
-	if err := context.RefreshRunningTask(); err != nil {
-		log.Println(err)
-	}
+	s.runningTask.RefreshInspectCharacter(s.character.ID)
 
 	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
@@ -161,14 +156,19 @@ func (s *Screen) Render() orvyn.Layout {
 	return s.layout
 }
 
-func (s *Screen) updateData() {
-	data := characterinfo.ConvertCharacterBasicResponseToData(s.character)
+func (s *Screen) updateData(id uint) {
+	character, err := helper.Fetch[api.CharacterInspectResponse](request.CharacterInspect(id))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+	}
+
+	s.character = character
+
+	data := characterinfo.ConvertCharacterInspectResponseToData(s.character)
 	s.characterInfo.UpdateData(data)
 
-	// TODO : Update call
-	s.equipmentSummary.UpdateData()
-
+	s.equipmentSummary.UpdateData(s.character.Equipments)
 	s.statsSummary.UpdateData(s.character.Stats)
-
 	s.skillsSummary.UpdateData(s.character.Skills)
 }

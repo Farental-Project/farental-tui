@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"farental/core/request"
-	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/screen/dialog/popup"
 
@@ -44,11 +43,13 @@ func (s *Screen) tavernRegen() {
 }
 
 func (s *Screen) claim() {
-	if context.RunningTask == nil {
+	task := s.runningTask.GetData()
+
+	if task == nil {
 		return
 	}
 
-	if context.RunningTask.IsRunning {
+	if task.IsRunning {
 		orvyn.OpenDialog("earlyClaimConfirm", popup.NewYesNo(
 			lokyn.L("Are you sure you want to claim the current unfinished task? Rewards might be lost."),
 		), nil)
@@ -67,6 +68,6 @@ func (s *Screen) doClaim() {
 		return
 	}
 
-	context.RunningTask = nil
+	s.runningTask.UpdateData(nil)
 	s.updateData()
 }

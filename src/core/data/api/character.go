@@ -14,9 +14,14 @@ type CharacterBasicResponse struct {
 	LastName     string
 	LocationName string
 	Gender       string
+}
 
-	Stats  []CharacterStatResponse
-	Skills []CharacterSkillResponse
+type CharacterInspectResponse struct {
+	CharacterBasicResponse
+
+	Stats      []CharacterStatResponse
+	Skills     []CharacterSkillResponse
+	Equipments []ItemResponse
 }
 
 type CharacterBasicWithActivityResponse struct {
@@ -49,8 +54,9 @@ type CharacterInfoResponse struct {
 	Power     int
 	ScriptID  []byte
 
-	Stats  []CharacterStatResponse
-	Skills []CharacterSkillResponse
+	Stats      []CharacterStatResponse
+	Skills     []CharacterSkillResponse
+	Equipments []ItemResponse
 
 	Location        LocationResponse
 	RespawnLocation LocationResponse

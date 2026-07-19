@@ -2,9 +2,12 @@ package runningtask
 
 import (
 	"farental/art"
+	"farental/core/data/api"
+	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -30,6 +33,8 @@ type Widget struct {
 	Style Style
 
 	spinner spinner.Model
+
+	task *api.TaskResponse
 }
 
 func New() *Widget {
@@ -38,6 +43,8 @@ func New() *Widget {
 	t := orvyn.GetTheme()
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+
+	w.task = nil
 
 	w.Style = Style{
 		Widget: t.Style(theme.BlurredWidgetStyleID).
@@ -82,15 +89,15 @@ func (w *Widget) Render() string {
 
 	w.Style.Widget = w.Style.Widget.Width(contentSize.Width)
 
-	if context.RunningTask != nil {
+	if w.task != nil {
 		b.WriteString(w.Style.TaskRunning.Render(
-			context.RunningTask.Title,
+			w.task.Title,
 		))
 		b.WriteString("\n")
 
-		if context.RunningTask.RemainingTimeHours > 0 {
+		if w.task.RemainingTimeHours > 0 {
 			fmt.Fprintf(&b, "%s : %s", lokyn.L("Remaining time"),
-				helper.HoursDecFormat(context.RunningTask.RemainingTimeHours))
+				helper.HoursDecFormat(w.task.RemainingTimeHours))
 			b.WriteString("\n")
 			b.WriteString(w.Style.SpinnerWidget.Render(w.spinner.View()))
 		} else {
@@ -105,8 +112,16 @@ func (w *Widget) Render() string {
 	return w.Style.Widget.Render(b.String())
 }
 
+func (w *Widget) UpdateData(task *api.TaskResponse) {
+	w.task = task
+}
+
+func (w *Widget) GetData() *api.TaskResponse {
+	return w.task
+}
+
 func (w *Widget) GetMinSize() orvyn.Size {
-	if context.RunningTask != nil {
+	if w.task != nil {
 		return orvyn.NewSize(10, 7)
 	} else {
 		return orvyn.NewSize(10, 3)
@@ -115,4 +130,24 @@ func (w *Widget) GetMinSize() orvyn.Size {
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
 	return w.GetMinSize()
+}
+
+func (w *Widget) RefreshCurrentCharacter() {
+	task, err := context.RefreshRunningTask(w.GetData())
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.UpdateData(task)
+}
+
+func (w *Widget) RefreshInspectCharacter(characterID uint) {
+	task, err := helper.Fetch[api.TaskResponse](request.TaskInspect(characterID))
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.UpdateData(task)
 }

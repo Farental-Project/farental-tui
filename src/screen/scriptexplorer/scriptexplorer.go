@@ -3,7 +3,6 @@ package scriptexplorer
 import (
 	"farental/core/data/api"
 	"farental/core/request"
-	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/internal/ticker"
@@ -14,7 +13,6 @@ import (
 	"farental/widget/runningtask"
 	"farental/widget/scriptexplorerlistitem"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -72,11 +70,9 @@ func New() *Screen {
 	)
 
 	s.ticker = ticker.New(60, func() {
-		if err := context.RefreshRunningTask(); err != nil {
-			log.Println(err)
-		}
+		s.runningTask.RefreshCurrentCharacter()
 
-		s.runningTask.SetActive(context.RunningTask != nil)
+		s.runningTask.SetActive(s.runningTask.GetData() != nil)
 	})
 
 	return s
@@ -100,11 +96,9 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.loadScripts()
 
-	if err := context.RefreshRunningTask(); err != nil {
-		log.Println(err)
-	}
+	s.runningTask.RefreshCurrentCharacter()
 
-	s.runningTask.SetActive(context.RunningTask != nil)
+	s.runningTask.SetActive(s.runningTask.GetData() != nil)
 
 	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }

@@ -12,7 +12,6 @@ import (
 	"farental/widget/help"
 	"farental/widget/runningtask"
 	"farental/widget/simplelogviewer"
-	"log"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -103,9 +102,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.loadChat()
 
-	if err := context.RefreshRunningTask(); err != nil {
-		log.Println(err)
-	}
+	s.runningTask.RefreshCurrentCharacter()
 
 	return tea.Batch(s.ticker.Start(), s.runningTask.Init(), cmd)
 }
@@ -187,9 +184,7 @@ func (s *Screen) sendMessage() {
 func (s *Screen) refreshData() {
 	s.loadChat()
 
-	if err := context.RefreshRunningTask(); err != nil {
-		log.Println(err)
-	}
+	s.runningTask.RefreshCurrentCharacter()
 }
 
 func (s *Screen) loadChat() {
