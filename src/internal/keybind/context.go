@@ -43,6 +43,7 @@ const (
 	ContextNpc                                 bubblehelp.KeymapContext = "npc"
 	ContextFightHistory                        bubblehelp.KeymapContext = "fightHistory"
 	ContextShop                                bubblehelp.KeymapContext = "shop"
+	ContextFullLog                             bubblehelp.KeymapContext = "fullLog"
 )
 
 func InitContexts() {
@@ -95,6 +96,8 @@ func InitContexts() {
 
 	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle
+	gameDashboardKeymap.NewKeyBinding(Enter, true)
+	gameDashboardKeymap.SetHelpDesc(Enter, lokyn.L("open"))
 	gameDashboardKeymap.NewKeyBinding(HKey, false)
 	gameDashboardKeymap.SetHelpDesc(HKey, lokyn.L("character"))
 	gameDashboardKeymap.NewKeyBinding(TKey, false)

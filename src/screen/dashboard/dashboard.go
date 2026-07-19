@@ -54,12 +54,16 @@ type Screen struct {
 	layout *layout.CenterLayout
 
 	socialLayout *layout.HBoxGrowLayout
+
+	openFullLog bool
 }
 
 func New() *Screen {
 	s := new(Screen)
 
 	t := orvyn.GetTheme()
+
+	s.openFullLog = false
 
 	s.runningTask = runningtask.New()
 
@@ -156,6 +160,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
+	if s.openFullLog {
+		s.openFullLog = false
+		return s.logEvent.GetContent()
+	}
+
 	return nil
 }
 
@@ -255,6 +264,9 @@ func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	switch {
 	case key.Matches(msg, keybind.Enter):
 		switch s.focusManager.TabIndex() {
+		case 0:
+			s.openFullLog = true
+			return orvyn.SwitchScreen(screen.IDLogFull), true
 		case 1:
 			return orvyn.SwitchScreen(screen.IDChat), true
 		case 2:

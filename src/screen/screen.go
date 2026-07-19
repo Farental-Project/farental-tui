@@ -13,6 +13,7 @@ const (
 	IDCharacterLocationList orvyn.ScreenID = "characterlocationlist"
 	IDCharacterInspector    orvyn.ScreenID = "characterinspector"
 	IDDashBoard             orvyn.ScreenID = "dashboard"
+	IDLogFull               orvyn.ScreenID = "logfull"
 	IDTravel                orvyn.ScreenID = "travel"
 	IDActivity              orvyn.ScreenID = "activity"
 	IDFight                 orvyn.ScreenID = "fight"

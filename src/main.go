@@ -28,6 +28,7 @@ import (
 	"farental/screen/fighthistory"
 	"farental/screen/inventory"
 	"farental/screen/locationinfo"
+	"farental/screen/logfull"
 	"farental/screen/login"
 	"farental/screen/mailbox"
 	"farental/screen/maileditor"
@@ -150,6 +151,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDCharacterLocationList, characterlocationlist.New())
 	orvyn.RegisterScreen(screen.IDCharacterInspector, characterinspector.New())
 	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
+	orvyn.RegisterScreen(screen.IDLogFull, logfull.New())
 	orvyn.RegisterScreen(screen.IDTravel, travel.New())
 	orvyn.RegisterScreen(screen.IDActivity, activity.New())
 	orvyn.RegisterScreen(screen.IDFight, fight.New())
