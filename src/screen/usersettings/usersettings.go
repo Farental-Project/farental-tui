@@ -36,9 +36,10 @@ func (l LanguageData) RenderValue() string {
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	labelLangage     *label.Widget
-	mvsLanguage      *multivalueselector.Widget[LanguageData]
-	chkbxNewsletters *checkbox.Widget
+	labelLangage            *label.Widget
+	mvsLanguage             *multivalueselector.Widget[LanguageData]
+	chkbxNewsletters        *checkbox.Widget
+	chkbxScriptAllAbilities *checkbox.Widget
 
 	labelTheme    *label.Widget
 	mvsTheme      *multivalueselector.Widget[ftheme.ThemeData]
@@ -71,6 +72,7 @@ func New() *Screen {
 	s.mvsTheme.SetValues(ftheme.GetThemeData())
 
 	s.chkbxNewsletters = checkbox.New("Receive newsletters ?")
+	s.chkbxScriptAllAbilities = checkbox.New("All abilities in script editor ?")
 
 	s.statusMessage = statusmessage.New()
 
@@ -87,6 +89,7 @@ func New() *Screen {
 			s.mvsTheme,
 			orvyn.VGap,
 			s.chkbxNewsletters,
+			s.chkbxScriptAllAbilities,
 			orvyn.VGap,
 			s.statusMessage,
 			s.help,
@@ -97,6 +100,7 @@ func New() *Screen {
 	s.focusManager.Add(s.mvsLanguage)
 	s.focusManager.Add(s.mvsTheme)
 	s.focusManager.Add(s.chkbxNewsletters)
+	s.focusManager.Add(s.chkbxScriptAllAbilities)
 
 	return s
 }
@@ -108,6 +112,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.labelLangage.SetValue(lokyn.L("Language"))
 	s.labelTheme.SetValue(lokyn.L("Theme (need restart)"))
 	s.chkbxNewsletters.SetLabel(lokyn.L("Receive newsletters ?"))
+	s.chkbxScriptAllAbilities.SetLabel(lokyn.L("All abilities visible in script editor ?"))
 
 	s.statusMessage.Reset()
 
@@ -176,6 +181,7 @@ func (s *Screen) loadData() {
 
 	s.mvsLanguage.SetSelected(slices.Index(keys, info.LanguageCode))
 	s.chkbxNewsletters.SetChecked(info.WantsNewsletter)
+	s.chkbxScriptAllAbilities.SetChecked(viper.GetBool("scriptallabilities"))
 
 	currentTheme := viper.GetString("theme")
 	if currentTheme == "" {
@@ -200,6 +206,7 @@ func (s *Screen) submit() bool {
 
 	if resp.StatusCode() == http.StatusOK {
 		viper.Set("theme", s.mvsTheme.GetSelectedValue().Code)
+		viper.Set("scriptallabilities", s.chkbxScriptAllAbilities.IsChecked())
 		config.ChangeLanguage(body.LanguageCode)
 		return true
 	}

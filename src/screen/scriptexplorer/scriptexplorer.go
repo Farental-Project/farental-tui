@@ -106,8 +106,10 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 func (s *Screen) OnExit() any {
 	switch {
 	case s.newScript:
+		s.newScript = false
 		return nil
 	case s.selectScript:
+		s.selectScript = false
 		if s.selectWarning != "" {
 			statusMessage := widget.StatusMessageParam{
 				Content: s.selectWarning,

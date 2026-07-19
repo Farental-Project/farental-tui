@@ -48,6 +48,7 @@ func Init() {
 	viper.SetDefault("logintoken", "")
 	viper.SetDefault("datetimeformat", "02.01.2006 15:04")
 	viper.SetDefault("theme", "dark")
+	viper.SetDefault("scriptallabilities", false)
 
 	viper.SetConfigName(ConfigFileName)
 	viper.SetConfigType("toml")
