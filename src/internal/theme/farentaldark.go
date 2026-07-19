@@ -72,6 +72,18 @@ func (t FarentalDarkTheme) Color(id theme.ColorID) lipgloss.Color {
 		colorHexCode = "#05C18C"
 
 	case RaceGarnothColorID:
+		colorHexCode = "#E22D2D"
+
+	case RaceEltrysColorID:
+		colorHexCode = "#B70EF4"
+
+	case RaceKaarColorID:
+		colorHexCode = "#F4E10E"
+
+	case RaceNymanColorID:
+		colorHexCode = "#0EA8F4"
+
+	case RaceKrynamColorID:
 		colorHexCode = "#DB8C04"
 
 	case BiomeMountainColorID:

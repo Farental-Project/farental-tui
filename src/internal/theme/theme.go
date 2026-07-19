@@ -54,6 +54,10 @@ const (
 
 	RacePrataarColorID
 	RaceGarnothColorID
+	RaceEltrysColorID
+	RaceKaarColorID
+	RaceNymanColorID
+	RaceKrynamColorID
 
 	BiomeMountainColorID
 	BiomeFieldColorID

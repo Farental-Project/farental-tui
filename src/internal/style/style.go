@@ -46,6 +46,14 @@ func RaceStyle(name string) lipgloss.Style {
 		colorID = ftheme.RacePrataarColorID
 	case "Garnoth":
 		colorID = ftheme.RaceGarnothColorID
+	case "Eltrys":
+		colorID = ftheme.RaceEltrysColorID
+	case "Kaar":
+		colorID = ftheme.RaceKaarColorID
+	case "Krynam":
+		colorID = ftheme.RaceKrynamColorID
+	case "Nyman":
+		colorID = ftheme.RaceNymanColorID
 	default:
 		colorID = theme.NormalFontColorID
 	}
