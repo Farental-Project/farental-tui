@@ -14,6 +14,9 @@ type CharacterBasicResponse struct {
 	LastName     string
 	LocationName string
 	Gender       string
+
+	Stats  []CharacterStatResponse
+	Skills []CharacterSkillResponse
 }
 
 type CharacterBasicWithActivityResponse struct {

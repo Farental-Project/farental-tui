@@ -159,8 +159,8 @@ func (w *Widget) renderCategory(category string, column *column) {
 	column.addReturn()
 }
 
-func (w *Widget) UpdateData(characterInfo *api.CharacterInfoResponse) {
-	w.skills = characterInfo.Skills
+func (w *Widget) UpdateData(skills []api.CharacterSkillResponse) {
+	w.skills = skills
 }
 
 func (w *Widget) refresh() {

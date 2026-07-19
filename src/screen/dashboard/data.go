@@ -5,8 +5,11 @@ import (
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
+	"farental/internal/style"
+	"farental/widget/characterinfo"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -33,7 +36,8 @@ func (s *Screen) updateData() {
 		return
 	}
 
-	s.characterInfo.UpdateData(characterInfo, currency)
+	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	s.characterInfo.UpdateData(data)
 	s.locationInfo.UpdateData(&characterInfo.Location)
 
 	if refreshErr := context.RefreshRunningTask(); refreshErr != nil {
@@ -128,6 +132,7 @@ func (s *Screen) updateChat() {
 
 func (s *Screen) updateVisibleCharacters() {
 	var str []string
+	var b strings.Builder
 
 	res, err := helper.Fetch[[]api.CharacterBasicWithActivityResponse](request.LocationGetCharacters())
 
@@ -137,14 +142,25 @@ func (s *Screen) updateVisibleCharacters() {
 	}
 
 	characters := *res
+	t := orvyn.GetTheme()
+	ds := t.Style(theme.DimTextStyleID)
 
 	str = make([]string, 0)
 
 	for _, character := range characters {
-		str = append(str,
-			orvyn.GetTheme().Style(theme.TitleStyleID).Render(fmt.Sprintf("%s %s - %s\n  %s",
-				character.FirstName, character.LastName,
-				character.RaceName, character.CurrentActivityTitle)))
+		b.Reset()
+
+		raceStyle := style.RaceStyle(character.RaceName)
+
+		b.WriteString(t.Style(theme.TitleStyleID).Render(
+			fmt.Sprintf("%s %s", character.FirstName, character.LastName),
+		))
+		b.WriteString(ds.Render(" - "))
+		b.WriteString(raceStyle.Render(character.RaceName))
+		b.WriteString("\n  ")
+		b.WriteString(ds.Render(character.CurrentActivityTitle))
+
+		str = append(str, b.String())
 	}
 
 	s.logCharacters.SetContent(str)

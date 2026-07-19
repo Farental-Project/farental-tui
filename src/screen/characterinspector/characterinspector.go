@@ -1,12 +1,11 @@
-package charactersheet
+package characterinspector
 
 import (
+	"farental/core/data/api"
 	"farental/internal/context"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/internal/ticker"
-	"farental/screen"
-	"farental/widget/characteractivescript"
 	"farental/widget/characterinfo"
 	"farental/widget/equipmentsummary"
 	"farental/widget/help"
@@ -34,8 +33,6 @@ type Screen struct {
 
 	characterInfo *characterinfo.Widget
 
-	characterActiveScript *characteractivescript.Widget
-
 	equipmentSummary *equipmentsummary.Widget
 
 	statsSummary *statssummary.Widget
@@ -49,17 +46,18 @@ type Screen struct {
 	statsSkillLayout *layout.HBoxFixedRatio
 
 	layout *layout.CenterLayout
+
+	character *api.CharacterBasicResponse
 }
 
 func New() *Screen {
 	s := new(Screen)
 
-	s.title = orvyn.NewSimpleRenderable("Character")
+	s.title = orvyn.NewSimpleRenderable("Character inspector")
 	s.title.Style = orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	s.characterInfo = characterinfo.New()
 	s.runningTask = runningtask.New()
-	s.characterActiveScript = characteractivescript.New()
 	s.equipmentSummary = equipmentsummary.New()
 	s.statsSummary = statssummary.New()
 	s.skillsSummary = skillssummary.New()
@@ -83,7 +81,6 @@ func New() *Screen {
 			orvyn.VGap,
 			s.runningTask,
 			s.characterInfo,
-			s.characterActiveScript,
 			s.equipmentSummary,
 			s.statsSkillLayout,
 			s.statusMessage,
@@ -101,13 +98,24 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
+	// TODO : create basic context
 	bubblehelp.SwitchContext(keybind.ContextCharacterSheet)
 
-	s.title.SetValue(lokyn.L("Character"))
+	bubblehelp.SetKeybindVisible(keybind.IKey, false)
+
+	s.character = nil
+
+	character, ok := i.(*api.CharacterBasicResponse)
+
+	if !ok {
+		return orvyn.SwitchToPreviousScreen()
+	}
+
+	s.character = character
+
+	s.title.SetValue(lokyn.L("Character inspector"))
 
 	s.statusMessage.Reset()
-
-	orvyn.SetPreviousScreen(screen.IDDashBoard)
 
 	s.updateData()
 
@@ -132,9 +140,6 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
 
-		case key.Matches(msg, keybind.IKey):
-			return orvyn.SwitchScreen(screen.IDInventory)
-
 		}
 
 	case orvyn.TickMsg:
@@ -157,21 +162,13 @@ func (s *Screen) Render() orvyn.Layout {
 }
 
 func (s *Screen) updateData() {
-	characterInfo, currency, err := context.RefreshCharacterInfo(false)
-
-	if err != nil {
-		s.statusMessage.SetError(err)
-		return
-	}
-
-	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	data := characterinfo.ConvertCharacterBasicResponseToData(s.character)
 	s.characterInfo.UpdateData(data)
 
-	s.characterActiveScript.UpdateData()
-
+	// TODO : Update call
 	s.equipmentSummary.UpdateData()
 
-	s.statsSummary.UpdateData(characterInfo.Stats)
+	s.statsSummary.UpdateData(s.character.Stats)
 
-	s.skillsSummary.UpdateData(characterInfo.Skills)
+	s.skillsSummary.UpdateData(s.character.Skills)
 }

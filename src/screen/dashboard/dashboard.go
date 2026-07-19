@@ -253,6 +253,14 @@ func (s *Screen) hideLocationService() {
 
 func (s *Screen) gameKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	switch {
+	case key.Matches(msg, keybind.Enter):
+		switch s.focusManager.TabIndex() {
+		case 1:
+			return orvyn.SwitchScreen(screen.IDChat), true
+		case 2:
+			return orvyn.SwitchScreen(screen.IDCharacterLocationList), true
+		}
+
 	case key.Matches(msg, keybind.Esc):
 		return orvyn.SwitchScreen(screen.IDCharacterSelection), true
 

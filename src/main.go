@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"farental/core/data"
 	"farental/core/data/api"
 	"farental/core/request"
@@ -16,6 +17,8 @@ import (
 	"farental/screen/activity"
 	"farental/screen/bank"
 	"farental/screen/charactercreation"
+	"farental/screen/characterinspector"
+	"farental/screen/characterlocationlist"
 	"farental/screen/characterselection"
 	"farental/screen/charactersheet"
 	"farental/screen/chat"
@@ -36,7 +39,6 @@ import (
 	"farental/screen/shop"
 	"farental/screen/travel"
 	"farental/screen/usersettings"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -145,6 +147,8 @@ func main() {
 	orvyn.RegisterScreen(screen.IDAccountCreation, accountcreation.New())
 	orvyn.RegisterScreen(screen.IDCharacterSelection, characterselection.New())
 	orvyn.RegisterScreen(screen.IDCharacterCreation, charactercreation.New())
+	orvyn.RegisterScreen(screen.IDCharacterLocationList, characterlocationlist.New())
+	orvyn.RegisterScreen(screen.IDCharacterInspector, characterinspector.New())
 	orvyn.RegisterScreen(screen.IDDashBoard, dashboard.New())
 	orvyn.RegisterScreen(screen.IDTravel, travel.New())
 	orvyn.RegisterScreen(screen.IDActivity, activity.New())

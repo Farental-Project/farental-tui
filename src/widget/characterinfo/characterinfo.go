@@ -16,6 +16,17 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 )
 
+type CharacterInfoData struct {
+	FirstName string
+	LastName  string
+	RaceName  string
+	Gender    string
+	Power     int
+	Money     int
+
+	Stats []api.CharacterStatResponse
+}
+
 type Widget struct {
 	orvyn.BaseWidget
 
@@ -24,6 +35,9 @@ type Widget struct {
 	barMp *characterbar.Widget
 
 	layout *layout.HBoxGrowLayout
+
+	ShowMoney bool
+	ShowPower bool
 }
 
 func New() *Widget {
@@ -32,6 +46,9 @@ func New() *Widget {
 	t := orvyn.GetTheme()
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+
+	w.ShowMoney = true
+	w.ShowPower = true
 
 	w.info = orvyn.NewSimpleRenderable("")
 	w.info.Style = lipgloss.NewStyle().
@@ -67,8 +84,8 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(45, 6)
 }
 
-func (w *Widget) UpdateData(info *api.CharacterInfoResponse, money int) {
-	w.constructInfo(info, money)
+func (w *Widget) UpdateData(info *CharacterInfoData) {
+	w.constructInfo(info)
 
 	for _, stat := range info.Stats {
 		if stat.Code == "hp" {
@@ -85,7 +102,7 @@ func (w *Widget) UpdateData(info *api.CharacterInfoResponse, money int) {
 	}
 }
 
-func (w *Widget) constructInfo(info *api.CharacterInfoResponse, money int) {
+func (w *Widget) constructInfo(info *CharacterInfoData) {
 	var b strings.Builder
 
 	t := orvyn.GetTheme()
@@ -100,13 +117,47 @@ func (w *Widget) constructInfo(info *api.CharacterInfoResponse, money int) {
 	b.WriteString("\n")
 	fmt.Fprintf(&b, "%s - %s", raceStyle.Render(raceName), info.Gender)
 	b.WriteString("\n")
-	b.WriteString(t.Style(theme.NormalTextStyleID).Render(
-		fmt.Sprintf("%d %c", money, art.CharGrynars),
-	))
+
+	if w.ShowMoney {
+		b.WriteString(t.Style(theme.NormalTextStyleID).Render(
+			fmt.Sprintf("%d %c", info.Money, art.CharGrynars),
+		))
+	} else {
+		b.WriteString("\n")
+	}
 	b.WriteString("\n")
-	b.WriteString(t.Style(theme.HighlightTextStyleID).Render(
-		fmt.Sprintf("%s : %d", lokyn.L("Power"), power),
-	))
+
+	if w.ShowPower {
+		b.WriteString(t.Style(theme.HighlightTextStyleID).Render(
+			fmt.Sprintf("%s : %d", lokyn.L("Power"), power),
+		))
+	} else {
+		b.WriteString("\n")
+	}
 
 	w.info.SetValue(b.String())
+}
+
+func ConvertCharacterInfoResponseToData(character *api.CharacterInfoResponse, money int) *CharacterInfoData {
+	return &CharacterInfoData{
+		FirstName: character.FirstName,
+		LastName:  character.LastName,
+		RaceName:  character.RaceName,
+		Gender:    character.Gender,
+		Power:     character.Power,
+		Money:     money,
+		Stats:     character.Stats,
+	}
+}
+
+func ConvertCharacterBasicResponseToData(character *api.CharacterBasicResponse) *CharacterInfoData {
+	return &CharacterInfoData{
+		FirstName: character.FirstName,
+		LastName:  character.LastName,
+		RaceName:  character.RaceName,
+		Gender:    character.Gender,
+		Power:     0,
+		Money:     0,
+		Stats:     character.Stats,
+	}
 }

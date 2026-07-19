@@ -112,6 +112,6 @@ func (w *Widget) renderStat(statCode data.StatCode, addReturn bool, column *colu
 	}
 }
 
-func (w *Widget) UpdateData(characterInfo *api.CharacterInfoResponse) {
-	w.statMap = data.NewStatMap(characterInfo.Stats)
+func (w *Widget) UpdateData(stats []api.CharacterStatResponse) {
+	w.statMap = data.NewStatMap(stats)
 }

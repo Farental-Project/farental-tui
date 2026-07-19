@@ -128,7 +128,8 @@ func (s *Screen) updateCharacterInfo() {
 		return
 	}
 
-	s.characterInfo.UpdateData(characterInfo, currency)
+	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	s.characterInfo.UpdateData(data)
 }
 
 func (s *Screen) OnExit() any {

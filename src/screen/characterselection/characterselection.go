@@ -39,7 +39,7 @@ func gotoCharacterCreationCmd() tea.Msg {
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
-	list *widgetlist.Widget[api.CharacterBasicResponse]
+	list *widgetlist.Widget[characterbasiclistitem.Data]
 
 	statusMessage *statusmessage.Widget
 
@@ -216,5 +216,14 @@ func (s *Screen) loadCharacters() {
 		return
 	}
 
-	s.list.SetItems(characters)
+	data := make([]characterbasiclistitem.Data, 0)
+
+	for _, c := range characters {
+		data = append(data, characterbasiclistitem.Data{
+			CharacterBasicResponse: c,
+			ShowLocation:           true,
+		})
+	}
+
+	s.list.SetItems(data)
 }
