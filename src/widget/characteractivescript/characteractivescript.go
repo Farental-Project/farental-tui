@@ -51,7 +51,11 @@ func (w *Widget) Render() string {
 		left.WriteString(ds.Render(w.data.Description))
 
 		if !w.data.IsEditable {
-			right.WriteString(ds.Render(fmt.Sprintf(lokyn.L("Author : %s"), w.data.AuthorName)))
+			authorName := w.data.AuthorName
+			if authorName == "" {
+				authorName = lokyn.L("deleted user")
+			}
+			right.WriteString(ds.Render(fmt.Sprintf(lokyn.L("Author : %s"), authorName)))
 		} else {
 			if w.data.IsPrivate {
 				right.WriteString(ds.Render(lokyn.L("Private")))
