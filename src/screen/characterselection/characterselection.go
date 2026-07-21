@@ -212,10 +212,6 @@ func (s *Screen) loadCharacters() {
 
 	characters = *res
 
-	if characters == nil {
-		return
-	}
-
 	data := make([]characterbasiclistitem.Data, 0)
 
 	for _, c := range characters {
