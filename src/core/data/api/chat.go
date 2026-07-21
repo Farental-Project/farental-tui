@@ -9,7 +9,8 @@ type ChatMessageBody struct {
 }
 
 type ChatMessageResponse struct {
-	Timestamp time.Time
-	Name      string
-	Message   string
+	Timestamp    time.Time
+	Name         string
+	Message      string
+	LocationName string
 }

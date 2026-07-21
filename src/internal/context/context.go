@@ -80,10 +80,20 @@ func UpdateChat() {
 	titleStyle := orvyn.GetTheme().Style(theme.TitleStyleID)
 
 	for _, message := range chatMessages {
-		chatMessage := fmt.Sprintf("%s %s - %s",
-			titleStyle.Render(message.Timestamp.Local().Format(time.TimeOnly)),
-			titleStyle.Render(message.Name),
-			message.Message)
+		var chatMessage string
+
+		if message.LocationName != "" {
+			chatMessage = fmt.Sprintf("%s [%s] %s - %s",
+				titleStyle.Render(message.Timestamp.Local().Format(time.TimeOnly)),
+				titleStyle.Render(message.LocationName),
+				titleStyle.Render(message.Name),
+				message.Message)
+		} else {
+			chatMessage = fmt.Sprintf("%s %s - %s",
+				titleStyle.Render(message.Timestamp.Local().Format(time.TimeOnly)),
+				titleStyle.Render(message.Name),
+				message.Message)
+		}
 
 		ChatContent = append(ChatContent, chatMessage)
 	}
