@@ -11,7 +11,7 @@ import (
 func NumericalValidate(s string) error {
 	matched, _ := regexp.MatchString(`^\d*$`, s)
 	if !matched {
-		return fmt.Errorf(lokyn.L("Only numbers are allowed"))
+		return fmt.Errorf("%s", lokyn.L("Only numbers are allowed"))
 	}
 	return nil
 }
