@@ -3,9 +3,12 @@ package helper
 import (
 	"errors"
 	"farental/core/data/api"
+	"farental/internal/session"
+	"net/http"
+	"strings"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/lokyn"
-	"strings"
 )
 
 func ExtractError(resp *resty.Response) error {
@@ -14,7 +17,16 @@ func ExtractError(resp *resty.Response) error {
 		return nil
 	}
 
-	return extractErrorMessage(resp)
+	err := extractErrorMessage(resp)
+
+	// A 401 without any error message is the JWT middleware rejecting the
+	// token (expired or revoked); business 401 errors always carry a message.
+	if resp.StatusCode() == http.StatusUnauthorized && (err == nil || err.Error() == "") {
+		session.Expire()
+		return errors.New(lokyn.L(session.ExpiredMessage))
+	}
+
+	return err
 }
 
 func extractErrorMessage(resp *resty.Response) error {

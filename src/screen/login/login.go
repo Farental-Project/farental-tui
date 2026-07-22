@@ -8,6 +8,7 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/internal/session"
 	"farental/screen"
 	"farental/widget"
 	"farental/widget/help"
@@ -115,6 +116,12 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 		s.statusMessage.SetError(param)
 	case widget.StatusMessageParam:
 		s.statusMessage.SetMessage(param.Content, param.Type)
+	}
+
+	if session.TakeExpired() {
+		s.statusMessage.SetMessage(
+			lokyn.L(session.ExpiredMessage),
+			statusmessage.WarningMessage)
 	}
 
 	s.tiEmail.Placeholder = lokyn.L("Email")
