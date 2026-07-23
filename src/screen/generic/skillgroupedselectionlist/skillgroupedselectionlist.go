@@ -86,6 +86,15 @@ func New[T any](title string, constructor widgetlist.ItemConstructor[T],
 
 func (s *Screen[T]) OnEnter(i any) tea.Cmd {
 	s.loadDataCallback()
+
+	// loadDataCallback calls SetItems, which may shrink the group list.
+	// widgetlist.SetItems does not reset the focus manager's tabIndex, so
+	// reset the cursor/filter here (as done for elementList below) to avoid
+	// a stale tabIndex indexing past the new, shorter group list on the next
+	// Update.
+	s.groupList.FocusFirst()
+	s.groupList.Init()
+
 	s.elementList.FocusFirst()
 	s.elementList.Init()
 
