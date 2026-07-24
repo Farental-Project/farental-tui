@@ -17,14 +17,11 @@ tasks:
       - go build -o {{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
 
   build:linux:
-    desc: Build for Linux (amd64)
+    desc: Build for Linux (amd64 and arm64)
     cmds:
-      - mkdir -p {{.DIST_DIR}}/linux-amd64
-      - go build -o {{.DIST_DIR}}/linux-amd64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
-    env:
-      GOOS: linux
-      GOARCH: amd64
-      CGO_ENABLED: 0
+      - mkdir -p {{.DIST_DIR}}/linux-amd64 {{.DIST_DIR}}/linux-arm64
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/linux-amd64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
+      - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/linux-arm64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
 
   build:windows:
     desc: Build for Windows (amd64)
