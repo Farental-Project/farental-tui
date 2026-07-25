@@ -2,6 +2,7 @@ package helper
 
 import (
 	"errors"
+	"log"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/lokyn"
@@ -11,6 +12,9 @@ func SendRequest(req *resty.Request) (*resty.Response, error) {
 	resp, err := req.Send()
 
 	if err != nil {
+		// The transport error (DNS, TLS, refused connection) is only useful in
+		// the debug log; the user gets the generic connection message.
+		log.Printf("request %s %s failed: %v", req.Method, req.URL, err)
 		err = ConnectionError()
 		return nil, err
 	}
