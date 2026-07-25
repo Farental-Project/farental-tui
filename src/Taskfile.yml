@@ -11,7 +11,7 @@ vars:
     -X 'farental/internal/config.BaseURL={{.BASE_URL}}'
     -X 'farental/internal/config.ConfigFileName={{.CONFIG_FILE_NAME}}'
   # Strip symbol table and DWARF debug info (~30% smaller binaries).
-  # Omitted for linux-arm64 so it stays debuggable with delve.
+  # Panic stack traces stay intact; delve debugging does not. Clear to disable.
   STRIP: -s -w
 
 tasks:
@@ -24,7 +24,7 @@ tasks:
     cmds:
       - mkdir -p {{.DIST_DIR}}/linux-amd64 {{.DIST_DIR}}/linux-arm64
       - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/linux-amd64/{{.OUTPUT_NAME}} -ldflags "{{.STRIP}} {{.LDFLAGS}}"
-      - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/linux-arm64/{{.OUTPUT_NAME}} -ldflags "{{.LDFLAGS}}"
+      - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/linux-arm64/{{.OUTPUT_NAME}} -ldflags "{{.STRIP}} {{.LDFLAGS}}"
 
   build:windows:
     desc: Build for Windows (amd64)
