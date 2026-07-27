@@ -171,6 +171,8 @@ func main() {
 	orvyn.RegisterScreen(screen.IDLocationInfo, locationinfo.New())
 	orvyn.RegisterScreen(screen.IDSendFeedback, sendfeedback.New())
 
+	context.ResetTerminalTitle()
+
 	p := tea.NewProgram(&App{}, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {

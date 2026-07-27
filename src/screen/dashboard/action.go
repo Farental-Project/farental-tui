@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"farental/core/request"
+	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/screen/dialog/popup"
 
@@ -70,4 +71,8 @@ func (s *Screen) doClaim() {
 
 	s.runningTask.UpdateData(nil)
 	s.updateData()
+
+	// The claim leaves no task behind, so drop the task from the terminal
+	// title without waiting for the next refresh to report it gone.
+	context.ResetTerminalTitle()
 }
