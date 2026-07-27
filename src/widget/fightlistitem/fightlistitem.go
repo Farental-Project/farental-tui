@@ -90,6 +90,7 @@ func (w *Widget) UpdateData(data Data) {
 	w.data = data
 
 	w.recalcTotalPower()
+	w.recalcTotalTime()
 
 	w.amountSelector.SetActive(w.data.FightCompositionResponse.Simple)
 }
