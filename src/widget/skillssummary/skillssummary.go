@@ -2,6 +2,7 @@ package skillssummary
 
 import (
 	"farental/core/data/api"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"fmt"
@@ -97,12 +98,27 @@ func (w *Widget) Render() string {
 		t.Style(ftheme.DimUnderlinedTextStyleID).
 			Width(contentSize.Width).
 			Render(w.title),
-		w.viewport.View())
+		w.renderViewport())
 
 	return w.GetStyle().
 		Width(contentSize.Width).
 		Height(contentSize.Height).
 		Render(content)
+}
+
+// renderViewport renders the viewport and overlays scroll indicators on the
+// last column: an up arrow on the first line when there is content above, and
+// a down arrow on the last line when there is content below.
+func (w *Widget) renderViewport() string {
+	view := w.viewport.View()
+
+	if w.viewport.Width < 1 || w.viewport.Height < 1 {
+		return view
+	}
+
+	return helper.OverlayScrollArrows(view, w.viewport.Width,
+		orvyn.GetTheme().Style(theme.DimTextStyleID),
+		!w.viewport.AtTop(), !w.viewport.AtBottom())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
@@ -189,5 +205,6 @@ func (w *Widget) refresh() {
 		w.renderSkill(skill, addReturn, &col)
 	}
 
-	w.viewport.SetContent(col.render(w.GetContentSize().Width))
+	// Last column is kept free for the scroll indicators.
+	w.viewport.SetContent(col.render(max(w.viewport.Width-1, 0)))
 }

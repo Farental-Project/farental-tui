@@ -1,20 +1,15 @@
 package simplelogviewer
 
 import (
+	"farental/internal/helper"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/x/ansi"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
-)
-
-const (
-	arrowUp   = "↑"
-	arrowDown = "↓"
 )
 
 type Style struct {
@@ -144,32 +139,8 @@ func (w *Widget) renderViewport() string {
 		return view
 	}
 
-	lines := strings.Split(view, "\n")
-
-	if !w.viewport.AtTop() {
-		lines[0] = overlayArrow(lines[0], w.viewport.Width, w.arrowStyle.Render(arrowUp))
-	}
-
-	if !w.viewport.AtBottom() {
-		last := len(lines) - 1
-		lines[last] = overlayArrow(lines[last], w.viewport.Width, w.arrowStyle.Render(arrowDown))
-	}
-
-	return strings.Join(lines, "\n")
-}
-
-// overlayArrow places arrow (already styled) on the last column (width-1) of
-// line, preserving the preceding content and padding with spaces when the line
-// is too short. ANSI styling on arrow does not count toward its display width.
-func overlayArrow(line string, width int, arrow string) string {
-	left := ansi.Truncate(line, width-1, "")
-
-	pad := (width - 1) - ansi.StringWidth(left)
-	if pad > 0 {
-		left += strings.Repeat(" ", pad)
-	}
-
-	return left + arrow
+	return helper.OverlayScrollArrows(view, w.viewport.Width, w.arrowStyle,
+		!w.viewport.AtTop(), !w.viewport.AtBottom())
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
