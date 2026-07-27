@@ -3,6 +3,7 @@ package helper
 import (
 	"strings"
 
+	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 )
@@ -11,6 +12,19 @@ const (
 	ArrowUp   = "↑"
 	ArrowDown = "↓"
 )
+
+// SetScrollableContent fills vp with the content produced by render for the
+// given width. When that content overflows the viewport, the scroll arrows are
+// shown, so the content is rendered again one column narrower to keep the last
+// column free for them.
+func SetScrollableContent(vp *viewport.Model, width int,
+	render func(width int) string) {
+	vp.SetContent(render(width))
+
+	if vp.TotalLineCount() > vp.Height {
+		vp.SetContent(render(max(width-1, 0)))
+	}
+}
 
 // OverlayScrollArrows overlays scroll indicators on the last column of view:
 // an up arrow on the first line when hasAbove is true, and a down arrow on the

@@ -35,7 +35,10 @@ func (s *Screen) updateData() {
 		return
 	}
 
-	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	unreadMail := context.RefreshHaveUnreadMail()
+
+	data := characterinfo.ConvertCharacterInfoResponseToData(
+		characterInfo, currency, unreadMail)
 	s.characterInfo.UpdateData(data)
 	s.locationInfo.UpdateData(&characterInfo.Location)
 

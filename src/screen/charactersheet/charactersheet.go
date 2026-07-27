@@ -45,6 +45,8 @@ type Screen struct {
 
 	help *help.Widget
 
+	focusManager *orvyn.FocusManager
+
 	statsSkillLayout *layout.HBoxFixedRatio
 
 	layout *layout.CenterLayout
@@ -90,6 +92,10 @@ func New() *Screen {
 		),
 	)
 
+	s.focusManager = orvyn.NewFocusManager()
+	s.focusManager.Add(s.statsSummary)
+	s.focusManager.Add(s.skillsSummary)
+
 	s.ticker = ticker.New(60, func() {
 		s.runningTask.RefreshCurrentCharacter()
 	})
@@ -109,6 +115,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.updateData()
 
 	s.runningTask.RefreshCurrentCharacter()
+
+	s.statsSummary.GotoTop()
+	s.skillsSummary.GotoTop()
+
+	s.focusManager.Focus(0)
 
 	return tea.Batch(s.runningTask.Init(), s.ticker.Start())
 }
@@ -142,7 +153,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		return cmd
 	}
 
-	s.skillsSummary.Update(msg)
+	s.focusManager.Update(msg)
 
 	return s.runningTask.Update(msg)
 }
@@ -159,7 +170,10 @@ func (s *Screen) updateData() {
 		return
 	}
 
-	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	unreadMail := context.RefreshHaveUnreadMail()
+
+	data := characterinfo.ConvertCharacterInfoResponseToData(
+		characterInfo, currency, unreadMail)
 	s.characterInfo.UpdateData(data)
 
 	s.characterActiveScript.UpdateData()

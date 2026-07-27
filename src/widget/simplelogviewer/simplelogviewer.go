@@ -212,9 +212,11 @@ func (w *Widget) ScrollDown(n int) {
 }
 
 func (w *Widget) refresh() {
-	w.viewport.SetContent(w.Style.line.
-		Width(w.viewport.Width).Render(
-		strings.Join(w.content, "\n")))
+	helper.SetScrollableContent(&w.viewport, w.viewport.Width,
+		func(width int) string {
+			return w.Style.line.Width(width).
+				Render(strings.Join(w.content, "\n"))
+		})
 
 	if w.autoScroll {
 		w.viewport.GotoBottom()

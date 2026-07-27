@@ -199,7 +199,10 @@ func (s *Screen) updateCharacterInfo() {
 		return
 	}
 
-	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	unreadMail := context.RefreshHaveUnreadMail()
+
+	data := characterinfo.ConvertCharacterInfoResponseToData(
+		characterInfo, currency, unreadMail)
 	s.characterInfo.UpdateData(data)
 }
 

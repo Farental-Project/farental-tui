@@ -54,10 +54,13 @@ func (c *column) render(width int) string {
 
 type Widget struct {
 	orvyn.BaseWidget
+	orvyn.BaseFocusable
 
 	title string
 
 	viewport viewport.Model
+
+	arrowStyle lipgloss.Style
 
 	skills []api.CharacterSkillResponse
 }
@@ -66,12 +69,27 @@ func New() *Widget {
 	w := new(Widget)
 
 	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
 	w.title = lokyn.L("Skills")
 
 	w.viewport = viewport.New(0, 0)
 
+	w.OnBlur()
+
 	return w
+}
+
+func (w *Widget) OnFocus() {
+	w.BaseFocusable.OnFocus()
+
+	w.arrowStyle = orvyn.GetTheme().Style(theme.NormalTextStyleID)
+}
+
+func (w *Widget) OnBlur() {
+	w.BaseFocusable.OnBlur()
+
+	w.arrowStyle = orvyn.GetTheme().Style(theme.DimTextStyleID)
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
@@ -116,8 +134,7 @@ func (w *Widget) renderViewport() string {
 		return view
 	}
 
-	return helper.OverlayScrollArrows(view, w.viewport.Width,
-		orvyn.GetTheme().Style(theme.DimTextStyleID),
+	return helper.OverlayScrollArrows(view, w.viewport.Width, w.arrowStyle,
 		!w.viewport.AtTop(), !w.viewport.AtBottom())
 }
 
@@ -145,7 +162,7 @@ func (w *Widget) GetMinSize() orvyn.Size {
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(30, 17)
+	return orvyn.NewSize(30, 30)
 }
 
 func (w *Widget) renderSkill(skill api.CharacterSkillResponse, addReturn bool, column *column) {
@@ -173,6 +190,10 @@ func (w *Widget) renderCategory(category string, column *column) {
 	column.lvlStr.WriteString("")
 
 	column.addReturn()
+}
+
+func (w *Widget) GotoTop() {
+	w.viewport.GotoTop()
 }
 
 func (w *Widget) UpdateData(skills []api.CharacterSkillResponse) {
@@ -205,6 +226,5 @@ func (w *Widget) refresh() {
 		w.renderSkill(skill, addReturn, &col)
 	}
 
-	// Last column is kept free for the scroll indicators.
-	w.viewport.SetContent(col.render(max(w.viewport.Width-1, 0)))
+	helper.SetScrollableContent(&w.viewport, w.GetContentSize().Width, col.render)
 }

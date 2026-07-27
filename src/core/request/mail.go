@@ -41,3 +41,7 @@ func MailSetRead(mailID uint, read bool) *resty.Request {
 		IsRead: read,
 	})
 }
+
+func MailHaveUnread() *resty.Request {
+	return get("/mail/haveUnread")
+}

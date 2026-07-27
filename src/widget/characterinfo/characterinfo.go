@@ -17,12 +17,13 @@ import (
 )
 
 type CharacterInfoData struct {
-	FirstName string
-	LastName  string
-	RaceName  string
-	Gender    string
-	Power     int
-	Money     int
+	FirstName  string
+	LastName   string
+	RaceName   string
+	Gender     string
+	Power      int
+	Money      int
+	UnreadMail bool
 
 	Stats []api.CharacterStatResponse
 }
@@ -38,6 +39,7 @@ type Widget struct {
 
 	ShowMoney bool
 	ShowPower bool
+	ShowMail  bool
 }
 
 func New() *Widget {
@@ -49,6 +51,7 @@ func New() *Widget {
 
 	w.ShowMoney = true
 	w.ShowPower = true
+	w.ShowMail = true
 
 	w.info = orvyn.NewSimpleRenderable("")
 	w.info.Style = lipgloss.NewStyle().
@@ -63,6 +66,10 @@ func New() *Widget {
 		w.barMp,
 	)
 
+	// Keep the bars pinned to the top so they do not shift down when the info
+	// column grows a line.
+	w.layout.Align = lipgloss.Top
+
 	return w
 }
 
@@ -76,12 +83,22 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.layout.Resize(w.GetContentSize())
 }
 
+func (w *Widget) getHeight() int {
+	height := 6
+
+	if w.ShowMoney && w.ShowPower && w.ShowMail {
+		height++
+	}
+
+	return height
+}
+
 func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(30, 6)
+	return orvyn.NewSize(30, w.getHeight())
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(45, 6)
+	return orvyn.NewSize(45, w.getHeight())
 }
 
 func (w *Widget) UpdateData(info *CharacterInfoData) {
@@ -112,6 +129,15 @@ func (w *Widget) constructInfo(info *CharacterInfoData) {
 	raceName := info.RaceName
 	raceStyle := style.RaceStyle(raceName)
 	power := info.Power
+	unreadMail := ""
+
+	if info.UnreadMail {
+		unreadMail = t.Style(theme.TitleStyleID).Render(
+			lokyn.L("You have unread mail"))
+	} else {
+		unreadMail = t.Style(theme.DimTextStyleID).Render(
+			lokyn.L("You have no unread mail"))
+	}
 
 	b.WriteString(fullName)
 	b.WriteString("\n")
@@ -132,29 +158,36 @@ func (w *Widget) constructInfo(info *CharacterInfoData) {
 		))
 	}
 
+	if w.ShowMail {
+		b.WriteString("\n")
+		b.WriteString(unreadMail)
+	}
+
 	w.info.SetValue(b.String())
 }
 
-func ConvertCharacterInfoResponseToData(character *api.CharacterInfoResponse, money int) *CharacterInfoData {
+func ConvertCharacterInfoResponseToData(character *api.CharacterInfoResponse, money int, unreadMail bool) *CharacterInfoData {
 	return &CharacterInfoData{
-		FirstName: character.FirstName,
-		LastName:  character.LastName,
-		RaceName:  character.RaceName,
-		Gender:    character.Gender,
-		Power:     character.Power,
-		Money:     money,
-		Stats:     character.Stats,
+		FirstName:  character.FirstName,
+		LastName:   character.LastName,
+		RaceName:   character.RaceName,
+		Gender:     character.Gender,
+		Power:      character.Power,
+		Money:      money,
+		Stats:      character.Stats,
+		UnreadMail: unreadMail,
 	}
 }
 
 func ConvertCharacterInspectResponseToData(character *api.CharacterInspectResponse) *CharacterInfoData {
 	return &CharacterInfoData{
-		FirstName: character.FirstName,
-		LastName:  character.LastName,
-		RaceName:  character.RaceName,
-		Gender:    character.Gender,
-		Power:     0,
-		Money:     0,
-		Stats:     character.Stats,
+		FirstName:  character.FirstName,
+		LastName:   character.LastName,
+		RaceName:   character.RaceName,
+		Gender:     character.Gender,
+		Power:      0,
+		Money:      0,
+		Stats:      character.Stats,
+		UnreadMail: false,
 	}
 }

@@ -42,6 +42,17 @@ func RefreshCharacterInfo(fresh bool) (*api.CharacterInfoResponse, int, error) {
 	return info, currencyResp.Amount, nil
 }
 
+// RefreshHaveUnreadMail fetches if the current character have unread mail.
+func RefreshHaveUnreadMail() bool {
+	_, err := helper.SendRequest(request.MailHaveUnread())
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 // RefreshRunningTask fetches the player's current running task, if any, and
 // updates RunningTask. No widget update call is needed afterwards —
 // runningtask.Widget reads RunningTask directly in its Render(). Rings the

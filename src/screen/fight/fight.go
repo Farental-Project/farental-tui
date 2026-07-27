@@ -48,7 +48,7 @@ func New() *Screen {
 func (s *Screen) OnEnter(i any) tea.Cmd {
 	s.Screen.OnEnter(i)
 
-	s.Screen.SetTitle(lokyn.L("Fights"))
+	s.SetTitle(lokyn.L("Fights"))
 
 	orvyn.SetPreviousScreen(screen.IDDashBoard)
 
@@ -63,11 +63,14 @@ func (s *Screen) updateData() {
 	characterInfo, currency, err := context.RefreshCharacterInfo(false)
 
 	if err != nil {
-		s.Screen.SetStatusError(err)
+		s.SetStatusError(err)
 		return
 	}
 
-	data := characterinfo.ConvertCharacterInfoResponseToData(characterInfo, currency)
+	unreadMail := context.RefreshHaveUnreadMail()
+
+	data := characterinfo.ConvertCharacterInfoResponseToData(
+		characterInfo, currency, unreadMail)
 	s.characterInfo.UpdateData(data)
 
 	s.characterActiveScript.UpdateData()
