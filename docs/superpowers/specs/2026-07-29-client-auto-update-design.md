@@ -91,7 +91,17 @@ column:
 {
   "version": "1.2.0",
   "published_at": "2026-07-29T10:00:00Z",
-  "notes": "Fixed the fight timer.\nAdded arm64 builds.",
+  "notes_blocks": [
+    { "type": "h2", "spans": [{ "text": "Fixes" }] },
+    { "type": "p",  "spans": [
+        { "text": "Fixed the " },
+        { "text": "fight timer", "bold": true },
+        { "text": "." }
+    ]},
+    { "type": "list", "ordered": false, "items": [
+        { "indent": 0, "spans": [{ "text": "Added linux-arm64 builds" }] }
+    ]}
+  ],
   "files": {
     "linux-amd64": {
       "filename": "Farental",
@@ -113,7 +123,7 @@ The existing `/clienttui/download/:fileID` handler is untouched — its
 
 ### Release notes in the manifest
 
-`notes` is the *existing* `ClientReleaseTranslation.Notes`, the same text the
+`notes_blocks` is the *existing* `ClientReleaseTranslation.Notes`, the same text the
 `/clienttui` page shows. Release notes stay written in one place,
 `/admin/releases/edit/:id`, and gain a second consumer.
 
@@ -126,17 +136,56 @@ GET /clienttui/latest.json?lang=fr
 ```
 
 Notes are stored as HTML (both views render them with `templ.Raw`). A TUI
-cannot render HTML, so the controller converts them to plain text before
-serialising:
+cannot render HTML, and flattening it to plain text would throw away exactly
+the structure worth showing. The controller converts it to blocks instead:
 
 ```go
-notesPlain := srvutil.HTMLToText(t.Notes)
+blocks := srvutil.QuillToBlocks(t.Notes)
 ```
 
-`HTMLToText` maps `<br>`, `</p>`, and `</li>` to newlines, drops the remaining
-tags, decodes entities, and collapses runs of blank lines. It uses
-`golang.org/x/net/html`, already present in `go.sum` as an indirect dependency;
-promoting it to direct costs no new download.
+The source is a Quill 2 editor with a closed toolbar
+(`admin_releases_edit.templ`): `header: [2, 3, false]`, bold/italic/underline/
+strike, ordered and bullet lists, blockquote, code-block, link. That fixes the
+tag set, so the walk is a finite mapping rather than a general HTML parser.
+
+```go
+type Block struct {
+    Type    string  // "h2" | "h3" | "p" | "list" | "quote" | "code"
+    Spans   []Span  // all types except list and code
+    Ordered bool    // list only
+    Items   []Item  // list only
+    Lines   []string// code only
+}
+
+type Item struct {
+    Indent int
+    Spans  []Span
+}
+
+type Span struct {
+    Text          string
+    Bold, Italic  bool
+    Underline     bool
+    Strike        bool
+    Href          string // non-empty for links
+}
+```
+
+Two Quill 2 output quirks the walk must handle, both easy to get wrong:
+
+- Bullet lists are emitted as `<ol><li data-list="bullet">`, not `<ul>`. The
+  `data-list` attribute decides ordered versus bullet, not the parent tag.
+- Code blocks are `<div class="ql-code-block-container">` wrapping one
+  `<div class="ql-code-block">` per line, not `<pre>`.
+- Nesting arrives as `class="ql-indent-N"` on the `<li>`, which maps to
+  `Item.Indent`.
+
+`golang.org/x/net/html` does the parsing. It is already in the server's
+`go.sum` as an indirect dependency, so promoting it to direct costs no new
+download.
+
+Unknown or unexpected tags degrade to their text content rather than being
+dropped, so a note written before this feature still shows its words.
 
 ## Client changes (`farental-tui`)
 
@@ -180,7 +229,8 @@ Malformed versions on either side are treated as incompatible, not as equal.
 | File | Contents |
 | --- | --- |
 | `updater.go` | `Mode` (`None`/`Optional`/`Mandatory`), `Result`, `Check(current, compat, lang string) Result`, semver parse and compare, package-level `Pending Result` and `RestartPending bool` |
-| `manifest.go` | Manifest structs, `fetch(lang string)` over `net/http` with a 10s timeout |
+| `manifest.go` | Manifest structs including `Block`/`Item`/`Span`, `fetch(lang string)` over `net/http` with a 10s timeout |
+| `notes.go` | `RenderNotes(blocks []Block, width int) []string` |
 | `download.go` | HTTP GET, progress-counting reader over an `atomic.Int64` |
 | `apply.go` | Writability preflight, `selfupdate.Apply`, `CleanupOld()` |
 | `restart_unix.go` | `//go:build !windows` — `syscall.Exec` |
@@ -194,7 +244,7 @@ reads it in `OnEnter` instead of taking constructor arguments.
 type Result struct {
     Mode   Mode
     Latest string      // manifest version, empty when the fetch failed
-    Notes  string
+    Notes  []Block     // nil when the release has no notes in any language
     File   FileInfo    // zero when this platform has no published file
     Err    error       // manifest fetch or decode failure
 }
@@ -247,6 +297,31 @@ during the install.
 It matters on Windows, where the old binary cannot be deleted by the process
 replacing it, and is harmless elsewhere.
 
+### Release notes rendering
+
+`RenderNotes` turns the blocks into styled lines for a given width. The server
+decides *what* the notes say, the client decides how they look, because only
+the client knows the terminal width and the active orvyn theme.
+
+| Block | Rendering |
+| --- | --- |
+| `h2` | text in the theme's title style, followed by a rule of `─` as wide as the text |
+| `h3` | text in the theme's highlight style, no rule |
+| `p` | word-wrapped to width, blank line after |
+| `list` | `• ` for bullets, `1. ` for ordered; two spaces of indent per `Item.Indent`, continuation lines aligned under the text, not the marker |
+| `quote` | every line prefixed `│ ` in the dim style |
+| `code` | lines verbatim in the dim style, indented two spaces, not wrapped |
+
+Spans map to lipgloss: `Bold`, `Italic`, `Underline`, `Strikethrough`. A span
+with `Href` renders as `text (url)` — terminal hyperlinks are not worth the
+compatibility risk here.
+
+Wrapping uses `ansi.Wordwrap` from `github.com/charmbracelet/x/ansi`, already a
+direct dependency. Plain `lipgloss` width math would count the escape
+sequences of a styled span as visible characters and wrap short.
+
+Output is `[]string`, which feeds `widget/simplelogviewer` directly.
+
 ### `clientupdate` screen
 
 `screen/clientupdate`, registered as
@@ -254,12 +329,19 @@ replacing it, and is harmless elsewhere.
 
 | State | Shows | Keys |
 | --- | --- | --- |
-| `Prompt` | current → new version, release notes | `enter` update · `esc` skip (`Optional` only) · `q` quit |
+| `Prompt` | current → new version, release notes pane | `enter` update · `esc` skip (`Optional` only) · `q` quit · `↑`/`↓` scroll notes |
 | `Downloading` | progress bar, `12.4 / 22.1 MB` | none |
 | `Applying` | "Verifying and installing…" | none |
 | `Restarting` | "Restarting…", then quits | — |
 | `Failed` | error text | `r` retry · `esc` (`Optional` only) · `q` |
 | `ManualRequired` | reason, `https://www.farental.ch/clienttui`, target version | `q` quit |
+
+The notes pane is `widget/simplelogviewer`, fed by
+`SetContent(updater.RenderNotes(blocks, width))`. It already carries scrolling,
+focus, and a title, and `screen/dashboard`, `screen/locationinfo`, and the
+manual dialog all use it, so the notes read like the rest of the app. Notes are
+re-rendered on `Resize`, since the wrap width changes with the terminal. Empty
+or missing blocks hide the pane entirely rather than showing an empty box.
 
 Progress uses `orvyn/widget/progressbar`, already available at the pinned orvyn
 version (`e054d1a`), following the pattern in `orvyn/dialog/progress.go`:
@@ -367,10 +449,14 @@ Unit tests, on logic that needs no terminal:
   the current `HasPrefix` gets wrong
 - platform key mapping for all five platforms
 - manifest JSON decoding, including the 404 and missing-platform paths
-- `HTMLToText` against representative stored notes
+- `RenderNotes`, one case per block type plus nested list indent, wrapping of a
+  styled span (the case plain `lipgloss` width math gets wrong), and empty
+  blocks
 
 The server repository's tests run normally and cover the new route and
-`HTMLToText`.
+`QuillToBlocks` — the latter against real Quill 2 output, specifically the
+`<ol><li data-list="bullet">` bullet form, `ql-indent-N` nesting, and
+`ql-code-block` blocks.
 
 Manual, by hand on a real terminal: build 1.1.0, publish 1.1.1, run the client,
 take the update, confirm it relaunches on the new version. Worth doing on both
