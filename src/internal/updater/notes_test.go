@@ -109,6 +109,57 @@ func TestRenderNotesOrderedListNumbers(t *testing.T) {
 	}
 }
 
+// Ordered numbering keeps a separate counter per indent level: nesting under
+// an item starts that level at 1, and returning to the parent level resumes
+// the parent's own sequence rather than continuing a single flat count.
+func TestRenderNotesOrderedListNestedNumbersResetPerLevel(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Ordered: true, Items: []Item{
+			{Indent: 0, Spans: []Span{{Text: "first"}}},
+			{Indent: 1, Spans: []Span{{Text: "sub-a"}}},
+			{Indent: 1, Spans: []Span{{Text: "sub-b"}}},
+			{Indent: 0, Spans: []Span{{Text: "second"}}},
+		}},
+	}, 40))
+
+	want := []string{"1. first", "  1. sub-a", "  2. sub-b", "2. second"}
+
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("line %d = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
+
+// A second nested run, after returning to the shallower level in between,
+// must restart its own counter at 1 rather than continuing from the first
+// nested run's count.
+func TestRenderNotesOrderedListNestedNumbersRestartAfterReturn(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Ordered: true, Items: []Item{
+			{Indent: 0, Spans: []Span{{Text: "first"}}},
+			{Indent: 1, Spans: []Span{{Text: "sub-a"}}},
+			{Indent: 1, Spans: []Span{{Text: "sub-b"}}},
+			{Indent: 0, Spans: []Span{{Text: "second"}}},
+			{Indent: 1, Spans: []Span{{Text: "sub-c"}}},
+		}},
+	}, 40))
+
+	want := []string{
+		"1. first",
+		"  1. sub-a",
+		"  2. sub-b",
+		"2. second",
+		"  1. sub-c",
+	}
+
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("line %d = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
+
 // A wrapped list item must align under its text, not under its marker.
 func TestRenderNotesListContinuationAligns(t *testing.T) {
 	got := stripAll(RenderNotes([]Block{

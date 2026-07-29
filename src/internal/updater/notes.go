@@ -73,17 +73,24 @@ func RenderNotes(blocks []Block, width int) []string {
 func renderList(b Block, width int) []string {
 	var lines []string
 
-	number := 0
+	// counters holds one running count per indent level, so ordered
+	// numbering resets when nesting resumes after a shallower item.
+	var counters []int
 
 	for _, item := range b.Items {
-		number++
-
 		indent := strings.Repeat(" ", item.Indent*listIndentWidth)
 
 		marker := "• "
 
 		if b.Ordered {
-			marker = fmt.Sprintf("%d. ", number)
+			for len(counters) <= item.Indent {
+				counters = append(counters, 0)
+			}
+
+			counters[item.Indent]++
+			counters = counters[:item.Indent+1]
+
+			marker = fmt.Sprintf("%d. ", counters[item.Indent])
 		}
 
 		first := indent + marker
