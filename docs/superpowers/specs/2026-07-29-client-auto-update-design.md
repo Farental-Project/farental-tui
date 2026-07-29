@@ -80,7 +80,7 @@ further change.
 `src/serverweb/routes.go`, alongside the existing two:
 
 ```go
-app.Get("/clienttui/latest.json", controller.ClientTuiLatestJSON)
+app.Get("/clienttui/latest", controller.ClientTuiLatestJSON)
 ```
 
 Controller in `src/serverweb/controller/clienttui.go`, reusing
@@ -132,7 +132,7 @@ then English, then lowest language ID — via `TranslationFor`. The client passe
 its language as a query parameter:
 
 ```
-GET /clienttui/latest.json?lang=fr
+GET /clienttui/latest?lang=fr
 ```
 
 Notes are stored as HTML (both views render them with `templ.Raw`). A TUI
@@ -406,7 +406,7 @@ compatible client can be running with `Mode` `Optional` or `None`.
 | Failure | Incompatible client | Compatible client |
 | --- | --- | --- |
 | `/version` unreachable | print and exit (unchanged) | same |
-| `latest.json` unreachable or 404 | `ManualRequired`, blocks login | log only, straight to login |
+| `latest` manifest unreachable or 404 | `ManualRequired`, blocks login | log only, straight to login |
 | No file for this platform | `ManualRequired` | log only |
 | Binary directory not writable | `ManualRequired`, names the path | log only |
 | Download aborts, or SHA-256 mismatch | `Failed`, `r` retries | `Failed`, `esc` continues to login |

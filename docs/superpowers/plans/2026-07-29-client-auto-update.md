@@ -673,7 +673,7 @@ git commit -m "feat: convert Quill release notes to structured blocks"
 
 ---
 
-## Task 3: `latest.json` manifest route (server)
+## Task 3: `latest` manifest route (server)
 
 **Files:**
 - Modify: `farental-cli/src/serverweb/controller/clienttui.go`
@@ -682,7 +682,7 @@ git commit -m "feat: convert Quill release notes to structured blocks"
 
 **Interfaces:**
 - Consumes: `srvutil.QuillToBlocks`, `srvutil.NoteBlock` (Task 2); `data.PlatformLinuxArm64` (Task 1).
-- Produces: `GET /clienttui/latest.json?lang=<code>` returning the JSON shape below, and `buildLatestJSON(release *data.ClientRelease, langID, fallbackID uint) latestReleaseJSON`.
+- Produces: `GET /clienttui/latest?lang=<code>` returning the JSON shape below, and `buildLatestJSON(release *data.ClientRelease, langID, fallbackID uint) latestReleaseJSON`.
 
 The handler stays a thin wrapper so the payload logic is testable without a database — the controller package's existing tests use no DB, and this must not be the first to need one.
 
@@ -859,7 +859,7 @@ Add `"farental/model/data"` to the import block too — `buildLatestJSON` takes 
 In `farental-cli/src/serverweb/routes.go`, directly after the existing `/clienttui/download/:fileID` line:
 
 ```go
-	app.Get("/clienttui/latest.json", optAuth, controller.ClientTuiLatestJSON)
+	app.Get("/clienttui/latest", optAuth, controller.ClientTuiLatestJSON)
 ```
 
 - [ ] **Step 5: Run tests to verify they pass**
@@ -877,7 +877,7 @@ Expected: builds clean, no vet or gofmt output, tests `ok`.
 ```bash
 cd /home/halsten/Dev/Farental/farental-cli
 git add src/serverweb/controller/clienttui.go src/serverweb/controller/clienttui_test.go src/serverweb/routes.go
-git commit -m "feat: serve client release manifest at /clienttui/latest.json"
+git commit -m "feat: serve client release manifest at /clienttui/latest"
 ```
 
 ---
@@ -1191,8 +1191,8 @@ func manifestServer(t *testing.T, status int, body string) *httptest.Server {
 	t.Helper()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/clienttui/latest.json" {
-			t.Errorf("path = %q, want /clienttui/latest.json", r.URL.Path)
+		if r.URL.Path != "/clienttui/latest" {
+			t.Errorf("path = %q, want /clienttui/latest", r.URL.Path)
 		}
 
 		if r.URL.Query().Get("lang") != "fr" {
@@ -1416,7 +1416,7 @@ func PlatformKey() string {
 }
 
 func fetchManifest(baseURL, lang string) (*manifest, error) {
-	endpoint, err := url.JoinPath(strings.TrimSuffix(baseURL, "/"), "clienttui", "latest.json")
+	endpoint, err := url.JoinPath(strings.TrimSuffix(baseURL, "/"), "clienttui", "latest")
 
 	if err != nil {
 		return nil, err
@@ -2939,7 +2939,7 @@ Add this after the Client checklist:
 ```markdown
 ### Publishing pushes the update
 
-Setting `IsPublished` on a release is the point of no return: `/clienttui/latest.json`
+Setting `IsPublished` on a release is the point of no return: `/clienttui/latest`
 starts advertising it immediately, and every client that starts up from then on
 offers or forces the update. Uploading is safe; publishing is the switch.
 
