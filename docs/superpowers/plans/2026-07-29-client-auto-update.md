@@ -827,9 +827,17 @@ func ClientTuiLatestJSON(c *fiber.Ctx) error {
 	ctx := newWebCtx()
 	release, err := ctx.ClientReleases.FindLatestPublished()
 
-	if err != nil || release == nil {
+	// A real database failure must not masquerade as "no release published",
+	// or an outage looks like "no update available" to every client. Mirrors
+	// how ClientTuiView separates the two.
+	if errors.Is(err, gorm.ErrRecordNotFound) || release == nil {
 		return c.Status(fiber.StatusNotFound).
 			JSON(fiber.Map{"error": "no published release"})
+	}
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{"error": "internal error"})
 	}
 
 	// The client sends its lokyn code ("en"); language codes are stored
