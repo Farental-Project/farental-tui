@@ -2422,6 +2422,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/updater"
 	ftheme "farental/internal/theme"
+	"farental/screen"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
 	"fmt"
@@ -2615,7 +2616,7 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 			return s.startUpdate(), true
 		case key.Matches(m, keybind.Esc):
 			if s.result.Mode == updater.ModeOptional {
-				return orvyn.SwitchScreen(loginScreenID), true
+				return orvyn.SwitchScreen(screen.IDLogin), true
 			}
 		}
 
@@ -2625,7 +2626,7 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 			return s.startUpdate(), true
 		case key.Matches(m, keybind.Esc):
 			if s.result.Mode == updater.ModeOptional {
-				return orvyn.SwitchScreen(loginScreenID), true
+				return orvyn.SwitchScreen(screen.IDLogin), true
 			}
 		}
 	}
@@ -2726,13 +2727,7 @@ func (s *Screen) refreshNotes() {
 }
 ```
 
-Add at the top of the file, after the imports, so the package does not import `farental/screen` (which would be a cycle, since `main` registers both):
-
-```go
-// loginScreenID mirrors screen.IDLogin. Importing farental/screen here would
-// create an import cycle once this package is registered from it.
-const loginScreenID orvyn.ScreenID = "login"
-```
+Import `"farental/screen"` alongside the others and use `screen.IDLogin` directly — there is no import cycle, because `farental/screen` imports nothing but orvyn, and every sibling screen does the same (`screen/login/login.go:12`).
 
 - [ ] **Step 4: Add the translation strings**
 
