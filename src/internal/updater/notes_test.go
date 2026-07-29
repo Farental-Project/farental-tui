@@ -1,0 +1,178 @@
+package updater
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/charmbracelet/x/ansi"
+	"github.com/halsten-dev/orvyn"
+)
+
+func stripAll(lines []string) []string {
+	out := make([]string, len(lines))
+
+	for i, l := range lines {
+		out[i] = strings.TrimRight(ansi.Strip(l), " ")
+	}
+
+	return out
+}
+
+func TestMain(m *testing.M) {
+	// RenderNotes reads styles from the active theme, so orvyn must be
+	// initialized. This needs no terminal.
+	orvyn.Init()
+	m.Run()
+}
+
+func TestRenderNotesHeadingGetsRule(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "h2", Spans: []Span{{Text: "Fixes"}}},
+	}, 40))
+
+	if len(got) != 2 {
+		t.Fatalf("got %d lines, want 2: %q", len(got), got)
+	}
+
+	if got[0] != "Fixes" {
+		t.Errorf("title line = %q, want %q", got[0], "Fixes")
+	}
+
+	if got[1] != strings.Repeat("─", 5) {
+		t.Errorf("rule = %q, want 5 rule characters", got[1])
+	}
+}
+
+func TestRenderNotesH3HasNoRule(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "h3", Spans: []Span{{Text: "Details"}}},
+	}, 40))
+
+	if len(got) != 1 || got[0] != "Details" {
+		t.Errorf("got %q, want a single %q line", got, "Details")
+	}
+}
+
+func TestRenderNotesWrapsStyledParagraph(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "p", Spans: []Span{
+			{Text: "Fixed the "},
+			{Text: "fight timer", Bold: true},
+			{Text: " not being initialized correctly."},
+		}},
+	}, 20))
+
+	if len(got) < 2 {
+		t.Fatalf("expected the text to wrap, got %q", got)
+	}
+
+	for _, line := range got {
+		if len(line) > 20 {
+			t.Errorf("line %q exceeds width 20", line)
+		}
+	}
+
+	joined := strings.Join(got, " ")
+
+	if !strings.Contains(joined, "fight timer") {
+		t.Errorf("bold text lost: %q", joined)
+	}
+}
+
+func TestRenderNotesBulletsAndIndent(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Items: []Item{
+			{Indent: 0, Spans: []Span{{Text: "top"}}},
+			{Indent: 1, Spans: []Span{{Text: "nested"}}},
+		}},
+	}, 40))
+
+	want := []string{"• top", "  • nested"}
+
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("line %d = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
+
+func TestRenderNotesOrderedListNumbers(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Ordered: true, Items: []Item{
+			{Indent: 0, Spans: []Span{{Text: "first"}}},
+			{Indent: 0, Spans: []Span{{Text: "second"}}},
+		}},
+	}, 40))
+
+	if got[0] != "1. first" || got[1] != "2. second" {
+		t.Errorf("got %q, want numbered entries", got)
+	}
+}
+
+// A wrapped list item must align under its text, not under its marker.
+func TestRenderNotesListContinuationAligns(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Items: []Item{
+			{Indent: 0, Spans: []Span{{Text: "a fairly long bullet that wraps"}}},
+		}},
+	}, 20))
+
+	if len(got) < 2 {
+		t.Fatalf("expected wrapping, got %q", got)
+	}
+
+	if !strings.HasPrefix(got[0], "• ") {
+		t.Errorf("first line = %q, want a bullet marker", got[0])
+	}
+
+	if !strings.HasPrefix(got[1], "  ") || strings.HasPrefix(strings.TrimSpace(got[1]), "•") {
+		t.Errorf("continuation = %q, want alignment under the text", got[1])
+	}
+}
+
+func TestRenderNotesQuotePrefix(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "quote", Spans: []Span{{Text: "re-save your scripts"}}},
+	}, 40))
+
+	if !strings.HasPrefix(got[0], "│ ") {
+		t.Errorf("got %q, want a quote prefix", got[0])
+	}
+}
+
+func TestRenderNotesCodeIsVerbatim(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "code", Lines: []string{"go build ./...", "go vet ./..."}},
+	}, 10))
+
+	if got[0] != "  go build ./..." || got[1] != "  go vet ./..." {
+		t.Errorf("got %q, want indented verbatim lines despite width 10", got)
+	}
+}
+
+func TestRenderNotesLinkShowsURL(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "p", Spans: []Span{{Text: "the site", Href: "https://farental.ch"}}},
+	}, 60))
+
+	if !strings.Contains(got[0], "the site (https://farental.ch)") {
+		t.Errorf("got %q, want the URL beside the text", got[0])
+	}
+}
+
+func TestRenderNotesBlankLineBetweenBlocks(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "p", Spans: []Span{{Text: "one"}}},
+		{Type: "p", Spans: []Span{{Text: "two"}}},
+	}, 40))
+
+	if len(got) != 3 || got[1] != "" {
+		t.Errorf("got %q, want a blank line between blocks", got)
+	}
+}
+
+func TestRenderNotesEmpty(t *testing.T) {
+	if got := RenderNotes(nil, 40); got != nil {
+		t.Errorf("got %q, want nil", got)
+	}
+}
