@@ -308,7 +308,7 @@ the client knows the terminal width and the active orvyn theme.
 | `h2` | text in the theme's title style, followed by a rule of `─` as wide as the text |
 | `h3` | text in the theme's highlight style, no rule |
 | `p` | word-wrapped to width, blank line after |
-| `list` | `• ` for bullets, `1. ` for ordered; two spaces of indent per `Item.Indent`, continuation lines aligned under the text, not the marker |
+| `list` | `• ` for bullets, `1. ` for ordered; two spaces of indent per `Item.Indent`, continuation lines aligned under the text, not the marker. Ordered numbering is **per indent level** — each level keeps its own counter, and returning to a shallower level resets every deeper counter, so a second nested run restarts at 1 |
 | `quote` | every line prefixed `│ ` in the dim style |
 | `code` | lines verbatim in the dim style, indented two spaces, not wrapped |
 
