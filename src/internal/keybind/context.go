@@ -44,6 +44,7 @@ const (
 	ContextFightHistory                        bubblehelp.KeymapContext = "fightHistory"
 	ContextShop                                bubblehelp.KeymapContext = "shop"
 	ContextFullLog                             bubblehelp.KeymapContext = "fullLog"
+	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 )
 
@@ -396,6 +397,8 @@ func InitContexts() {
 	scriptExplorerKeymap.SetHelpDesc(Enter, lokyn.L("set active"))
 	scriptExplorerKeymap.NewKeyBinding(Tab, false)
 	scriptExplorerKeymap.SetHelpDesc(Tab, lokyn.L("toggle public/own scripts"))
+	scriptExplorerKeymap.NewKeyBinding(F1Key, true)
+	scriptExplorerKeymap.SetHelpDesc(F1Key, lokyn.L("manual"))
 	scriptExplorerKeymap.NewKeyBinding(Esc, true)
 	scriptExplorerKeymap.NewKeyBinding(Quit, true)
 	scriptExplorerKeymap.NewKeyBinding(Help, true)
@@ -416,6 +419,8 @@ func InitContexts() {
 	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(SKeyCtrl, lokyn.L("save script"))
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(Tab, true)
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(ShiftTab, true)
+	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(F1Key, true)
+	ScriptEditorWidgetNormalModeKeymap.SetHelpDesc(F1Key, lokyn.L("manual"))
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(Esc, true)
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(Quit, false)
 	ScriptEditorWidgetNormalModeKeymap.NewKeyBinding(Help, true)
@@ -438,6 +443,8 @@ func InitContexts() {
 	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(EKeyCtrl, lokyn.L("focus rule list"))
 	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Tab, true)
 	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(ShiftTab, true)
+	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(F1Key, true)
+	ScriptEditorRuleInspectorNormalKeymap.SetHelpDesc(F1Key, lokyn.L("manual"))
 	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Esc, true)
 	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Quit, false)
 	ScriptEditorRuleInspectorNormalKeymap.NewKeyBinding(Help, true)
@@ -474,6 +481,8 @@ func InitContexts() {
 	ScriptEditorRulesListKeymap.SetHelpDesc(SKeyCtrl, lokyn.L("save script"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(Tab, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(ShiftTab, true)
+	ScriptEditorRulesListKeymap.NewKeyBinding(F1Key, true)
+	ScriptEditorRulesListKeymap.SetHelpDesc(F1Key, lokyn.L("manual"))
 	ScriptEditorRulesListKeymap.NewKeyBinding(Esc, true)
 	ScriptEditorRulesListKeymap.NewKeyBinding(Quit, false)
 	ScriptEditorRulesListKeymap.NewKeyBinding(Help, true)
@@ -593,4 +602,21 @@ func InitContexts() {
 	ShopKeymap.NewKeyBinding(Quit, false)
 
 	bubblehelp.RegisterContext(ContextShop, ShopKeymap)
+
+	ManualKeymap := bubblehelp.NewKeymap(2)
+	ManualKeymap.Style = style.MainHelpStyle
+	ManualKeymap.NewKeyBinding(Up, true)
+	ManualKeymap.SetHelpDesc(Up, lokyn.L("scroll up"))
+	ManualKeymap.NewKeyBinding(Down, true)
+	ManualKeymap.SetHelpDesc(Down, lokyn.L("scroll down"))
+	ManualKeymap.NewKeyBinding(PrevPage, false)
+	ManualKeymap.NewKeyBinding(NextPage, false)
+	ManualKeymap.NewKeyBinding(GotoListStart, false)
+	ManualKeymap.SetHelpDesc(GotoListStart, lokyn.L("goto manual start"))
+	ManualKeymap.NewKeyBinding(GotoListEnd, false)
+	ManualKeymap.SetHelpDesc(GotoListEnd, lokyn.L("goto manual end"))
+	ManualKeymap.NewKeyBinding(Esc, true)
+	ManualKeymap.NewKeyBinding(Quit, false)
+
+	bubblehelp.RegisterContext(ContextManual, ManualKeymap)
 }

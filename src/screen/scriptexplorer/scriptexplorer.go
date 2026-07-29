@@ -7,6 +7,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/ticker"
 	"farental/screen"
+	"farental/screen/dialog/manual"
 	"farental/screen/dialog/popup"
 	"farental/screen/generic/selectionlist"
 	"farental/widget"
@@ -182,6 +183,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				s.FocusFirst()
 
 				return nil
+			}
+
+		case key.Matches(m, keybind.F1Key):
+			if s.GetFilteringState() != widgetlist.Filtering {
+				return manual.Open(manual.TopicScriptEditor)
 			}
 		}
 	}

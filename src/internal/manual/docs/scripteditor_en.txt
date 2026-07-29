@@ -1,0 +1,212 @@
+Scripts manual
+
+────────────────────────────────────────────────────────────────
+1. INTRODUCTION
+────────────────────────────────────────────────────────────────
+
+  Scripts are what let you fight in the world of Farental. A
+  script defines your character's actions, their order, and the
+  targeting and execution conditions.
+
+  The idea is fairly simple. A script holds up to 10 rules. Each
+  rule pairs an ability with a criterion.
+
+  A rule decides whether the ability should be used or not, and
+  possibly on whom.
+
+  Rules are evaluated in order. If an ability is on cooldown, its
+  rule is skipped. As a last resort, the character attacks with
+  its equipped weapon, or bare-handed.
+
+────────────────────────────────────────────────────────────────
+2. QUICK START
+────────────────────────────────────────────────────────────────
+
+  1. In the script list, press "n" to create a new script.
+
+  2. Focus starts on the script information: press "e", enter a
+     name and a description, then "esc".
+
+  3. Press "2" to move to the rule list, then "n" to add a first
+     rule.
+
+  4. Press "e" to edit the rule. On the Ability button, press
+     "space" and pick an ability. Press "tab" until the Rule type
+     button and pick a criterion the same way.
+
+  5. Set the targets with "←" and "→". If the rule type has
+     parameters, press "ctrl+e" to edit them.
+
+  6. Press "esc" to leave the rule, then "ctrl+s" to save the
+     script.
+
+  7. Leave with "esc". Back in the script list, select your
+     script and press "enter" to make it active. A script that is
+     not active is never used in a fight.
+
+────────────────────────────────────────────────────────────────
+3. CONCEPTS
+────────────────────────────────────────────────────────────────
+
+  Rule
+    One line of the script: an ability, a criterion, and the
+    targets of both. Rules are numbered ("Order : 1", "Order :
+    2", ...) and evaluated from first to last.
+
+  Ability
+    What the rule casts when the criterion is met. An ability on
+    cooldown moves evaluation on to the next rule.
+
+  Ability target
+    Who the ability is cast on. The choices depend on the chosen
+    ability: when an ability can only reach one side, the setting
+    disappears and there is nothing to pick.
+
+  Rule type
+    The criterion deciding whether the ability is used. Some rule
+    types take parameters, edited in the inspector.
+
+  Rule type target
+    Who the criterion is tested on. This is independent from the
+    ability target: you can cast an ability on yourself while
+    testing the state of your enemies.
+
+  Order
+    The position of the rule in the list. The first rule whose
+    criterion is met is the one played: put special cases at the
+    top and fallback actions at the bottom.
+
+────────────────────────────────────────────────────────────────
+4. THE EDITOR
+────────────────────────────────────────────────────────────────
+
+  The editor is split into 3 parts, reached with the "1", "2"
+  and "3" keys:
+
+    1 - Script information
+    2 - Rule list
+    3 - Parameter inspector
+
+  The information is simply there to identify the script and
+  describe what it is for. The "Private" checkbox keeps the
+  script to yourself; otherwise it shows up in other players'
+  public scripts.
+
+  The parameter inspector follows the rule selected in the rule
+  list. It shows "No parameters" when the rule type takes none.
+
+  And finally the heart of the editor, the rule list.
+
+  Each entry of that list is one script rule. You pick an ability
+  and the interface adapts to your choice.
+
+  A rule shows four fields, walked through with "tab" once the
+  rule is being edited ("e"):
+
+    Ability          Rule type
+    Ability target   Rule type target
+
+  Both buttons open a selection list with "space", both targets
+  are set with "←" and "→".
+
+  By default, only the abilities your character can actually use
+  are listed. The "All abilities in script editor ?" user setting
+  lists every ability in the game; a rule whose ability is not
+  usable is then marked "Not available".
+
+────────────────────────────────────────────────────────────────
+5. EXAMPLES
+────────────────────────────────────────────────────────────────
+
+  A few examples to make the logic clearer:
+
+  - The "Fireball" ability attacks a single target. You will not
+    be able to pick anything else as ability and condition
+    target: the enemies.
+      You may want to cast Fireball only on enemies that are not
+      burning.
+
+  - The "Focus" ability can only be cast on yourself, but you can
+    choose whether the condition is tested on the enemies, on
+    you, or on your allies.
+      You could want to cast Focus on the first turn only.
+
+  - The "Multiple arrows" ability, a group attack, will only
+    target enemies, but you can choose to check the condition on
+    every participant of the fight.
+      You will most likely want to cast it only when more than
+      one enemy is alive.
+
+────────────────────────────────────────────────────────────────
+6. MANAGING YOUR SCRIPTS
+────────────────────────────────────────────────────────────────
+
+  The script list shows your scripts and how many you may have
+  ("My scripts (2/5)"). "tab" switches between your scripts and
+  the public ones.
+
+  Making a script active is done with "enter": the active script
+  is the one played in your fights.
+
+  Public scripts from other players open read-only ("Read only"
+  appears under the title): you can read them, not change them.
+  To start from an existing script, press "c": the copy carries
+  the same name followed by "(Duplicated)" and belongs to you.
+
+  A script is limited to 10 rules. Once that limit is reached,
+  the rule-adding keys are no longer offered.
+
+────────────────────────────────────────────────────────────────
+7. KEYS
+────────────────────────────────────────────────────────────────
+
+  Script list
+    n            new script
+    e            edit
+    c            copy
+    d            delete
+    enter        set active
+    tab          toggle public / own scripts
+    /            filter
+    F1           this manual
+
+  Editor, anywhere
+    1 / 2 / 3    information / rules / inspector
+    e            edit the selected element
+    esc          leave editing, then leave the editor
+    ctrl+s       save the script
+    F1           this manual
+
+  Editor, rule list
+    n            new rule at the end
+    i            insert a rule before the selection
+    c            copy the rule
+    d            delete the rule
+    shift+↑ / ↓  move the rule
+    ctrl+e       go to the parameter inspector
+
+  Editor, rule being edited
+    tab          next field
+    space        open the selection list
+    ← / →        change the target
+    esc          stop editing
+
+────────────────────────────────────────────────────────────────
+8. PITFALLS
+────────────────────────────────────────────────────────────────
+
+  - A saved script is not an active script. Remember to press
+    "enter" on it in the script list.
+
+  - Order decides everything. A very general rule sitting in
+    first position keeps the following ones from ever firing.
+
+  - Ability target and rule type target are two different
+    settings. Check both when a rule does not fire as expected.
+
+  - An ability on cooldown does not block the turn: the rule is
+    simply skipped and evaluation carries on.
+
+  - Leaving the editor with "esc" without saving asks for
+    confirmation, and your progress really is lost if you
+    confirm.

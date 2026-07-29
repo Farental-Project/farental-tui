@@ -9,6 +9,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/ticker"
 	"farental/screen"
+	"farental/screen/dialog/manual"
 	"farental/screen/dialog/popup"
 	"farental/widget/help"
 	"farental/widget/ruletypeinspector"
@@ -234,6 +235,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			if bubblehelp.IsKeybindVisible(keybind.SKeyCtrl) {
 				if !s.focusManager.IsInputting() {
 					s.save()
+				}
+			}
+
+		case key.Matches(m, keybind.F1Key):
+			if bubblehelp.IsKeybindVisible(keybind.F1Key) {
+				if !s.focusManager.IsInputting() && !s.list.IsInputting() {
+					return manual.Open(manual.TopicScriptEditor)
 				}
 			}
 		}

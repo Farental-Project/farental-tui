@@ -1,0 +1,223 @@
+Manuel des scripts
+
+────────────────────────────────────────────────────────────────
+1. INTRODUCTION
+────────────────────────────────────────────────────────────────
+
+  Les scripts sont nécessaires pour pouvoir combattre dans le
+  monde de Farental. Un script définit les actions de votre
+  personnage, leur ordre, et les conditions de ciblage et
+  d'exécution.
+
+  Le concept est plutôt simple. Un script contient jusqu'à 10
+  règles. Chaque règle associe une capacité à un critère.
+
+  Le but d'une règle est de savoir si oui ou non la capacité doit
+  être utilisée, mais éventuellement aussi sur qui.
+
+  Les règles sont exécutées dans l'ordre. Si une capacité est en
+  cours de recharge, la règle est ignorée. En dernier recours, le
+  personnage tapera avec son arme équipée, ou alors à mains nues.
+
+────────────────────────────────────────────────────────────────
+2. DÉMARRAGE RAPIDE
+────────────────────────────────────────────────────────────────
+
+  1. Dans la liste des scripts, appuyez sur "n" pour créer un
+     nouveau script.
+
+  2. Le focus démarre sur les informations : appuyez sur "e",
+     saisissez un nom et une description, puis "échap".
+
+  3. Appuyez sur "2" pour aller sur la liste de règles, puis sur
+     "n" pour ajouter une première règle.
+
+  4. Appuyez sur "e" pour éditer la règle. Sur le bouton
+     Capacité, appuyez sur "espace" et choisissez une capacité.
+     Faites "tab" jusqu'au bouton Type de règle et choisissez un
+     critère de la même façon.
+
+  5. Réglez les cibles avec "←" et "→". Si le type de règle a des
+     paramètres, appuyez sur "ctrl+e" pour les modifier.
+
+  6. Appuyez sur "échap" pour sortir de la règle, puis sur
+     "ctrl+s" pour enregistrer le script.
+
+  7. Quittez avec "échap". De retour dans la liste des scripts,
+     sélectionnez votre script et appuyez sur "entrée" pour le
+     rendre actif. Un script qui n'est pas actif ne sera jamais
+     utilisé en combat.
+
+────────────────────────────────────────────────────────────────
+3. NOTIONS
+────────────────────────────────────────────────────────────────
+
+  Règle
+    Une ligne du script : une capacité, un critère, et les cibles
+    des deux. Les règles sont numérotées ("Ordre : 1", "Ordre :
+    2", ...) et évaluées de la première à la dernière.
+
+  Capacité
+    Ce que la règle lance si le critère est rempli. Une capacité
+    en cours de recharge fait passer à la règle suivante.
+
+  Cible de la capacité
+    Sur qui la capacité est lancée. Cette liste dépend de la
+    capacité choisie : si une capacité ne peut viser qu'un seul
+    camp, le choix disparaît et il n'y a rien à régler.
+
+  Type de règle
+    Le critère qui décide si la capacité est utilisée. Certains
+    types de règle ont des paramètres, réglables dans
+    l'inspecteur.
+
+  Cible du type de règle
+    Sur qui le critère est testé. C'est indépendant de la cible
+    de la capacité : on peut lancer une capacité sur soi-même
+    tout en testant l'état des ennemis.
+
+  Ordre
+    La position de la règle dans la liste. La première règle dont
+    le critère est rempli est celle qui est jouée : placez les
+    cas particuliers en haut, et les actions par défaut en bas.
+
+────────────────────────────────────────────────────────────────
+4. L'ÉDITEUR
+────────────────────────────────────────────────────────────────
+
+  L'éditeur est séparé en 3 parties, atteignables avec les
+  touches "1", "2" et "3" :
+
+    1 - Informations
+    2 - Liste de règles
+    3 - Inspecteur de paramètres
+
+  Les informations sont simplement là pour identifier le script
+  et décrire son utilité. La case "Privé" garde le script pour
+  vous ; sinon il apparaît dans les scripts publics des autres
+  joueurs.
+
+  L'inspecteur de paramètres s'adapte par rapport à la règle
+  sélectionnée dans la liste de règles. Il affiche "Aucun
+  paramètre" quand le type de règle n'en demande pas.
+
+  Et finalement le coeur de l'éditeur, la liste de règles.
+
+  Chaque élément de cette liste représente une règle de script.
+  Vous choisissez une capacité et l'interface s'adaptera à votre
+  choix.
+
+  Une règle affiche quatre champs, parcourus avec "tab" une fois
+  la règle en édition ("e") :
+
+    Capacité             Type de règle
+    Cible de la capacité Cible du type de règle
+
+  Les deux boutons ouvrent une liste de sélection avec "espace",
+  les deux cibles se règlent avec "←" et "→".
+
+  Par défaut, seules les capacités que votre personnage peut
+  utiliser sont proposées. L'option "All abilities in script
+  editor ?" des paramètres utilisateur affiche toutes les
+  capacités du jeu ; une règle dont la capacité n'est pas
+  utilisable est alors marquée "Indisponible".
+
+────────────────────────────────────────────────────────────────
+5. EXEMPLES
+────────────────────────────────────────────────────────────────
+
+  Voici quelques exemples pour mieux comprendre la logique :
+
+  - La capacité "Boule de feu" attaque une cible unique. Vous ne
+    pourrez alors pas choisir autre chose comme cible de capacité
+    et de condition : les ennemis.
+      On voudra peut-être lancer la Boule de feu seulement sur
+      les ennemis qui ne sont pas enflammés.
+
+  - La capacité "Concentration" ne peut être lancée que sur vous
+    même, mais vous pouvez choisir si la condition est testée sur
+    les ennemis, vous, ou vos alliés.
+      On pourrait vouloir lancer la Concentration uniquement lors
+      du premier tour.
+
+  - La capacité "Flèches multiples", attaque de groupe, ciblera
+    uniquement les ennemis, mais vous pourrez choisir de vérifier
+    la condition sur tous les participants du combat.
+      On voudra certainement lancer cette capacité uniquement
+      s'il y a plus d'un ennemi en vie.
+
+────────────────────────────────────────────────────────────────
+6. GÉRER SES SCRIPTS
+────────────────────────────────────────────────────────────────
+
+  La liste des scripts affiche vos scripts et leur nombre maximum
+  ("Mes scripts (2/5)"). "tab" bascule entre vos scripts et les
+  scripts publics.
+
+  Rendre un script actif se fait avec "entrée" : c'est le script
+  actif qui sera joué lors de vos combats.
+
+  Les scripts publics des autres joueurs s'ouvrent en lecture
+  seule ("En lecture seule" s'affiche sous le titre) : vous
+  pouvez les lire, pas les modifier. Pour partir d'un script
+  existant, appuyez sur "c" : la copie porte le même nom suivi de
+  "(Dupliqué)" et vous appartient.
+
+  Un script est limité à 10 règles. Une fois cette limite
+  atteinte, les touches d'ajout de règle ne sont plus proposées.
+
+────────────────────────────────────────────────────────────────
+7. RACCOURCIS
+────────────────────────────────────────────────────────────────
+
+  Liste des scripts
+    n            nouveau script
+    e            éditer
+    c            copier
+    d            supprimer
+    entrée       mettre actif
+    tab          alterner scripts publics / personnels
+    /            filtrer
+    F1           ce manuel
+
+  Éditeur, partout
+    1 / 2 / 3    informations / règles / inspecteur
+    e            éditer l'élément sélectionné
+    échap        sortir de l'édition, puis quitter l'éditeur
+    ctrl+s       enregistrer le script
+    F1           ce manuel
+
+  Éditeur, liste de règles
+    n            nouvelle règle à la fin
+    i            insérer une règle avant la sélection
+    c            copier la règle
+    d            supprimer la règle
+    shift+↑ / ↓  déplacer la règle
+    ctrl+e       aller à l'inspecteur de paramètres
+
+  Éditeur, règle en édition
+    tab          champ suivant
+    espace       ouvrir la liste de sélection
+    ← / →        changer la cible
+    échap        arrêter l'édition
+
+────────────────────────────────────────────────────────────────
+8. PIÈGES
+────────────────────────────────────────────────────────────────
+
+  - Un script enregistré n'est pas un script actif. Pensez à
+    faire "entrée" dessus dans la liste des scripts.
+
+  - L'ordre décide de tout. Une règle très générale placée en
+    première position empêchera les suivantes de se déclencher.
+
+  - Cible de la capacité et cible du type de règle sont deux
+    réglages différents. Vérifiez les deux quand une règle ne se
+    déclenche pas comme prévu.
+
+  - Une capacité en recharge ne bloque pas le tour : la règle est
+    simplement ignorée et l'évaluation continue.
+
+  - Quitter l'éditeur avec "échap" sans avoir enregistré demande
+    confirmation, et la progression est bien perdue si vous
+    confirmez.

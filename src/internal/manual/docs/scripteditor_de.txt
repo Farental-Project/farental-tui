@@ -1,0 +1,226 @@
+Skript-Handbuch
+
+────────────────────────────────────────────────────────────────
+1. EINFÜHRUNG
+────────────────────────────────────────────────────────────────
+
+  Skripte sind nötig, um in der Welt von Farental kämpfen zu
+  können. Ein Skript legt die Aktionen deines Charakters fest,
+  ihre Reihenfolge sowie die Ziel- und Ausführungsbedingungen.
+
+  Das Prinzip ist recht einfach. Ein Skript enthält bis zu 10
+  Regeln. Jede Regel verbindet eine Fähigkeit mit einem
+  Kriterium.
+
+  Eine Regel entscheidet, ob die Fähigkeit eingesetzt wird oder
+  nicht, und gegebenenfalls auf wen.
+
+  Die Regeln werden der Reihe nach ausgewertet. Ist eine
+  Fähigkeit noch nicht bereit, wird ihre Regel übersprungen. Als
+  letzte Möglichkeit greift der Charakter mit seiner
+  ausgerüsteten Waffe an, oder mit bloßen Händen.
+
+────────────────────────────────────────────────────────────────
+2. SCHNELLSTART
+────────────────────────────────────────────────────────────────
+
+  1. Drücke in der Skriptliste "n", um ein neues Skript
+     anzulegen.
+
+  2. Der Fokus startet bei den Skript-Informationen: drücke "e",
+     gib einen Namen und eine Beschreibung ein, dann "esc".
+
+  3. Drücke "2" für die Regelliste, dann "n", um eine erste Regel
+     hinzuzufügen.
+
+  4. Drücke "e", um die Regel zu bearbeiten. Drücke auf der
+     Schaltfläche Fähigkeit "Leertaste" und wähle eine Fähigkeit.
+     Gehe mit "tab" zur Schaltfläche Regeltyp und wähle dort
+     genauso ein Kriterium.
+
+  5. Stelle die Ziele mit "←" und "→" ein. Hat der Regeltyp
+     Parameter, drücke "ctrl+e", um sie zu bearbeiten.
+
+  6. Drücke "esc", um die Regel zu verlassen, dann "ctrl+s", um
+     das Skript zu speichern.
+
+  7. Verlasse den Editor mit "esc". Wähle in der Skriptliste dein
+     Skript aus und drücke "enter", um es zu aktivieren. Ein
+     nicht aktives Skript wird im Kampf nie verwendet.
+
+────────────────────────────────────────────────────────────────
+3. BEGRIFFE
+────────────────────────────────────────────────────────────────
+
+  Regel
+    Eine Zeile des Skripts: eine Fähigkeit, ein Kriterium und die
+    Ziele von beiden. Regeln sind nummeriert ("Reihenfolge : 1",
+    "Reihenfolge : 2", ...) und werden von der ersten bis zur
+    letzten ausgewertet.
+
+  Fähigkeit
+    Was die Regel einsetzt, wenn das Kriterium erfüllt ist. Eine
+    Fähigkeit, die noch nicht bereit ist, führt zur nächsten
+    Regel.
+
+  Fähigkeit Ziel
+    Auf wen die Fähigkeit gewirkt wird. Die Auswahl hängt von der
+    gewählten Fähigkeit ab: kann eine Fähigkeit nur eine Seite
+    treffen, entfällt die Einstellung.
+
+  Regeltyp
+    Das Kriterium, das über den Einsatz der Fähigkeit
+    entscheidet. Manche Regeltypen haben Parameter, die im
+    Inspektor bearbeitet werden.
+
+  Regeltyp Ziel
+    Auf wen das Kriterium geprüft wird. Das ist unabhängig vom
+    Ziel der Fähigkeit: du kannst eine Fähigkeit auf dich selbst
+    wirken und dabei den Zustand der Gegner prüfen.
+
+  Reihenfolge
+    Die Position der Regel in der Liste. Gespielt wird die erste
+    Regel, deren Kriterium erfüllt ist: Sonderfälle nach oben,
+    Standardaktionen nach unten.
+
+────────────────────────────────────────────────────────────────
+4. DER EDITOR
+────────────────────────────────────────────────────────────────
+
+  Der Editor besteht aus 3 Bereichen, erreichbar über die Tasten
+  "1", "2" und "3":
+
+    1 - Informationen zum Skript
+    2 - Regelliste
+    3 - Parameter-Inspektor
+
+  Die Informationen dienen nur dazu, das Skript zu benennen und
+  seinen Zweck zu beschreiben. Das Kästchen "Privat" behält das
+  Skript für dich; sonst erscheint es bei den öffentlichen
+  Skripten anderer Spieler.
+
+  Der Parameter-Inspektor richtet sich nach der in der Regelliste
+  ausgewählten Regel. Er zeigt "Keine Parameter", wenn der
+  Regeltyp keine hat.
+
+  Und schließlich das Herzstück des Editors, die Regelliste.
+
+  Jeder Eintrag dieser Liste ist eine Skriptregel. Du wählst eine
+  Fähigkeit und die Oberfläche passt sich deiner Wahl an.
+
+  Eine Regel zeigt vier Felder, die mit "tab" durchlaufen werden,
+  sobald die Regel bearbeitet wird ("e"):
+
+    Fähigkeit        Regeltyp
+    Fähigkeit Ziel   Regeltyp Ziel
+
+  Beide Schaltflächen öffnen mit "Leertaste" eine Auswahlliste,
+  beide Ziele werden mit "←" und "→" eingestellt.
+
+  Standardmäßig werden nur Fähigkeiten angeboten, die dein
+  Charakter tatsächlich einsetzen kann. Die Benutzereinstellung
+  "All abilities in script editor ?" zeigt alle Fähigkeiten des
+  Spiels; eine Regel mit einer nicht einsetzbaren Fähigkeit wird
+  dann als "Nicht verfügbar" markiert.
+
+────────────────────────────────────────────────────────────────
+5. BEISPIELE
+────────────────────────────────────────────────────────────────
+
+  Einige Beispiele, um die Logik zu verdeutlichen:
+
+  - Die Fähigkeit "Feuerball" greift ein einzelnes Ziel an. Als
+    Ziel der Fähigkeit und der Bedingung bleiben dir dann nur die
+    Gegner.
+      Vielleicht willst du den Feuerball nur auf Gegner wirken,
+      die nicht brennen.
+
+  - Die Fähigkeit "Konzentration" kann nur auf dich selbst
+    gewirkt werden, aber du kannst wählen, ob die Bedingung auf
+    den Gegnern, auf dir oder auf deinen Verbündeten geprüft
+    wird.
+      Man könnte Konzentration nur in der ersten Runde wirken
+      wollen.
+
+  - Die Fähigkeit "Mehrfachpfeile", ein Gruppenangriff, trifft
+    nur Gegner, aber du kannst die Bedingung auf allen
+    Teilnehmern des Kampfes prüfen lassen.
+      Sicher willst du sie nur einsetzen, wenn mehr als ein
+      Gegner am Leben ist.
+
+────────────────────────────────────────────────────────────────
+6. SKRIPTE VERWALTEN
+────────────────────────────────────────────────────────────────
+
+  Die Skriptliste zeigt deine Skripte und wie viele du haben
+  darfst ("Meine Skripte (2/5)"). "tab" wechselt zwischen deinen
+  und den öffentlichen Skripten.
+
+  Ein Skript wird mit "enter" aktiviert: das aktive Skript ist
+  das, was in deinen Kämpfen gespielt wird.
+
+  Öffentliche Skripte anderer Spieler öffnen sich schreibgeschützt
+  (unter dem Titel steht "Nur lesen"): du kannst sie lesen, aber
+  nicht ändern. Um von einem bestehenden Skript auszugehen,
+  drücke "c": die Kopie trägt denselben Namen gefolgt von
+  "(Dupliziert)" und gehört dir.
+
+  Ein Skript ist auf 10 Regeln begrenzt. Ist diese Grenze
+  erreicht, werden die Tasten zum Hinzufügen nicht mehr
+  angeboten.
+
+────────────────────────────────────────────────────────────────
+7. TASTEN
+────────────────────────────────────────────────────────────────
+
+  Skriptliste
+    n            neues Skript
+    e            bearbeiten
+    c            kopieren
+    d            löschen
+    enter        aktiv setzen
+    tab          öffentliche / eigene Skripte wechseln
+    /            filtern
+    F1           dieses Handbuch
+
+  Editor, überall
+    1 / 2 / 3    Informationen / Regeln / Inspektor
+    e            ausgewähltes Element bearbeiten
+    esc          Bearbeitung beenden, dann Editor verlassen
+    ctrl+s       Skript speichern
+    F1           dieses Handbuch
+
+  Editor, Regelliste
+    n            neue Regel am Ende
+    i            Regel vor der Auswahl einfügen
+    c            Regel kopieren
+    d            Regel löschen
+    shift+↑ / ↓  Regel verschieben
+    ctrl+e       zum Parameter-Inspektor
+
+  Editor, Regel in Bearbeitung
+    tab          nächstes Feld
+    Leertaste    Auswahlliste öffnen
+    ← / →        Ziel ändern
+    esc          Bearbeitung beenden
+
+────────────────────────────────────────────────────────────────
+8. STOLPERFALLEN
+────────────────────────────────────────────────────────────────
+
+  - Ein gespeichertes Skript ist kein aktives Skript. Denk daran,
+    in der Skriptliste "enter" darauf zu drücken.
+
+  - Die Reihenfolge entscheidet alles. Eine sehr allgemeine Regel
+    an erster Stelle lässt die folgenden nie auslösen.
+
+  - Ziel der Fähigkeit und Ziel des Regeltyps sind zwei
+    verschiedene Einstellungen. Prüfe beide, wenn eine Regel
+    nicht wie erwartet auslöst.
+
+  - Eine Fähigkeit in Abklingzeit blockiert die Runde nicht: die
+    Regel wird übersprungen und die Auswertung läuft weiter.
+
+  - Den Editor mit "esc" ohne Speichern zu verlassen verlangt
+    eine Bestätigung, und der Fortschritt geht dann wirklich
+    verloren.

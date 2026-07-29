@@ -90,13 +90,24 @@ func (w *Widget) OnFocus() {
 	w.widgetStyle = w.Style.FocusedWidget
 	w.titleStyle = w.Style.FocusedTitle
 	w.arrowStyle = orvyn.GetTheme().Style(theme.NormalTextStyleID)
-	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
+	w.updateTitleHeight()
 }
 
 func (w *Widget) OnBlur() {
 	w.widgetStyle = w.Style.BlurredWidget
 	w.titleStyle = w.Style.BlurredTitle
 	w.arrowStyle = orvyn.GetTheme().Style(theme.DimTextStyleID)
+	w.updateTitleHeight()
+}
+
+// updateTitleHeight recomputes the height reserved for the title. An empty
+// title reserves nothing, since Render skips it entirely.
+func (w *Widget) updateTitleHeight() {
+	if w.title == "" {
+		w.titleHeight = 0
+		return
+	}
+
 	w.titleHeight = lipgloss.Height(w.titleStyle.Render(w.title))
 }
 
@@ -211,6 +222,14 @@ func (w *Widget) ScrollDown(n int) {
 	w.viewport.ScrollDown(n)
 }
 
+func (w *Widget) GotoTop() {
+	w.viewport.GotoTop()
+}
+
+func (w *Widget) GotoBottom() {
+	w.viewport.GotoBottom()
+}
+
 func (w *Widget) refresh() {
 	helper.SetScrollableContent(&w.viewport, w.viewport.Width,
 		func(width int) string {
@@ -229,4 +248,5 @@ func (w *Widget) SetAutoScroll(b bool) {
 
 func (w *Widget) SetTitle(title string) {
 	w.title = title
+	w.updateTitleHeight()
 }
