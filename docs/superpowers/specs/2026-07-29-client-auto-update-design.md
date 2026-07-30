@@ -334,7 +334,7 @@ Output is `[]string`, which feeds `widget/simplelogviewer` directly.
 | `Applying` | "Verifying and installing…" | none |
 | `Restarting` | "Restarting…", then quits | — |
 | `Failed` | error text | `r` retry · `esc` (`Optional` only) · `q` |
-| `ManualRequired` | reason, `https://www.farental.ch/clienttui`, target version | `q` quit |
+| `ManualRequired` | reason, `https://www.farental.ch/clienttui`, target version | `esc` continue to login (`Optional` only) · `q` quit |
 
 The notes pane is `widget/simplelogviewer`, fed by
 `SetContent(updater.RenderNotes(blocks, width))`. It already carries scrolling,
@@ -407,8 +407,8 @@ compatible client can be running with `Mode` `Optional` or `None`.
 | --- | --- | --- |
 | `/version` unreachable | print and exit (unchanged) | same |
 | `latest` manifest unreachable or 404 | `ManualRequired`, blocks login | log only, straight to login |
-| No file for this platform | `ManualRequired` | log only |
-| Binary directory not writable | `ManualRequired`, names the path | log only |
+| No file for this platform | `ManualRequired` | `ManualRequired`, escapable with `esc` |
+| Binary directory not writable | `ManualRequired`, names the path | `ManualRequired`, escapable with `esc` |
 | Download aborts, or SHA-256 mismatch | `Failed`, `r` retries | `Failed`, `esc` continues to login |
 | `Apply` fails mid-swap | rollback, then `Failed` | same |
 | Exec fails after a successful swap | print "Updated to X, relaunch Farental", exit 0 | same |

@@ -2557,6 +2557,11 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.bar.SetActive(false)
 	s.status.SetValue("")
 
+	// Every enterManual path below must stay escapable for a ModeOptional
+	// client: the failure matrix says a compatible client is never blocked,
+	// and Mode is derived from version compatibility alone, so "optional
+	// update, no build for this platform" is an ordinary combination.
+	//
 	// Ordered most specific cause first: a failed fetch also leaves File
 	// empty, so checking HasFile first would blame the platform for what is
 	// really a network problem.
