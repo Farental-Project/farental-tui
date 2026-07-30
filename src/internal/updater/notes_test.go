@@ -1,10 +1,12 @@
 package updater
 
 import (
+	"farental/core/request"
 	"strings"
 	"testing"
 
 	"github.com/charmbracelet/x/ansi"
+	"github.com/go-resty/resty/v2"
 	"github.com/halsten-dev/orvyn"
 )
 
@@ -22,6 +24,17 @@ func TestMain(m *testing.M) {
 	// RenderNotes reads styles from the active theme, so orvyn must be
 	// initialized. This needs no terminal.
 	orvyn.Init()
+
+	// fetchManifest and Apply build requests through core/request rather
+	// than raw net/http, so the package-level web client must be wired the
+	// way main.go wires it in production (request.InitWeb(context.Web)).
+	// The client's own base URL doesn't matter here: every test in this
+	// package points fetchManifest/Apply at an httptest server via an
+	// absolute endpoint URL, which resty uses as-is regardless of the
+	// client's configured base — exactly how production points the same
+	// code at config.WebURL.
+	request.InitWeb(resty.New())
+
 	m.Run()
 }
 

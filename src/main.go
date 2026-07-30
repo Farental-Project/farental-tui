@@ -104,6 +104,7 @@ func main() {
 
 	context.Init()
 	request.Init(context.Client)
+	request.InitWeb(context.Web)
 	lokyn.Init()
 	err = lokyn.AddTranslationFS(translations, "translations")
 

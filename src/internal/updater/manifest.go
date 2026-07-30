@@ -1,9 +1,10 @@
 package updater
 
 import (
+	"context"
 	"encoding/json"
+	"farental/core/request"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"runtime"
@@ -78,25 +79,31 @@ func fetchManifest(baseURL, lang string) (*manifest, error) {
 		return nil, err
 	}
 
-	endpoint += "?lang=" + url.QueryEscape(lang)
+	ctx, cancel := context.WithTimeout(context.Background(), fetchTimeout)
+	defer cancel()
 
-	client := &http.Client{Timeout: fetchTimeout}
+	// SetResponseBodyLimit bounds the read from the network itself — resty
+	// aborts the request once it has read past the limit — rather than only
+	// bounding the eventual json.Unmarshal. Symmetric with the binary
+	// download's size bound: a hostile or misbehaving host cannot make this
+	// buffer more than maxManifestBodySize before the request fails.
+	req := request.ManifestGet(endpoint, lang).
+		SetContext(ctx).
+		SetResponseBodyLimit(maxManifestBodySize)
 
-	resp, err := client.Get(endpoint)
+	resp, err := req.Send()
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("manifest request failed with status %d", resp.StatusCode)
+	if resp.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("manifest request failed with status %d", resp.StatusCode())
 	}
 
 	var m manifest
 
-	if err := json.NewDecoder(io.LimitReader(resp.Body, maxManifestBodySize)).Decode(&m); err != nil {
+	if err := json.Unmarshal(resp.Body(), &m); err != nil {
 		return nil, err
 	}
 

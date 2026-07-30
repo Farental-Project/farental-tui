@@ -3,6 +3,7 @@ package context
 import (
 	"farental/core/data/api"
 	"farental/core/request"
+	"farental/internal/config"
 	"farental/internal/helper"
 	"fmt"
 	"log"
@@ -18,6 +19,12 @@ import (
 var (
 	Client *resty.Client
 
+	// Web talks to the marketing website (config.WebURL) rather than the
+	// API: a different service, used only for the client update manifest
+	// and release binary downloads (see internal/updater and
+	// request.InitWeb).
+	Web *resty.Client
+
 	CharacterID   uint
 	CharacterInfo *api.CharacterInfoResponse
 
@@ -29,6 +36,9 @@ var (
 func Init() {
 	Client = resty.New()
 	Client.SetBaseURL(viper.GetString("baseurl"))
+
+	Web = resty.New()
+	Web.SetBaseURL(config.WebURL)
 
 	CharacterID = 0
 	ChatContent = make([]string, 0)

@@ -1,7 +1,9 @@
 package updater
 
 import (
+	"context"
 	"encoding/hex"
+	"farental/core/request"
 	"fmt"
 	"io"
 	"net/http"
@@ -206,24 +208,31 @@ func Apply(baseURL string, f FileInfo, progress *atomic.Int64) error {
 		return err
 	}
 
-	client := &http.Client{Timeout: downloadTimeout}
+	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
+	defer cancel()
 
-	resp, err := client.Get(endpoint)
+	// FileDownloadGet sets SetDoNotParseResponse, so resty hands back the
+	// live network reader via RawBody() instead of buffering the whole
+	// (tens-of-MB) binary into memory first.
+	resp, err := request.FileDownloadGet(endpoint).SetContext(ctx).Send()
 
 	if err != nil {
 		return err
 	}
 
-	defer resp.Body.Close()
+	// rawBody must be closed on every path below — success, checksum
+	// failure, or rollback — or the connection is never released.
+	rawBody := resp.RawBody()
+	defer rawBody.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("download failed with status %d", resp.StatusCode)
+	if resp.StatusCode() != http.StatusOK {
+		return fmt.Errorf("download failed with status %d", resp.StatusCode())
 	}
 
 	// The bound is the exact advertised size: a longer body is cut short and
 	// fails the checksum, a shorter one fails it too.
 	body := &progressReader{
-		inner:   io.LimitReader(resp.Body, f.SizeBytes),
+		inner:   io.LimitReader(rawBody, f.SizeBytes),
 		counter: progress,
 	}
 
