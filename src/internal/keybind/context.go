@@ -46,6 +46,7 @@ const (
 	ContextFullLog                             bubblehelp.KeymapContext = "fullLog"
 	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
+	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
 )
 
 func InitContexts() {
@@ -619,4 +620,14 @@ func InitContexts() {
 	ManualKeymap.NewKeyBinding(Quit, false)
 
 	bubblehelp.RegisterContext(ContextManual, ManualKeymap)
+
+	clientUpdateKeymap := bubblehelp.NewKeymap(2)
+	clientUpdateKeymap.Style = mainHelpStyle
+	clientUpdateKeymap.NewKeyBinding(Enter, true)
+	clientUpdateKeymap.SetHelpDesc(Enter, lokyn.L("update now"))
+	clientUpdateKeymap.NewKeyBinding(Esc, true)
+	clientUpdateKeymap.SetHelpDesc(Esc, lokyn.L("skip"))
+	clientUpdateKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextClientUpdate, clientUpdateKeymap)
 }

@@ -32,4 +32,5 @@ const (
 	IDShop                  orvyn.ScreenID = "shop"
 	IDLocationInfo          orvyn.ScreenID = "locationinfo"
 	IDSendFeedback          orvyn.ScreenID = "sendfeedback"
+	IDClientUpdate          orvyn.ScreenID = "clientupdate"
 )
