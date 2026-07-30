@@ -122,7 +122,6 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextClientUpdate)
 
 	s.result = updater.Pending
-	s.state = statePrompt
 
 	s.title.SetValue(lokyn.L("A new version is available"))
 	s.subtitle.SetValue(fmt.Sprintf("%s  →  %s", s.result.Current, s.result.Latest))
@@ -132,28 +131,61 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.bar.SetActive(false)
 	s.status.SetValue("")
 
-	// Ordered most specific cause first: a failed fetch also leaves File
-	// empty, so checking HasFile first would blame the platform for what is
-	// really a network problem.
-	if s.result.Err != nil {
+	// PreflightWritable is a cheap local check (create+remove one temp file),
+	// so it always runs; decideEntry only consults it once the fetch and
+	// platform checks already passed.
+	preflightErr := updater.PreflightWritable()
+
+	entryState, reason := decideEntry(s.result, preflightErr)
+	s.state = entryState
+
+	switch reason {
+	case reasonFetchFailed:
 		s.enterManual(lokyn.L("Could not reach the update server."))
-		return nil
-	}
-
-	if !s.result.HasFile() {
+	case reasonNoFile:
 		s.enterManual(lokyn.L("No build is published for your platform."))
-		return nil
-	}
-
-	// Failing the preflight before downloading spares the user a 20 MB wait
-	// they cannot use.
-	if err := updater.PreflightWritable(); err != nil {
+	case reasonNotWritable:
 		s.enterManual(fmt.Sprintf("%s\n%v",
-			lokyn.L("Farental cannot write to its own directory."), err))
-		return nil
+			lokyn.L("Farental cannot write to its own directory."), preflightErr))
 	}
 
 	return nil
+}
+
+// entryReason identifies why OnEnter chose stateManualRequired, so OnEnter can
+// pick the right localized message without decideEntry depending on lokyn.
+// That keeps decideEntry a pure function of its inputs, trivial to unit test.
+type entryReason int
+
+const (
+	reasonNone entryReason = iota
+	reasonFetchFailed
+	reasonNoFile
+	reasonNotWritable
+)
+
+// decideEntry is the pure decision made at screen entry: given the update
+// check result and whatever the preflight check already found (so this itself
+// needs no filesystem access), it picks the state to enter and, when that
+// state is stateManualRequired, why.
+//
+// Ordered most specific cause first: a failed fetch also leaves File empty,
+// so checking HasFile first would blame the platform for what is really a
+// network problem.
+func decideEntry(result updater.Result, preflightErr error) (state, entryReason) {
+	if result.Err != nil {
+		return stateManualRequired, reasonFetchFailed
+	}
+
+	if !result.HasFile() {
+		return stateManualRequired, reasonNoFile
+	}
+
+	if preflightErr != nil {
+		return stateManualRequired, reasonNotWritable
+	}
+
+	return statePrompt, reasonNone
 }
 
 func (s *Screen) OnExit() any {
@@ -212,6 +244,14 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 				return orvyn.SwitchScreen(screen.IDLogin), true
 			}
 		}
+
+	case stateManualRequired:
+		switch {
+		case key.Matches(m, keybind.Esc):
+			if s.result.Mode == updater.ModeOptional {
+				return orvyn.SwitchScreen(screen.IDLogin), true
+			}
+		}
 	}
 
 	return nil, false
@@ -220,6 +260,10 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 func (s *Screen) startUpdate() tea.Cmd {
 	s.state = stateDownloading
 	s.progress.Store(0)
+
+	// A retry from stateFailed left the title reading "Update failed"; a
+	// fresh attempt needs it back to the neutral prompt title.
+	s.title.SetValue(lokyn.L("A new version is available"))
 
 	s.bar.SetActive(true)
 	s.notes.SetActive(false)
@@ -293,8 +337,16 @@ func (s *Screen) enterManual(reason string) {
 	s.bar.SetActive(false)
 	s.notes.SetActive(false)
 
-	s.status.SetValue(fmt.Sprintf("%s\n\n%s\n%s/clienttui",
-		reason, lokyn.L("Download the new version here:"), config.WebURL))
+	message := fmt.Sprintf("%s\n\n%s\n%s/clienttui",
+		reason, lokyn.L("Download the new version here:"), config.WebURL)
+
+	// Only a compatible client can skip past this screen; a mandatory update
+	// has no exit besides quitting, so telling it about esc would be a lie.
+	if s.result.Mode == updater.ModeOptional {
+		message = fmt.Sprintf("%s\n\n%s", message, lokyn.L("Press esc to continue without updating."))
+	}
+
+	s.status.SetValue(message)
 }
 
 func (s *Screen) refreshNotes() {
