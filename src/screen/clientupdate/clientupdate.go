@@ -513,7 +513,20 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		// message arrives; refreshNotes there wraps to a hardcoded
 		// default. This case is what makes it wrap to the real terminal
 		// width, both at startup and on every later resize.
+		//
+		// Preserve the visibility state that the current state intends:
+		// some states (e.g., downloading, manual-required) deliberately hide
+		// the pane, but refreshNotes would force it visible if there's
+		// content to wrap. Capture and restore to let resizes re-wrap without
+		// re-activating.
+		wasActive := s.notes.IsActive()
 		s.refreshNotes()
+		// refreshNotes sets active to true if there's content, false if not.
+		// If there's content (active is now true), restore the original state.
+		// If there's no content (active is now false), keep it inactive.
+		if s.notes.IsActive() {
+			s.notes.SetActive(wasActive)
+		}
 
 		return s.notes.Update(msg)
 

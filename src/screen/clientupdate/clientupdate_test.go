@@ -315,6 +315,60 @@ func TestUpdateWindowSizeMsgRefreshesNotes(t *testing.T) {
 	}
 }
 
+// A resize (tea.WindowSizeMsg) must not make the notes pane visible in states
+// that deliberately hide it. States like stateDownloading and
+// stateManualRequired call SetActive(false) to hide the pane, and any
+// subsequent resize must preserve that visibility, not force it visible just
+// because there's content to wrap.
+func TestUpdateWindowSizeMsgPreservesHiddenNotesInDownloadingState(t *testing.T) {
+	s := New()
+	s.state = stateDownloading
+	s.result = updater.Result{
+		Notes: []updater.Block{{Type: "p", Spans: []updater.Span{{Text: "release notes"}}}},
+	}
+
+	// Simulate the state transition that hides the notes (as startUpdate does).
+	s.notes.SetActive(false)
+
+	// Verify the pane is hidden before the resize.
+	if s.notes.IsActive() {
+		t.Fatal("setup: expected notes to be inactive after SetActive(false)")
+	}
+
+	// Send a resize message, which triggers refreshNotes.
+	s.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
+
+	// Verify the notes are still hidden, not re-activated by the resize.
+	if s.notes.IsActive() {
+		t.Error("a resize should not make the notes pane visible in stateDownloading")
+	}
+}
+
+// A resize must preserve the hidden state in stateManualRequired as well.
+func TestUpdateWindowSizeMsgPreservesHiddenNotesInManualRequiredState(t *testing.T) {
+	s := New()
+	s.state = stateManualRequired
+	s.result = updater.Result{
+		Notes: []updater.Block{{Type: "p", Spans: []updater.Span{{Text: "release notes"}}}},
+	}
+
+	// Simulate the state transition that hides the notes (as enterManual does).
+	s.notes.SetActive(false)
+
+	// Verify the pane is hidden before the resize.
+	if s.notes.IsActive() {
+		t.Fatal("setup: expected notes to be inactive after SetActive(false)")
+	}
+
+	// Send a resize message.
+	s.Update(tea.WindowSizeMsg{Width: 100, Height: 30})
+
+	// Verify the notes are still hidden.
+	if s.notes.IsActive() {
+		t.Error("a resize should not make the notes pane visible in stateManualRequired")
+	}
+}
+
 // The subtitle must not read "1.1.0  →  " with a blank right side when the
 // manifest fetch failed and Latest was never populated.
 func TestOnEnterSkipsSubtitleWhenLatestIsEmpty(t *testing.T) {
