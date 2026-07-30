@@ -14,6 +14,7 @@ const (
 	ContextLogin                               bubblehelp.KeymapContext = "login"
 	ContextCharacterSel                        bubblehelp.KeymapContext = "characterSelection"
 	ContextCharacterCreation                   bubblehelp.KeymapContext = "characterCreation"
+	ContextUserSettings                        bubblehelp.KeymapContext = "userSettings"
 	ContextCharacterSheet                      bubblehelp.KeymapContext = "characterSheet"
 	ContextGameDashboard                       bubblehelp.KeymapContext = "gameDashboard"
 	ContextFilterSelectionListBasic            bubblehelp.KeymapContext = "filterSelectionListBasic"
@@ -67,6 +68,8 @@ func InitContexts() {
 	loginKeymap.NewKeyBinding(ShiftTab, false)
 	loginKeymap.NewKeyBinding(NKeyCtrl, true)
 	loginKeymap.SetHelpDesc(NKeyCtrl, lokyn.L("new account"))
+	loginKeymap.NewKeyBinding(RKeyCtrl, true)
+	loginKeymap.SetHelpDesc(RKeyCtrl, lokyn.L("check for updates"))
 	loginKeymap.NewKeyBinding(Enter, true)
 	loginKeymap.NewKeyBinding(Quit, true)
 	loginKeymap.NewKeyBinding(Help, true)
@@ -96,6 +99,21 @@ func InitContexts() {
 	characterCreationKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextCharacterCreation, characterCreationKeymap)
+
+	// User settings used to share characterCreationKeymap outright (same
+	// Enter/Esc/Quit shape), but it alone also offers ctrl+r to open the
+	// client-update screen in consultation mode; giving it its own context
+	// keeps that hint from leaking into character/account creation, where
+	// the key does nothing.
+	userSettingsKeymap := bubblehelp.NewKeymap(2)
+	userSettingsKeymap.Style = mainHelpStyle
+	userSettingsKeymap.NewKeyBinding(Enter, true)
+	userSettingsKeymap.NewKeyBinding(Esc, true)
+	userSettingsKeymap.NewKeyBinding(RKeyCtrl, true)
+	userSettingsKeymap.SetHelpDesc(RKeyCtrl, lokyn.L("check for updates"))
+	userSettingsKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextUserSettings, userSettingsKeymap)
 
 	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle

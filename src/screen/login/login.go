@@ -10,6 +10,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/session"
 	"farental/screen"
+	"farental/screen/clientupdate"
 	"farental/widget"
 	"farental/widget/help"
 	"farental/widget/languageindicator"
@@ -173,6 +174,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(msg, keybind.NKeyCtrl):
 			return orvyn.SwitchScreen(screen.IDAccountCreation)
+
+		case key.Matches(msg, keybind.RKeyCtrl):
+			return clientupdate.OpenConsultation()
 
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
