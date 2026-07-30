@@ -115,6 +115,45 @@ func TestFetchManifestNotFound(t *testing.T) {
 	}
 }
 
+// A stray Taskfile edit or a plain `go build` (config.WebURL's zero value is
+// http://127.0.0.1:3001) must not silently make the client fetch and decode
+// a manifest, let alone a binary, over cleartext HTTP against a real host.
+func TestFetchManifestRejectsNonHTTPSNonLoopbackURL(t *testing.T) {
+	if _, err := fetchManifest("http://example.com", "fr"); err == nil {
+		t.Fatal("expected an error for a non-HTTPS, non-loopback URL, got nil")
+	}
+}
+
+// Local development runs the website over plain HTTP on 127.0.0.1
+// (manifestServer, via httptest.NewServer, does exactly this), so that
+// combination must keep working. Every other test in this file exercises
+// it implicitly; this one names the requirement directly.
+func TestFetchManifestAllowsPlainHTTPOnLoopback(t *testing.T) {
+	body := replacePlatform(sampleManifest)
+	srv := manifestServer(t, http.StatusOK, body)
+
+	if _, err := fetchManifest(srv.URL, "fr"); err != nil {
+		t.Fatalf("loopback HTTP should be allowed for local development: %v", err)
+	}
+}
+
+// The JSON body is decoded through a bounded reader, symmetric with the
+// binary download's size bound, so a runaway or hostile response body
+// cannot make the client buffer an unbounded amount of memory.
+func TestFetchManifestRejectsOversizedBody(t *testing.T) {
+	huge := strings.Repeat(" ", maxManifestBodySize+1) + replacePlatform(sampleManifest)
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(huge))
+	}))
+
+	t.Cleanup(srv.Close)
+
+	if _, err := fetchManifest(srv.URL, "fr"); err == nil {
+		t.Fatal("expected an error for a body over the size limit, got nil")
+	}
+}
+
 func TestCheckMandatoryWhenIncompatible(t *testing.T) {
 	body := replacePlatform(sampleManifest)
 	srv := manifestServer(t, http.StatusOK, body)

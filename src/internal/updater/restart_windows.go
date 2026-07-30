@@ -11,7 +11,7 @@ import (
 // exec that replaces a process image, and the running executable has already
 // been renamed aside by the swap.
 func Restart() error {
-	exe, err := ExecutablePath()
+	exe, err := SwappedExecutablePath()
 
 	if err != nil {
 		return err

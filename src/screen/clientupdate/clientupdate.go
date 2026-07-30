@@ -1,6 +1,7 @@
 package clientupdate
 
 import (
+	"errors"
 	"farental/internal/config"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
@@ -31,6 +32,7 @@ const (
 	stateRestarting
 	stateFailed
 	stateManualRequired
+	stateUnrecoverable
 )
 
 // bytesPerMB is used only for the human-readable size line.
@@ -124,7 +126,14 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.result = updater.Pending
 
 	s.title.SetValue(lokyn.L("A new version is available"))
-	s.subtitle.SetValue(fmt.Sprintf("%s  →  %s", s.result.Current, s.result.Latest))
+
+	// Latest is empty when the manifest fetch failed; showing "1.1.0  →  "
+	// with a blank right side is worse than showing nothing.
+	if s.result.Latest != "" {
+		s.subtitle.SetValue(fmt.Sprintf("%s  →  %s", s.result.Current, s.result.Latest))
+	} else {
+		s.subtitle.SetValue("")
+	}
 
 	s.refreshNotes()
 
@@ -200,6 +209,16 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		// orvyn.SwitchScreen runs OnEnter synchronously from App.Init(),
+		// before bubbletea's loop starts and so before the first resize
+		// message arrives; refreshNotes there wraps to a hardcoded
+		// default. This case is what makes it wrap to the real terminal
+		// width, both at startup and on every later resize.
+		s.refreshNotes()
+
+		return s.notes.Update(msg)
+
 	case progress.FrameMsg:
 		return s.bar.Update(msg)
 
@@ -248,6 +267,16 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 	case stateManualRequired:
 		switch {
 		case key.Matches(m, keybind.Esc):
+			if s.result.Mode == updater.ModeOptional {
+				return orvyn.SwitchScreen(screen.IDLogin), true
+			}
+		}
+
+	case stateUnrecoverable:
+		switch {
+		case key.Matches(m, keybind.Esc):
+			// No retry key here on purpose: the target binary is gone
+			// and a retry cannot succeed.
 			if s.result.Mode == updater.ModeOptional {
 				return orvyn.SwitchScreen(screen.IDLogin), true
 			}
@@ -309,13 +338,29 @@ func (s *Screen) refreshProgress() tea.Cmd {
 
 func (s *Screen) handleFinished(msg finishedMsg) tea.Cmd {
 	if msg.err != nil {
-		s.state = stateFailed
 		s.bar.SetActive(false)
+		s.title.SetValue(lokyn.L("Update failed"))
+
+		// RollbackFailedError means the swap failed *and* selfupdate's own
+		// rollback failed: there is no file at the target path at all.
+		// Retrying can only fail again the same way, so the hint must not
+		// be "press r" — it has to send the user to the saved old binary.
+		var rerr *updater.RollbackFailedError
+
+		if errors.As(msg.err, &rerr) {
+			s.state = stateUnrecoverable
+			s.status.SetValue(fmt.Sprintf("%s\n%v\n\n%s",
+				lokyn.L("The update failed."), msg.err,
+				fmt.Sprintf(lokyn.L("The previous version was saved at %s. Reinstall it manually."), rerr.OldPath)))
+
+			return nil
+		}
+
+		s.state = stateFailed
 		// The retry key is not in the help keymap, which is fixed per context,
 		// so the hint goes in the message the user is already reading.
 		s.status.SetValue(fmt.Sprintf("%s\n%v\n\n%s",
 			lokyn.L("The update failed."), msg.err, lokyn.L("Press r to retry.")))
-		s.title.SetValue(lokyn.L("Update failed"))
 
 		return nil
 	}
@@ -350,7 +395,14 @@ func (s *Screen) enterManual(reason string) {
 }
 
 func (s *Screen) refreshNotes() {
-	lines := updater.RenderNotes(s.result.Notes, orvyn.WindowSize.Width-10)
+	// The pane never grows past the theme's layout width even on a very
+	// wide terminal (DefinedWidthVerticalLayout clamps to it), so the wrap
+	// width has to follow the same min, not the raw terminal width. -10 is
+	// that layout's margin; -2 is the notes pane's own border.
+	layoutWidth := orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID)
+	width := min(orvyn.WindowSize.Width, layoutWidth) - 10 - 2
+
+	lines := updater.RenderNotes(s.result.Notes, width)
 
 	if len(lines) == 0 {
 		s.notes.SetActive(false)

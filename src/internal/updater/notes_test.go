@@ -227,3 +227,48 @@ func TestRenderNotesEmpty(t *testing.T) {
 		t.Errorf("got %q, want nil", got)
 	}
 }
+
+// The manifest is server-supplied and untrusted: a negative Indent must not
+// panic strings.Repeat or index a counters slice out of range.
+func TestRenderNotesClampsNegativeIndent(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Items: []Item{
+			{Indent: -1, Spans: []Span{{Text: "top"}}},
+		}},
+	}, 40))
+
+	if len(got) != 1 || got[0] != "• top" {
+		t.Errorf("got %q, want a single unindented bullet", got)
+	}
+}
+
+// An ordered list with a negative Indent must not panic either, since the
+// counters slice is grown by "len(counters) <= indent" which never runs for
+// a negative indent unless it is clamped first.
+func TestRenderNotesClampsNegativeIndentOrdered(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Ordered: true, Items: []Item{
+			{Indent: -5, Spans: []Span{{Text: "first"}}},
+		}},
+	}, 40))
+
+	if len(got) != 1 || got[0] != "1. first" {
+		t.Errorf("got %q, want a single numbered entry", got)
+	}
+}
+
+// A huge Indent must not allocate an unbounded number of spaces or grow the
+// ordered counters slice without limit.
+func TestRenderNotesClampsHugeIndent(t *testing.T) {
+	got := stripAll(RenderNotes([]Block{
+		{Type: "list", Items: []Item{
+			{Indent: 1_000_000, Spans: []Span{{Text: "deep"}}},
+		}},
+	}, 60))
+
+	want := strings.Repeat(" ", maxListIndent*listIndentWidth) + "• deep"
+
+	if len(got) != 1 || got[0] != want {
+		t.Errorf("got %q, want indent clamped to %d levels", got, maxListIndent)
+	}
+}

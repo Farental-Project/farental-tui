@@ -3,6 +3,7 @@ package updater
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"runtime"
@@ -13,6 +14,11 @@ import (
 // fetchTimeout bounds the manifest request. The client blocks on it at
 // startup, so it must fail fast on a dead or slow host.
 const fetchTimeout = 10 * time.Second
+
+// maxManifestBodySize bounds the manifest response, symmetric with the
+// binary download's size bound: a JSON document describing a release has no
+// business being anywhere near this large.
+const maxManifestBodySize = 1 * 1024 * 1024
 
 // Span is a run of note text sharing one set of inline marks.
 type Span struct {
@@ -62,6 +68,10 @@ func PlatformKey() string {
 }
 
 func fetchManifest(baseURL, lang string) (*manifest, error) {
+	if err := requireSecureURL(baseURL); err != nil {
+		return nil, err
+	}
+
 	endpoint, err := url.JoinPath(strings.TrimSuffix(baseURL, "/"), "clienttui", "latest")
 
 	if err != nil {
@@ -86,7 +96,7 @@ func fetchManifest(baseURL, lang string) (*manifest, error) {
 
 	var m manifest
 
-	if err := json.NewDecoder(resp.Body).Decode(&m); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxManifestBodySize)).Decode(&m); err != nil {
 		return nil, err
 	}
 

@@ -11,7 +11,7 @@ import (
 // kept and no second process appears, so the shell sees one continuous
 // program. Must be called only after bubbletea has restored the terminal.
 func Restart() error {
-	exe, err := ExecutablePath()
+	exe, err := SwappedExecutablePath()
 
 	if err != nil {
 		return err

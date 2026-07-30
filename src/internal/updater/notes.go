@@ -16,6 +16,13 @@ const minNotesWidth = 20
 // listIndentWidth is the number of spaces one nesting level adds.
 const listIndentWidth = 2
 
+// maxListIndent bounds how deep a list item's indent can render. The server
+// decides the notes' content but the manifest is untrusted input: a
+// negative Indent would panic strings.Repeat, and an unbounded one would
+// allocate without limit, so both ends are clamped here regardless of what
+// the server sends.
+const maxListIndent = 8
+
 // RenderNotes turns release note blocks into styled terminal lines wrapped to
 // width. The server decides what the notes say; this decides how they look,
 // because only the client knows the width and the active theme.
@@ -78,19 +85,21 @@ func renderList(b Block, width int) []string {
 	var counters []int
 
 	for _, item := range b.Items {
-		indent := strings.Repeat(" ", item.Indent*listIndentWidth)
+		level := clampIndent(item.Indent)
+
+		indent := strings.Repeat(" ", level*listIndentWidth)
 
 		marker := "• "
 
 		if b.Ordered {
-			for len(counters) <= item.Indent {
+			for len(counters) <= level {
 				counters = append(counters, 0)
 			}
 
-			counters[item.Indent]++
-			counters = counters[:item.Indent+1]
+			counters[level]++
+			counters = counters[:level+1]
 
-			marker = fmt.Sprintf("%d. ", counters[item.Indent])
+			marker = fmt.Sprintf("%d. ", counters[level])
 		}
 
 		first := indent + marker
@@ -109,6 +118,20 @@ func renderList(b Block, width int) []string {
 	}
 
 	return lines
+}
+
+// clampIndent bounds an item's nesting level to [0, maxListIndent], since
+// Indent comes from the manifest and must not be trusted as-is.
+func clampIndent(indent int) int {
+	if indent < 0 {
+		return 0
+	}
+
+	if indent > maxListIndent {
+		return maxListIndent
+	}
+
+	return indent
 }
 
 // renderSpans applies inline marks. A link becomes "text (url)" because
