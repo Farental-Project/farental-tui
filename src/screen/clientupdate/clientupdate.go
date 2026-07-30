@@ -62,9 +62,16 @@ type finishedMsg struct {
 // (distinct from a populated result whose Err field is set, which is
 // updater.Check's internal manifest-fetch failure); either means there is no
 // usable Result to show.
+//
+// gen ties the message back to the specific enterConsultation call that
+// launched the check that produced it (see Screen.generation). checkForConsultation
+// is an in-flight network command; if the screen is left and re-entered -
+// on either path - before it returns, a stale message must not be able to
+// rewrite whatever the new entry already set up.
 type consultCheckedMsg struct {
 	result updater.Result
 	err    error
+	gen    uint64
 }
 
 // consultPending tells the next OnEnter to run in consultation mode:
@@ -77,6 +84,15 @@ type consultCheckedMsg struct {
 // consultation" any other way.
 var consultPending bool
 
+// consultFrom and consultRestorePrevious ride alongside consultPending,
+// carrying the extra hand-off OpenConsultation needs: the screen esc must
+// return to, and the previousScreenID orvyn had before OpenConsultation's own
+// SwitchScreen overwrote it. See OpenConsultation and Screen.exitCmd.
+var (
+	consultFrom            orvyn.ScreenID
+	consultRestorePrevious orvyn.ScreenID
+)
+
 // OpenConsultation opens the client-update screen read-only: it always
 // fetches fresh version info rather than reusing updater.Pending, shows
 // current/latest version and release notes, and lets the user start the
@@ -84,8 +100,20 @@ var consultPending bool
 // always returns to whichever screen called this, even if the check comes
 // back reporting a mandatory update - the user opened this voluntarily and
 // must never be trapped by it.
-func OpenConsultation() tea.Cmd {
+//
+// from is the ScreenID of the caller. orvyn keeps a single previousScreenID
+// slot, not a stack: the SwitchScreen call below is about to overwrite it
+// with from, so relying on orvyn.SwitchToPreviousScreen to leave consultation
+// would send esc back into whichever screen last held that slot, not
+// necessarily the caller - and if the caller is itself reached via
+// SwitchToPreviousScreen (as user settings' own esc handler is), the two
+// ping-pong forever. Capturing from explicitly, and capturing what
+// previousScreenID was *before* this call so it can be restored on the way
+// out, are both required to break that: see exitCmd.
+func OpenConsultation(from orvyn.ScreenID) tea.Cmd {
 	consultPending = true
+	consultFrom = from
+	consultRestorePrevious = orvyn.GetPreviousScreen()
 
 	return orvyn.SwitchScreen(screen.IDClientUpdate)
 }
@@ -119,6 +147,16 @@ type Screen struct {
 	// exits) and where esc goes (back to the caller, not to login).
 	consultation bool
 
+	// consultFrom and consultRestorePrevious are OnEnter's copy of the
+	// package-level consultFrom/consultRestorePrevious vars, taken at the
+	// same time and for the same reason s.consultation is a copy of
+	// consultPending: exitCmd needs them long after OnEnter returns, and the
+	// package vars could have been overwritten by then (a second
+	// OpenConsultation call, from a different screen, while this one is
+	// still on screen). See exitCmd.
+	consultFrom            orvyn.ScreenID
+	consultRestorePrevious orvyn.ScreenID
+
 	result updater.Result
 
 	progress atomic.Int64
@@ -130,6 +168,13 @@ type Screen struct {
 	// orvyn.TickMsg case, which must batch it in - dropping it stops the
 	// progress bar's animation dead.
 	progressCmd tea.Cmd
+
+	// generation counts OnEnter calls. It is bumped unconditionally, on both
+	// paths, so any consultCheckedMsg tied to an older generation - a check
+	// still in flight when the screen was left and re-entered, on either
+	// path - is recognized as stale and dropped rather than clobbering
+	// whatever the new entry just set up. See handleConsultChecked.
+	generation uint64
 }
 
 func New() *Screen {
@@ -195,10 +240,18 @@ func New() *Screen {
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextClientUpdate)
 
+	// Bumped unconditionally, before branching, so a consultCheckedMsg from
+	// any earlier entry - consultation or startup - is stale from this point
+	// on. See the doc comment on the generation field.
+	s.generation++
+
 	s.consultation = consultPending
 	consultPending = false
 
 	if s.consultation {
+		s.consultFrom = consultFrom
+		s.consultRestorePrevious = consultRestorePrevious
+
 		return s.enterConsultation()
 	}
 
@@ -209,6 +262,18 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 // updater.Pending exactly as main.go left it.
 func (s *Screen) enterPending() tea.Cmd {
 	s.result = updater.Pending
+
+	// main only ever switches to this screen on the startup path after
+	// finding updater.Pending.Mode != ModeNone; reaching here with ModeNone
+	// means something upstream is broken (e.g. a stale re-entry ping-ponging
+	// through user settings - see OpenConsultation). Rendering the prompt
+	// anyway would offer to reinstall the exact version already running,
+	// with canEscape false (Mode is never ModeOptional/ModeMandatory here)
+	// and so no way out but ctrl+c. Bail to login instead of ever showing
+	// that.
+	if s.result.Mode == updater.ModeNone {
+		return orvyn.SwitchScreen(screen.IDLogin)
+	}
 
 	s.title.SetValue(lokyn.L("A new version is available"))
 
@@ -292,6 +357,7 @@ func (s *Screen) enterConsultation() tea.Cmd {
 	s.progress.Store(0)
 
 	s.state = stateConsultChecking
+	s.refreshHelpContext()
 
 	s.title.SetValue(lokyn.L("Checking for updates..."))
 	s.subtitle.SetValue("")
@@ -300,7 +366,21 @@ func (s *Screen) enterConsultation() tea.Cmd {
 	s.bar.SetActive(false)
 	s.statusMessage.Reset()
 
-	return checkForConsultation
+	// gen is captured now, not read from s inside the closure: by the time
+	// this command runs (and, worse, by the time its result comes back),
+	// s.generation may have moved on to a later entry.
+	gen := s.generation
+
+	return func() tea.Msg {
+		msg := checkForConsultation()
+
+		if m, ok := msg.(consultCheckedMsg); ok {
+			m.gen = gen
+			return m
+		}
+
+		return msg
+	}
 }
 
 // checkForConsultation is consultation mode's fresh check, run as a tea.Cmd
@@ -351,6 +431,17 @@ func decideConsultEntry(result updater.Result, checkErr, preflightErr error) (st
 }
 
 func (s *Screen) handleConsultChecked(msg consultCheckedMsg) tea.Cmd {
+	// checkForConsultation is an in-flight network command; if the screen
+	// was left and re-entered - on either path - before it returned, this
+	// message belongs to a check OnEnter has already superseded. Applying it
+	// now would rewrite s.result/s.state/title/subtitle out from under
+	// whatever the new entry set up, including moving a startup-path re-entry
+	// into a consultation state whose esc handler jumps to login instead of
+	// the startup path's own exit.
+	if msg.gen != s.generation {
+		return nil
+	}
+
 	s.result = msg.result
 	s.detail.SetValue("")
 
@@ -358,6 +449,7 @@ func (s *Screen) handleConsultChecked(msg consultCheckedMsg) tea.Cmd {
 
 	entryState, reason := decideConsultEntry(msg.result, msg.err, preflightErr)
 	s.state = entryState
+	s.refreshHelpContext()
 
 	if entryState == stateConsultFailed {
 		s.title.SetValue(lokyn.L("Could not check for updates"))
@@ -464,12 +556,40 @@ func (s *Screen) canEscape() bool {
 // exitCmd is where esc goes once canEscape allows it: back to whichever
 // screen opened a consultation, or to login for the startup path, exactly as
 // before.
+//
+// The consultation branch switches to s.consultFrom directly rather than
+// orvyn.SwitchToPreviousScreen: orvyn keeps a single previousScreenID slot,
+// which OpenConsultation's own SwitchScreen(IDClientUpdate) already
+// overwrote with the caller's ID, so by now it holds no information exitCmd
+// doesn't already have in s.consultFrom. Switching there also overwrites
+// previousScreenID a second time - to this screen's own ID - which would
+// otherwise make the caller's *next* esc bounce right back here; restoring
+// it to whatever it was before the consultation (captured in
+// s.consultRestorePrevious, see OpenConsultation) undoes that.
 func (s *Screen) exitCmd() tea.Cmd {
 	if s.consultation {
-		return orvyn.SwitchToPreviousScreen()
+		cmd := orvyn.SwitchScreen(s.consultFrom)
+		orvyn.SetPreviousScreen(s.consultRestorePrevious)
+
+		return cmd
 	}
 
 	return orvyn.SwitchScreen(screen.IDLogin)
+}
+
+// refreshHelpContext keeps the help bar's advertised keys honest across the
+// three read-only consultation states (still checking, already up to date,
+// fetch failed): unlike every other state, enter does nothing there, and esc
+// means "back to whichever screen opened this" rather than "skip". Every
+// other state - including statePrompt reached via consultation, where enter
+// does start the update - keeps the ordinary ContextClientUpdate keymap.
+func (s *Screen) refreshHelpContext() {
+	switch s.state {
+	case stateConsultChecking, stateConsultUpToDate, stateConsultFailed:
+		bubblehelp.SwitchContext(keybind.ContextClientUpdateConsult)
+	default:
+		bubblehelp.SwitchContext(keybind.ContextClientUpdate)
+	}
 }
 
 func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
@@ -547,7 +667,12 @@ func (s *Screen) startUpdate() tea.Cmd {
 	// Restart (not Start) bumps the ticker's tag, invalidating any tick
 	// still in flight from a previous attempt - the same thing the old
 	// hand-rolled s.tickTag++ did on every call, including a retry.
-	return tea.Batch(download, s.ticker.Restart())
+	//
+	// refreshProgress is also called directly, once, right here: Restart
+	// only arms the *next* tick after a full interval, it never fires
+	// onFire itself, so without this the bar would sit at 0% with no MB
+	// counter for the first second of every download.
+	return tea.Batch(download, s.refreshProgress(), s.ticker.Restart())
 }
 
 // onProgressTick is the ticker's onFire callback. A Ticker's onFire is a

@@ -7,8 +7,10 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func binaryServer(t *testing.T, payload []byte) *httptest.Server {
@@ -85,6 +87,117 @@ func TestApplyReplacesTargetAndReportsProgress(t *testing.T) {
 
 	if counter.Load() != int64(len(payload)) {
 		t.Errorf("progress = %d, want %d", counter.Load(), len(payload))
+	}
+}
+
+// TestApplyStreamsRatherThanBuffering guards the one invariant a fully
+// buffered implementation would satisfy identically to the streaming one:
+// TestApplyReplacesTargetAndReportsProgress only checks the *final* progress
+// counter, which a resty response fully buffered before Send() returns would
+// also reach eventually. The distinguishing behavior is *when* progress can
+// be observed to advance - while the server is still holding back the rest
+// of the body - which requires the reader Apply consumes to be the live
+// network connection, not a copy already sitting in memory.
+//
+// The server writes and flushes a first chunk, then blocks on a channel
+// before writing the rest. Apply runs in a goroutine so the test can watch
+// progress while that block is in effect. If resty were buffering the whole
+// response before Send() returns (the default resty.Client behavior; only
+// FileDownloadGet's SetDoNotParseResponse prevents it - see
+// core/request/clientupdate.go), Send() itself would be stuck waiting for
+// the server to finish, which it will not do until this test releases the
+// second chunk: progress could never be observed to move first. A bounded
+// wait turns that circular wait into a clean test failure instead of a hang.
+func TestApplyStreamsRatherThanBuffering(t *testing.T) {
+	first := []byte("STREAM-CHUNK-ONE-0123456789")
+	second := []byte("STREAM-CHUNK-TWO-9876543210")
+	payload := append(append([]byte{}, first...), second...)
+
+	release := make(chan struct{})
+	var releaseOnce sync.Once
+	releaseHandler := func() { releaseOnce.Do(func() { close(release) }) }
+	// Guarantees the handler goroutine unblocks even if this test fails (or
+	// times out) before reaching the explicit releaseHandler() call below -
+	// otherwise t.Cleanup(srv.Close), which waits for in-flight requests to
+	// finish, would hang the whole suite rather than failing cleanly.
+	defer releaseHandler()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write(first)
+		w.(http.Flusher).Flush()
+
+		<-release
+
+		w.Write(second)
+	}))
+	t.Cleanup(srv.Close)
+
+	target := filepath.Join(t.TempDir(), "Farental")
+	writeFile(t, target, []byte("old"))
+
+	originalOverride := targetPathOverride
+	t.Cleanup(func() { targetPathOverride = originalOverride })
+	targetPathOverride = target
+
+	originalSwapped := swappedPath
+	t.Cleanup(func() { swappedPath = originalSwapped })
+
+	var counter atomic.Int64
+	errCh := make(chan error, 1)
+
+	go func() {
+		errCh <- Apply(srv.URL, FileInfo{
+			SizeBytes: int64(len(payload)),
+			SHA256:    sum(payload),
+			URL:       "/clienttui/download/42",
+		}, &counter)
+	}()
+
+	// Poll for the counter to reflect the first chunk, bounded by a hard
+	// deadline: in the buffered-regression scenario this never happens (Send
+	// is stuck waiting on the server, which is stuck waiting on release, which
+	// this test has not closed yet), and the deadline is what turns that
+	// deadlock into a normal test failure.
+	deadline := time.After(5 * time.Second)
+	ticker := time.NewTicker(2 * time.Millisecond)
+	defer ticker.Stop()
+
+waitForFirstChunk:
+	for {
+		select {
+		case <-ticker.C:
+			if counter.Load() >= int64(len(first)) {
+				break waitForFirstChunk
+			}
+		case <-deadline:
+			t.Fatal("progress did not advance while the server withheld the rest " +
+				"of the response; the body looks fully buffered rather than streamed")
+		}
+	}
+
+	releaseHandler()
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			t.Fatalf("Apply returned %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Apply did not complete after the server sent the rest of the response")
+	}
+
+	if got := counter.Load(); got != int64(len(payload)) {
+		t.Errorf("progress = %d, want %d", got, len(payload))
+	}
+
+	got, err := os.ReadFile(target)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(got) != string(payload) {
+		t.Errorf("target contents = %q, want %q", got, payload)
 	}
 }
 

@@ -48,6 +48,7 @@ const (
 	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
+	ContextClientUpdateConsult                 bubblehelp.KeymapContext = "clientUpdateConsult"
 )
 
 func InitContexts() {
@@ -648,4 +649,17 @@ func InitContexts() {
 	clientUpdateKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextClientUpdate, clientUpdateKeymap)
+
+	// clientUpdateConsult covers the three read-only consultation states
+	// (still checking, already up to date, fetch failed - see
+	// clientupdate.Screen.refreshHelpContext): unlike clientUpdateKeymap
+	// above, enter does nothing in any of them, so it is left out entirely,
+	// and esc means "back to whichever screen opened this", not "skip".
+	clientUpdateConsultKeymap := bubblehelp.NewKeymap(2)
+	clientUpdateConsultKeymap.Style = mainHelpStyle
+	clientUpdateConsultKeymap.NewKeyBinding(Esc, true)
+	clientUpdateConsultKeymap.SetHelpDesc(Esc, lokyn.L("back"))
+	clientUpdateConsultKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextClientUpdateConsult, clientUpdateConsultKeymap)
 }

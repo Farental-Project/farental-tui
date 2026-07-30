@@ -16,7 +16,7 @@ import (
 )
 
 // dummyScreen is a no-op orvyn.Screen, registered under screen.IDLogin (and,
-// for consultation-mode tests, screen.IDUserSettings and
+// for consultation-mode tests, screen.IDUserSettings, screen.IDDashBoard and
 // screen.IDClientUpdate) so that handleKey's and OpenConsultation's
 // orvyn.SwitchScreen calls have somewhere real to go: an unregistered
 // ScreenID makes orvyn.SwitchScreen call log.Fatalf, which exits the test
@@ -42,6 +42,7 @@ func TestMain(m *testing.M) {
 	orvyn.RegisterScreen(screen.IDLogin, dummyScreen{})
 	orvyn.RegisterScreen(screen.IDUserSettings, dummyScreen{})
 	orvyn.RegisterScreen(screen.IDClientUpdate, dummyScreen{})
+	orvyn.RegisterScreen(screen.IDDashBoard, dummyScreen{})
 
 	os.Exit(m.Run())
 }
@@ -428,6 +429,8 @@ func TestDecideConsultEntryCheckErrTakesPriorityOverResultErr(t *testing.T) {
 // flag and clear it immediately, and must not touch updater.Pending at all.
 func TestOnEnterConsultationConsumesPendingFlag(t *testing.T) {
 	consultPending = true
+	consultFrom = screen.IDUserSettings
+	consultRestorePrevious = screen.IDDashBoard
 	updater.Pending = updater.Result{Mode: updater.ModeMandatory, Current: "unrelated-pending-value"}
 
 	s := New()
@@ -439,6 +442,14 @@ func TestOnEnterConsultationConsumesPendingFlag(t *testing.T) {
 
 	if !s.consultation {
 		t.Error("expected s.consultation to be true")
+	}
+
+	if s.consultFrom != screen.IDUserSettings {
+		t.Errorf("s.consultFrom = %q, want %q", s.consultFrom, screen.IDUserSettings)
+	}
+
+	if s.consultRestorePrevious != screen.IDDashBoard {
+		t.Errorf("s.consultRestorePrevious = %q, want %q", s.consultRestorePrevious, screen.IDDashBoard)
 	}
 
 	if s.state != stateConsultChecking {
@@ -476,14 +487,43 @@ func TestOnEnterWithoutConsultPendingTakesStartupPath(t *testing.T) {
 	}
 }
 
+// TestEnterPendingBugStopsWhenPendingModeIsNone covers the Critical 1
+// defensive guard: main only ever switches to this screen on the startup
+// path once updater.Pending.Mode != ModeNone, so reaching enterPending with
+// ModeNone at all is already a bug elsewhere (the ping-pong through user
+// settings' esc handler being exactly how it could happen). The prompt must
+// never render for a version that is already current - there would be no
+// way out but ctrl+c - so this must bail straight back to login instead.
+func TestEnterPendingBugStopsWhenPendingModeIsNone(t *testing.T) {
+	consultPending = false
+	updater.Pending = updater.Result{Mode: updater.ModeNone, Current: "1.2.0", Latest: "1.2.0", File: fileInfo()}
+
+	s := New()
+	s.OnEnter(nil)
+
+	if got := orvyn.GetCurrentScreenID(); got != screen.IDLogin {
+		t.Errorf("current screen = %q, want %q; a ModeNone startup entry must never render the update prompt",
+			got, screen.IDLogin)
+	}
+}
+
 // TestOpenConsultationSwitchesToClientUpdateScreen checks the exported entry
-// point itself: it must set consultPending and perform the screen switch, the
-// same hand-off shape updater.Pending and session.Expired() already use
-// elsewhere in this codebase.
+// point itself: it must set consultPending, record the caller as consultFrom,
+// capture whatever previousScreenID held before its own SwitchScreen call
+// overwrites it, and perform the screen switch - the same hand-off shape
+// updater.Pending and session.Expired() already use elsewhere in this
+// codebase.
 func TestOpenConsultationSwitchesToClientUpdateScreen(t *testing.T) {
 	defer func() { consultPending = false }()
 
-	OpenConsultation()
+	// dashboard -> usersettings, as dashboard.go's own handleKey does:
+	// previousScreenID becomes screen.IDDashBoard, which OpenConsultation
+	// must capture into consultRestorePrevious before its own SwitchScreen
+	// call below overwrites it with screen.IDUserSettings.
+	orvyn.SwitchScreen(screen.IDDashBoard)
+	orvyn.SwitchScreen(screen.IDUserSettings)
+
+	OpenConsultation(screen.IDUserSettings)
 
 	if got := orvyn.GetCurrentScreenID(); got != screen.IDClientUpdate {
 		t.Errorf("current screen = %q, want %q", got, screen.IDClientUpdate)
@@ -494,6 +534,15 @@ func TestOpenConsultationSwitchesToClientUpdateScreen(t *testing.T) {
 	// should still read true here.
 	if !consultPending {
 		t.Error("expected consultPending to be set")
+	}
+
+	if consultFrom != screen.IDUserSettings {
+		t.Errorf("consultFrom = %q, want %q", consultFrom, screen.IDUserSettings)
+	}
+
+	if consultRestorePrevious != screen.IDDashBoard {
+		t.Errorf("consultRestorePrevious = %q, want %q (captured before SwitchScreen overwrote previousScreenID)",
+			consultRestorePrevious, screen.IDDashBoard)
 	}
 }
 
@@ -555,13 +604,85 @@ func TestHandleConsultCheckedFetchFailed(t *testing.T) {
 	}
 }
 
+// TestHandleConsultCheckedIgnoresStaleGeneration covers Important 2: a
+// checkForConsultation command still in flight when the screen is left and
+// re-entered - here, on the startup path, before it returns - must not be
+// able to rewrite state a newer OnEnter call already set up. Without the
+// generation guard, this stale message would flip a perfectly ordinary
+// startup-path statePrompt into a consultation state whose esc handler jumps
+// to login rather than the startup path's own exit.
+func TestHandleConsultCheckedIgnoresStaleGeneration(t *testing.T) {
+	consultPending = true
+	s := New()
+	s.OnEnter(nil) // consultation entry; generation bumped once.
+
+	staleGen := s.generation
+
+	// The user leaves and the screen is re-entered on the ordinary startup
+	// path before the in-flight check (tied to staleGen) comes back.
+	consultPending = false
+	updater.Pending = updater.Result{Mode: updater.ModeOptional, Current: "1.1.0", File: fileInfo()}
+	s.OnEnter(nil) // generation bumped again; staleGen is now out of date.
+
+	if s.consultation {
+		t.Fatal("setup: expected the second OnEnter to take the startup path")
+	}
+
+	if s.state != statePrompt {
+		t.Fatalf("setup: state = %v, want statePrompt", s.state)
+	}
+
+	cmd := s.handleConsultChecked(consultCheckedMsg{
+		gen:    staleGen,
+		result: updater.Result{Mode: updater.ModeNone, Current: "9.9.9"},
+	})
+
+	if cmd != nil {
+		t.Errorf("expected no command for a stale message, got %v", cmd)
+	}
+
+	if s.state != statePrompt {
+		t.Errorf("a stale consultCheckedMsg hijacked state: state = %v, want unchanged statePrompt", s.state)
+	}
+
+	if s.consultation {
+		t.Error("a stale consultCheckedMsg must not flip the startup path into consultation mode")
+	}
+}
+
+// TestHandleConsultCheckedAppliesCurrentGeneration is
+// TestHandleConsultCheckedIgnoresStaleGeneration's counterpart: a message
+// tagged with the screen's *current* generation must still be applied
+// normally, so the generation guard rejects only genuinely stale messages.
+func TestHandleConsultCheckedAppliesCurrentGeneration(t *testing.T) {
+	consultPending = true
+	s := New()
+	s.OnEnter(nil)
+
+	cmd := s.handleConsultChecked(consultCheckedMsg{
+		gen:    s.generation,
+		result: updater.Result{Mode: updater.ModeNone, Current: "1.2.0"},
+	})
+
+	if cmd != nil {
+		t.Errorf("expected no command, got %v", cmd)
+	}
+
+	if s.state != stateConsultUpToDate {
+		t.Errorf("state = %v, want stateConsultUpToDate", s.state)
+	}
+}
+
 // TestHandleKeyConsultationEscAlwaysExits is the crux of remark B's exit
 // rule: esc must return to whichever screen opened the consultation
 // regardless of what the check reported, including a mandatory-update
 // result (possible if the server's client_tui compat string changed
 // mid-session) that would block esc entirely on the startup path. It must
-// go to the *previous* screen (orvyn.SwitchToPreviousScreen), not always to
-// login, which is what distinguishes this from the startup path's exit.
+// go to s.consultFrom - the screen OpenConsultation recorded, not whatever
+// orvyn's single previousScreenID slot happens to hold (that slot was
+// already overwritten with the caller's own ID by OpenConsultation's
+// SwitchScreen(IDClientUpdate) call, and relying on it instead of
+// consultFrom is exactly the Critical 1 defect: see exitCmd's doc comment).
 func TestHandleKeyConsultationEscAlwaysExits(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -580,14 +701,19 @@ func TestHandleKeyConsultationEscAlwaysExits(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// screen.IDUserSettings stands in for "whichever screen opened
-			// the consultation" here; using it (rather than screen.IDLogin,
-			// which is also the startup path's fixed exit target) proves
-			// esc actually goes to the *previous* screen and isn't
-			// coincidentally landing on the startup path's hardcoded one.
-			orvyn.SetPreviousScreen(screen.IDUserSettings)
+			// A decoy previousScreenID, deliberately different from
+			// consultFrom below: if exitCmd read orvyn.GetPreviousScreen()
+			// instead of s.consultFrom (the old, broken behavior), the
+			// assertion below would catch it landing here instead of on
+			// screen.IDUserSettings.
+			orvyn.SetPreviousScreen(screen.IDLogin)
 
-			s := &Screen{state: tt.state, consultation: true, result: updater.Result{Mode: tt.mode}}
+			s := &Screen{
+				state:        tt.state,
+				consultation: true,
+				consultFrom:  screen.IDUserSettings,
+				result:       updater.Result{Mode: tt.mode},
+			}
 
 			_, handled := s.handleKey(escKeyMsg())
 
@@ -596,9 +722,75 @@ func TestHandleKeyConsultationEscAlwaysExits(t *testing.T) {
 			}
 
 			if got := orvyn.GetCurrentScreenID(); got != screen.IDUserSettings {
-				t.Errorf("current screen = %q, want %q (the previous screen)", got, screen.IDUserSettings)
+				t.Errorf("current screen = %q, want %q (s.consultFrom, the recorded opener)", got, screen.IDUserSettings)
 			}
 		})
+	}
+}
+
+// TestConsultationExitRestoresPreConsultationPreviousScreen reproduces the
+// Critical 1 trap end to end: dashboard -> usersettings -> (ctrl+r)
+// consultation -> esc -> usersettings -> esc must land back on dashboard.
+// Before the fix, step 3's esc used orvyn.SwitchToPreviousScreen, which
+// orvyn's own SwitchScreen(IDClientUpdate) call (in OpenConsultation) had
+// already pointed at usersettings - so step 3 did go to usersettings, but
+// also left previousScreenID pointing at this screen (clientupdate, the
+// screen esc was just leaving), since SwitchScreen always records the
+// screen it switched *from*. Step 4's esc in user settings is a bare
+// orvyn.SwitchToPreviousScreen(), so it re-entered clientupdate instead of
+// reaching dashboard - with consultPending now false, landing on the
+// startup path with a stale, already-current updater.Pending: exactly the
+// trapped state this whole fix exists to prevent.
+func TestConsultationExitRestoresPreConsultationPreviousScreen(t *testing.T) {
+	defer func() { consultPending = false }()
+
+	// Step 1: dashboard -> usersettings, as dashboard.go's own handleKey
+	// does; previousScreenID becomes screen.IDDashBoard.
+	orvyn.SwitchScreen(screen.IDDashBoard)
+	orvyn.SwitchScreen(screen.IDUserSettings)
+
+	// Step 2: ctrl+r from user settings opens consultation, exactly as
+	// usersettings.go's Update wires it up.
+	OpenConsultation(screen.IDUserSettings)
+
+	if got := orvyn.GetCurrentScreenID(); got != screen.IDClientUpdate {
+		t.Fatalf("setup: current screen = %q, want %q", got, screen.IDClientUpdate)
+	}
+
+	// screen.IDClientUpdate is registered to the no-op dummyScreen in
+	// TestMain, so it does not consume consultPending/consultFrom the way
+	// the real Screen does; build one directly and let it do so, as the
+	// other consultation tests in this file already do.
+	s := New()
+	s.OnEnter(nil)
+
+	if s.consultFrom != screen.IDUserSettings {
+		t.Fatalf("setup: s.consultFrom = %q, want %q", s.consultFrom, screen.IDUserSettings)
+	}
+
+	// Step 3: esc out of consultation.
+	_, handled := s.handleKey(escKeyMsg())
+
+	if !handled {
+		t.Fatal("expected esc to be handled in consultation mode")
+	}
+
+	if got := orvyn.GetCurrentScreenID(); got != screen.IDUserSettings {
+		t.Fatalf("current screen = %q, want %q", got, screen.IDUserSettings)
+	}
+
+	if got := orvyn.GetPreviousScreen(); got != screen.IDDashBoard {
+		t.Fatalf("previous screen = %q, want %q (restored to what it was before the consultation)",
+			got, screen.IDDashBoard)
+	}
+
+	// Step 4: esc in user settings - a bare orvyn.SwitchToPreviousScreen(),
+	// exactly as usersettings.go's Update implements it.
+	orvyn.SwitchToPreviousScreen()
+
+	if got := orvyn.GetCurrentScreenID(); got != screen.IDDashBoard {
+		t.Errorf("current screen = %q, want %q; the user is trapped back in the update screen otherwise",
+			got, screen.IDDashBoard)
 	}
 }
 

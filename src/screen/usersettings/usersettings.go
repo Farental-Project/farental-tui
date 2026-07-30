@@ -7,6 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/screen"
 	"farental/screen/clientupdate"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
@@ -134,7 +135,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
 		case key.Matches(m, keybind.RKeyCtrl):
-			return clientupdate.OpenConsultation()
+			return clientupdate.OpenConsultation(screen.IDUserSettings)
 		case key.Matches(m, keybind.Enter):
 			ok := s.submit()
 
