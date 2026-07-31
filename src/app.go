@@ -10,10 +10,12 @@ import (
 )
 
 // App is the main model to run the Orvyn application
-type App struct{}
+type App struct {
+	StartScreen orvyn.ScreenID
+}
 
 func (a App) Init() tea.Cmd {
-	return orvyn.SwitchScreen(screen.IDLogin)
+	return orvyn.SwitchScreen(a.StartScreen)
 }
 
 func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

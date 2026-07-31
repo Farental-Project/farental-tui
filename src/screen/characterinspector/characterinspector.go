@@ -82,7 +82,7 @@ func New() *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(35,
 			orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID),
-			10,
+			orvyn.NewSize(10, 4),
 			s.title,
 			orvyn.VGap,
 			s.runningTask,

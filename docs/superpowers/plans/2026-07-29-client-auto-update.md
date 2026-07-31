@@ -673,7 +673,7 @@ git commit -m "feat: convert Quill release notes to structured blocks"
 
 ---
 
-## Task 3: `latest.json` manifest route (server)
+## Task 3: `latest` manifest route (server)
 
 **Files:**
 - Modify: `farental-cli/src/serverweb/controller/clienttui.go`
@@ -682,7 +682,7 @@ git commit -m "feat: convert Quill release notes to structured blocks"
 
 **Interfaces:**
 - Consumes: `srvutil.QuillToBlocks`, `srvutil.NoteBlock` (Task 2); `data.PlatformLinuxArm64` (Task 1).
-- Produces: `GET /clienttui/latest.json?lang=<code>` returning the JSON shape below, and `buildLatestJSON(release *data.ClientRelease, langID, fallbackID uint) latestReleaseJSON`.
+- Produces: `GET /clienttui/latest?lang=<code>` returning the JSON shape below, and `buildLatestJSON(release *data.ClientRelease, langID, fallbackID uint) latestReleaseJSON`.
 
 The handler stays a thin wrapper so the payload logic is testable without a database — the controller package's existing tests use no DB, and this must not be the first to need one.
 
@@ -827,9 +827,17 @@ func ClientTuiLatestJSON(c *fiber.Ctx) error {
 	ctx := newWebCtx()
 	release, err := ctx.ClientReleases.FindLatestPublished()
 
-	if err != nil || release == nil {
+	// A real database failure must not masquerade as "no release published",
+	// or an outage looks like "no update available" to every client. Mirrors
+	// how ClientTuiView separates the two.
+	if errors.Is(err, gorm.ErrRecordNotFound) || release == nil {
 		return c.Status(fiber.StatusNotFound).
 			JSON(fiber.Map{"error": "no published release"})
+	}
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).
+			JSON(fiber.Map{"error": "internal error"})
 	}
 
 	// The client sends its lokyn code ("en"); language codes are stored
@@ -851,7 +859,7 @@ Add `"farental/model/data"` to the import block too — `buildLatestJSON` takes 
 In `farental-cli/src/serverweb/routes.go`, directly after the existing `/clienttui/download/:fileID` line:
 
 ```go
-	app.Get("/clienttui/latest.json", optAuth, controller.ClientTuiLatestJSON)
+	app.Get("/clienttui/latest", optAuth, controller.ClientTuiLatestJSON)
 ```
 
 - [ ] **Step 5: Run tests to verify they pass**
@@ -869,7 +877,7 @@ Expected: builds clean, no vet or gofmt output, tests `ok`.
 ```bash
 cd /home/halsten/Dev/Farental/farental-cli
 git add src/serverweb/controller/clienttui.go src/serverweb/controller/clienttui_test.go src/serverweb/routes.go
-git commit -m "feat: serve client release manifest at /clienttui/latest.json"
+git commit -m "feat: serve client release manifest at /clienttui/latest"
 ```
 
 ---
@@ -1183,8 +1191,8 @@ func manifestServer(t *testing.T, status int, body string) *httptest.Server {
 	t.Helper()
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/clienttui/latest.json" {
-			t.Errorf("path = %q, want /clienttui/latest.json", r.URL.Path)
+		if r.URL.Path != "/clienttui/latest" {
+			t.Errorf("path = %q, want /clienttui/latest", r.URL.Path)
 		}
 
 		if r.URL.Query().Get("lang") != "fr" {
@@ -1408,7 +1416,7 @@ func PlatformKey() string {
 }
 
 func fetchManifest(baseURL, lang string) (*manifest, error) {
-	endpoint, err := url.JoinPath(strings.TrimSuffix(baseURL, "/"), "clienttui", "latest.json")
+	endpoint, err := url.JoinPath(strings.TrimSuffix(baseURL, "/"), "clienttui", "latest")
 
 	if err != nil {
 		return nil, err
@@ -2422,6 +2430,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/updater"
 	ftheme "farental/internal/theme"
+	"farental/screen"
 	"farental/widget/help"
 	"farental/widget/simplelogviewer"
 	"fmt"
@@ -2548,6 +2557,11 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 	s.bar.SetActive(false)
 	s.status.SetValue("")
 
+	// Every enterManual path below must stay escapable for a ModeOptional
+	// client: the failure matrix says a compatible client is never blocked,
+	// and Mode is derived from version compatibility alone, so "optional
+	// update, no build for this platform" is an ordinary combination.
+	//
 	// Ordered most specific cause first: a failed fetch also leaves File
 	// empty, so checking HasFile first would blame the platform for what is
 	// really a network problem.
@@ -2615,7 +2629,7 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 			return s.startUpdate(), true
 		case key.Matches(m, keybind.Esc):
 			if s.result.Mode == updater.ModeOptional {
-				return orvyn.SwitchScreen(loginScreenID), true
+				return orvyn.SwitchScreen(screen.IDLogin), true
 			}
 		}
 
@@ -2625,7 +2639,7 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 			return s.startUpdate(), true
 		case key.Matches(m, keybind.Esc):
 			if s.result.Mode == updater.ModeOptional {
-				return orvyn.SwitchScreen(loginScreenID), true
+				return orvyn.SwitchScreen(screen.IDLogin), true
 			}
 		}
 	}
@@ -2726,13 +2740,7 @@ func (s *Screen) refreshNotes() {
 }
 ```
 
-Add at the top of the file, after the imports, so the package does not import `farental/screen` (which would be a cycle, since `main` registers both):
-
-```go
-// loginScreenID mirrors screen.IDLogin. Importing farental/screen here would
-// create an import cycle once this package is registered from it.
-const loginScreenID orvyn.ScreenID = "login"
-```
+Import `"farental/screen"` alongside the others and use `screen.IDLogin` directly — there is no import cycle, because `farental/screen` imports nothing but orvyn, and every sibling screen does the same (`screen/login/login.go:12`).
 
 - [ ] **Step 4: Add the translation strings**
 
@@ -2936,7 +2944,7 @@ Add this after the Client checklist:
 ```markdown
 ### Publishing pushes the update
 
-Setting `IsPublished` on a release is the point of no return: `/clienttui/latest.json`
+Setting `IsPublished` on a release is the point of no return: `/clienttui/latest`
 starts advertising it immediately, and every client that starts up from then on
 offers or forces the update. Uploading is safe; publishing is the switch.
 

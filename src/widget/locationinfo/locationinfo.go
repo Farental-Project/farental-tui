@@ -58,12 +58,16 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.layout.Resize(w.GetContentSize())
 }
 
+// GetMinSize measures an actual render. Render draws the title and the description
+// at their natural height and ignores whatever height it is given, so declaring a
+// flexible 10..12 made the layout reserve stretch rows this widget never draws in -
+// rows the log and social panels could have used.
 func (w *Widget) GetMinSize() orvyn.Size {
-	return orvyn.NewSize(30, 10)
+	return orvyn.NewSize(30, lipgloss.Height(w.Render()))
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(45, 12)
+	return orvyn.NewSize(45, lipgloss.Height(w.Render()))
 }
 
 func (w *Widget) UpdateData(location *api.LocationResponse) {

@@ -12,6 +12,7 @@ import (
 	"farental/internal/keybind"
 	"farental/internal/style"
 	ftheme "farental/internal/theme"
+	"farental/internal/updater"
 	"farental/screen"
 	"farental/screen/accountcreation"
 	"farental/screen/activity"
@@ -22,6 +23,7 @@ import (
 	"farental/screen/characterselection"
 	"farental/screen/charactersheet"
 	"farental/screen/chat"
+	"farental/screen/clientupdate"
 	"farental/screen/craft"
 	"farental/screen/dashboard"
 	"farental/screen/fight"
@@ -44,7 +46,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/halsten-dev/orvyn"
 
@@ -103,6 +104,7 @@ func main() {
 
 	context.Init()
 	request.Init(context.Client)
+	request.InitWeb(context.Web)
 	lokyn.Init()
 	err = lokyn.AddTranslationFS(translations, "translations")
 
@@ -111,6 +113,10 @@ func main() {
 	}
 
 	lokyn.SetLanguage(viper.GetString("language"))
+
+	// Clear a binary left behind by a previous update. Windows cannot delete
+	// the running executable during the swap, so it lands here.
+	updater.CleanupOld()
 
 	// Check version
 	reqVer := request.VersionGet()
@@ -121,11 +127,8 @@ func main() {
 		return
 	}
 
-	if !strings.HasPrefix(config.VERSION, version.ClientTui) {
-		fmt.Println(lokyn.L("Your client version is not aligned with the server. Please update it."))
-		fmt.Println(lokyn.L("Visit https://www.farental.ch for more information."))
-		return
-	}
+	updater.Pending = updater.Check(config.VERSION, version.ClientTui,
+		viper.GetString("language"))
 
 	// Other init
 	keybind.Init()
@@ -170,12 +173,27 @@ func main() {
 	orvyn.RegisterScreen(screen.IDShop, shop.New())
 	orvyn.RegisterScreen(screen.IDLocationInfo, locationinfo.New())
 	orvyn.RegisterScreen(screen.IDSendFeedback, sendfeedback.New())
+	orvyn.RegisterScreen(screen.IDClientUpdate, clientupdate.New())
 
 	context.ResetTerminalTitle()
 
-	p := tea.NewProgram(&App{}, tea.WithAltScreen())
+	startScreen := screen.IDLogin
+
+	if updater.Pending.Mode != updater.ModeNone {
+		startScreen = screen.IDClientUpdate
+	}
+
+	p := tea.NewProgram(&App{StartScreen: startScreen}, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
+	}
+
+	// Run after bubbletea has left the alt screen and restored the cursor, so
+	// the replacement process inherits a sane terminal.
+	if updater.RestartPending {
+		if err := updater.Restart(); err != nil {
+			fmt.Println(lokyn.L("Update installed. Please start Farental again."))
+		}
 	}
 }

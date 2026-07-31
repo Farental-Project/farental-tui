@@ -203,3 +203,17 @@ func FindItemIndex(itemID uint, items *[]mailattachmentselectlistitem.Data) int 
 
 	return -1
 }
+
+// GetMinSize derives the height from the inner layout plus the widget frame.
+// Render draws into the height it is given, so measuring its own render here would
+// only echo the last allocation back to the layout. Width stays at 1 so the widget
+// never drives the layout width.
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(1,
+		w.layout.GetMinSize().Height+w.GetStyle().GetVerticalFrameSize())
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return orvyn.NewSize(1,
+		w.layout.GetPreferredSize().Height+w.GetStyle().GetVerticalFrameSize())
+}

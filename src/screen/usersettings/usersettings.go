@@ -7,6 +7,8 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/screen"
+	"farental/screen/clientupdate"
 	"farental/widget/help"
 	"farental/widget/multivalueselector"
 	"net/http"
@@ -106,7 +108,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(i any) tea.Cmd {
-	bubblehelp.SwitchContext(keybind.ContextCharacterCreation)
+	bubblehelp.SwitchContext(keybind.ContextUserSettings)
 
 	s.title.SetValue(lokyn.L("User settings"))
 	s.labelLangage.SetValue(lokyn.L("Language"))
@@ -132,6 +134,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(m, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
+		case key.Matches(m, keybind.RKeyCtrl):
+			return clientupdate.OpenCheck(screen.IDUserSettings)
 		case key.Matches(m, keybind.Enter):
 			ok := s.submit()
 

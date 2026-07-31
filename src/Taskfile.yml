@@ -5,10 +5,12 @@ version: "3"
 vars:
   OUTPUT_NAME: Farental
   BASE_URL: https://api.farental.ch
+  WEB_URL: https://farental.ch
   CONFIG_FILE_NAME: farental
   DIST_DIR: dist
   LDFLAGS: >-
     -X 'farental/internal/config.BaseURL={{.BASE_URL}}'
+    -X 'farental/internal/config.WebURL={{.WEB_URL}}'
     -X 'farental/internal/config.ConfigFileName={{.CONFIG_FILE_NAME}}'
   # Strip symbol table and DWARF debug info (~30% smaller binaries).
   # Panic stack traces stay intact; delve debugging does not. Clear to disable.

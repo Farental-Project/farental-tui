@@ -75,7 +75,7 @@ func New(actors []api.FightActorResponse) *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(35,
 			t.Size(ftheme.LayoutWidthSizeID),
-			10,
+			orvyn.NewSize(10, 4),
 			s.title,
 			orvyn.VGap,
 			layoutList,

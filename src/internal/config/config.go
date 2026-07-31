@@ -16,6 +16,7 @@ const (
 )
 
 var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)
+var WebURL = "http://127.0.0.1:3001"  // site web, valeur par défaut (dev)
 var ConfigFileName = "farental_dev"   // valeur par défaut (dev)
 
 // Dir holds the directory containing the config file, set by Init.

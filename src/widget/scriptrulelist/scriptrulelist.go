@@ -246,3 +246,15 @@ func (w *Widget) getNewRuleData() Data {
 		RuleTypeName: ruleTypeName,
 	}
 }
+
+// GetMinSize declares the list as flexible. The embedded widgetlist paginates to
+// whatever height it is given and reports no size of its own, so without this it
+// claimed the 1x1 default and a vertical layout would treat it as a fixed one-row
+// widget. One rule visible at minimum, three preferred.
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(1, ItemHeight)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return orvyn.NewSize(1, ItemHeight*3)
+}

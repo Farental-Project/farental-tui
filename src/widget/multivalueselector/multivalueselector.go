@@ -220,3 +220,15 @@ func (w *Widget[T]) SetSelectedKey(key string) {
 		}
 	}
 }
+
+// GetMinSize measures an actual render. The selector draws a single styled line at
+// its natural height and ignores the height it is handed, so measuring is safe.
+// Width stays at 1: Render draws into the width it is given, so measuring that
+// would be self-referential.
+func (w *Widget[T]) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(1, lipgloss.Height(w.Render()))
+}
+
+func (w *Widget[T]) GetPreferredSize() orvyn.Size {
+	return w.GetMinSize()
+}

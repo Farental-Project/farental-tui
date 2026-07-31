@@ -10,6 +10,9 @@ import (
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
+// Height is the fixed row height of an attachment entry.
+const Height = 3
+
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
@@ -31,7 +34,7 @@ func Constructor(data api.StackResponse) widgetlist.ListItem[api.StackResponse] 
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
-	size.Height = 3
+	size.Height = Height
 
 	w.BaseWidget.Resize(size)
 }

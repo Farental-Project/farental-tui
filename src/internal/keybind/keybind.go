@@ -47,6 +47,7 @@ var (
 	NKeyCtrl      key.Binding
 	PKey          key.Binding
 	RKey          key.Binding
+	RKeyCtrl      key.Binding
 	SKey          key.Binding
 	SKeyCtrl      key.Binding
 	TKey          key.Binding
@@ -181,6 +182,9 @@ func Init() {
 	RKey = key.NewBinding(
 		key.WithKeys("r"),
 		key.WithHelp("r", "r key"))
+	RKeyCtrl = key.NewBinding(
+		key.WithKeys("ctrl+r"),
+		key.WithHelp("ctrl+r", lokyn.L("check for updates")))
 	SKey = key.NewBinding(
 		key.WithKeys("s"),
 		key.WithHelp("s", "s key"))

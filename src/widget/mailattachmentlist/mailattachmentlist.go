@@ -48,11 +48,16 @@ func New() *Widget {
 
 	w := new(Widget)
 
-	w.Widget.SetPreferredSize(orvyn.NewSize(0, 13))
-
 	w.Widget = *widgetlist.New(mailattachmentlistitem.Constructor)
 	w.Widget.BaseFocusable = orvyn.NewBaseFocusable(w)
 	w.Widget.SetFilterable(false)
+
+	// Set after the embedded widget is assigned: doing it before meant the
+	// assignment above threw the size away and the list kept the 1x1 default.
+	// The list paginates to whatever height it gets, so it is flexible: one row
+	// of attachments at minimum, thirteen preferred.
+	w.Widget.SetMinSize(orvyn.NewSize(1, mailattachmentlistitem.Height))
+	w.Widget.SetPreferredSize(orvyn.NewSize(1, 13))
 
 	w.OnBlur()
 

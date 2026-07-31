@@ -14,6 +14,7 @@ const (
 	ContextLogin                               bubblehelp.KeymapContext = "login"
 	ContextCharacterSel                        bubblehelp.KeymapContext = "characterSelection"
 	ContextCharacterCreation                   bubblehelp.KeymapContext = "characterCreation"
+	ContextUserSettings                        bubblehelp.KeymapContext = "userSettings"
 	ContextCharacterSheet                      bubblehelp.KeymapContext = "characterSheet"
 	ContextGameDashboard                       bubblehelp.KeymapContext = "gameDashboard"
 	ContextFilterSelectionListBasic            bubblehelp.KeymapContext = "filterSelectionListBasic"
@@ -46,6 +47,7 @@ const (
 	ContextFullLog                             bubblehelp.KeymapContext = "fullLog"
 	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
+	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
 )
 
 func InitContexts() {
@@ -66,6 +68,8 @@ func InitContexts() {
 	loginKeymap.NewKeyBinding(ShiftTab, false)
 	loginKeymap.NewKeyBinding(NKeyCtrl, true)
 	loginKeymap.SetHelpDesc(NKeyCtrl, lokyn.L("new account"))
+	loginKeymap.NewKeyBinding(RKeyCtrl, true)
+	loginKeymap.SetHelpDesc(RKeyCtrl, lokyn.L("check for updates"))
 	loginKeymap.NewKeyBinding(Enter, true)
 	loginKeymap.NewKeyBinding(Quit, true)
 	loginKeymap.NewKeyBinding(Help, true)
@@ -95,6 +99,22 @@ func InitContexts() {
 	characterCreationKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextCharacterCreation, characterCreationKeymap)
+
+	// User settings used to share characterCreationKeymap outright (same
+	// Enter/Esc/Quit shape), but it alone also offers ctrl+r to open the
+	// client-update screen for a user-initiated check (see
+	// clientupdate.OpenCheck); giving it its own context keeps that hint
+	// from leaking into character/account creation, where the key does
+	// nothing.
+	userSettingsKeymap := bubblehelp.NewKeymap(2)
+	userSettingsKeymap.Style = mainHelpStyle
+	userSettingsKeymap.NewKeyBinding(Enter, true)
+	userSettingsKeymap.NewKeyBinding(Esc, true)
+	userSettingsKeymap.NewKeyBinding(RKeyCtrl, true)
+	userSettingsKeymap.SetHelpDesc(RKeyCtrl, lokyn.L("check for updates"))
+	userSettingsKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextUserSettings, userSettingsKeymap)
 
 	gameDashboardKeymap := bubblehelp.NewKeymap(2)
 	gameDashboardKeymap.Style = mainHelpStyle
@@ -619,4 +639,22 @@ func InitContexts() {
 	ManualKeymap.NewKeyBinding(Quit, false)
 
 	bubblehelp.RegisterContext(ContextManual, ManualKeymap)
+
+	// clientUpdateKeymap covers every state of the client-update screen,
+	// both the startup path and a user-initiated check (see
+	// clientupdate.OpenCheck): enter only does something in statePrompt, and
+	// esc's label swaps between "update now"'s natural counterpart "skip"
+	// and, for the two states unique to a user-initiated check (still
+	// checking, already up to date), "back" - see
+	// clientupdate.Screen.refreshHelpKeys, which keeps both honest per
+	// state rather than needing a second context.
+	clientUpdateKeymap := bubblehelp.NewKeymap(2)
+	clientUpdateKeymap.Style = mainHelpStyle
+	clientUpdateKeymap.NewKeyBinding(Enter, true)
+	clientUpdateKeymap.SetHelpDesc(Enter, lokyn.L("update now"))
+	clientUpdateKeymap.NewKeyBinding(Esc, true)
+	clientUpdateKeymap.SetHelpDesc(Esc, lokyn.L("skip"))
+	clientUpdateKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextClientUpdate, clientUpdateKeymap)
 }

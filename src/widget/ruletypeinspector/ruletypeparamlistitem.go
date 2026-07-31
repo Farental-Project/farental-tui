@@ -12,6 +12,9 @@ import (
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
+// ParamItemHeight is the fixed row height of a parameter entry.
+const ParamItemHeight = 4
+
 type PossibleValueData struct {
 	api.ScriptRuleTypePossibleValue
 }
@@ -125,7 +128,7 @@ func (w *ListItem) GetData() ParamData {
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {
-	size.Height = 4
+	size.Height = ParamItemHeight
 	w.BaseWidget.Resize(size)
 	w.layout.Resize(size)
 }

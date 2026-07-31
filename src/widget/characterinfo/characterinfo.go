@@ -83,14 +83,11 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.layout.Resize(w.GetContentSize())
 }
 
+// getHeight measures an actual render rather than guessing. The height follows the
+// info column, which grows with the money/power/mail rows and with how the name
+// wraps, so a constant was always going to drift from what is drawn.
 func (w *Widget) getHeight() int {
-	height := 6
-
-	if w.ShowMoney && w.ShowPower && w.ShowMail {
-		height++
-	}
-
-	return height
+	return lipgloss.Height(w.Render())
 }
 
 func (w *Widget) GetMinSize() orvyn.Size {

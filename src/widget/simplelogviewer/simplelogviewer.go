@@ -177,10 +177,6 @@ func (w *Widget) Resize(size orvyn.Size) {
 	w.BaseWidget.Resize(size)
 }
 
-func (w *Widget) GetPreferredSize() orvyn.Size {
-	return orvyn.NewSize(25, w.titleHeight+15)
-}
-
 func (w *Widget) SetContent(content []string) {
 	w.content = content
 	w.refresh()

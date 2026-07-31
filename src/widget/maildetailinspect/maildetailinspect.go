@@ -91,3 +91,15 @@ func (w *Widget) UpdateData(mail *api.MailBasicResponse, attachments *[]api.Mail
 	w.mail = mail
 	w.attachments = attachments
 }
+
+// GetMinSize measures an actual render. Render draws its content at the natural
+// height and ignores the height it is handed, so measuring is safe here. Width
+// stays at 1: Render does draw into the width it is given, so measuring that would
+// be self-referential.
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(1, lipgloss.Height(w.Render()))
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return w.GetMinSize()
+}

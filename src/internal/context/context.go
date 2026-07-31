@@ -18,6 +18,12 @@ import (
 var (
 	Client *resty.Client
 
+	// Web talks to the marketing website (config.WebURL) rather than the
+	// API: a different service, used only for the client update manifest
+	// and release binary downloads (see internal/updater and
+	// request.InitWeb).
+	Web *resty.Client
+
 	CharacterID   uint
 	CharacterInfo *api.CharacterInfoResponse
 
@@ -29,6 +35,15 @@ var (
 func Init() {
 	Client = resty.New()
 	Client.SetBaseURL(viper.GetString("baseurl"))
+
+	// No SetBaseURL here: both callers on this path (internal/updater, via
+	// core/request's ManifestGet/FileDownloadGet) build a full absolute URL
+	// themselves with url.JoinPath(config.WebURL, ...) before ever reaching
+	// Web, and newWebReq assigns it straight to Request.URL, which resty
+	// sends as-is regardless of any base URL configured on the client. A
+	// base URL set here would never be consulted; leaving it unset avoids
+	// implying otherwise to a future caller.
+	Web = resty.New()
 
 	CharacterID = 0
 	ChatContent = make([]string, 0)

@@ -80,7 +80,7 @@ further change.
 `src/serverweb/routes.go`, alongside the existing two:
 
 ```go
-app.Get("/clienttui/latest.json", controller.ClientTuiLatestJSON)
+app.Get("/clienttui/latest", controller.ClientTuiLatestJSON)
 ```
 
 Controller in `src/serverweb/controller/clienttui.go`, reusing
@@ -132,7 +132,7 @@ then English, then lowest language ID — via `TranslationFor`. The client passe
 its language as a query parameter:
 
 ```
-GET /clienttui/latest.json?lang=fr
+GET /clienttui/latest?lang=fr
 ```
 
 Notes are stored as HTML (both views render them with `templ.Raw`). A TUI
@@ -308,7 +308,7 @@ the client knows the terminal width and the active orvyn theme.
 | `h2` | text in the theme's title style, followed by a rule of `─` as wide as the text |
 | `h3` | text in the theme's highlight style, no rule |
 | `p` | word-wrapped to width, blank line after |
-| `list` | `• ` for bullets, `1. ` for ordered; two spaces of indent per `Item.Indent`, continuation lines aligned under the text, not the marker |
+| `list` | `• ` for bullets, `1. ` for ordered; two spaces of indent per `Item.Indent`, continuation lines aligned under the text, not the marker. Ordered numbering is **per indent level** — each level keeps its own counter, and returning to a shallower level resets every deeper counter, so a second nested run restarts at 1 |
 | `quote` | every line prefixed `│ ` in the dim style |
 | `code` | lines verbatim in the dim style, indented two spaces, not wrapped |
 
@@ -334,7 +334,7 @@ Output is `[]string`, which feeds `widget/simplelogviewer` directly.
 | `Applying` | "Verifying and installing…" | none |
 | `Restarting` | "Restarting…", then quits | — |
 | `Failed` | error text | `r` retry · `esc` (`Optional` only) · `q` |
-| `ManualRequired` | reason, `https://www.farental.ch/clienttui`, target version | `q` quit |
+| `ManualRequired` | reason, `https://www.farental.ch/clienttui`, target version | `esc` continue to login (`Optional` only) · `q` quit |
 
 The notes pane is `widget/simplelogviewer`, fed by
 `SetContent(updater.RenderNotes(blocks, width))`. It already carries scrolling,
@@ -406,9 +406,9 @@ compatible client can be running with `Mode` `Optional` or `None`.
 | Failure | Incompatible client | Compatible client |
 | --- | --- | --- |
 | `/version` unreachable | print and exit (unchanged) | same |
-| `latest.json` unreachable or 404 | `ManualRequired`, blocks login | log only, straight to login |
-| No file for this platform | `ManualRequired` | log only |
-| Binary directory not writable | `ManualRequired`, names the path | log only |
+| `latest` manifest unreachable or 404 | `ManualRequired`, blocks login | log only, straight to login |
+| No file for this platform | `ManualRequired` | `ManualRequired`, escapable with `esc` |
+| Binary directory not writable | `ManualRequired`, names the path | `ManualRequired`, escapable with `esc` |
 | Download aborts, or SHA-256 mismatch | `Failed`, `r` retries | `Failed`, `esc` continues to login |
 | `Apply` fails mid-swap | rollback, then `Failed` | same |
 | Exec fails after a successful swap | print "Updated to X, relaunch Farental", exit 0 | same |
