@@ -130,12 +130,21 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 		s.existingAccount = false
 	} else {
 		s.existingAccount = true
-		s.focusManager.FocusFirst()
-		s.loadInventory()
-		s.loadBankAccount()
+		s.enterAccount()
 	}
 
 	return nil
+}
+
+// enterAccount focuses the lists and fills both sides. Shared by the
+// already-has-an-account path in OnEnter and the just-bought-one path after the
+// buyAccount dialog: the latter used to only flip existingAccount, leaving both
+// lists and the bank title empty, and nothing focused, until the screen was
+// left and re-entered.
+func (s *Screen) enterAccount() {
+	s.focusManager.FocusFirst()
+	s.loadInventory()
+	s.loadBankAccount()
 }
 
 func (s *Screen) OnExit() any {
@@ -179,6 +188,8 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				if !ok {
 					return orvyn.SwitchScreen(screen.IDDashBoard)
 				}
+
+				s.enterAccount()
 			default:
 				return orvyn.SwitchScreen(screen.IDDashBoard)
 			}
