@@ -80,14 +80,20 @@ func New() *Screen {
 
 	s.logEvent = simplelogviewer.New(lokyn.L("Events"))
 	s.logEvent.Style = logStyle
+	s.logEvent.SetPreferredSize(orvyn.NewSize(30, 35))
+	s.logEvent.SetMinSize(orvyn.NewSize(10, 5))
 	s.logEvent.OnBlur()
 
 	s.logChat = simplelogviewer.New(lokyn.L("Chat"))
 	s.logChat.Style = logStyle
+	s.logChat.SetPreferredSize(orvyn.NewSize(30, 35))
+	s.logChat.SetMinSize(orvyn.NewSize(10, 5))
 	s.logChat.OnBlur()
 
 	s.logCharacters = simplelogviewer.New(lokyn.L("Characters"))
 	s.logCharacters.Style = logStyle
+	s.logCharacters.SetPreferredSize(orvyn.NewSize(30, 35))
+	s.logCharacters.SetMinSize(orvyn.NewSize(10, 5))
 	s.logCharacters.OnBlur()
 	s.logCharacters.SetAutoScroll(false)
 
