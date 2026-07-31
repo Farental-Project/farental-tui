@@ -97,9 +97,9 @@ func TestDecideEntry(t *testing.T) {
 			wantReason:   reasonNotWritable,
 		},
 		{
-			name:       "mandatory mode fetch error goes manual required",
+			name:       "mandatory mode fetch error goes check failed",
 			result:     updater.Result{Mode: updater.ModeMandatory, Err: errors.New("network down")},
-			wantState:  stateManualRequired,
+			wantState:  stateCheckFailed,
 			wantReason: reasonFetchFailed,
 		},
 		{
@@ -120,7 +120,7 @@ func TestDecideEntry(t *testing.T) {
 			// there is no Result to look at yet.
 			name:       "check's own request failed",
 			checkErr:   errors.New("version endpoint down"),
-			wantState:  stateManualRequired,
+			wantState:  stateCheckFailed,
 			wantReason: reasonFetchFailed,
 		},
 		{
@@ -128,7 +128,7 @@ func TestDecideEntry(t *testing.T) {
 			// nil, but the Result it did return carries its own Err.
 			name:       "check's internal manifest fetch failed",
 			result:     updater.Result{Err: errors.New("manifest unreachable")},
-			wantState:  stateManualRequired,
+			wantState:  stateCheckFailed,
 			wantReason: reasonFetchFailed,
 		},
 		{
@@ -163,7 +163,11 @@ func TestDecideEntry(t *testing.T) {
 func TestDecideEntryFetchErrorTakesPriorityOverMissingFile(t *testing.T) {
 	result := updater.Result{Mode: updater.ModeMandatory, Err: errors.New("timeout")}
 
-	_, gotReason := decideEntry(result, nil, nil)
+	gotState, gotReason := decideEntry(result, nil, nil)
+
+	if gotState != stateCheckFailed {
+		t.Errorf("state = %v, want stateCheckFailed", gotState)
+	}
 
 	if gotReason != reasonFetchFailed {
 		t.Errorf("reason = %v, want %v", gotReason, reasonFetchFailed)
@@ -180,8 +184,8 @@ func TestDecideEntryCheckErrTakesPriorityOverResultErr(t *testing.T) {
 
 	gotState, gotReason := decideEntry(result, checkErr, nil)
 
-	if gotState != stateManualRequired {
-		t.Errorf("state = %v, want stateManualRequired", gotState)
+	if gotState != stateCheckFailed {
+		t.Errorf("state = %v, want stateCheckFailed", gotState)
 	}
 
 	if gotReason != reasonFetchFailed {
@@ -241,6 +245,69 @@ func TestHandleKeyManualRequiredEsc(t *testing.T) {
 
 		if got := orvyn.GetCurrentScreenID(); got != before {
 			t.Errorf("current screen changed to %q, want unchanged %q", got, before)
+		}
+	})
+}
+
+// TestHandleKeyCheckFailedEsc covers stateCheckFailed's own esc gating - the
+// state re-split from stateManualRequired for a failed check (see decideEntry
+// and enterCheckFailed): a compatible client (ModeOptional, startup path)
+// must be able to leave with esc, a mandatory one must not, and a
+// user-initiated check must always be able to leave regardless of what the
+// (failed) check reported - even a Mode it never actually confirmed.
+func TestHandleKeyCheckFailedEsc(t *testing.T) {
+	t.Run("optional mode reaches login", func(t *testing.T) {
+		s := &Screen{state: stateCheckFailed, result: updater.Result{Mode: updater.ModeOptional}}
+
+		_, handled := s.handleKey(escKeyMsg())
+
+		if !handled {
+			t.Fatal("expected esc to be handled in stateCheckFailed for ModeOptional")
+		}
+
+		if got := orvyn.GetCurrentScreenID(); got != screen.IDLogin {
+			t.Errorf("current screen = %q, want %q", got, screen.IDLogin)
+		}
+	})
+
+	t.Run("mandatory mode has no exit", func(t *testing.T) {
+		before := orvyn.GetCurrentScreenID()
+
+		s := &Screen{state: stateCheckFailed, result: updater.Result{Mode: updater.ModeMandatory}}
+
+		cmd, handled := s.handleKey(escKeyMsg())
+
+		if handled {
+			t.Error("esc must not be handled in stateCheckFailed for ModeMandatory")
+		}
+
+		if cmd != nil {
+			t.Error("expected no command for an unhandled key")
+		}
+
+		if got := orvyn.GetCurrentScreenID(); got != before {
+			t.Errorf("current screen changed to %q, want unchanged %q", got, before)
+		}
+	})
+
+	t.Run("user-initiated always escapes even when mandatory", func(t *testing.T) {
+		orvyn.SwitchScreen(screen.IDUserSettings)
+
+		s := &Screen{
+			state:         stateCheckFailed,
+			userInitiated: true,
+			checkFrom:     screen.IDUserSettings,
+			result:        updater.Result{Mode: updater.ModeMandatory},
+		}
+
+		_, handled := s.handleKey(escKeyMsg())
+
+		if !handled {
+			t.Fatal("expected esc to be handled: a user-initiated check always escapes")
+		}
+
+		if got := orvyn.GetCurrentScreenID(); got != screen.IDUserSettings {
+			t.Errorf("current screen = %q, want %q (s.checkFrom)", got, screen.IDUserSettings)
 		}
 	})
 }
@@ -608,16 +675,85 @@ func TestHandleCheckedUpToDate(t *testing.T) {
 	}
 }
 
-// TestHandleCheckedFetchFailed covers the folded failed-check path: a
-// user-initiated check that never got a usable Result - here,
-// checkForUpdates's own request failed - now lands in the ordinary
-// stateManualRequired instead of a separate terminal state, so the user gets
-// exactly the presentation the startup path already gives an unreachable
-// update server: the "could not reach the server" message (not the raw
-// error text, and not the "no build for your platform" wording, which would
-// misreport a transient network problem as a platform gap), the manual
-// download URL, and - since a user-initiated check is always escapable -
-// the esc hint.
+// TestEnterManualTitleAndStatus covers stateManualRequired's title/status
+// matrix: reasonNoFile and reasonNotWritable each split on whether the
+// client is actually incompatible (result.Mode == updater.ModeMandatory,
+// known for certain here since decideEntry only reaches either reason once
+// the check itself has already succeeded), independently of the check's
+// own escapability.
+func TestEnterManualTitleAndStatus(t *testing.T) {
+	tests := []struct {
+		name       string
+		mode       updater.Mode
+		reason     entryReason
+		wantTitle  string
+		wantStatus string
+	}{
+		{
+			name:       "no file, incompatible",
+			mode:       updater.ModeMandatory,
+			reason:     reasonNoFile,
+			wantTitle:  lokyn.L("Version not compatible"),
+			wantStatus: lokyn.L("No build is published for your platform, so updating is not possible."),
+		},
+		{
+			name:       "no file, compatible",
+			mode:       updater.ModeOptional,
+			reason:     reasonNoFile,
+			wantTitle:  lokyn.L("Update available"),
+			wantStatus: lokyn.L("No build is published for your platform."),
+		},
+		{
+			name:       "not writable, incompatible",
+			mode:       updater.ModeMandatory,
+			reason:     reasonNotWritable,
+			wantTitle:  lokyn.L("Update required"),
+			wantStatus: lokyn.L("Farental cannot write to its own directory."),
+		},
+		{
+			name:       "not writable, compatible",
+			mode:       updater.ModeOptional,
+			reason:     reasonNotWritable,
+			wantTitle:  lokyn.L("Update available"),
+			wantStatus: lokyn.L("Farental cannot write to its own directory."),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New()
+			s.result = updater.Result{Mode: tt.mode}
+
+			s.enterManual(tt.reason, errors.New("read-only filesystem"))
+
+			if s.state != stateManualRequired {
+				t.Errorf("state = %v, want stateManualRequired", s.state)
+			}
+
+			if got := s.title.Render(); got != tt.wantTitle {
+				t.Errorf("title = %q, want %q", got, tt.wantTitle)
+			}
+
+			if got := s.statusMessage.Render(); !strings.Contains(got, tt.wantStatus) {
+				t.Errorf("status = %q, want it to contain %q", got, tt.wantStatus)
+			}
+
+			if got := s.detail.Render(); !strings.Contains(got, config.WebURL) {
+				t.Errorf("detail = %q, want the download URL", got)
+			}
+		})
+	}
+}
+
+// TestHandleCheckedFetchFailed covers stateCheckFailed's "client compatible"
+// branch (canEscape is true, here because the check is user-initiated): a
+// check that never got a usable Result - checkForUpdates's own request
+// failed - must not be presented as "update required", since it never
+// learned whether an update exists at all. It gets its own title, a warning
+// naming the underlying error (unlike stateManualRequired's fixed wording,
+// this one is meant to surface the actual network failure), no download
+// link (the host that just failed is not a useful destination), and - since
+// a user-initiated check is always escapable - the esc hint.
 func TestHandleCheckedFetchFailed(t *testing.T) {
 	s := New()
 	s.userInitiated = true
@@ -628,32 +764,81 @@ func TestHandleCheckedFetchFailed(t *testing.T) {
 		t.Errorf("expected no command, got %v", cmd)
 	}
 
-	if s.state != stateManualRequired {
-		t.Errorf("state = %v, want stateManualRequired", s.state)
+	if s.state != stateCheckFailed {
+		t.Errorf("state = %v, want stateCheckFailed", s.state)
+	}
+
+	if got := s.title.Render(); got != lokyn.L("Could not check for updates") {
+		t.Errorf("title = %q, want %q", got, lokyn.L("Could not check for updates"))
 	}
 
 	got := s.statusMessage.Render()
 
-	if !strings.Contains(got, lokyn.L("Could not reach the update server.")) {
-		t.Errorf("status = %q, want the same message the startup path shows for an unreachable server", got)
+	if !strings.Contains(got, lokyn.L("Could not reach the server.")) {
+		t.Errorf("status = %q, want the could-not-reach-the-server message", got)
 	}
 
 	if strings.Contains(got, lokyn.L("No build is published for your platform.")) {
 		t.Errorf("status = %q, must not misreport a fetch failure as a platform-support gap", got)
 	}
 
-	if strings.Contains(got, "network down") {
-		t.Errorf("status = %q, must not leak the raw error text", got)
+	if !strings.Contains(got, "network down") {
+		t.Errorf("status = %q, want the underlying error text", got)
+	}
+
+	detail := s.detail.Render()
+
+	if strings.Contains(detail, config.WebURL) {
+		t.Errorf("detail = %q, must not show a download link: the host that just failed is not a useful destination", detail)
+	}
+
+	if !strings.Contains(detail, lokyn.L("Press esc to continue without updating.")) {
+		t.Errorf("detail = %q, want the esc hint since a user-initiated check is always escapable", detail)
+	}
+}
+
+// TestHandleCheckedFetchFailedIncompatible covers stateCheckFailed's other
+// branch: canEscape is false because this is the non-user-initiated
+// (startup) path and the client is mandatory. Unlike the compatible branch,
+// the version-compat fetch itself already succeeded before the manifest
+// fetch failed (see updater.checkAt), so Mode is known for certain here -
+// and the download URL is this client's only recourse once the host comes
+// back, so it must show even though there is no error text and no esc hint.
+func TestHandleCheckedFetchFailedIncompatible(t *testing.T) {
+	s := New()
+	s.userInitiated = false
+
+	cmd := s.handleChecked(checkedMsg{
+		result: updater.Result{Mode: updater.ModeMandatory, Err: errors.New("manifest unreachable")},
+	})
+
+	if cmd != nil {
+		t.Errorf("expected no command, got %v", cmd)
+	}
+
+	if s.state != stateCheckFailed {
+		t.Errorf("state = %v, want stateCheckFailed", s.state)
+	}
+
+	if got := s.title.Render(); got != lokyn.L("Version not compatible") {
+		t.Errorf("title = %q, want %q", got, lokyn.L("Version not compatible"))
+	}
+
+	got := s.statusMessage.Render()
+
+	wantMsg := lokyn.L("Your version is not compatible with the server, and the server cannot be reached right now.")
+	if !strings.Contains(got, wantMsg) {
+		t.Errorf("status = %q, want it to contain %q", got, wantMsg)
 	}
 
 	detail := s.detail.Render()
 
 	if !strings.Contains(detail, config.WebURL) {
-		t.Errorf("detail = %q, want the manual download URL", detail)
+		t.Errorf("detail = %q, want the download URL: it is the only recourse once the host is back", detail)
 	}
 
-	if !strings.Contains(detail, lokyn.L("Press esc to continue without updating.")) {
-		t.Errorf("detail = %q, want the esc hint since a user-initiated check is always escapable", detail)
+	if strings.Contains(detail, lokyn.L("Press esc to continue without updating.")) {
+		t.Errorf("detail = %q, must not show the esc hint: there is no exit here", detail)
 	}
 }
 
@@ -737,10 +922,10 @@ func TestHandleCheckedAppliesCurrentGeneration(t *testing.T) {
 // instead of checkFrom is exactly the Critical 1 defect: see exitCmd's doc
 // comment).
 //
-// "manual required, mandatory result" also covers the folded failed-check
-// case: since stateConsultFailed folded into the ordinary stateManualRequired
-// (see decideEntry and handleChecked), there is no longer a distinct state
-// for it to exercise separately here.
+// "check failed, mandatory result" covers stateCheckFailed the same way:
+// even though a startup entry with this state/mode combination would have
+// no exit at all (see TestHandleKeyCheckFailedEsc), a user-initiated one
+// must still escape.
 func TestHandleKeyUserInitiatedEscAlwaysExits(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -750,6 +935,7 @@ func TestHandleKeyUserInitiatedEscAlwaysExits(t *testing.T) {
 		{"prompt, mandatory result", statePrompt, updater.ModeMandatory},
 		{"prompt, optional result", statePrompt, updater.ModeOptional},
 		{"ordinary download failure, mandatory result", stateFailed, updater.ModeMandatory},
+		{"check failed, mandatory result", stateCheckFailed, updater.ModeMandatory},
 		{"manual required, mandatory result", stateManualRequired, updater.ModeMandatory},
 		{"unrecoverable rollback, mandatory result", stateUnrecoverable, updater.ModeMandatory},
 		{"still checking", stateChecking, updater.ModeNone},
@@ -915,6 +1101,7 @@ func TestRefreshHelpKeysEnterVisibility(t *testing.T) {
 		{"restarting", stateRestarting, false},
 		{"failed", stateFailed, false},
 		{"manual required", stateManualRequired, false},
+		{"check failed", stateCheckFailed, false},
 		{"unrecoverable", stateUnrecoverable, false},
 		{"checking", stateChecking, false},
 		{"up to date", stateUpToDate, false},
@@ -937,8 +1124,7 @@ func TestRefreshHelpKeysEnterVisibility(t *testing.T) {
 // TestRefreshHelpKeysEscLabel covers the esc label half of the same context
 // merge: "back" is reserved for the two states unique to a user-initiated
 // check, where there is no update on offer to skip; every other state,
-// including stateManualRequired reached via a folded failed check, reads
-// "skip" - the same label the startup path's own manual-required states use.
+// including stateCheckFailed and stateManualRequired, reads "skip".
 func TestRefreshHelpKeysEscLabel(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -947,6 +1133,7 @@ func TestRefreshHelpKeysEscLabel(t *testing.T) {
 	}{
 		{"prompt reads skip", statePrompt, lokyn.L("skip")},
 		{"manual required reads skip", stateManualRequired, lokyn.L("skip")},
+		{"check failed reads skip", stateCheckFailed, lokyn.L("skip")},
 		{"checking reads back", stateChecking, lokyn.L("back")},
 		{"up to date reads back", stateUpToDate, lokyn.L("back")},
 	}

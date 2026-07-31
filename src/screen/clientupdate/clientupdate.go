@@ -39,15 +39,25 @@ const (
 	stateRestarting
 	stateFailed
 	stateManualRequired
+
+	// stateCheckFailed means the check itself never produced a usable
+	// Result: checkForUpdates's own request failed (checkErr; only possible
+	// on a user-initiated check - see OpenCheck) or updater.Check's internal
+	// manifest fetch failed (result.Err; possible on either path). Kept
+	// separate from stateManualRequired - which means the check *succeeded*
+	// and found an update it merely cannot apply automatically - because a
+	// failed check never learned whether an update exists at all: asserting
+	// "update required" and linking to a download page on the very host
+	// that just failed would both be wrong. See enterCheckFailed and
+	// decideEntry.
+	stateCheckFailed
+
 	stateUnrecoverable
 
 	// stateChecking and stateUpToDate exist only for a user-initiated check
 	// (see OpenCheck): the startup path never has to represent "still
 	// checking" or "already up to date" because main only routes to this
-	// screen at all when updater.Pending.Mode != ModeNone. A failed
-	// user-initiated check does not get a state of its own: it folds into
-	// stateManualRequired, which already shows the reason, the download URL,
-	// and lets the user out (see decideEntry and Screen.handleChecked).
+	// screen at all when updater.Pending.Mode != ModeNone.
 	stateChecking
 	stateUpToDate
 )
@@ -309,14 +319,11 @@ func (s *Screen) enterPending() tea.Cmd {
 	entryState, reason := decideEntry(s.result, nil, preflightErr)
 	s.state = entryState
 
-	switch reason {
-	case reasonFetchFailed:
-		s.enterManual(lokyn.L("Could not reach the update server."))
-	case reasonNoFile:
-		s.enterManual(lokyn.L("No build is published for your platform."))
-	case reasonNotWritable:
-		s.enterManual(fmt.Sprintf("%s\n%v",
-			lokyn.L("Farental cannot write to its own directory."), preflightErr))
+	switch entryState {
+	case stateCheckFailed:
+		s.enterCheckFailed(s.result.Err)
+	case stateManualRequired:
+		s.enterManual(reason, preflightErr)
 	}
 
 	s.refreshHelpKeys()
@@ -324,9 +331,10 @@ func (s *Screen) enterPending() tea.Cmd {
 	return nil
 }
 
-// entryReason identifies why OnEnter chose stateManualRequired, so OnEnter can
-// pick the right localized message without decideEntry depending on lokyn.
-// That keeps decideEntry a pure function of its inputs, trivial to unit test.
+// entryReason identifies why OnEnter chose stateCheckFailed or
+// stateManualRequired, so OnEnter can pick the right localized message
+// without decideEntry depending on lokyn. That keeps decideEntry a pure
+// function of its inputs, trivial to unit test.
 type entryReason int
 
 const (
@@ -340,13 +348,18 @@ const (
 // updater.Pending on the startup path, or a fresh checkedMsg for a
 // user-initiated one (see OpenCheck) - given whatever the preflight check
 // already found (so this itself needs no filesystem access). It picks the
-// state to enter and, when that state is stateManualRequired, why.
+// state to enter and, when that state is stateCheckFailed or
+// stateManualRequired, why.
 //
 // checkErr is checkForUpdates's own failure on the user-initiated path -
 // distinct from result.Err, which is updater.Check's internal manifest-fetch
 // failure - and is always nil on the startup path, where main.go has
 // already run the fetch by the time this screen opens. Checked first since
-// without it there is no Result to look at.
+// without it there is no Result to look at. Either failure lands in
+// stateCheckFailed, paired with reasonFetchFailed: neither one learned
+// whether an update exists at all, which is a different situation from
+// stateManualRequired's reasonNoFile/reasonNotWritable, both of which only
+// happen once the check itself has already succeeded. See enterCheckFailed.
 //
 // "already up to date" (result.Mode == updater.ModeNone) only matters for a
 // user-initiated check: the startup path never calls this with ModeNone at
@@ -359,11 +372,11 @@ const (
 // worse, as "up to date".
 func decideEntry(result updater.Result, checkErr, preflightErr error) (state, entryReason) {
 	if checkErr != nil {
-		return stateManualRequired, reasonFetchFailed
+		return stateCheckFailed, reasonFetchFailed
 	}
 
 	if result.Err != nil {
-		return stateManualRequired, reasonFetchFailed
+		return stateCheckFailed, reasonFetchFailed
 	}
 
 	if result.Mode == updater.ModeNone {
@@ -480,16 +493,20 @@ func (s *Screen) handleChecked(msg checkedMsg) tea.Cmd {
 		s.setNewUpdateTitle()
 		s.statusMessage.Reset()
 
-	case stateManualRequired:
-		switch reason {
-		case reasonFetchFailed:
-			s.enterManual(lokyn.L("Could not reach the update server."))
-		case reasonNoFile:
-			s.enterManual(lokyn.L("No build is published for your platform."))
-		case reasonNotWritable:
-			s.enterManual(fmt.Sprintf("%s\n%v",
-				lokyn.L("Farental cannot write to its own directory."), preflightErr))
+	case stateCheckFailed:
+		// checkErr (checkForUpdates's own request failing) and result.Err
+		// (Check's internal manifest fetch failing) are mutually exclusive -
+		// decideEntry only reaches this state via one or the other - so
+		// whichever is non-nil is the failure to show.
+		err := msg.err
+		if err == nil {
+			err = msg.result.Err
 		}
+
+		s.enterCheckFailed(err)
+
+	case stateManualRequired:
+		s.enterManual(reason, preflightErr)
 	}
 
 	s.refreshHelpKeys()
@@ -589,9 +606,9 @@ func (s *Screen) exitCmd() tea.Cmd {
 // here, see handleFinished), so it is hidden everywhere else. Esc reads
 // "back" in the two states unique to a user-initiated check (still checking,
 // already up to date), where there is no update on offer to skip, and
-// "skip" everywhere else - including stateManualRequired reached by a failed
-// check, which reads the same as the startup path's own manual-required
-// states rather than singling itself out.
+// "skip" everywhere else - including stateCheckFailed and stateManualRequired,
+// neither of which single themselves out from the ordinary manual-required
+// wording.
 func (s *Screen) refreshHelpKeys() {
 	bubblehelp.SetKeybindVisible(keybind.Enter, s.state == statePrompt)
 
@@ -625,7 +642,7 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 			}
 		}
 
-	case stateManualRequired:
+	case stateManualRequired, stateCheckFailed:
 		switch {
 		case key.Matches(m, keybind.Esc):
 			if s.canEscape() {
@@ -767,18 +784,51 @@ func (s *Screen) handleFinished(msg finishedMsg) tea.Cmd {
 	return tea.Quit
 }
 
-func (s *Screen) enterManual(reason string) {
+// enterManual drives stateManualRequired: the check itself succeeded and an
+// update exists, but it cannot be applied automatically - either because no
+// build is published for this platform (reasonNoFile) or because Farental
+// cannot write to its own directory (reasonNotWritable). Both share the
+// download URL and the canEscape-gated esc hint; title and status-message
+// severity further split on whether the client is actually incompatible.
+// That is s.result.Mode == updater.ModeMandatory, known for certain here -
+// unlike in enterCheckFailed - since decideEntry only reaches either reason
+// once the check has already succeeded and populated Mode for real.
+//
+// preflightErr is only used for reasonNotWritable; callers pass it
+// unconditionally since both call sites already have it in scope.
+func (s *Screen) enterManual(reason entryReason, preflightErr error) {
 	s.state = stateManualRequired
-	s.title.SetValue(lokyn.L("Update required"))
 	s.bar.SetActive(false)
 	s.notes.SetActive(false)
 
-	s.statusMessage.SetMessage(reason, statusmessage.WarningMessage)
+	incompatible := s.result.Mode == updater.ModeMandatory
 
-	// Kept out of statusMessage, which renders one styled (here, warning-
-	// colored) message: the URL needs to stay plainly readable rather than
-	// tinted the same as the warning above it, and the hint is guidance, not
-	// part of the warning itself.
+	switch reason {
+	case reasonNoFile:
+		if incompatible {
+			s.title.SetValue(lokyn.L("Version not compatible"))
+			s.statusMessage.SetMessage(lokyn.L("No build is published for your platform, so updating is not possible."),
+				statusmessage.ErrorMessage)
+		} else {
+			s.title.SetValue(lokyn.L("Update available"))
+			s.statusMessage.SetMessage(lokyn.L("No build is published for your platform."), statusmessage.WarningMessage)
+		}
+
+	case reasonNotWritable:
+		if incompatible {
+			s.title.SetValue(lokyn.L("Update required"))
+		} else {
+			s.title.SetValue(lokyn.L("Update available"))
+		}
+
+		s.statusMessage.SetMessage(fmt.Sprintf("%s\n%v",
+			lokyn.L("Farental cannot write to its own directory."), preflightErr), statusmessage.WarningMessage)
+	}
+
+	// Kept out of statusMessage, which renders one styled (warning- or
+	// error-colored) message: the URL needs to stay plainly readable rather
+	// than tinted the same as whatever is showing above it, and the hint is
+	// guidance, not part of that message itself.
 	detail := fmt.Sprintf("%s\n%s/clienttui", lokyn.L("Download the new version here:"), config.WebURL)
 
 	if s.canEscape() {
@@ -786,6 +836,46 @@ func (s *Screen) enterManual(reason string) {
 	}
 
 	s.detail.SetValue(detail)
+}
+
+// enterCheckFailed drives stateCheckFailed: the check itself never produced
+// a usable Result (see decideEntry's reasonFetchFailed branches), so there
+// is no way to know whether an update even exists. Unlike enterManual, this
+// is not "an update exists but can't be applied": it is "we don't know", and
+// the two presentations it can take differ in title, severity and whether
+// the download URL is worth showing at all.
+//
+// The split is on canEscape rather than raw Mode: a user-initiated check
+// always escapes regardless of what it reported (see canEscape's own doc
+// comment), and in that situation the user never learned this client is
+// actually incompatible either - checkForUpdates's own request failing
+// leaves Mode at its zero value - so there is nothing more specific than
+// "could not check" to tell them. Only the startup path's own mandatory,
+// non-escapable case has enough information to assert incompatibility.
+func (s *Screen) enterCheckFailed(err error) {
+	s.state = stateCheckFailed
+	s.bar.SetActive(false)
+	s.notes.SetActive(false)
+
+	if s.canEscape() {
+		s.title.SetValue(lokyn.L("Could not check for updates"))
+		s.statusMessage.SetMessage(fmt.Sprintf("%s\n%v", lokyn.L("Could not reach the server."), err),
+			statusmessage.WarningMessage)
+
+		// No download link here: the host that just failed to answer is not
+		// a useful place to send the user.
+		s.detail.SetValue(lokyn.L("Press esc to continue without updating."))
+
+		return
+	}
+
+	// No esc hint: canEscape is false, so there is no esc to hint at. The
+	// download URL is this client's only recourse once the host is back.
+	s.title.SetValue(lokyn.L("Version not compatible"))
+	s.statusMessage.SetMessage(
+		lokyn.L("Your version is not compatible with the server, and the server cannot be reached right now."),
+		statusmessage.ErrorMessage)
+	s.detail.SetValue(fmt.Sprintf("%s\n%s/clienttui", lokyn.L("Download the new version here:"), config.WebURL))
 }
 
 func (s *Screen) refreshNotes() {
