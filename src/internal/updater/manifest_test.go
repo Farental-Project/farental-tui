@@ -197,8 +197,7 @@ func TestCheckMandatoryWithUnreachableManifest(t *testing.T) {
 }
 
 func TestCheckOptionalWhenNewerPatchExists(t *testing.T) {
-	body := replacePlatform(sampleManifest)
-	srv := manifestServer(t, http.StatusOK, body)
+	srv := manifestServer(t, http.StatusOK, replacePlatform(sampleManifest))
 
 	got := checkAt(srv.URL, "1.2.0", "1.2", "fr")
 
@@ -206,10 +205,36 @@ func TestCheckOptionalWhenNewerPatchExists(t *testing.T) {
 		t.Errorf("Mode = %v, want ModeNone for an up-to-date client", got.Mode)
 	}
 
-	got = checkAt(srv.URL, "1.1.0", "1.1", "fr")
+	// A newer release the server still accepts is the one case worth
+	// offering: same Major.Minor as the compat string, higher patch.
+	newerPatch := replacePlatform(strings.Replace(sampleManifest, `"version": "1.2.0"`, `"version": "1.2.3"`, 1))
+	patchSrv := manifestServer(t, http.StatusOK, newerPatch)
+
+	got = checkAt(patchSrv.URL, "1.2.0", "1.2", "fr")
 
 	if got.Mode != ModeOptional {
-		t.Errorf("Mode = %v, want ModeOptional", got.Mode)
+		t.Errorf("Mode = %v, want ModeOptional for a newer patch the server accepts", got.Mode)
+	}
+}
+
+// Publishing a release before bumping db_version.client_tui is a normal
+// staging order, and during that window the newest release is ahead of what
+// the server accepts. Offering it to a client that is currently compatible
+// would talk them into locking themselves out: installing 1.2.0 against a
+// server still demanding 1.1 leaves them refused at login. There is no usable
+// update for that client, so the mode is ModeNone - it really is up to date.
+func TestCheckNoUpdateWhenLatestReleaseWouldBreakCompat(t *testing.T) {
+	srv := manifestServer(t, http.StatusOK, replacePlatform(sampleManifest))
+
+	got := checkAt(srv.URL, "1.1.0", "1.1", "fr")
+
+	if got.Mode != ModeNone {
+		t.Errorf("Mode = %v, want ModeNone: release 1.2.0 is newer but the server still requires 1.1", got.Mode)
+	}
+
+	// The manifest was still read, so the screen can say what it is on.
+	if got.Latest != "1.2.0" {
+		t.Errorf("Latest = %q, want the manifest still to have been parsed", got.Latest)
 	}
 }
 

@@ -90,8 +90,17 @@ func checkAt(baseURL, currentVersion, serverCompat, lang string) Result {
 	switch {
 	case mandatory:
 		result.Mode = ModeMandatory
-	case Newer(m.Version, currentVersion):
+
+	// Newer is not enough on its own: the release also has to be one this
+	// server would still accept. Publishing a release before bumping
+	// db_version.client_tui is a normal staging order, and during that window
+	// the newest release is ahead of what the server allows - offering it to a
+	// client that is currently compatible would talk them into locking
+	// themselves out. From that client's point of view there is no usable
+	// update, which is exactly ModeNone.
+	case Newer(m.Version, currentVersion) && Compatible(m.Version, serverCompat):
 		result.Mode = ModeOptional
+
 	default:
 		result.Mode = ModeNone
 	}
