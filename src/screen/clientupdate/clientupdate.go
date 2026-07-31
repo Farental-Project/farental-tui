@@ -196,13 +196,15 @@ func New() *Screen {
 
 	s.statusMessage = statusmessage.New()
 
-	s.notes = simplelogviewer.New(lokyn.L("release notes"))
+	s.notes = simplelogviewer.New("Release notes")
 	s.notes.Style = simplelogviewer.Style{
 		FocusedWidget: t.Style(theme.FocusedWidgetStyleID),
 		BlurredWidget: t.Style(theme.BlurredWidgetStyleID),
 		FocusedTitle:  t.Style(ftheme.TitleUnderlinedTextStyleID),
 		BlurredTitle:  t.Style(ftheme.DimUnderlinedTextStyleID),
 	}
+	s.notes.SetMinSize(orvyn.NewSize(30, 30))
+	s.notes.SetPreferredSize(orvyn.NewSize(30, 120))
 	s.notes.SetAutoScroll(false)
 
 	// simplelogviewer resolves its border and title styles in OnFocus/OnBlur;
@@ -243,6 +245,7 @@ func New() *Screen {
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextClientUpdate)
 
+	s.refreshContext()
 	// Bumped unconditionally, before branching, so a checkedMsg from any
 	// earlier entry - user-initiated or startup - is stale from this point
 	// on. See the doc comment on the generation field.
@@ -250,6 +253,8 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 
 	s.userInitiated = checkPending
 	checkPending = false
+
+	s.notes.SetTitle(lokyn.L("release notes"))
 
 	if s.userInitiated {
 		s.checkFrom = checkFrom
@@ -277,7 +282,7 @@ func (s *Screen) enterPending() tea.Cmd {
 		return orvyn.SwitchScreen(screen.IDLogin)
 	}
 
-	s.title.SetValue(lokyn.L("A new version is available"))
+	s.setNewUpdateTitle()
 
 	// Latest is empty when the manifest fetch failed; showing "1.1.0  →  "
 	// with a blank right side is worse than showing nothing.
@@ -472,7 +477,7 @@ func (s *Screen) handleChecked(msg checkedMsg) tea.Cmd {
 		s.statusMessage.SetMessage(lokyn.L("You are running the latest version."), statusmessage.SuccessMessage)
 
 	case statePrompt:
-		s.title.SetValue(lokyn.L("A new version is available"))
+		s.setNewUpdateTitle()
 		s.statusMessage.Reset()
 
 	case stateManualRequired:
@@ -505,22 +510,12 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		// orvyn.SwitchScreen runs OnEnter synchronously from App.Init(),
-		// before bubbletea's loop starts and so before the first resize
-		// message arrives; refreshNotes there wraps to a hardcoded
-		// default. This case is what makes it wrap to the real terminal
-		// width, both at startup and on every later resize.
-		//
-		// Preserve the visibility state that the current state intends:
-		// some states (e.g., downloading, manual-required) deliberately hide
-		// the pane, but refreshNotes would force it visible if there's
-		// content to wrap. Capture and restore to let resizes re-wrap without
-		// re-activating.
+		// Notes are rendered based on the current width of the layout.
+		// Needs to be refresh when window size shifts.
 		wasActive := s.notes.IsActive()
+
 		s.refreshNotes()
-		// refreshNotes sets active to true if there's content, false if not.
-		// If there's content (active is now true), restore the original state.
-		// If there's no content (active is now false), keep it inactive.
+
 		if s.notes.IsActive() {
 			s.notes.SetActive(wasActive)
 		}
@@ -667,7 +662,7 @@ func (s *Screen) startUpdate() tea.Cmd {
 
 	// A retry from stateFailed left the title reading "Update failed"; a
 	// fresh attempt needs it back to the neutral prompt title.
-	s.title.SetValue(lokyn.L("A new version is available"))
+	s.setNewUpdateTitle()
 
 	s.bar.SetActive(true)
 	s.notes.SetActive(false)
@@ -794,14 +789,7 @@ func (s *Screen) enterManual(reason string) {
 }
 
 func (s *Screen) refreshNotes() {
-	// The pane never grows past the theme's layout width even on a very
-	// wide terminal (DefinedWidthVerticalLayout clamps to it), so the wrap
-	// width has to follow the same min, not the raw terminal width. -10 is
-	// that layout's margin; -2 is the notes pane's own border.
-	layoutWidth := orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID)
-	width := min(orvyn.WindowSize.Width, layoutWidth) - 10 - 2
-
-	lines := updater.RenderNotes(s.result.Notes, width)
+	lines := updater.RenderNotes(s.result.Notes, s.layout.GetSize().Width)
 
 	if len(lines) == 0 {
 		s.notes.SetActive(false)
@@ -810,4 +798,16 @@ func (s *Screen) refreshNotes() {
 
 	s.notes.SetActive(true)
 	s.notes.SetContent(lines)
+}
+
+func (s *Screen) refreshContext() {
+	bubblehelp.SetKeybindVisible(keybind.Esc, s.canEscape())
+}
+
+func (s *Screen) setNewUpdateTitle() {
+	if s.canEscape() {
+		s.title.SetValue(lokyn.L("A new version is available"))
+	} else {
+		s.title.SetValue(lokyn.L("A new mandatory version is available"))
+	}
 }
