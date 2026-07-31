@@ -841,6 +841,11 @@ func (s *Screen) enterManual(reason entryReason, preflightErr error) {
 	case reasonNoCompatibleRelease:
 		showDownloadLink = false
 
+		// The subtitle set before decideEntry ran reads "1.1.0  →  1.1.0":
+		// the latest published version, which is precisely the one that
+		// cannot help here. Point it at what the server actually requires.
+		s.subtitle.SetValue(fmt.Sprintf("%s  →  %s", s.result.Current, s.result.ServerCompat))
+
 		s.title.SetValue(lokyn.L("Version not compatible"))
 		s.statusMessage.SetMessage(fmt.Sprintf("%s\n%s",
 			fmt.Sprintf(lokyn.L("The server requires version %s, but the latest published version is %s."),

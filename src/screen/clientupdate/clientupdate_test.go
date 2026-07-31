@@ -14,6 +14,7 @@ import (
 	"farental/screen"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
@@ -531,6 +532,39 @@ func TestUpdateWindowSizeMsgRefreshesNotes(t *testing.T) {
 
 	if joined := strings.Join(got, " "); !strings.Contains(joined, "hello there") {
 		t.Errorf("content = %q, want it to contain the release notes text", joined)
+	}
+}
+
+// When no published release can satisfy the server, the subtitle must name the
+// version the server actually requires. The generic subtitle set before
+// decideEntry runs reads "current -> latest published", which in this case is
+// the very version that cannot help - for a 1.1.0 client refused by a server
+// demanding 1.2 with 1.1.0 still the newest release, that renders the useless
+// "1.1.0  ->  1.1.0".
+func TestEnterManualNoCompatibleReleaseSubtitleShowsRequiredVersion(t *testing.T) {
+	s := New()
+	s.result = updater.Result{
+		Mode:         updater.ModeMandatory,
+		Current:      "1.1.0",
+		Latest:       "1.1.0",
+		ServerCompat: "1.2",
+	}
+
+	// Both callers set this generic subtitle before decideEntry picks the
+	// state, so enterManual has to overwrite it rather than merely fill a
+	// blank one - reproduce that here or the test passes vacuously.
+	s.subtitle.SetValue(fmt.Sprintf("%s  →  %s", s.result.Current, s.result.Latest))
+
+	s.enterManual(reasonNoCompatibleRelease, nil)
+
+	got := ansi.Strip(s.subtitle.Render())
+
+	if !strings.Contains(got, "1.2") {
+		t.Errorf("subtitle = %q, want it to name the required version 1.2", got)
+	}
+
+	if strings.Contains(got, "1.1.0  →  1.1.0") {
+		t.Errorf("subtitle = %q, still points at the latest published version, which cannot resolve the incompatibility", got)
 	}
 }
 
