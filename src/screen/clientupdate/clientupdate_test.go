@@ -535,6 +535,64 @@ func TestUpdateWindowSizeMsgRefreshesNotes(t *testing.T) {
 	}
 }
 
+// By the time handleFinished sees a nil error the swap has already happened,
+// but restarting is the user's call: the screen holds at stateInstalled and
+// only hands main the go-ahead once enter is pressed, rather than yanking the
+// terminal away while they are still reading.
+func TestHandleFinishedWaitsForEnterBeforeRestarting(t *testing.T) {
+	updater.RestartPending = false
+	t.Cleanup(func() { updater.RestartPending = false })
+
+	s := New()
+	s.state = stateApplying
+
+	// startUpdate turns the bar on when the download begins; this test enters
+	// the state directly, so stand that precondition up by hand - the point
+	// below is that handleFinished must not turn it back off.
+	s.bar.SetActive(true)
+
+	s.handleFinished(finishedMsg{})
+
+	if s.state != stateInstalled {
+		t.Errorf("state = %v, want stateInstalled", s.state)
+	}
+
+	// refreshProgress only runs while downloading, and only once a second, so
+	// a download finishing inside a tick would otherwise leave the bar at the
+	// 0% startUpdate set. Completion has to fill it.
+	if got := s.bar.Percent(); got != 1 {
+		t.Errorf("progress bar target = %v, want 1 (a completed download reads 100%%)", got)
+	}
+
+	if updater.RestartPending {
+		t.Error("RestartPending set before the user asked to restart")
+	}
+
+	// The completed bar is the only on-screen evidence the download finished,
+	// so it stays up while the user decides to restart.
+	if !s.bar.IsActive() {
+		t.Error("progress bar hidden in stateInstalled; it should stay visible at 100%")
+	}
+
+	cmd, handled := s.handleKey(tea.KeyMsg{Type: tea.KeyEnter})
+
+	if !handled {
+		t.Fatal("enter was not handled in stateInstalled")
+	}
+
+	if !updater.RestartPending {
+		t.Error("RestartPending not set after enter; main would never exec the new binary")
+	}
+
+	if cmd == nil {
+		t.Error("expected a quit command so main can exec once bubbletea has torn down")
+	}
+
+	if s.state != stateRestarting {
+		t.Errorf("state = %v, want stateRestarting", s.state)
+	}
+}
+
 // When no published release can satisfy the server, the subtitle must name the
 // version the server actually requires. The generic subtitle set before
 // decideEntry runs reads "current -> latest published", which in this case is

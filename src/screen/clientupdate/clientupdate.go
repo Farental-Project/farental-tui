@@ -54,6 +54,13 @@ const (
 
 	stateUnrecoverable
 
+	// stateInstalled sits between the swap and the restart: the new binary is
+	// already on disk and the old one saved aside, and the screen waits for
+	// the user to press enter rather than restarting out from under them.
+	// Quitting from here does not lose the update - the swapped binary is
+	// what the next launch runs either way.
+	stateInstalled
+
 	// stateChecking and stateUpToDate exist only for a user-initiated check
 	// (see OpenCheck): the startup path never has to represent "still
 	// checking" or "already up to date" because main only routes to this
@@ -632,9 +639,17 @@ func (s *Screen) exitCmd() tea.Cmd {
 // neither of which single themselves out from the ordinary manual-required
 // wording.
 func (s *Screen) refreshHelpKeys() {
-	bubblehelp.SetKeybindVisible(keybind.Enter, s.state == statePrompt)
+	// Enter acts in exactly two states: the prompt, where it starts the
+	// update, and stateInstalled, where it restarts into the new binary.
+	bubblehelp.SetKeybindVisible(keybind.Enter, s.state == statePrompt || s.state == stateInstalled)
+
+	// Esc does nothing once the swap has happened: the update is already on
+	// disk, so there is no longer anything to skip.
+	bubblehelp.SetKeybindVisible(keybind.Esc, s.state != stateInstalled)
 
 	switch s.state {
+	case stateInstalled:
+		bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, lokyn.L("restart"))
 	case stateChecking, stateUpToDate:
 		bubblehelp.UpdateKeybindHelpDesc(keybind.Esc, lokyn.L("back"))
 	default:
@@ -680,6 +695,15 @@ func (s *Screen) handleKey(m tea.KeyMsg) (tea.Cmd, bool) {
 			if s.canEscape() {
 				return s.exitCmd(), true
 			}
+		}
+
+	case stateInstalled:
+		// No esc here on purpose: the swap already happened, so there is
+		// nothing left to skip. Enter restarts; quitting keeps the update for
+		// the next launch.
+		switch {
+		case key.Matches(m, keybind.Enter):
+			return s.restart(), true
 		}
 
 	case stateChecking, stateUpToDate:
@@ -795,12 +819,38 @@ func (s *Screen) handleFinished(msg finishedMsg) tea.Cmd {
 		return nil
 	}
 
+	// The new binary is already in place: the swap happened inside Apply. All
+	// that is left is running it, and that is the user's call rather than
+	// something that yanks the terminal out from under them mid-read. Quitting
+	// here instead of restarting is not a lost update either - the swapped
+	// binary is what the next launch runs.
+	// The bar stays visible: it is the confirmation that the download actually
+	// completed, and hiding it the instant the swap lands would leave the user
+	// staring at a screen with no evidence of what just happened.
+	s.state = stateInstalled
+	s.title.SetValue(lokyn.L("Update installed"))
+	s.statusMessage.SetMessage(lokyn.L("Press enter to restart Farental and finish the update."),
+		statusmessage.SuccessMessage)
+	s.detail.SetValue("")
+	s.refreshHelpKeys()
+
+	// Completion is what fills the bar, not the tick: refreshProgress only
+	// runs while the state is stateDownloading and only once a second, so a
+	// download that finishes inside one tick leaves the bar at the 0% that
+	// startUpdate set, and a slower one leaves it at whatever the last tick
+	// saw. Either way the arrival of finishedMsg is the moment it is truly
+	// 100%. The returned command drives the spring animation to get there.
+	return s.bar.SetPercent(1)
+}
+
+// restart leaves stateInstalled: it hands main the go-ahead and quits the
+// bubbletea program. The exec itself happens in main once p.Run() has
+// returned, after bubbletea has left the alt screen and restored the cursor -
+// doing it here would hand the new process a terminal still in raw mode.
+func (s *Screen) restart() tea.Cmd {
 	s.state = stateRestarting
 	s.statusMessage.SetMessage(lokyn.L("Restarting..."), statusmessage.InformationMessage)
 
-	// The exec happens in main, after bubbletea has left the alt screen and
-	// restored the cursor; doing it here would hand the new process a
-	// terminal still in raw mode.
 	updater.RestartPending = true
 
 	return tea.Quit
