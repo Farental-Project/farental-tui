@@ -25,9 +25,20 @@ type Result struct {
 	Mode    Mode
 	Current string
 	Latest  string
-	Notes   []Block
-	File    FileInfo
-	Err     error
+
+	// ServerCompat is the server's Major.Minor compatibility requirement
+	// (db_version.client_tui) that produced Mode. Carrying it lets a
+	// consumer ask the question checkAt itself never answers: does Latest,
+	// the latest *published* release, actually satisfy this requirement?
+	// Without it, a mandatory update whose newest release still doesn't
+	// meet the requirement looks identical to one that does - both just say
+	// ModeMandatory - and offering the former as if it were a fix loops the
+	// user through an update that changes nothing.
+	ServerCompat string
+
+	Notes []Block
+	File  FileInfo
+	Err   error
 }
 
 // HasFile reports whether a binary exists for this platform.
@@ -50,7 +61,9 @@ func Check(currentVersion, serverCompat, lang string) Result {
 }
 
 func checkAt(baseURL, currentVersion, serverCompat, lang string) Result {
-	result := Result{Current: currentVersion}
+	// Set unconditionally, here, so every return path below - including the
+	// early manifest-failure one - carries it. See Result.ServerCompat.
+	result := Result{Current: currentVersion, ServerCompat: serverCompat}
 
 	mandatory := !Compatible(currentVersion, serverCompat)
 

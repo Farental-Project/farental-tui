@@ -2,6 +2,7 @@ package clientupdate
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -84,8 +85,14 @@ func TestDecideEntry(t *testing.T) {
 			wantReason: reasonNoFile,
 		},
 		{
-			name:       "mandatory mode no file goes manual required",
-			result:     updater.Result{Mode: updater.ModeMandatory},
+			// Latest/ServerCompat are set to a compatible pair so the
+			// reasonNoCompatibleRelease check (which runs first) passes
+			// through, isolating the no-file case this test is about. See
+			// TestDecideEntryNoCompatibleRelease for the mismatched case.
+			name: "mandatory mode no file goes manual required",
+			result: updater.Result{
+				Mode: updater.ModeMandatory, Latest: "1.2.0", ServerCompat: "1.2",
+			},
 			wantState:  stateManualRequired,
 			wantReason: reasonNoFile,
 		},
@@ -109,9 +116,71 @@ func TestDecideEntry(t *testing.T) {
 			wantReason: reasonNone,
 		},
 		{
-			name:       "mandatory mode happy path goes to prompt",
-			result:     updater.Result{Mode: updater.ModeMandatory, File: fileInfo()},
+			// Latest satisfies ServerCompat: the mandatory update this
+			// client needs is exactly the one on offer, so the new
+			// reasonNoCompatibleRelease check must not fire.
+			name: "mandatory mode happy path goes to prompt",
+			result: updater.Result{
+				Mode: updater.ModeMandatory, Latest: "1.2.0", ServerCompat: "1.2", File: fileInfo(),
+			},
 			wantState:  statePrompt,
+			wantReason: reasonNone,
+		},
+		{
+			// The owner's exact reported defect: client 1.1.0, server
+			// demands 1.2, and the newest published release is still 1.1.0.
+			// checkAt correctly marks this mandatory (current is
+			// incompatible), but the release on offer would not fix
+			// anything - updating would just download the same 1.1.0 again.
+			name: "mandatory mode, latest release still incompatible (owner's exact case)",
+			result: updater.Result{
+				Mode: updater.ModeMandatory, Current: "1.1.0", Latest: "1.1.0", ServerCompat: "1.2", File: fileInfo(),
+			},
+			wantState:  stateManualRequired,
+			wantReason: reasonNoCompatibleRelease,
+		},
+		{
+			// A second shape of the same root cause: client 1.0.0, server
+			// demands 1.2, latest published is 1.1.0. Updating is real
+			// progress (1.0.0 -> 1.1.0) but still does not satisfy the
+			// server, so it must not be offered as if it resolves things.
+			name: "mandatory mode, latest release is progress but still incompatible",
+			result: updater.Result{
+				Mode: updater.ModeMandatory, Current: "1.0.0", Latest: "1.1.0", ServerCompat: "1.2", File: fileInfo(),
+			},
+			wantState:  stateManualRequired,
+			wantReason: reasonNoCompatibleRelease,
+		},
+		{
+			// Counterpart to the two cases above: once the latest published
+			// release does satisfy ServerCompat, this must not fire - the
+			// ordinary prompt is the right presentation.
+			name: "mandatory mode, latest release resolves incompatibility goes to prompt",
+			result: updater.Result{
+				Mode: updater.ModeMandatory, Current: "1.1.0", Latest: "1.2.0", ServerCompat: "1.2", File: fileInfo(),
+			},
+			wantState:  statePrompt,
+			wantReason: reasonNone,
+		},
+		{
+			// ModeOptional must never consult ServerCompat/Latest at all: a
+			// compatible client is by definition already satisfied,
+			// regardless of what the latest published release happens to
+			// be relative to the server's requirement.
+			name: "optional mode unaffected by server compat mismatch",
+			result: updater.Result{
+				Mode: updater.ModeOptional, Current: "1.1.0", Latest: "1.1.0", ServerCompat: "1.2", File: fileInfo(),
+			},
+			wantState:  statePrompt,
+			wantReason: reasonNone,
+		},
+		{
+			// ModeNone likewise skips the new check entirely.
+			name: "mode none unaffected by server compat mismatch",
+			result: updater.Result{
+				Mode: updater.ModeNone, Current: "1.1.0", Latest: "1.1.0", ServerCompat: "1.2",
+			},
+			wantState:  stateUpToDate,
 			wantReason: reasonNone,
 		},
 		{
@@ -171,6 +240,26 @@ func TestDecideEntryFetchErrorTakesPriorityOverMissingFile(t *testing.T) {
 
 	if gotReason != reasonFetchFailed {
 		t.Errorf("reason = %v, want %v", gotReason, reasonFetchFailed)
+	}
+}
+
+// reasonNoCompatibleRelease takes priority over reasonNoFile: if the
+// published release cannot resolve the incompatibility, whether a build
+// exists for this platform is moot, and reasonNoFile's "no build for your
+// platform" wording would misreport a compatibility gap as a
+// platform-support one. File is left at its zero value here specifically so
+// HasFile() would also fail, proving the compat check is what actually fired.
+func TestDecideEntryNoCompatibleReleaseTakesPriorityOverMissingFile(t *testing.T) {
+	result := updater.Result{Mode: updater.ModeMandatory, Current: "1.1.0", Latest: "1.1.0", ServerCompat: "1.2"}
+
+	gotState, gotReason := decideEntry(result, nil, nil)
+
+	if gotState != stateManualRequired {
+		t.Errorf("state = %v, want stateManualRequired", gotState)
+	}
+
+	if gotReason != reasonNoCompatibleRelease {
+		t.Errorf("reason = %v, want %v", gotReason, reasonNoCompatibleRelease)
 	}
 }
 
@@ -743,6 +832,76 @@ func TestEnterManualTitleAndStatus(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestEnterManualNoCompatibleRelease covers reasonNoCompatibleRelease: the
+// server's compatibility requirement and the latest published release are
+// both named in the status message, severity is error (nothing the user can
+// do fixes this - the wording reads as "wait", not "go do something"), and -
+// unlike reasonNoFile/reasonNotWritable - no download link is ever shown:
+// no available download resolves this, so pointing at the page would be the
+// same false advice already removed from enterCheckFailed's
+// unreachable-server case. Escapability still comes from canEscape() alone.
+func TestEnterManualNoCompatibleRelease(t *testing.T) {
+	t.Run("startup path, mandatory, not escapable", func(t *testing.T) {
+		s := New()
+		s.result = updater.Result{
+			Mode: updater.ModeMandatory, Current: "1.1.0", Latest: "1.1.0", ServerCompat: "1.2",
+		}
+
+		s.enterManual(reasonNoCompatibleRelease, nil)
+
+		if s.state != stateManualRequired {
+			t.Errorf("state = %v, want stateManualRequired", s.state)
+		}
+
+		if got := s.title.Render(); got != lokyn.L("Version not compatible") {
+			t.Errorf("title = %q, want %q", got, lokyn.L("Version not compatible"))
+		}
+
+		got := s.statusMessage.Render()
+
+		wantMsg := fmt.Sprintf(lokyn.L("The server requires version %s, but the latest published version is %s."),
+			"1.2", "1.1.0")
+
+		if !strings.Contains(got, wantMsg) {
+			t.Errorf("status = %q, want it to contain %q", got, wantMsg)
+		}
+
+		if !strings.Contains(got, lokyn.L("Updating is not possible yet.")) {
+			t.Errorf("status = %q, want it to contain %q", got, lokyn.L("Updating is not possible yet."))
+		}
+
+		detail := s.detail.Render()
+
+		if strings.Contains(detail, config.WebURL) {
+			t.Errorf("detail = %q, must not show a download link: no release can resolve this", detail)
+		}
+
+		if detail != "" {
+			t.Errorf("detail = %q, want empty: not escapable and no download link to show", detail)
+		}
+	})
+
+	t.Run("user-initiated, escapable, still no download link", func(t *testing.T) {
+		s := New()
+		s.userInitiated = true
+		s.result = updater.Result{
+			Mode: updater.ModeMandatory, Current: "1.0.0", Latest: "1.1.0", ServerCompat: "1.2",
+		}
+
+		s.enterManual(reasonNoCompatibleRelease, nil)
+
+		detail := s.detail.Render()
+
+		if strings.Contains(detail, config.WebURL) {
+			t.Errorf("detail = %q, must not show a download link even when escapable", detail)
+		}
+
+		if !strings.Contains(detail, lokyn.L("Press esc to continue without updating.")) {
+			t.Errorf("detail = %q, want the esc hint since a user-initiated check is always escapable", detail)
+		}
+	})
 }
 
 // TestHandleCheckedFetchFailed covers stateCheckFailed's "client compatible"

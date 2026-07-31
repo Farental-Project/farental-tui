@@ -167,6 +167,10 @@ func TestCheckMandatoryWhenIncompatible(t *testing.T) {
 	if got.Latest != "1.2.0" || got.File.SHA256 != "abc" {
 		t.Errorf("Result = %+v", got)
 	}
+
+	if got.ServerCompat != "1.2" {
+		t.Errorf("ServerCompat = %q, want %q", got.ServerCompat, "1.2")
+	}
 }
 
 // An unreachable manifest must not hide the fact that the server refuses this
@@ -180,6 +184,15 @@ func TestCheckMandatoryWithUnreachableManifest(t *testing.T) {
 
 	if got.Err == nil {
 		t.Error("Err = nil, want the fetch failure")
+	}
+
+	// ServerCompat is set at the very top of checkAt, before the manifest
+	// fetch, so a fetch failure must not leave it empty: decideEntry (in the
+	// clientupdate screen) needs it to tell a real incompatibility from one
+	// the latest release would already fix, and it has nothing else to look
+	// at when Latest is also empty on this path.
+	if got.ServerCompat != "1.2" {
+		t.Errorf("ServerCompat = %q, want %q (must be set even when the manifest fetch fails)", got.ServerCompat, "1.2")
 	}
 }
 

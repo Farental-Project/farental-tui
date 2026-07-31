@@ -255,7 +255,6 @@ func New() *Screen {
 func (s *Screen) OnEnter(_ any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextClientUpdate)
 
-	s.refreshContext()
 	// Bumped unconditionally, before branching, so a checkedMsg from any
 	// earlier entry - user-initiated or startup - is stale from this point
 	// on. See the doc comment on the generation field.
@@ -263,6 +262,8 @@ func (s *Screen) OnEnter(_ any) tea.Cmd {
 
 	s.userInitiated = checkPending
 	checkPending = false
+
+	s.refreshContext()
 
 	s.notes.SetTitle(lokyn.L("release notes"))
 
@@ -340,6 +341,14 @@ type entryReason int
 const (
 	reasonNone entryReason = iota
 	reasonFetchFailed
+
+	// reasonNoCompatibleRelease means the check succeeded, the update is
+	// mandatory, and the latest *published* release still would not satisfy
+	// the server's compatibility requirement - so no build existing for this
+	// platform, or the disk being writable, is moot: nothing downloadable
+	// right now can fix this client. See decideEntry and enterManual.
+	reasonNoCompatibleRelease
+
 	reasonNoFile
 	reasonNotWritable
 )
@@ -366,6 +375,15 @@ const (
 // all (enterPending bails to login first - see its own ModeNone guard), so
 // that branch is simply never exercised there.
 //
+// For a mandatory update, whether the latest published release actually
+// satisfies the server's requirement is checked next, and deliberately
+// before HasFile(): if the release that exists cannot resolve the
+// incompatibility anyway, whether a build happens to exist for this
+// platform is moot, and reasonNoFile's "no build for your platform" wording
+// would misreport a compatibility gap as a platform-support one. ModeOptional
+// and ModeNone skip this check entirely - a compatible client is by
+// definition already satisfied, whatever Latest happens to be.
+//
 // Ordered most specific cause first: a failed fetch also leaves File empty
 // and Mode at its zero value, so checking either of those before checkErr or
 // result.Err would misreport a network problem as a platform-support gap or,
@@ -381,6 +399,10 @@ func decideEntry(result updater.Result, checkErr, preflightErr error) (state, en
 
 	if result.Mode == updater.ModeNone {
 		return stateUpToDate, reasonNone
+	}
+
+	if result.Mode == updater.ModeMandatory && !updater.Compatible(result.Latest, result.ServerCompat) {
+		return stateManualRequired, reasonNoCompatibleRelease
 	}
 
 	if !result.HasFile() {
@@ -785,14 +807,24 @@ func (s *Screen) handleFinished(msg finishedMsg) tea.Cmd {
 }
 
 // enterManual drives stateManualRequired: the check itself succeeded and an
-// update exists, but it cannot be applied automatically - either because no
-// build is published for this platform (reasonNoFile) or because Farental
-// cannot write to its own directory (reasonNotWritable). Both share the
-// download URL and the canEscape-gated esc hint; title and status-message
-// severity further split on whether the client is actually incompatible.
-// That is s.result.Mode == updater.ModeMandatory, known for certain here -
-// unlike in enterCheckFailed - since decideEntry only reaches either reason
-// once the check has already succeeded and populated Mode for real.
+// update exists, but it cannot be applied automatically - because the latest
+// published release still would not satisfy the server's requirement
+// (reasonNoCompatibleRelease), because no build is published for this
+// platform (reasonNoFile), or because Farental cannot write to its own
+// directory (reasonNotWritable). All three share the canEscape-gated esc
+// hint; reasonNoFile and reasonNotWritable also share the download URL and
+// split their title/status-message severity on whether the client is
+// actually incompatible. That is s.result.Mode == updater.ModeMandatory,
+// known for certain here - unlike in enterCheckFailed - since decideEntry
+// only reaches any of these reasons once the check has already succeeded and
+// populated Mode for real.
+//
+// reasonNoCompatibleRelease is always the mandatory/incompatible case -
+// decideEntry only returns it for ModeMandatory - and never shows the
+// download URL: no available download resolves it, so pointing at the page
+// would be the same false advice already removed from enterCheckFailed's
+// unreachable-server case. Nothing the user can do here fixes it; the
+// wording reads as "wait", not as "go do something".
 //
 // preflightErr is only used for reasonNotWritable; callers pass it
 // unconditionally since both call sites already have it in scope.
@@ -803,7 +835,19 @@ func (s *Screen) enterManual(reason entryReason, preflightErr error) {
 
 	incompatible := s.result.Mode == updater.ModeMandatory
 
+	showDownloadLink := true
+
 	switch reason {
+	case reasonNoCompatibleRelease:
+		showDownloadLink = false
+
+		s.title.SetValue(lokyn.L("Version not compatible"))
+		s.statusMessage.SetMessage(fmt.Sprintf("%s\n%s",
+			fmt.Sprintf(lokyn.L("The server requires version %s, but the latest published version is %s."),
+				s.result.ServerCompat, s.result.Latest),
+			lokyn.L("Updating is not possible yet.")),
+			statusmessage.ErrorMessage)
+
 	case reasonNoFile:
 		if incompatible {
 			s.title.SetValue(lokyn.L("Version not compatible"))
@@ -829,10 +873,18 @@ func (s *Screen) enterManual(reason entryReason, preflightErr error) {
 	// error-colored) message: the URL needs to stay plainly readable rather
 	// than tinted the same as whatever is showing above it, and the hint is
 	// guidance, not part of that message itself.
-	detail := fmt.Sprintf("%s\n%s/clienttui", lokyn.L("Download the new version here:"), config.WebURL)
+	var detail string
+
+	if showDownloadLink {
+		detail = fmt.Sprintf("%s\n%s/clienttui", lokyn.L("Download the new version here:"), config.WebURL)
+	}
 
 	if s.canEscape() {
-		detail = fmt.Sprintf("%s\n\n%s", detail, lokyn.L("Press esc to continue without updating."))
+		if detail != "" {
+			detail = fmt.Sprintf("%s\n\n%s", detail, lokyn.L("Press esc to continue without updating."))
+		} else {
+			detail = lokyn.L("Press esc to continue without updating.")
+		}
 	}
 
 	s.detail.SetValue(detail)
