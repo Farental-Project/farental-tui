@@ -48,7 +48,6 @@ const (
 	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
-	ContextClientUpdateConsult                 bubblehelp.KeymapContext = "clientUpdateConsult"
 )
 
 func InitContexts() {
@@ -103,9 +102,10 @@ func InitContexts() {
 
 	// User settings used to share characterCreationKeymap outright (same
 	// Enter/Esc/Quit shape), but it alone also offers ctrl+r to open the
-	// client-update screen in consultation mode; giving it its own context
-	// keeps that hint from leaking into character/account creation, where
-	// the key does nothing.
+	// client-update screen for a user-initiated check (see
+	// clientupdate.OpenCheck); giving it its own context keeps that hint
+	// from leaking into character/account creation, where the key does
+	// nothing.
 	userSettingsKeymap := bubblehelp.NewKeymap(2)
 	userSettingsKeymap.Style = mainHelpStyle
 	userSettingsKeymap.NewKeyBinding(Enter, true)
@@ -640,6 +640,14 @@ func InitContexts() {
 
 	bubblehelp.RegisterContext(ContextManual, ManualKeymap)
 
+	// clientUpdateKeymap covers every state of the client-update screen,
+	// both the startup path and a user-initiated check (see
+	// clientupdate.OpenCheck): enter only does something in statePrompt, and
+	// esc's label swaps between "update now"'s natural counterpart "skip"
+	// and, for the two states unique to a user-initiated check (still
+	// checking, already up to date), "back" - see
+	// clientupdate.Screen.refreshHelpKeys, which keeps both honest per
+	// state rather than needing a second context.
 	clientUpdateKeymap := bubblehelp.NewKeymap(2)
 	clientUpdateKeymap.Style = mainHelpStyle
 	clientUpdateKeymap.NewKeyBinding(Enter, true)
@@ -649,17 +657,4 @@ func InitContexts() {
 	clientUpdateKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextClientUpdate, clientUpdateKeymap)
-
-	// clientUpdateConsult covers the three read-only consultation states
-	// (still checking, already up to date, fetch failed - see
-	// clientupdate.Screen.refreshHelpContext): unlike clientUpdateKeymap
-	// above, enter does nothing in any of them, so it is left out entirely,
-	// and esc means "back to whichever screen opened this", not "skip".
-	clientUpdateConsultKeymap := bubblehelp.NewKeymap(2)
-	clientUpdateConsultKeymap.Style = mainHelpStyle
-	clientUpdateConsultKeymap.NewKeyBinding(Esc, true)
-	clientUpdateConsultKeymap.SetHelpDesc(Esc, lokyn.L("back"))
-	clientUpdateConsultKeymap.NewKeyBinding(Quit, true)
-
-	bubblehelp.RegisterContext(ContextClientUpdateConsult, clientUpdateConsultKeymap)
 }

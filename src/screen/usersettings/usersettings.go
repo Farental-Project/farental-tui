@@ -135,7 +135,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(m, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
 		case key.Matches(m, keybind.RKeyCtrl):
-			return clientupdate.OpenConsultation(screen.IDUserSettings)
+			return clientupdate.OpenCheck(screen.IDUserSettings)
 		case key.Matches(m, keybind.Enter):
 			ok := s.submit()
 

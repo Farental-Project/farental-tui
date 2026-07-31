@@ -6,18 +6,21 @@ import (
 	"strings"
 	"testing"
 
+	"farental/internal/config"
 	"farental/internal/keybind"
+	"farental/internal/style"
 	"farental/internal/updater"
 	"farental/screen"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 )
 
 // dummyScreen is a no-op orvyn.Screen, registered under screen.IDLogin (and,
-// for consultation-mode tests, screen.IDUserSettings, screen.IDDashBoard and
-// screen.IDClientUpdate) so that handleKey's and OpenConsultation's
+// for user-initiated-check tests, screen.IDUserSettings, screen.IDDashBoard
+// and screen.IDClientUpdate) so that handleKey's and OpenCheck's
 // orvyn.SwitchScreen calls have somewhere real to go: an unregistered
 // ScreenID makes orvyn.SwitchScreen call log.Fatalf, which exits the test
 // process outright.
@@ -37,8 +40,18 @@ func TestMain(m *testing.M) {
 	lokyn.SetLanguage("en")
 
 	keybind.Init()
+	bubblehelp.Init()
 
 	orvyn.Init()
+
+	// Mirrors main.go's own init order: keybind.InitContexts registers
+	// ContextClientUpdate (and every other context) with bubblehelp, which
+	// TestRefreshHelpKeysEnterVisibility and TestRefreshHelpKeysEscLabel
+	// below need to actually be present in bubblehelp.Contexts rather than
+	// silently no-op against an unregistered context.
+	style.InitHelpStyle()
+	keybind.InitContexts()
+
 	orvyn.RegisterScreen(screen.IDLogin, dummyScreen{})
 	orvyn.RegisterScreen(screen.IDUserSettings, dummyScreen{})
 	orvyn.RegisterScreen(screen.IDClientUpdate, dummyScreen{})
@@ -51,10 +64,15 @@ func fileInfo() updater.FileInfo {
 	return updater.FileInfo{URL: "farental-linux-amd64", SHA256: "deadbeef"}
 }
 
+// TestDecideEntry covers the single pure decision decideEntry makes, on both
+// the startup path (checkErr always nil, since main.go's own fetch has
+// already happened by the time enterPending calls this) and a user-initiated
+// check's path (checkErr set when checkForUpdates's own request failed).
 func TestDecideEntry(t *testing.T) {
 	tests := []struct {
 		name         string
 		result       updater.Result
+		checkErr     error
 		preflightErr error
 		wantState    state
 		wantReason   entryReason
@@ -96,11 +114,37 @@ func TestDecideEntry(t *testing.T) {
 			wantState:  statePrompt,
 			wantReason: reasonNone,
 		},
+		{
+			// Only reachable from a user-initiated check: checkForUpdates's
+			// own request (the version-compat fetch) never ran at all, so
+			// there is no Result to look at yet.
+			name:       "check's own request failed",
+			checkErr:   errors.New("version endpoint down"),
+			wantState:  stateManualRequired,
+			wantReason: reasonFetchFailed,
+		},
+		{
+			// Check's internal manifest fetch failed instead - checkErr is
+			// nil, but the Result it did return carries its own Err.
+			name:       "check's internal manifest fetch failed",
+			result:     updater.Result{Err: errors.New("manifest unreachable")},
+			wantState:  stateManualRequired,
+			wantReason: reasonFetchFailed,
+		},
+		{
+			// Only reachable from a user-initiated check: the startup path
+			// never calls decideEntry with ModeNone at all (enterPending
+			// bails to login first).
+			name:       "already up to date",
+			result:     updater.Result{Mode: updater.ModeNone, Current: "1.2.0"},
+			wantState:  stateUpToDate,
+			wantReason: reasonNone,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotState, gotReason := decideEntry(tt.result, tt.preflightErr)
+			gotState, gotReason := decideEntry(tt.result, tt.checkErr, tt.preflightErr)
 
 			if gotState != tt.wantState {
 				t.Errorf("state = %v, want %v", gotState, tt.wantState)
@@ -119,10 +163,29 @@ func TestDecideEntry(t *testing.T) {
 func TestDecideEntryFetchErrorTakesPriorityOverMissingFile(t *testing.T) {
 	result := updater.Result{Mode: updater.ModeMandatory, Err: errors.New("timeout")}
 
-	_, gotReason := decideEntry(result, nil)
+	_, gotReason := decideEntry(result, nil, nil)
 
 	if gotReason != reasonFetchFailed {
 		t.Errorf("reason = %v, want %v", gotReason, reasonFetchFailed)
+	}
+}
+
+// checkErr (checkForUpdates's own request failing) takes priority over
+// result.Err (Check's internal manifest fetch failing): without it there is
+// no Result to look at, so it must not be shadowed by whatever zero-valued
+// Result happens to accompany it.
+func TestDecideEntryCheckErrTakesPriorityOverResultErr(t *testing.T) {
+	checkErr := errors.New("version endpoint down")
+	result := updater.Result{Err: errors.New("manifest unreachable")}
+
+	gotState, gotReason := decideEntry(result, checkErr, nil)
+
+	if gotState != stateManualRequired {
+		t.Errorf("state = %v, want stateManualRequired", gotState)
+	}
+
+	if gotReason != reasonFetchFailed {
+		t.Errorf("reason = %v, want reasonFetchFailed", gotReason)
 	}
 }
 
@@ -382,158 +445,63 @@ func TestOnEnterSkipsSubtitleWhenLatestIsEmpty(t *testing.T) {
 	}
 }
 
-// TestDecideConsultEntry covers the pure decision consultation mode makes
-// once a fresh check has come back (or failed to). Unlike decideEntry, it
-// must also recognize "already up to date" as its own state, and a newer
-// release still runs through decideEntry's platform/writability checks
-// unchanged.
-func TestDecideConsultEntry(t *testing.T) {
-	tests := []struct {
-		name         string
-		result       updater.Result
-		checkErr     error
-		preflightErr error
-		wantState    state
-		wantReason   entryReason
-	}{
-		{
-			name:       "version-compat fetch failed",
-			checkErr:   errors.New("network down"),
-			wantState:  stateConsultFailed,
-			wantReason: reasonFetchFailed,
-		},
-		{
-			name:       "check's own manifest fetch failed",
-			result:     updater.Result{Err: errors.New("manifest unreachable")},
-			wantState:  stateConsultFailed,
-			wantReason: reasonFetchFailed,
-		},
-		{
-			name:       "already up to date",
-			result:     updater.Result{Mode: updater.ModeNone, Current: "1.2.0"},
-			wantState:  stateConsultUpToDate,
-			wantReason: reasonNone,
-		},
-		{
-			name:       "newer optional release available",
-			result:     updater.Result{Mode: updater.ModeOptional, File: fileInfo()},
-			wantState:  statePrompt,
-			wantReason: reasonNone,
-		},
-		{
-			name: "newer release, but server has become incompatible mid-session",
-			// decideConsultEntry must still offer the update (statePrompt),
-			// not treat ModeMandatory as a hard block: only handleKey's esc
-			// gating differs for consultation, not this decision.
-			result:     updater.Result{Mode: updater.ModeMandatory, File: fileInfo()},
-			wantState:  statePrompt,
-			wantReason: reasonNone,
-		},
-		{
-			name:       "newer release but no file for this platform",
-			result:     updater.Result{Mode: updater.ModeOptional},
-			wantState:  stateManualRequired,
-			wantReason: reasonNoFile,
-		},
-		{
-			name:         "newer release but install directory not writable",
-			result:       updater.Result{Mode: updater.ModeOptional, File: fileInfo()},
-			preflightErr: errors.New("read-only filesystem"),
-			wantState:    stateManualRequired,
-			wantReason:   reasonNotWritable,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotState, gotReason := decideConsultEntry(tt.result, tt.checkErr, tt.preflightErr)
-
-			if gotState != tt.wantState {
-				t.Errorf("state = %v, want %v", gotState, tt.wantState)
-			}
-
-			if gotReason != tt.wantReason {
-				t.Errorf("reason = %v, want %v", gotReason, tt.wantReason)
-			}
-		})
-	}
-}
-
-// A version-compat fetch failure takes priority over Check's own result:
-// without it there is no Result to look at, so it must not be shadowed by
-// whatever zero-valued Result happens to accompany it.
-func TestDecideConsultEntryCheckErrTakesPriorityOverResultErr(t *testing.T) {
-	checkErr := errors.New("version endpoint down")
-	result := updater.Result{Err: errors.New("manifest unreachable")}
-
-	gotState, gotReason := decideConsultEntry(result, checkErr, nil)
-
-	if gotState != stateConsultFailed {
-		t.Errorf("state = %v, want stateConsultFailed", gotState)
-	}
-
-	if gotReason != reasonFetchFailed {
-		t.Errorf("reason = %v, want reasonFetchFailed", gotReason)
-	}
-}
-
-// TestOnEnterConsultationConsumesPendingFlag exercises the actual hand-off
-// mechanism: OpenConsultation cannot pass a parameter through OnEnter (see
-// the package doc on consultPending), so OnEnter must read the package-level
+// TestOnEnterUserInitiatedConsumesCheckPendingFlag exercises the actual
+// hand-off mechanism: OpenCheck cannot pass a parameter through OnEnter (see
+// the package doc on checkPending), so OnEnter must read the package-level
 // flag and clear it immediately, and must not touch updater.Pending at all.
-func TestOnEnterConsultationConsumesPendingFlag(t *testing.T) {
-	consultPending = true
-	consultFrom = screen.IDUserSettings
-	consultRestorePrevious = screen.IDDashBoard
+func TestOnEnterUserInitiatedConsumesCheckPendingFlag(t *testing.T) {
+	checkPending = true
+	checkFrom = screen.IDUserSettings
+	checkRestorePrevious = screen.IDDashBoard
 	updater.Pending = updater.Result{Mode: updater.ModeMandatory, Current: "unrelated-pending-value"}
 
 	s := New()
 	cmd := s.OnEnter(nil)
 
-	if consultPending {
-		t.Error("expected OnEnter to consume consultPending")
+	if checkPending {
+		t.Error("expected OnEnter to consume checkPending")
 	}
 
-	if !s.consultation {
-		t.Error("expected s.consultation to be true")
+	if !s.userInitiated {
+		t.Error("expected s.userInitiated to be true")
 	}
 
-	if s.consultFrom != screen.IDUserSettings {
-		t.Errorf("s.consultFrom = %q, want %q", s.consultFrom, screen.IDUserSettings)
+	if s.checkFrom != screen.IDUserSettings {
+		t.Errorf("s.checkFrom = %q, want %q", s.checkFrom, screen.IDUserSettings)
 	}
 
-	if s.consultRestorePrevious != screen.IDDashBoard {
-		t.Errorf("s.consultRestorePrevious = %q, want %q", s.consultRestorePrevious, screen.IDDashBoard)
+	if s.checkRestorePrevious != screen.IDDashBoard {
+		t.Errorf("s.checkRestorePrevious = %q, want %q", s.checkRestorePrevious, screen.IDDashBoard)
 	}
 
-	if s.state != stateConsultChecking {
-		t.Errorf("state = %v, want stateConsultChecking", s.state)
+	if s.state != stateChecking {
+		t.Errorf("state = %v, want stateChecking", s.state)
 	}
 
-	// enterConsultation must return the fresh-check tea.Cmd (run later by
+	// enterUserInitiated must return the fresh-check tea.Cmd (run later by
 	// bubbletea) rather than nil, so the UI is not left hanging forever in
-	// stateConsultChecking. The command itself talks to the network, so it
-	// is never invoked here.
+	// stateChecking. The command itself talks to the network, so it is
+	// never invoked here.
 	if cmd == nil {
 		t.Error("expected OnEnter to return the fresh-check command, not nil")
 	}
 
 	if s.result.Current == "unrelated-pending-value" {
-		t.Error("consultation mode must not reuse updater.Pending")
+		t.Error("a user-initiated check must not reuse updater.Pending")
 	}
 }
 
-// A plain OnEnter (consultPending left unset) must still take the startup
-// path, unaffected by consultation mode existing at all.
-func TestOnEnterWithoutConsultPendingTakesStartupPath(t *testing.T) {
-	consultPending = false
+// A plain OnEnter (checkPending left unset) must still take the startup
+// path, unaffected by the user-initiated check path existing at all.
+func TestOnEnterWithoutCheckPendingTakesStartupPath(t *testing.T) {
+	checkPending = false
 	updater.Pending = updater.Result{Mode: updater.ModeOptional, Current: "1.1.0", File: fileInfo()}
 
 	s := New()
 	s.OnEnter(nil)
 
-	if s.consultation {
-		t.Error("expected s.consultation to be false")
+	if s.userInitiated {
+		t.Error("expected s.userInitiated to be false")
 	}
 
 	if s.state != statePrompt {
@@ -549,7 +517,7 @@ func TestOnEnterWithoutConsultPendingTakesStartupPath(t *testing.T) {
 // never render for a version that is already current - there would be no
 // way out but ctrl+c - so this must bail straight back to login instead.
 func TestEnterPendingBugStopsWhenPendingModeIsNone(t *testing.T) {
-	consultPending = false
+	checkPending = false
 	updater.Pending = updater.Result{Mode: updater.ModeNone, Current: "1.2.0", Latest: "1.2.0", File: fileInfo()}
 
 	s := New()
@@ -561,23 +529,22 @@ func TestEnterPendingBugStopsWhenPendingModeIsNone(t *testing.T) {
 	}
 }
 
-// TestOpenConsultationSwitchesToClientUpdateScreen checks the exported entry
-// point itself: it must set consultPending, record the caller as consultFrom,
-// capture whatever previousScreenID held before its own SwitchScreen call
-// overwrites it, and perform the screen switch - the same hand-off shape
-// updater.Pending and session.Expired() already use elsewhere in this
-// codebase.
-func TestOpenConsultationSwitchesToClientUpdateScreen(t *testing.T) {
-	defer func() { consultPending = false }()
+// TestOpenCheckSwitchesToClientUpdateScreen checks the exported entry point
+// itself: it must set checkPending, record the caller as checkFrom, capture
+// whatever previousScreenID held before its own SwitchScreen call overwrites
+// it, and perform the screen switch - the same hand-off shape updater.Pending
+// and session.Expired() already use elsewhere in this codebase.
+func TestOpenCheckSwitchesToClientUpdateScreen(t *testing.T) {
+	defer func() { checkPending = false }()
 
 	// dashboard -> usersettings, as dashboard.go's own handleKey does:
-	// previousScreenID becomes screen.IDDashBoard, which OpenConsultation
-	// must capture into consultRestorePrevious before its own SwitchScreen
-	// call below overwrites it with screen.IDUserSettings.
+	// previousScreenID becomes screen.IDDashBoard, which OpenCheck must
+	// capture into checkRestorePrevious before its own SwitchScreen call
+	// below overwrites it with screen.IDUserSettings.
 	orvyn.SwitchScreen(screen.IDDashBoard)
 	orvyn.SwitchScreen(screen.IDUserSettings)
 
-	OpenConsultation(screen.IDUserSettings)
+	OpenCheck(screen.IDUserSettings)
 
 	if got := orvyn.GetCurrentScreenID(); got != screen.IDClientUpdate {
 		t.Errorf("current screen = %q, want %q", got, screen.IDClientUpdate)
@@ -586,28 +553,29 @@ func TestOpenConsultationSwitchesToClientUpdateScreen(t *testing.T) {
 	// The dummy registered under screen.IDClientUpdate for this test does
 	// not consume the flag the way the real Screen.OnEnter does, so it
 	// should still read true here.
-	if !consultPending {
-		t.Error("expected consultPending to be set")
+	if !checkPending {
+		t.Error("expected checkPending to be set")
 	}
 
-	if consultFrom != screen.IDUserSettings {
-		t.Errorf("consultFrom = %q, want %q", consultFrom, screen.IDUserSettings)
+	if checkFrom != screen.IDUserSettings {
+		t.Errorf("checkFrom = %q, want %q", checkFrom, screen.IDUserSettings)
 	}
 
-	if consultRestorePrevious != screen.IDDashBoard {
-		t.Errorf("consultRestorePrevious = %q, want %q (captured before SwitchScreen overwrote previousScreenID)",
-			consultRestorePrevious, screen.IDDashBoard)
+	if checkRestorePrevious != screen.IDDashBoard {
+		t.Errorf("checkRestorePrevious = %q, want %q (captured before SwitchScreen overwrote previousScreenID)",
+			checkRestorePrevious, screen.IDDashBoard)
 	}
 }
 
-// handleConsultChecked drives the three-way consultation outcome once the
-// fresh check comes back: newer available reuses statePrompt (and so the
-// same startUpdate/Enter flow), up to date and fetch-failed each get their
-// own terminal state.
-func TestHandleConsultCheckedNewerAvailable(t *testing.T) {
+// handleChecked drives the three-way outcome once a user-initiated check's
+// fresh fetch comes back: newer available reuses statePrompt (and so the
+// same startUpdate/Enter flow), up to date and a failed check each land in
+// their own presentation (stateUpToDate, and the ordinary stateManualRequired
+// respectively).
+func TestHandleCheckedNewerAvailable(t *testing.T) {
 	s := New()
 
-	cmd := s.handleConsultChecked(consultCheckedMsg{
+	cmd := s.handleChecked(checkedMsg{
 		result: updater.Result{Mode: updater.ModeOptional, Current: "1.2.0", Latest: "1.3.0", File: fileInfo()},
 	})
 
@@ -620,10 +588,10 @@ func TestHandleConsultCheckedNewerAvailable(t *testing.T) {
 	}
 }
 
-func TestHandleConsultCheckedUpToDate(t *testing.T) {
+func TestHandleCheckedUpToDate(t *testing.T) {
 	s := New()
 
-	cmd := s.handleConsultChecked(consultCheckedMsg{
+	cmd := s.handleChecked(checkedMsg{
 		result: updater.Result{Mode: updater.ModeNone, Current: "1.2.0"},
 	})
 
@@ -631,8 +599,8 @@ func TestHandleConsultCheckedUpToDate(t *testing.T) {
 		t.Errorf("expected no command, got %v", cmd)
 	}
 
-	if s.state != stateConsultUpToDate {
-		t.Errorf("state = %v, want stateConsultUpToDate", s.state)
+	if s.state != stateUpToDate {
+		t.Errorf("state = %v, want stateUpToDate", s.state)
 	}
 
 	if got := s.subtitle.Render(); got != "1.2.0" {
@@ -640,45 +608,76 @@ func TestHandleConsultCheckedUpToDate(t *testing.T) {
 	}
 }
 
-func TestHandleConsultCheckedFetchFailed(t *testing.T) {
+// TestHandleCheckedFetchFailed covers the folded failed-check path: a
+// user-initiated check that never got a usable Result - here,
+// checkForUpdates's own request failed - now lands in the ordinary
+// stateManualRequired instead of a separate terminal state, so the user gets
+// exactly the presentation the startup path already gives an unreachable
+// update server: the "could not reach the server" message (not the raw
+// error text, and not the "no build for your platform" wording, which would
+// misreport a transient network problem as a platform gap), the manual
+// download URL, and - since a user-initiated check is always escapable -
+// the esc hint.
+func TestHandleCheckedFetchFailed(t *testing.T) {
 	s := New()
+	s.userInitiated = true
 
-	cmd := s.handleConsultChecked(consultCheckedMsg{err: errors.New("network down")})
+	cmd := s.handleChecked(checkedMsg{err: errors.New("network down")})
 
 	if cmd != nil {
 		t.Errorf("expected no command, got %v", cmd)
 	}
 
-	if s.state != stateConsultFailed {
-		t.Errorf("state = %v, want stateConsultFailed", s.state)
+	if s.state != stateManualRequired {
+		t.Errorf("state = %v, want stateManualRequired", s.state)
 	}
 
-	if got := s.statusMessage.Render(); !strings.Contains(got, "network down") {
-		t.Errorf("status = %q, want it to contain the fetch error", got)
+	got := s.statusMessage.Render()
+
+	if !strings.Contains(got, lokyn.L("Could not reach the update server.")) {
+		t.Errorf("status = %q, want the same message the startup path shows for an unreachable server", got)
+	}
+
+	if strings.Contains(got, lokyn.L("No build is published for your platform.")) {
+		t.Errorf("status = %q, must not misreport a fetch failure as a platform-support gap", got)
+	}
+
+	if strings.Contains(got, "network down") {
+		t.Errorf("status = %q, must not leak the raw error text", got)
+	}
+
+	detail := s.detail.Render()
+
+	if !strings.Contains(detail, config.WebURL) {
+		t.Errorf("detail = %q, want the manual download URL", detail)
+	}
+
+	if !strings.Contains(detail, lokyn.L("Press esc to continue without updating.")) {
+		t.Errorf("detail = %q, want the esc hint since a user-initiated check is always escapable", detail)
 	}
 }
 
-// TestHandleConsultCheckedIgnoresStaleGeneration covers Important 2: a
-// checkForConsultation command still in flight when the screen is left and
+// TestHandleCheckedIgnoresStaleGeneration covers Important 2: a
+// checkForUpdates command still in flight when the screen is left and
 // re-entered - here, on the startup path, before it returns - must not be
 // able to rewrite state a newer OnEnter call already set up. Without the
 // generation guard, this stale message would flip a perfectly ordinary
-// startup-path statePrompt into a consultation state whose esc handler jumps
-// to login rather than the startup path's own exit.
-func TestHandleConsultCheckedIgnoresStaleGeneration(t *testing.T) {
-	consultPending = true
+// startup-path statePrompt into a user-initiated state whose esc handler
+// jumps to login rather than the startup path's own exit.
+func TestHandleCheckedIgnoresStaleGeneration(t *testing.T) {
+	checkPending = true
 	s := New()
-	s.OnEnter(nil) // consultation entry; generation bumped once.
+	s.OnEnter(nil) // user-initiated entry; generation bumped once.
 
 	staleGen := s.generation
 
 	// The user leaves and the screen is re-entered on the ordinary startup
 	// path before the in-flight check (tied to staleGen) comes back.
-	consultPending = false
+	checkPending = false
 	updater.Pending = updater.Result{Mode: updater.ModeOptional, Current: "1.1.0", File: fileInfo()}
 	s.OnEnter(nil) // generation bumped again; staleGen is now out of date.
 
-	if s.consultation {
+	if s.userInitiated {
 		t.Fatal("setup: expected the second OnEnter to take the startup path")
 	}
 
@@ -686,7 +685,7 @@ func TestHandleConsultCheckedIgnoresStaleGeneration(t *testing.T) {
 		t.Fatalf("setup: state = %v, want statePrompt", s.state)
 	}
 
-	cmd := s.handleConsultChecked(consultCheckedMsg{
+	cmd := s.handleChecked(checkedMsg{
 		gen:    staleGen,
 		result: updater.Result{Mode: updater.ModeNone, Current: "9.9.9"},
 	})
@@ -696,24 +695,24 @@ func TestHandleConsultCheckedIgnoresStaleGeneration(t *testing.T) {
 	}
 
 	if s.state != statePrompt {
-		t.Errorf("a stale consultCheckedMsg hijacked state: state = %v, want unchanged statePrompt", s.state)
+		t.Errorf("a stale checkedMsg hijacked state: state = %v, want unchanged statePrompt", s.state)
 	}
 
-	if s.consultation {
-		t.Error("a stale consultCheckedMsg must not flip the startup path into consultation mode")
+	if s.userInitiated {
+		t.Error("a stale checkedMsg must not flip the startup path into the user-initiated path")
 	}
 }
 
-// TestHandleConsultCheckedAppliesCurrentGeneration is
-// TestHandleConsultCheckedIgnoresStaleGeneration's counterpart: a message
-// tagged with the screen's *current* generation must still be applied
-// normally, so the generation guard rejects only genuinely stale messages.
-func TestHandleConsultCheckedAppliesCurrentGeneration(t *testing.T) {
-	consultPending = true
+// TestHandleCheckedAppliesCurrentGeneration is
+// TestHandleCheckedIgnoresStaleGeneration's counterpart: a message tagged
+// with the screen's *current* generation must still be applied normally, so
+// the generation guard rejects only genuinely stale messages.
+func TestHandleCheckedAppliesCurrentGeneration(t *testing.T) {
+	checkPending = true
 	s := New()
 	s.OnEnter(nil)
 
-	cmd := s.handleConsultChecked(consultCheckedMsg{
+	cmd := s.handleChecked(checkedMsg{
 		gen:    s.generation,
 		result: updater.Result{Mode: updater.ModeNone, Current: "1.2.0"},
 	})
@@ -722,22 +721,27 @@ func TestHandleConsultCheckedAppliesCurrentGeneration(t *testing.T) {
 		t.Errorf("expected no command, got %v", cmd)
 	}
 
-	if s.state != stateConsultUpToDate {
-		t.Errorf("state = %v, want stateConsultUpToDate", s.state)
+	if s.state != stateUpToDate {
+		t.Errorf("state = %v, want stateUpToDate", s.state)
 	}
 }
 
-// TestHandleKeyConsultationEscAlwaysExits is the crux of remark B's exit
-// rule: esc must return to whichever screen opened the consultation
-// regardless of what the check reported, including a mandatory-update
-// result (possible if the server's client_tui compat string changed
-// mid-session) that would block esc entirely on the startup path. It must
-// go to s.consultFrom - the screen OpenConsultation recorded, not whatever
-// orvyn's single previousScreenID slot happens to hold (that slot was
-// already overwritten with the caller's own ID by OpenConsultation's
-// SwitchScreen(IDClientUpdate) call, and relying on it instead of
-// consultFrom is exactly the Critical 1 defect: see exitCmd's doc comment).
-func TestHandleKeyConsultationEscAlwaysExits(t *testing.T) {
+// TestHandleKeyUserInitiatedEscAlwaysExits is the crux of remark B's exit
+// rule: esc must return to whichever screen opened the check regardless of
+// what the check reported, including a mandatory-update result (possible if
+// the server's client_tui compat string changed mid-session) that would
+// block esc entirely on the startup path. It must go to s.checkFrom - the
+// screen OpenCheck recorded, not whatever orvyn's single previousScreenID
+// slot happens to hold (that slot was already overwritten with the caller's
+// own ID by OpenCheck's SwitchScreen(IDClientUpdate) call, and relying on it
+// instead of checkFrom is exactly the Critical 1 defect: see exitCmd's doc
+// comment).
+//
+// "manual required, mandatory result" also covers the folded failed-check
+// case: since stateConsultFailed folded into the ordinary stateManualRequired
+// (see decideEntry and handleChecked), there is no longer a distinct state
+// for it to exercise separately here.
+func TestHandleKeyUserInitiatedEscAlwaysExits(t *testing.T) {
 	tests := []struct {
 		name  string
 		state state
@@ -748,85 +752,84 @@ func TestHandleKeyConsultationEscAlwaysExits(t *testing.T) {
 		{"ordinary download failure, mandatory result", stateFailed, updater.ModeMandatory},
 		{"manual required, mandatory result", stateManualRequired, updater.ModeMandatory},
 		{"unrecoverable rollback, mandatory result", stateUnrecoverable, updater.ModeMandatory},
-		{"still checking", stateConsultChecking, updater.ModeNone},
-		{"already up to date", stateConsultUpToDate, updater.ModeNone},
-		{"consult fetch failed", stateConsultFailed, updater.ModeMandatory},
+		{"still checking", stateChecking, updater.ModeNone},
+		{"already up to date", stateUpToDate, updater.ModeNone},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// A decoy previousScreenID, deliberately different from
-			// consultFrom below: if exitCmd read orvyn.GetPreviousScreen()
-			// instead of s.consultFrom (the old, broken behavior), the
+			// checkFrom below: if exitCmd read orvyn.GetPreviousScreen()
+			// instead of s.checkFrom (the old, broken behavior), the
 			// assertion below would catch it landing here instead of on
 			// screen.IDUserSettings.
 			orvyn.SetPreviousScreen(screen.IDLogin)
 
 			s := &Screen{
-				state:        tt.state,
-				consultation: true,
-				consultFrom:  screen.IDUserSettings,
-				result:       updater.Result{Mode: tt.mode},
+				state:         tt.state,
+				userInitiated: true,
+				checkFrom:     screen.IDUserSettings,
+				result:        updater.Result{Mode: tt.mode},
 			}
 
 			_, handled := s.handleKey(escKeyMsg())
 
 			if !handled {
-				t.Fatalf("expected esc to be handled in consultation mode for state %v", tt.state)
+				t.Fatalf("expected esc to be handled in the user-initiated path for state %v", tt.state)
 			}
 
 			if got := orvyn.GetCurrentScreenID(); got != screen.IDUserSettings {
-				t.Errorf("current screen = %q, want %q (s.consultFrom, the recorded opener)", got, screen.IDUserSettings)
+				t.Errorf("current screen = %q, want %q (s.checkFrom, the recorded opener)", got, screen.IDUserSettings)
 			}
 		})
 	}
 }
 
-// TestConsultationExitRestoresPreConsultationPreviousScreen reproduces the
-// Critical 1 trap end to end: dashboard -> usersettings -> (ctrl+r)
-// consultation -> esc -> usersettings -> esc must land back on dashboard.
-// Before the fix, step 3's esc used orvyn.SwitchToPreviousScreen, which
-// orvyn's own SwitchScreen(IDClientUpdate) call (in OpenConsultation) had
-// already pointed at usersettings - so step 3 did go to usersettings, but
-// also left previousScreenID pointing at this screen (clientupdate, the
-// screen esc was just leaving), since SwitchScreen always records the
-// screen it switched *from*. Step 4's esc in user settings is a bare
+// TestUserInitiatedExitRestoresPreCheckPreviousScreen reproduces the
+// Critical 1 trap end to end: dashboard -> usersettings -> (ctrl+r) check ->
+// esc -> usersettings -> esc must land back on dashboard. Before the fix,
+// step 3's esc used orvyn.SwitchToPreviousScreen, which orvyn's own
+// SwitchScreen(IDClientUpdate) call (in OpenCheck) had already pointed at
+// usersettings - so step 3 did go to usersettings, but also left
+// previousScreenID pointing at this screen (clientupdate, the screen esc was
+// just leaving), since SwitchScreen always records the screen it switched
+// *from*. Step 4's esc in user settings is a bare
 // orvyn.SwitchToPreviousScreen(), so it re-entered clientupdate instead of
-// reaching dashboard - with consultPending now false, landing on the
-// startup path with a stale, already-current updater.Pending: exactly the
-// trapped state this whole fix exists to prevent.
-func TestConsultationExitRestoresPreConsultationPreviousScreen(t *testing.T) {
-	defer func() { consultPending = false }()
+// reaching dashboard - with checkPending now false, landing on the startup
+// path with a stale, already-current updater.Pending: exactly the trapped
+// state this whole fix exists to prevent.
+func TestUserInitiatedExitRestoresPreCheckPreviousScreen(t *testing.T) {
+	defer func() { checkPending = false }()
 
 	// Step 1: dashboard -> usersettings, as dashboard.go's own handleKey
 	// does; previousScreenID becomes screen.IDDashBoard.
 	orvyn.SwitchScreen(screen.IDDashBoard)
 	orvyn.SwitchScreen(screen.IDUserSettings)
 
-	// Step 2: ctrl+r from user settings opens consultation, exactly as
+	// Step 2: ctrl+r from user settings opens the check, exactly as
 	// usersettings.go's Update wires it up.
-	OpenConsultation(screen.IDUserSettings)
+	OpenCheck(screen.IDUserSettings)
 
 	if got := orvyn.GetCurrentScreenID(); got != screen.IDClientUpdate {
 		t.Fatalf("setup: current screen = %q, want %q", got, screen.IDClientUpdate)
 	}
 
 	// screen.IDClientUpdate is registered to the no-op dummyScreen in
-	// TestMain, so it does not consume consultPending/consultFrom the way
-	// the real Screen does; build one directly and let it do so, as the
-	// other consultation tests in this file already do.
+	// TestMain, so it does not consume checkPending/checkFrom the way the
+	// real Screen does; build one directly and let it do so, as the other
+	// user-initiated tests in this file already do.
 	s := New()
 	s.OnEnter(nil)
 
-	if s.consultFrom != screen.IDUserSettings {
-		t.Fatalf("setup: s.consultFrom = %q, want %q", s.consultFrom, screen.IDUserSettings)
+	if s.checkFrom != screen.IDUserSettings {
+		t.Fatalf("setup: s.checkFrom = %q, want %q", s.checkFrom, screen.IDUserSettings)
 	}
 
-	// Step 3: esc out of consultation.
+	// Step 3: esc out of the check.
 	_, handled := s.handleKey(escKeyMsg())
 
 	if !handled {
-		t.Fatal("expected esc to be handled in consultation mode")
+		t.Fatal("expected esc to be handled in the user-initiated path")
 	}
 
 	if got := orvyn.GetCurrentScreenID(); got != screen.IDUserSettings {
@@ -834,7 +837,7 @@ func TestConsultationExitRestoresPreConsultationPreviousScreen(t *testing.T) {
 	}
 
 	if got := orvyn.GetPreviousScreen(); got != screen.IDDashBoard {
-		t.Fatalf("previous screen = %q, want %q (restored to what it was before the consultation)",
+		t.Fatalf("previous screen = %q, want %q (restored to what it was before the check)",
 			got, screen.IDDashBoard)
 	}
 
@@ -853,7 +856,7 @@ func TestConsultationExitRestoresPreConsultationPreviousScreen(t *testing.T) {
 // cover (statePrompt and stateFailed) now that all four states share the
 // same canEscape/exitCmd helpers, confirming the startup path's rule -
 // escapable only when the update itself is optional - is unchanged by the
-// consultation-mode refactor.
+// refactor.
 func TestHandleKeyStartupRulesUnchanged(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -889,6 +892,84 @@ func TestHandleKeyStartupRulesUnchanged(t *testing.T) {
 
 			if got := orvyn.GetCurrentScreenID(); got != before {
 				t.Errorf("current screen changed to %q, want unchanged %q", got, before)
+			}
+		})
+	}
+}
+
+// TestRefreshHelpKeysEnterVisibility covers the defect from code review:
+// ContextClientUpdate advertised "enter: update now" even in states where
+// enter is unbound. Enter must be visible only in statePrompt, the only
+// state that actually binds it (see handleKey) - stateFailed's retry uses
+// 'r', which is deliberately left out of the help keymap entirely (see
+// handleFinished), not enter.
+func TestRefreshHelpKeysEnterVisibility(t *testing.T) {
+	tests := []struct {
+		name  string
+		state state
+		want  bool
+	}{
+		{"prompt", statePrompt, true},
+		{"downloading", stateDownloading, false},
+		{"applying", stateApplying, false},
+		{"restarting", stateRestarting, false},
+		{"failed", stateFailed, false},
+		{"manual required", stateManualRequired, false},
+		{"unrecoverable", stateUnrecoverable, false},
+		{"checking", stateChecking, false},
+		{"up to date", stateUpToDate, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bubblehelp.SwitchContext(keybind.ContextClientUpdate)
+
+			s := &Screen{state: tt.state}
+			s.refreshHelpKeys()
+
+			if got := bubblehelp.IsKeybindVisible(keybind.Enter); got != tt.want {
+				t.Errorf("enter visible = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestRefreshHelpKeysEscLabel covers the esc label half of the same context
+// merge: "back" is reserved for the two states unique to a user-initiated
+// check, where there is no update on offer to skip; every other state,
+// including stateManualRequired reached via a folded failed check, reads
+// "skip" - the same label the startup path's own manual-required states use.
+func TestRefreshHelpKeysEscLabel(t *testing.T) {
+	tests := []struct {
+		name  string
+		state state
+		want  string
+	}{
+		{"prompt reads skip", statePrompt, lokyn.L("skip")},
+		{"manual required reads skip", stateManualRequired, lokyn.L("skip")},
+		{"checking reads back", stateChecking, lokyn.L("back")},
+		{"up to date reads back", stateUpToDate, lokyn.L("back")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bubblehelp.SwitchContext(keybind.ContextClientUpdate)
+
+			s := &Screen{state: tt.state}
+			s.refreshHelpKeys()
+
+			km := bubblehelp.GetCurrentContextKeymap()
+
+			var got string
+
+			for _, k := range km.Bindings {
+				if k.Binding.Help().Key == keybind.Esc.Help().Key {
+					got = k.GetHelpDesc()
+				}
+			}
+
+			if got != tt.want {
+				t.Errorf("esc help desc = %q, want %q", got, tt.want)
 			}
 		})
 	}

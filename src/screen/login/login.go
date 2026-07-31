@@ -176,7 +176,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return orvyn.SwitchScreen(screen.IDAccountCreation)
 
 		case key.Matches(msg, keybind.RKeyCtrl):
-			return clientupdate.OpenConsultation(screen.IDLogin)
+			return clientupdate.OpenCheck(screen.IDLogin)
 
 		case key.Matches(msg, keybind.Quit):
 			return tea.Quit
