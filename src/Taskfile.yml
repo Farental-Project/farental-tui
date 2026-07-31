@@ -5,7 +5,7 @@ version: "3"
 vars:
   OUTPUT_NAME: Farental
   BASE_URL: https://api.farental.ch
-  WEB_URL: https://www.farental.ch
+  WEB_URL: https://farental.ch
   CONFIG_FILE_NAME: farental
   DIST_DIR: dist
   LDFLAGS: >-
