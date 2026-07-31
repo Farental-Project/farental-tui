@@ -112,7 +112,7 @@ func New() *Screen {
 		layout.NewDefinedWidthVerticalLayout(
 			35,
 			t.Size(ftheme.LayoutWidthSizeID),
-			10,
+			orvyn.NewSize(10, 4),
 			s.runningTask,
 			s.characterInfo,
 			s.locationInfo,
@@ -158,7 +158,7 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 
 	s.focusManager.Focus(0)
 
-	s.showHelp(false)
+	s.resetHelp()
 
 	cmd := s.runningTask.Init()
 
@@ -166,6 +166,11 @@ func (s *Screen) OnEnter(i any) tea.Cmd {
 }
 
 func (s *Screen) OnExit() any {
+	// The screen can be left straight from the location services menu, which
+	// retitles the help panel. Reset here so the next visit does not come back
+	// with a panel titled "Location services".
+	s.resetHelp()
+
 	if s.openFullLog {
 		s.openFullLog = false
 		return s.logEvent.GetContent()
@@ -194,7 +199,6 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			c, ok := s.servicesKeyHandler(msg)
 
 			if ok {
-				s.hideLocationService()
 				return c
 			}
 		}
@@ -260,9 +264,16 @@ func (s *Screen) showLocationService() {
 
 func (s *Screen) hideLocationService() {
 	bubblehelp.SwitchContext(keybind.ContextGameDashboard)
-	bubblehelp.ShowAll = false
-	s.showHelp(false)
 
+	s.resetHelp()
+}
+
+// resetHelp puts the help panel back to its default state: hidden, and titled
+// "Help" rather than whatever the location services menu left behind.
+func (s *Screen) resetHelp() {
+	bubblehelp.ShowAll = false
+
+	s.showHelp(false)
 	s.fullHelp.SetTitle(lokyn.L("Help"))
 }
 
@@ -353,19 +364,30 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	case key.Matches(msg, keybind.Esc):
 		s.hideLocationService()
 
+		return nil, true
+
+	// The screen switching cases report handled so their command is actually
+	// returned. They used to report false, which dropped it - the switch itself
+	// still happened, because SwitchScreen performs it and only the resulting
+	// command comes back, so the loss was invisible until a screen needed its
+	// OnEnter command to start a ticker or a spinner.
+	//
+	// They do not reset the help panel here: OnExit does it, and doing it after
+	// SwitchScreen would clobber the help context the next screen just set.
 	case key.Matches(msg, keybind.SKey):
 		if bubblehelp.IsKeybindVisible(keybind.SKey) {
-			return orvyn.SwitchScreen(screen.IDShop), false
+			return orvyn.SwitchScreen(screen.IDShop), true
 		}
 
 	case key.Matches(msg, keybind.BKey):
 		if bubblehelp.IsKeybindVisible(keybind.BKey) {
-			return orvyn.SwitchScreen(screen.IDBank), false
+			return orvyn.SwitchScreen(screen.IDBank), true
 		}
 
 	case key.Matches(msg, keybind.TKey):
 		if bubblehelp.IsKeybindVisible(keybind.TKey) {
 			s.tavernSleep()
+			s.hideLocationService()
 
 			return nil, true
 		}
@@ -373,13 +395,14 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 	case key.Matches(msg, keybind.RKey):
 		if bubblehelp.IsKeybindVisible(keybind.RKey) {
 			s.tavernRegen()
+			s.hideLocationService()
 
 			return nil, true
 		}
 
 	case key.Matches(msg, keybind.MKey):
 		if bubblehelp.IsKeybindVisible(keybind.MKey) {
-			return orvyn.SwitchScreen(screen.IDMailBox), false
+			return orvyn.SwitchScreen(screen.IDMailBox), true
 		}
 
 	}

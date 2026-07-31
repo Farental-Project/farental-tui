@@ -93,7 +93,7 @@ func New() *Screen {
 		layout.NewDefinedWidthVerticalLayout(
 			35,
 			t.Size(ftheme.LayoutWidthSizeID),
-			10,
+			orvyn.NewSize(10, 4),
 			s.title,
 			orvyn.VGap,
 			s.description,

@@ -104,6 +104,19 @@ func (w *Widget) Render() string {
 		Width(size.Width).Render(content)
 }
 
+// GetMinSize measures an actual render. The height is driven by the slot count and
+// the frame, never by the height the layout hands out, so measuring it here is not
+// self-referential. Declaring a constant instead left the widget claiming the
+// BaseRenderable default of one row while rendering eight, and layouts budgeted
+// accordingly.
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(30, lipgloss.Height(w.Render()))
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return w.GetMinSize()
+}
+
 func (w *Widget) renderEquipmentSlot(slotCode data.SlotCode, addReturn bool, column *column) {
 	var itemNameStyle lipgloss.Style
 

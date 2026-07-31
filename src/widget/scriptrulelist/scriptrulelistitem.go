@@ -22,6 +22,9 @@ import (
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
+// ItemHeight is the fixed row height of a rule entry.
+const ItemHeight = 11
+
 type ChangedRuleTypeMsg string
 
 func ChangedRuleTypeCmd(code string) tea.Cmd {
@@ -264,7 +267,7 @@ func (w *ListItem) updateData() {
 }
 
 func (w *ListItem) Resize(size orvyn.Size) {
-	size.Height = 11
+	size.Height = ItemHeight
 
 	w.BaseWidget.Resize(size)
 

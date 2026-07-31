@@ -207,3 +207,15 @@ func (w *Widget) IsEmpty() bool {
 
 	return false
 }
+
+// GetMinSize declares the inspector as flexible. It delegates to a widgetlist that
+// paginates to whatever height it is given and reports no size of its own, so
+// without this it claimed the 1x1 default. One parameter visible at minimum, three
+// preferred.
+func (w *Widget) GetMinSize() orvyn.Size {
+	return orvyn.NewSize(1, ParamItemHeight)
+}
+
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	return orvyn.NewSize(1, ParamItemHeight*3)
+}

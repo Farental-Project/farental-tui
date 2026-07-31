@@ -85,20 +85,16 @@ func (w *Widget) Render() string {
 		Width(size.Width).Render(content)
 }
 
+// GetMinSize measures an actual render. The height depends on whether a script is
+// selected and on how the description wraps, so the previous "description height
+// plus five" guess was three rows too tall with no script selected - rows the
+// layout reserved and nothing drew in.
 func (w *Widget) GetMinSize() orvyn.Size {
-	height := orvyn.GetRenderSize(lipgloss.NewStyle(), w.data.Description).Height
-
-	height += 5
-
-	return orvyn.NewSize(30, height)
+	return orvyn.NewSize(30, lipgloss.Height(w.Render()))
 }
 
 func (w *Widget) GetPreferredSize() orvyn.Size {
-	height := orvyn.GetRenderSize(lipgloss.NewStyle(), w.data.Description).Height
-
-	height += 5
-
-	return orvyn.NewSize(45, height)
+	return orvyn.NewSize(45, lipgloss.Height(w.Render()))
 }
 
 func (w *Widget) UpdateData() {
