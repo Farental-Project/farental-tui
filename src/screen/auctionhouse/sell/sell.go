@@ -1,9 +1,13 @@
 package sell
 
 import (
+	"farental/core/request"
+	"farental/internal/context"
+	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
 	"farental/widget/auctionstartform"
+	"farental/widget/characterinfo"
 	"farental/widget/help"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -18,6 +22,8 @@ import (
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
+
+	characterInfo *characterinfo.Widget
 
 	auctionStartForm *auctionstartform.Widget
 
@@ -37,6 +43,8 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable("sell")
 	s.title.Style = t.Style(theme.TitleStyleID)
 
+	s.characterInfo = characterinfo.New()
+
 	s.auctionStartForm = auctionstartform.New()
 
 	s.statusMessage = statusmessage.New()
@@ -46,7 +54,7 @@ func New() *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(10, t.Size(ftheme.LayoutWidthSizeID), orvyn.NewSize(10, 4),
 			s.title,
-			orvyn.VGap,
+			s.characterInfo,
 			s.auctionStartForm,
 			s.statusMessage,
 			s.help),
@@ -56,7 +64,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(any) tea.Cmd {
-	bubblehelp.SwitchContext(keybind.ContextBasicEditMode)
+	bubblehelp.SwitchContext(keybind.ContextNavEnterEsc)
 
 	s.title.SetValue(lokyn.L("Create an auction"))
 
@@ -64,6 +72,8 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 	s.auctionStartForm.OnFocus()
 
 	s.statusMessage.Reset()
+
+	s.updateCharacterInfo()
 
 	return nil
 }
@@ -81,10 +91,55 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(k, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
+		case key.Matches(k, keybind.Enter):
+			ret := s.submit()
+
+			if ret {
+				s.statusMessage.SetMessage(lokyn.L("Auctions successfully created !"),
+					statusmessage.SuccessMessage)
+				s.auctionStartForm.Reset()
+				return nil
+			}
 		}
 	}
 
 	cmd := s.auctionStartForm.Update(msg)
 
 	return cmd
+}
+
+func (s *Screen) submit() bool {
+	data := s.auctionStartForm.GetData()
+
+	if data == nil {
+		return false
+	}
+
+	result, err := helper.SendRequest(request.AuctionStart(*data))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return false
+	}
+
+	if result.StatusCode() == 200 {
+		return true
+	}
+
+	return false
+}
+
+func (s *Screen) updateCharacterInfo() {
+	characterInfo, currency, err := context.RefreshCharacterInfo(true)
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	unreadMail := context.RefreshHaveUnreadMail()
+
+	data := characterinfo.ConvertCharacterInfoResponseToData(
+		characterInfo, currency, unreadMail)
+	s.characterInfo.UpdateData(data)
 }

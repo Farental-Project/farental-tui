@@ -183,6 +183,7 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 
 			if ok {
 				w.itemSelected(val)
+				bubblehelp.SwitchToPreviousContext()
 			}
 		}
 	}
@@ -348,4 +349,8 @@ func (w *Widget) itemSelected(stack api.StackResponse) {
 		lokyn.L("Total quantity to sell"), stack.Count))
 
 	w.updateEstimation()
+}
+
+func (w *Widget) GetData() *api.AuctionStartBody {
+	return w.data
 }

@@ -48,6 +48,7 @@ const (
 	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
+	ContextNavEnterEsc                         bubblehelp.KeymapContext = "navEnterEsc"
 )
 
 func InitContexts() {
@@ -563,6 +564,18 @@ func InitContexts() {
 	BasicEditModeKeymap.NewKeyBinding(Quit, false)
 
 	bubblehelp.RegisterContext(ContextBasicEditMode, BasicEditModeKeymap)
+
+	navEnterEscKeymap := bubblehelp.NewKeymap(2)
+	navEnterEscKeymap.Style = style.MainHelpStyle
+	navEnterEscKeymap.NewKeyBinding(Tab, true)
+	navEnterEscKeymap.NewKeyBinding(ShiftTab, true)
+	navEnterEscKeymap.NewKeyBinding(Space, true)
+	navEnterEscKeymap.SetHelpDesc(Space, lokyn.L("interact"))
+	navEnterEscKeymap.NewKeyBinding(Enter, true)
+	navEnterEscKeymap.NewKeyBinding(Esc, true)
+	navEnterEscKeymap.NewKeyBinding(Quit, false)
+
+	bubblehelp.RegisterContext(ContextNavEnterEsc, navEnterEscKeymap)
 
 	BankKeymap := bubblehelp.NewKeymap(2)
 	BankKeymap.Style = style.MainHelpStyle
