@@ -260,6 +260,8 @@ func (s *Screen) showLocationService() {
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureMerchant)))
 	bubblehelp.SetKeybindVisible(keybind.MKey,
 		context.CharacterInfo.Location.HaveFeature(string(data.FeatureMailbox)))
+	bubblehelp.SetKeybindVisible(keybind.AKey,
+		context.CharacterInfo.Location.HaveFeature(string(data.FeatureAuctionHouse)))
 }
 
 func (s *Screen) hideLocationService() {
@@ -405,6 +407,10 @@ func (s *Screen) servicesKeyHandler(msg tea.KeyMsg) (tea.Cmd, bool) {
 			return orvyn.SwitchScreen(screen.IDMailBox), true
 		}
 
+	case key.Matches(msg, keybind.AKey):
+		if bubblehelp.IsKeybindVisible(keybind.AKey) {
+			return orvyn.SwitchScreen(screen.IDAuctionHouseMenu), true
+		}
 	}
 
 	return nil, false

@@ -33,4 +33,8 @@ const (
 	IDLocationInfo          orvyn.ScreenID = "locationinfo"
 	IDSendFeedback          orvyn.ScreenID = "sendfeedback"
 	IDClientUpdate          orvyn.ScreenID = "clientupdate"
+	IDAuctionHouseMenu      orvyn.ScreenID = "ahmenu"
+	IDAuctionHouseSell      orvyn.ScreenID = "ahsell"
+	IDAuctionHouseBuy       orvyn.ScreenID = "ahbuy"
+	IDAuctionHouseManage    orvyn.ScreenID = "ahmanage"
 )

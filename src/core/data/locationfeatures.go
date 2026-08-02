@@ -11,4 +11,5 @@ const (
 	FeatureRiver             LocationFeature = "river"
 	FeatureFishermanWorkshop LocationFeature = "fisherman_workshop"
 	FeatureTravelRelay       LocationFeature = "travel_relay"
+	FeatureAuctionHouse      LocationFeature = "auction_house"
 )

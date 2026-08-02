@@ -336,6 +336,8 @@ func InitContexts() {
 
 	locationServicesKeymap := bubblehelp.NewKeymap(2)
 	locationServicesKeymap.Style = mainHelpStyle
+	locationServicesKeymap.NewKeyBinding(AKey, true)
+	locationServicesKeymap.SetHelpDesc(AKey, lokyn.L("auction house"))
 	locationServicesKeymap.NewKeyBinding(BKey, true)
 	locationServicesKeymap.SetHelpDesc(BKey, lokyn.L("bank"))
 	locationServicesKeymap.NewKeyBinding(TKey, true)
