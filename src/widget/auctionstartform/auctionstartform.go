@@ -47,7 +47,7 @@ type Widget struct {
 	lblUnit  *label.Widget
 	lblStack *label.Widget
 
-	txtEstimatedCost *statusmessage.Widget
+	statusMessage *statusmessage.Widget
 
 	focusManager *orvyn.FocusManager
 
@@ -103,7 +103,7 @@ func New() *Widget {
 	w.lblUnit = label.New("")
 	w.lblStack = label.New("")
 
-	w.txtEstimatedCost = statusmessage.New()
+	w.statusMessage = statusmessage.New()
 
 	w.focusManager = orvyn.NewFocusManager()
 	w.focusManager.Add(w.btSelectItem)
@@ -140,7 +140,7 @@ func New() *Widget {
 		buyPriceStack,
 		w.mvsDuration,
 		orvyn.VGap,
-		w.txtEstimatedCost,
+		w.statusMessage,
 	)
 
 	w.Reset()
@@ -166,6 +166,8 @@ func (w *Widget) Init() tea.Cmd {
 	w.lblBuyPrice.SetValue(lokyn.L("Buy price"))
 	w.lblUnit.SetValue(lokyn.L("Unit"))
 	w.lblStack.SetValue(lokyn.L("Total"))
+
+	w.updateEstimation()
 
 	return nil
 }
@@ -229,13 +231,13 @@ func (w *Widget) Render() string {
 }
 
 func (w *Widget) Reset() {
-	w.txtEstimatedCost.Reset()
+	w.statusMessage.Reset()
 
 	w.focusManager.FocusFirst()
 	w.data = new(api.AuctionStartBody)
 	w.data.Duration = api.AuctionDurationLong
 
-	w.btSelectItem.SetLabel(lokyn.L("Select Item..."))
+	w.btSelectItem.SetLabel(lokyn.L("Select Item"))
 	w.tiTotalSellQty.SetValue("0")
 	w.tiSellStackSize.SetValue("0")
 	w.tiUnitStartPrice.SetValue("0")
@@ -277,21 +279,27 @@ func (w *Widget) loadDurations() {
 
 func (w *Widget) updateEstimation() {
 	if w.data == nil || w.data.ItemID <= 0 {
-		w.txtEstimatedCost.SetMessage(lokyn.L("Please select an item..."),
+		w.statusMessage.SetMessage(lokyn.L("Please select an item"),
 			statusmessage.InformationMessage)
+		return
+	}
+
+	if w.data.TotalQuantity <= 0 || w.data.StackSize <= 0 {
+		w.statusMessage.SetMessage(lokyn.L("Please enter valid quantities"),
+			statusmessage.WarningMessage)
+		return
+	}
+
+	if w.data.UnitStartBid <= 0 {
+		w.statusMessage.SetMessage(lokyn.L("Unit start price is mandatory"),
+			statusmessage.WarningMessage)
 		return
 	}
 
 	est, err := helper.Fetch[api.AuctionPlanResponse](request.AuctionEstimate(*w.data))
 
 	if err != nil {
-		w.txtEstimatedCost.SetError(err)
-		return
-	}
-
-	if est.TotalTax <= 0 {
-		w.txtEstimatedCost.SetMessage("Please enter valid values...",
-			statusmessage.InformationMessage)
+		w.statusMessage.SetError(err)
 		return
 	}
 
@@ -300,28 +308,28 @@ func (w *Widget) updateEstimation() {
 		est.Auctions, lokyn.L("auction(s) will be created"),
 		art.CharGrynars, est.TotalTax, lokyn.L("total tax"))
 
-	w.txtEstimatedCost.SetMessage(estText,
-		statusmessage.WarningMessage)
+	w.statusMessage.SetMessage(estText,
+		statusmessage.InformationMessage)
 }
 
 func (w *Widget) fieldValidationErrors() {
 	if w.tiTotalSellQty.Err != nil {
-		w.txtEstimatedCost.SetError(w.tiTotalSellQty.Err)
+		w.statusMessage.SetError(w.tiTotalSellQty.Err)
 		return
 	}
 
 	if w.tiSellStackSize.Err != nil {
-		w.txtEstimatedCost.SetError(w.tiSellStackSize.Err)
+		w.statusMessage.SetError(w.tiSellStackSize.Err)
 		return
 	}
 
 	if w.tiUnitStartPrice.Err != nil {
-		w.txtEstimatedCost.SetError(w.tiUnitStartPrice.Err)
+		w.statusMessage.SetError(w.tiUnitStartPrice.Err)
 		return
 	}
 
 	if w.tiUnitBuyPrice.Err != nil {
-		w.txtEstimatedCost.SetError(w.tiUnitBuyPrice.Err)
+		w.statusMessage.SetError(w.tiUnitBuyPrice.Err)
 		return
 	}
 }
