@@ -1,14 +1,19 @@
 package sell
 
 import (
+	"farental/art"
+	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
+	"farental/screen/dialog/popup"
 	"farental/widget/auctionstartform"
 	"farental/widget/characterinfo"
 	"farental/widget/help"
+	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -88,17 +93,36 @@ func (s *Screen) Render() orvyn.Layout {
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if k, ok := orvyn.GetKeyMsg(msg); ok {
+		s.statusMessage.Reset()
+
 		switch {
 		case key.Matches(k, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
 		case key.Matches(k, keybind.Enter):
-			ret := s.submit()
+			// No estimation means there is nothing worth confirming. Submit
+			// straight away so the server error reaches the user.
+			est := s.auctionStartForm.GetEstimate()
 
-			if ret {
-				s.statusMessage.SetMessage(lokyn.L("Auctions successfully created !"),
-					statusmessage.SuccessMessage)
-				s.auctionStartForm.Reset()
+			if est == nil {
+				s.doSubmit()
 				return nil
+			}
+
+			orvyn.OpenDialog("createAuctionConfirm",
+				popup.NewYesNo(s.getConfirmationMessage(est)), nil)
+
+			return nil
+		}
+	}
+
+	switch msg := msg.(type) {
+	case orvyn.DialogExitMsg:
+		switch msg.DialogID {
+		case "createAuctionConfirm":
+			val, ok := msg.Param.(uint)
+
+			if ok && val == 1 {
+				s.doSubmit()
 			}
 		}
 	}
@@ -106,6 +130,32 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	cmd := s.auctionStartForm.Update(msg)
 
 	return cmd
+}
+
+// getConfirmationMessage describes the auctions about to be created.
+func (s *Screen) getConfirmationMessage(est *api.AuctionPlanResponse) string {
+	var b strings.Builder
+
+	fmt.Fprintf(&b, lokyn.L("Create %d auction(s) for %s for a total tax of %d%c ?"),
+		est.Auctions, s.auctionStartForm.GetItemName(), est.TotalTax, art.CharGrynars)
+
+	if est.Truncated {
+		b.WriteString("\n\n")
+		fmt.Fprintf(&b, lokyn.L("Only %d of the %d requested auctions fit in your remaining slots."),
+			est.Auctions, est.RequestedAuctions)
+	}
+
+	return b.String()
+}
+
+func (s *Screen) doSubmit() {
+	if !s.submit() {
+		return
+	}
+
+	s.statusMessage.SetMessage(lokyn.L("Auctions successfully created !"),
+		statusmessage.SuccessMessage)
+	s.auctionStartForm.Reset()
 }
 
 func (s *Screen) submit() bool {

@@ -10,7 +10,7 @@ require (
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/halsten-dev/bubblehelp v1.0.3
 	github.com/halsten-dev/lokyn v1.0.1
-	github.com/halsten-dev/orvyn v0.0.0-20260731212322-f876c0e68179
+	github.com/halsten-dev/orvyn v0.0.0-20260802144251-ccc355482d1a
 	github.com/minio/selfupdate v0.6.0
 	github.com/muesli/termenv v0.16.0
 	github.com/spf13/viper v1.21.0
@@ -30,7 +30,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade // indirect
-	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.27 // indirect

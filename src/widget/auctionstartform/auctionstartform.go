@@ -53,6 +53,11 @@ type Widget struct {
 
 	data *api.AuctionStartBody
 
+	// itemName and estimate mirror what the form last resolved, so the caller
+	// can describe the pending auctions without redoing the lookups.
+	itemName string
+	estimate *api.AuctionPlanResponse
+
 	layout *layout.VBoxLayout
 }
 
@@ -238,6 +243,9 @@ func (w *Widget) Reset() {
 	w.data = new(api.AuctionStartBody)
 	w.data.Duration = api.AuctionDurationLong
 
+	w.itemName = ""
+	w.estimate = nil
+
 	w.btSelectItem.SetLabel(lokyn.L("Select Item"))
 	w.tiTotalSellQty.SetValue("0")
 	w.tiSellStackSize.SetValue("0")
@@ -279,6 +287,8 @@ func (w *Widget) loadDurations() {
 }
 
 func (w *Widget) updateEstimation() {
+	w.estimate = nil
+
 	if w.data == nil || w.data.ItemID <= 0 {
 		w.statusMessage.SetMessage(lokyn.L("Please select an item"),
 			statusmessage.InformationMessage)
@@ -303,6 +313,8 @@ func (w *Widget) updateEstimation() {
 		w.statusMessage.SetError(err)
 		return
 	}
+
+	w.estimate = est
 
 	estText := fmt.Sprintf("%d %s | %d %s | %c%d %s",
 		est.RequestedAuctions, lokyn.L("requested auction(s)"),
@@ -337,6 +349,7 @@ func (w *Widget) fieldValidationErrors() {
 
 func (w *Widget) itemSelected(stack api.StackResponse) {
 	w.data.ItemID = stack.ItemID
+	w.itemName = stack.Item.Name
 	w.btSelectItem.SetLabel(stack.Item.Name)
 	w.tiTotalSellQty.SetValue(fmt.Sprintf("%d", stack.Count))
 	w.tiSellStackSize.SetValue(fmt.Sprintf("%d", stack.Item.MaxStackCount))
@@ -353,4 +366,16 @@ func (w *Widget) itemSelected(stack api.StackResponse) {
 
 func (w *Widget) GetData() *api.AuctionStartBody {
 	return w.data
+}
+
+// GetItemName returns the name of the currently selected item, empty when no
+// item has been selected yet.
+func (w *Widget) GetItemName() string {
+	return w.itemName
+}
+
+// GetEstimate returns the last estimation the server returned for the current
+// form values, nil when the form is incomplete or the estimation failed.
+func (w *Widget) GetEstimate() *api.AuctionPlanResponse {
+	return w.estimate
 }
