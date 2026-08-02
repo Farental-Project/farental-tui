@@ -1,7 +1,9 @@
 package theme
 
 import (
+	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/textinput"
 )
 
 type ThemeData struct {
@@ -73,3 +75,10 @@ const (
 const (
 	LayoutWidthSizeID theme.SizeID = iota + 9999
 )
+
+func SetUnfocusableTextinputStyle(ti *textinput.Widget) {
+	t := orvyn.GetTheme()
+
+	ti.TextStyle = t.Style(theme.DimTextStyleID)
+	ti.Cursor.TextStyle = t.Style(theme.DimTextStyleID)
+}

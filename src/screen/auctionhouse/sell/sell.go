@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
@@ -55,10 +56,12 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(any) tea.Cmd {
+	bubblehelp.SwitchContext(keybind.ContextBasicEditMode)
+
 	s.title.SetValue(lokyn.L("Create an auction"))
 
+	s.auctionStartForm.Init()
 	s.auctionStartForm.OnFocus()
-	s.auctionStartForm.Reset()
 
 	s.statusMessage.Reset()
 

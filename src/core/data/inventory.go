@@ -4,8 +4,9 @@ import (
 	"errors"
 	"farental/core/data/api"
 	"farental/internal/helper"
-	"github.com/halsten-dev/lokyn"
 	"sort"
+
+	"github.com/halsten-dev/lokyn"
 )
 
 type Inventory struct {

@@ -2,6 +2,8 @@ package api
 
 import (
 	"time"
+
+	"github.com/halsten-dev/lokyn"
 )
 
 type AuctionDuration int
@@ -24,6 +26,19 @@ func (a AuctionDuration) IsValid() bool {
 	}
 
 	return false
+}
+
+func (a AuctionDuration) RenderValue() string {
+	switch a {
+	case 48:
+		return lokyn.L("Short auction (48h)")
+	case 72:
+		return lokyn.L("Long auction (72h)")
+	case 96:
+		return lokyn.L("Very long auction (96h)")
+	}
+
+	return ""
 }
 
 // AuctionStatus records how an auction ended, which EndTimestamp alone cannot
