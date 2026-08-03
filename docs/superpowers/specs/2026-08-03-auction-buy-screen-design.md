@@ -153,8 +153,10 @@ must page the query that produced the current rows, not whatever the selectors
 have drifted to since.
 
 - `OnEnter` — switch help context, refresh character info, fetch the filter
-  options into the widget, `Reset()` it, then run the apply flow with the empty
-  filter.
+  options into the widget, then run the apply flow with the empty filter. The
+  widget clears itself in `Init()`, not as a side effect of `SetOptions`:
+  otherwise a failed options fetch skips the clear and the screen re-runs the
+  previous visit's filter.
 - Apply (`AppliedMsg`) — `filter = auctionFilter.GetFilter()`, `page = 1`,
   fetch, `list.SetItems(resp.Auctions)`, cursor to the first row, `total` from
   the response.
@@ -165,10 +167,12 @@ have drifted to since.
 - Bid (Enter on the list) — open `auctionbid`; on submit `POST /auction/bid`.
 - Buy (`b`) — yes/no confirm showing the price, then `POST /auction/buy`.
   Hidden when `DirectBuyPrice` is 0.
-- After a successful bid or buy — re-run the apply flow from page 1. A sold
-  listing is gone and every later page shifts under it, so refetching the
-  accumulated pages would show duplicates or holes. Accumulation resets and the
-  status message reports the outcome.
+- After a successful bid or buy — reload page 1 from the *stored* filter, not
+  from the panel. A sold listing is gone and every later page shifts under it,
+  so refetching the accumulated pages would show duplicates or holes.
+  Accumulation resets and the status message reports the outcome. Re-reading
+  the panel here would silently query the player's unapplied edits, which is
+  the whole reason the applied filter is kept separately.
 - Reset (`r`) — clear every filter control and re-apply at once, returning the
   player to the whole house in one keypress. Handled at screen level so it
   works from either panel: a filter is most often reset while editing it.
@@ -188,6 +192,12 @@ picker, Enter applies.
   since the labels follow the player's language.
 - No result is a status line, not an error — an empty house and a bad filter
   must not look alike.
+- The count line never overwrites an error. The fetches on entry and after an
+  action share one status line, so the later success report has to know whether
+  an earlier step already put an error there.
+- Every dialog switches the help context on entry, so every dialog exit — the
+  cancel path included — must switch it back, or the screen keeps a dialog's
+  keymap for the rest of the visit.
 - 401 handling is untouched: a messageless 401 expires the session, a business
   401 ("no auction house at this location") carries its message.
 

@@ -1925,6 +1925,15 @@ git commit -m "feat: reset the auction filter with one key"
 
 ---
 
+## Corrections found after this plan was written
+
+The whole-branch review caught four defects that were in **this plan's code**, not in the transcription. They are fixed on the branch (`8f92b2e`); they are recorded here because this plan is the reference for the manage screen, and re-copying its code blocks would re-introduce them.
+
+1. **No dialog restores the help context.** Each dialog switches context in `OnEnter` and `orvyn.CloseDialog` does not re-run the parent's, so the screen kept a dialog's keymap after the first `i`/Enter/Space. Every dialog exit needs `bubblehelp.SwitchToPreviousContext()`, on the cancel path too. `widget/auctionstartform` was already doing this.
+2. **The row wrapped at 80 columns.** `ns.Width(w)` wraps rather than truncates, so a full row rendered four lines against a declared height of 3, overflowing the list and clipping the status and help lines off the screen. Truncate with `ansi.Truncate` *before* applying any width-setting style — `Width(n).MaxWidth(n)` does not work, because `Width` wraps first.
+3. **`reportCount` masked errors.** `OnEnter` ran three fetches into one status line and then reported the count unconditionally, hiding a failed options fetch — the exact case the spec's error section calls for showing. The count must be suppressed when an error is already displayed; the same fix covers `afterAction`.
+4. **`Reset()` hid inside `SetOptions`, and `afterAction` re-read the panel.** A failed options fetch skipped the reset and re-ran the previous visit's filter; and the post-action reload used the player's unapplied edits. Reset belongs in `Init()`, and the reload belongs on the stored filter.
+
 ## Final verification
 
 - [ ] Run the full suite from `src/`: `gofmt -l . && go build ./... && go vet ./... && go test ./...`
