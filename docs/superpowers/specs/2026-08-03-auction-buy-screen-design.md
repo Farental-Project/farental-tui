@@ -169,10 +169,14 @@ have drifted to since.
   listing is gone and every later page shifts under it, so refetching the
   accumulated pages would show duplicates or holes. Accumulation resets and the
   status message reports the outcome.
+- Reset (`r`) — clear every filter control and re-apply at once, returning the
+  player to the whole house in one keypress. Handled at screen level so it
+  works from either panel: a filter is most often reset while editing it.
 - Esc — back to the auction house menu.
 
-Keys, list focused: Enter bid, `b` buy, `i` inspect, `m` load more. Filter
-focused: ←/→ cycle, Space opens the picker, Enter applies.
+Keys, list focused: Enter bid, `b` buy, `i` inspect, `m` load more. Either
+panel: `r` resets the filter. Filter focused: ←/→ cycle, Space opens the
+picker, Enter applies.
 
 ## Errors
 

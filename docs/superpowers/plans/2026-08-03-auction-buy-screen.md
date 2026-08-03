@@ -1873,6 +1873,58 @@ git commit -m "feat: auction house bidding and direct buy"
 
 ---
 
+### Task 10: Reset the filter with one key
+
+Added after the plan was written, at the user's request: browsing back out to the whole house currently means walking every control back to its "any" entry by hand. `r` clears them and re-applies in one keypress.
+
+Handled at screen level rather than inside the filter widget, and deliberately not gated on which panel holds focus: a filter is most often reset while it is being edited. The min-stat input only accepts digits and a leading minus, so a letter key never had anything to contribute there.
+
+**Files:**
+- Modify: `screen/auctionhouse/buy/buy.go` (the key switch in `Update`)
+- Modify: `internal/keybind/context.go` (the `auctionBuyKeymap` built in Task 8)
+
+**Interfaces:**
+- Consumes: `auctionfilter.(*Widget).Reset()` (Task 4), the screen's own `applyFilter` (Task 8).
+- Produces: nothing for later tasks.
+
+- [ ] **Step 1: Add the key to the help context**
+
+In `internal/keybind/context.go`, in the `auctionBuyKeymap` block, beside the `MKey` entry:
+
+```go
+	auctionBuyKeymap.NewKeyBinding(RKey, true)
+	auctionBuyKeymap.SetHelpDesc(RKey, lokyn.L("reset filters"))
+```
+
+- [ ] **Step 2: Handle the key**
+
+In `screen/auctionhouse/buy/buy.go`, add a case to the key switch in `Update`, beside the `MKey` case:
+
+```go
+		case key.Matches(k, keybind.RKey):
+			s.statusMessage.Reset()
+			s.auctionFilter.Reset()
+			s.applyFilter()
+
+			return nil
+```
+
+No `listFocused()` guard, unlike `m`/`b`/`i`: reset is wanted from both panels.
+
+- [ ] **Step 3: Verify**
+
+Run: `gofmt -l . && go build ./... && go vet ./... && go test ./...`
+Expected: clean, all tests PASS
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add screen/auctionhouse/buy/buy.go internal/keybind/context.go
+git commit -m "feat: reset the auction filter with one key"
+```
+
+---
+
 ## Final verification
 
 - [ ] Run the full suite from `src/`: `gofmt -l . && go build ./... && go vet ./... && go test ./...`
