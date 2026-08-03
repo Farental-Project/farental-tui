@@ -689,6 +689,8 @@ func InitContexts() {
 	auctionBuyKeymap.SetHelpDesc(IKey, lokyn.L("information"))
 	auctionBuyKeymap.NewKeyBinding(MKey, true)
 	auctionBuyKeymap.SetHelpDesc(MKey, lokyn.L("load more"))
+	auctionBuyKeymap.NewKeyBinding(RKey, true)
+	auctionBuyKeymap.SetHelpDesc(RKey, lokyn.L("reset filters"))
 	auctionBuyKeymap.NewKeyBinding(Esc, true)
 	auctionBuyKeymap.NewKeyBinding(Quit, true)
 	auctionBuyKeymap.NewKeyBinding(Help, true)

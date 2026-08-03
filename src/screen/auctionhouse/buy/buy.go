@@ -146,6 +146,13 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				return nil
 			}
 
+		case key.Matches(k, keybind.RKey):
+			s.statusMessage.Reset()
+			s.auctionFilter.Reset()
+			s.applyFilter()
+
+			return nil
+
 		case key.Matches(k, keybind.IKey):
 			if s.listFocused() && s.auctionList.Length() > 0 {
 				return orvyn.OpenDialog(dialogIDInspect,
