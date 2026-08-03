@@ -1,0 +1,107 @@
+package auctionlistitem
+
+import (
+	"farental/art"
+	"farental/core/data/api"
+	"farental/internal/context"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
+	"github.com/halsten-dev/orvyn/theme"
+	"github.com/halsten-dev/orvyn/widget/widgetlist"
+)
+
+type Widget struct {
+	orvyn.BaseWidget
+	orvyn.BaseFocusable
+
+	data api.AuctionResponse
+
+	ownBid bool
+}
+
+func Constructor(data api.AuctionResponse) widgetlist.ListItem[api.AuctionResponse] {
+	w := new(Widget)
+
+	w.BaseWidget = orvyn.NewBaseWidget()
+	w.BaseFocusable = orvyn.NewBaseFocusable(w)
+
+	w.UpdateData(data)
+
+	w.OnBlur()
+
+	return w
+}
+
+func (w *Widget) Resize(size orvyn.Size) {
+	size.Height = 3
+
+	w.BaseWidget.Resize(size)
+}
+
+func (w *Widget) UpdateData(data api.AuctionResponse) {
+	w.data = data
+	w.ownBid = false
+
+	info := context.CharacterInfo
+
+	if info == nil || data.CurrentBidderName == "" {
+		return
+	}
+
+	// The server sends readable names, not IDs, so this is the only way to tell
+	// the player they already hold the bid.
+	w.ownBid = data.CurrentBidderName == fmt.Sprintf("%s %s", info.FirstName, info.LastName)
+}
+
+func (w *Widget) GetData() api.AuctionResponse {
+	return w.data
+}
+
+func (w *Widget) FilterValue() string {
+	return w.data.Item.Name
+}
+
+func (w *Widget) Render() string {
+	contentSize := w.GetContentSize()
+
+	t := orvyn.GetTheme()
+	ns := lipgloss.NewStyle()
+
+	left := fmt.Sprintf("%s x%d", w.data.Item.Name, w.data.Quantity)
+
+	bid := fmt.Sprintf("%s %d%c", lokyn.L("bid"), w.data.CurrentBid, art.CharGrynars)
+
+	if w.ownBid {
+		bid = fmt.Sprintf("%s (%s)", bid, lokyn.L("you"))
+	}
+
+	buy := fmt.Sprintf("%s —", lokyn.L("buy"))
+
+	if w.data.DirectBuyPrice > 0 {
+		buy = fmt.Sprintf("%s %d%c", lokyn.L("buy"), w.data.DirectBuyPrice, art.CharGrynars)
+	}
+
+	right := strings.Join([]string{
+		bid,
+		buy,
+		EndsIn(w.data.EndTimestamp, time.Now()),
+		w.data.SellerName,
+	}, "  ")
+
+	width1, width2 := orvyn.DivideSizeFull(contentSize.Width)
+
+	return w.GetStyle().Width(contentSize.Width).
+		Height(contentSize.Height).
+		Render(lipgloss.JoinHorizontal(lipgloss.Top,
+			ns.Width(width1).
+				AlignHorizontal(lipgloss.Left).
+				Render(left),
+			ns.Width(width2).
+				AlignHorizontal(lipgloss.Right).
+				Render(t.Style(theme.DimTextStyleID).Render(right))))
+}
