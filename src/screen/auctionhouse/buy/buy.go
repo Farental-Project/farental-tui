@@ -41,8 +41,6 @@ type Screen struct {
 
 	layout *layout.CenterLayout
 
-	options *api.AuctionFilterOptionsResponse
-
 	// filter is the applied query, not the one being edited: load more has to
 	// page the query that produced the rows on screen.
 	filter api.AuctionFilter
@@ -167,24 +165,27 @@ func (s *Screen) loadFilterOptions() {
 		return
 	}
 
-	s.options = options
 	s.auctionFilter.SetOptions(options)
 }
 
 // applyFilter runs the filter currently in the panel from page 1, dropping
-// whatever was accumulated.
+// whatever was accumulated. The candidate filter is fetched before anything
+// is committed: on error, s.filter/s.page/s.total and the list must stay
+// exactly as they were, so a later load more keeps paging the query that is
+// actually on screen rather than the rejected one.
 func (s *Screen) applyFilter() {
-	s.filter = s.auctionFilter.GetFilter()
-	s.page = 1
+	filter := s.auctionFilter.GetFilter()
 
 	resp, err := helper.Fetch[api.AuctionListResponse](
-		request.AuctionGetAll(s.page, s.filter))
+		request.AuctionGetAll(1, filter))
 
 	if err != nil {
 		s.statusMessage.SetError(err)
 		return
 	}
 
+	s.filter = filter
+	s.page = 1
 	s.total = resp.Total
 
 	s.auctionList.SetItems(resp.Auctions)
