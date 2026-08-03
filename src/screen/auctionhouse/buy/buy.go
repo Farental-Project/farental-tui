@@ -115,9 +115,12 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 
 	s.auctionFilter.Init()
 
-	s.updateCharacterInfo()
-	s.loadFilterOptions()
-	s.applyFilter()
+	infoOK := s.updateCharacterInfo()
+	optionsOK := s.loadFilterOptions()
+
+	// Reporting the count would overwrite whichever of the two calls above set
+	// an error, so it only happens when both succeeded (FINDING 3).
+	s.applyFilter(infoOK && optionsOK)
 
 	return nil
 }
@@ -149,7 +152,7 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(k, keybind.RKey):
 			s.statusMessage.Reset()
 			s.auctionFilter.Reset()
-			s.applyFilter()
+			s.applyFilter(true)
 
 			return nil
 
@@ -175,13 +178,22 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case auctionfilter.AppliedMsg:
 		s.statusMessage.Reset()
-		s.applyFilter()
+		s.applyFilter(true)
 
 		return nil
 
 	case orvyn.DialogExitMsg:
 		switch msg.DialogID {
+		case dialogIDInspect:
+			// auctioninspect switches context on entry and never switches back.
+			bubblehelp.SwitchToPreviousContext()
+
+			return nil
+
 		case dialogIDBid:
+			// auctionbid switches context on entry and never switches back.
+			bubblehelp.SwitchToPreviousContext()
+
 			bid, ok := msg.Param.(int)
 
 			if ok && bid > 0 {
@@ -210,27 +222,37 @@ func (s *Screen) listFocused() bool {
 
 // loadFilterOptions fetches the vocabulary on every entry: the labels are
 // localized server-side, so a language change has to be picked up.
-func (s *Screen) loadFilterOptions() {
+func (s *Screen) loadFilterOptions() bool {
 	options, err := helper.Fetch[api.AuctionFilterOptionsResponse](
 		request.AuctionGetFilterOptions())
 
 	if err != nil {
 		// Browsing unfiltered still works, so this degrades rather than blocks.
 		s.statusMessage.SetError(err)
-		return
+		return false
 	}
 
 	s.auctionFilter.SetOptions(options)
+
+	return true
 }
 
-// applyFilter runs the filter currently in the panel from page 1, dropping
-// whatever was accumulated. The candidate filter is fetched before anything
-// is committed: on error, s.filter/s.page/s.total and the list must stay
-// exactly as they were, so a later load more keeps paging the query that is
-// actually on screen rather than the rejected one.
-func (s *Screen) applyFilter() bool {
-	filter := s.auctionFilter.GetFilter()
+// applyFilter runs the filter currently in the panel from page 1. mayReport
+// gates reportCount: a caller that already put an error on the status line
+// (updateCharacterInfo or loadFilterOptions failing) passes false so the count
+// does not overwrite it.
+func (s *Screen) applyFilter(mayReport bool) bool {
+	return s.reload(s.auctionFilter.GetFilter(), mayReport)
+}
 
+// reload is applyFilter's fetch, parameterized on the filter to run so
+// afterAction can rerun the applied filter (s.filter) instead of whatever the
+// panel currently holds unconfirmed. Dropping whatever was accumulated, the
+// candidate filter is fetched before anything is committed: on error,
+// s.filter/s.page/s.total and the list must stay exactly as they were, so a
+// later load more keeps paging the query that is actually on screen rather
+// than the rejected one.
+func (s *Screen) reload(filter api.AuctionFilter, mayReport bool) bool {
 	resp, err := helper.Fetch[api.AuctionListResponse](
 		request.AuctionGetAll(1, filter))
 
@@ -246,7 +268,9 @@ func (s *Screen) applyFilter() bool {
 	s.auctionList.SetItems(resp.Auctions)
 	s.auctionList.FocusFirst()
 
-	s.reportCount()
+	if mayReport {
+		s.reportCount()
+	}
 
 	return true
 }
@@ -353,12 +377,14 @@ func (s *Screen) directBuy() {
 	s.afterAction(lokyn.L("Item bought, check your mail"))
 }
 
-// afterAction reloads from page 1: a sold listing is gone and every later page
-// shifts under it, so refetching the accumulated pages would show duplicates
-// or holes.
+// afterAction reloads from page 1 using the applied filter (s.filter), not the
+// panel: a player who edited the selectors without pressing Enter and then
+// bid or bought should not have that reload silently pick up the unconfirmed
+// edit. A sold listing is gone and every later page shifts under it, so
+// refetching the accumulated pages would show duplicates or holes.
 func (s *Screen) afterAction(message string) {
 	infoOK := s.updateCharacterInfo()
-	filterOK := s.applyFilter()
+	filterOK := s.reload(s.filter, infoOK)
 
 	if !infoOK || !filterOK {
 		return

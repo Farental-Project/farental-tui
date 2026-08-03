@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/theme"
@@ -94,6 +95,13 @@ func (w *Widget) Render() string {
 	}, "  ")
 
 	width1, width2 := orvyn.DivideSizeFull(contentSize.Width)
+
+	// Width(n) wraps rather than truncates (MaxWidth would then cut the
+	// already-wrapped lines, not the text), so a long name or a full right
+	// block would push the row past its declared height of 3. Cut both blocks
+	// to their column budget before styling so neither can wrap.
+	left = ansi.Truncate(left, width1, "")
+	right = ansi.Truncate(right, width2, "")
 
 	return w.GetStyle().Width(contentSize.Width).
 		Height(contentSize.Height).

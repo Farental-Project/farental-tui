@@ -121,6 +121,10 @@ func New() *Widget {
 }
 
 func (w *Widget) Init() tea.Cmd {
+	// Reset here, not in SetOptions: a failed options fetch skips SetOptions
+	// entirely, and the screen still needs an empty filter to apply.
+	w.Reset()
+
 	w.lblKind.SetValue(lokyn.L("Kind"))
 	w.lblSlot.SetValue(lokyn.L("Equipment slot"))
 	w.lblWeapon.SetValue(lokyn.L("Weapon type"))
@@ -129,6 +133,8 @@ func (w *Widget) Init() tea.Cmd {
 
 	w.tiMinStat.Placeholder = lokyn.L("Minimum value")
 
+	w.focusManager.FocusFirst()
+
 	return nil
 }
 
@@ -136,6 +142,17 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case orvyn.DialogExitMsg:
 		if msg.DialogID == dialogIDStatSkill {
+			// The dialog switches context on entry and never switches back on its
+			// own; restore it on every exit, cancel included.
+			bubblehelp.SwitchToPreviousContext()
+
+			// Restoring resets the dialog's own keymap, not ours, but Reset() on
+			// entry set every binding in ours back to visible too — re-assert
+			// Space's hidden-when-blurred state in case the button still has focus.
+			if w.btStatSkill.IsFocused() {
+				bubblehelp.SetKeybindVisible(keybind.Space, true)
+			}
+
 			entry, ok := msg.Param.(statskillselection.Entry)
 
 			if ok {
@@ -205,8 +222,6 @@ func (w *Widget) SetOptions(options *api.AuctionFilterOptionsResponse) {
 	setOptions(w.mvsKind, kinds)
 	setOptions(w.mvsSlot, slots)
 	setOptions(w.mvsWeapon, weapons)
-
-	w.Reset()
 }
 
 // setOptions feeds a selector, which keys its values by the label it renders.
@@ -222,7 +237,11 @@ func setOptions(selector *multivalueselector.Widget[Option], options []Option) {
 	selector.SetValues(keys, values)
 }
 
-// Reset returns every control to "no filter".
+// Reset returns every control to "no filter". It does not move the cursor:
+// pressing r from the auction list calls this too, and jumping focus into the
+// panel from there would style the Kind selector as focused while the list
+// still has real focus. Callers that need the cursor moved do it themselves
+// (see Init).
 func (w *Widget) Reset() {
 	w.mvsKind.SetSelected(0)
 	w.mvsSlot.SetSelected(0)
@@ -233,8 +252,6 @@ func (w *Widget) Reset() {
 
 	w.btStatSkill.SetLabel(lokyn.L("Any stat or skill"))
 	w.tiMinStat.SetValue("")
-
-	w.focusManager.FocusFirst()
 }
 
 // GetFilter reads the controls into the query the request layer sends.
