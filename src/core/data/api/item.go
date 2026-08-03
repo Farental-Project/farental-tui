@@ -24,3 +24,9 @@ type EquipmentStatResponse struct {
 	Stat  StatResponse
 	Value int
 }
+
+type WeaponTypeResponse struct {
+	Code        string
+	Name        string
+	IsTwoHanded bool
+}
