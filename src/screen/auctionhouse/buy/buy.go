@@ -221,7 +221,7 @@ func (s *Screen) loadFilterOptions() {
 // is committed: on error, s.filter/s.page/s.total and the list must stay
 // exactly as they were, so a later load more keeps paging the query that is
 // actually on screen rather than the rejected one.
-func (s *Screen) applyFilter() {
+func (s *Screen) applyFilter() bool {
 	filter := s.auctionFilter.GetFilter()
 
 	resp, err := helper.Fetch[api.AuctionListResponse](
@@ -229,7 +229,7 @@ func (s *Screen) applyFilter() {
 
 	if err != nil {
 		s.statusMessage.SetError(err)
-		return
+		return false
 	}
 
 	s.filter = filter
@@ -240,6 +240,8 @@ func (s *Screen) applyFilter() {
 	s.auctionList.FocusFirst()
 
 	s.reportCount()
+
+	return true
 }
 
 // loadMore appends the next server page, keeping the applied filter.
@@ -280,12 +282,12 @@ func (s *Screen) reportCount() {
 		statusmessage.InformationMessage)
 }
 
-func (s *Screen) updateCharacterInfo() {
+func (s *Screen) updateCharacterInfo() bool {
 	characterInfo, currency, err := context.RefreshCharacterInfo(true)
 
 	if err != nil {
 		s.statusMessage.SetError(err)
-		return
+		return false
 	}
 
 	s.money = currency
@@ -295,6 +297,8 @@ func (s *Screen) updateCharacterInfo() {
 	data := characterinfo.ConvertCharacterInfoResponseToData(
 		characterInfo, currency, unreadMail)
 	s.characterInfo.UpdateData(data)
+
+	return true
 }
 
 func (s *Screen) openBuyConfirm() tea.Cmd {
@@ -346,8 +350,12 @@ func (s *Screen) directBuy() {
 // shifts under it, so refetching the accumulated pages would show duplicates
 // or holes.
 func (s *Screen) afterAction(message string) {
-	s.updateCharacterInfo()
-	s.applyFilter()
+	infoOK := s.updateCharacterInfo()
+	filterOK := s.applyFilter()
+
+	if !infoOK || !filterOK {
+		return
+	}
 
 	s.statusMessage.SetMessage(message, statusmessage.SuccessMessage)
 }
