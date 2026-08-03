@@ -1,11 +1,15 @@
 package buy
 
 import (
+	"farental/art"
 	"farental/core/data/api"
 	"farental/core/request"
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/screen/dialog/auctionbid"
+	"farental/screen/dialog/auctioninspect"
+	"farental/screen/dialog/popup"
 	"farental/widget/auctionfilter"
 	"farental/widget/auctionlistitem"
 	"farental/widget/characterinfo"
@@ -25,6 +29,12 @@ import (
 
 // listIndex is the auction list's position in the screen's focus manager.
 const listIndex = 1
+
+const (
+	dialogIDInspect    orvyn.ScreenID = "auctionInspect"
+	dialogIDBid        orvyn.ScreenID = "auctionBid"
+	dialogIDBuyConfirm orvyn.ScreenID = "auctionBuyConfirm"
+)
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
@@ -135,15 +145,53 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 				return nil
 			}
+
+		case key.Matches(k, keybind.IKey):
+			if s.listFocused() && s.auctionList.Length() > 0 {
+				return orvyn.OpenDialog(dialogIDInspect,
+					auctioninspect.New(s.auctionList.GetSelectedItem()), nil)
+			}
+
+		case key.Matches(k, keybind.BKey):
+			if s.listFocused() && s.auctionList.Length() > 0 {
+				return s.openBuyConfirm()
+			}
+
+		case key.Matches(k, keybind.Enter):
+			if s.listFocused() && s.auctionList.Length() > 0 {
+				return orvyn.OpenDialog(dialogIDBid,
+					auctionbid.New(s.auctionList.GetSelectedItem(), s.money), nil)
+			}
 		}
 	}
 
-	switch msg.(type) {
+	switch msg := msg.(type) {
 	case auctionfilter.AppliedMsg:
 		s.statusMessage.Reset()
 		s.applyFilter()
 
 		return nil
+
+	case orvyn.DialogExitMsg:
+		switch msg.DialogID {
+		case dialogIDBid:
+			bid, ok := msg.Param.(int)
+
+			if ok && bid > 0 {
+				s.placeBid(bid)
+			}
+
+			return nil
+
+		case dialogIDBuyConfirm:
+			answer, ok := msg.Param.(uint)
+
+			if ok && answer == 1 {
+				s.directBuy()
+			}
+
+			return nil
+		}
 	}
 
 	return s.focusManager.Update(msg)
@@ -247,4 +295,59 @@ func (s *Screen) updateCharacterInfo() {
 	data := characterinfo.ConvertCharacterInfoResponseToData(
 		characterInfo, currency, unreadMail)
 	s.characterInfo.UpdateData(data)
+}
+
+func (s *Screen) openBuyConfirm() tea.Cmd {
+	auction := s.auctionList.GetSelectedItem()
+
+	if auction.DirectBuyPrice <= 0 {
+		s.statusMessage.SetMessage(lokyn.L("This auction has no direct buy price"),
+			statusmessage.WarningMessage)
+
+		return nil
+	}
+
+	return orvyn.OpenDialog(dialogIDBuyConfirm, popup.NewYesNo(
+		fmt.Sprintf(lokyn.L("Buy %s x%d for %d%c ?"),
+			auction.Item.Name, auction.Quantity,
+			auction.DirectBuyPrice, art.CharGrynars)), nil)
+}
+
+func (s *Screen) placeBid(bid int) {
+	auction := s.auctionList.GetSelectedItem()
+
+	_, err := helper.SendRequest(request.AuctionMakeBid(api.AuctionBidBody{
+		ID:  auction.ID,
+		Bid: bid,
+	}))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	s.afterAction(lokyn.L("Bid placed"))
+}
+
+func (s *Screen) directBuy() {
+	auction := s.auctionList.GetSelectedItem()
+
+	_, err := helper.SendRequest(request.AuctionDirectBuy(api.IDBody{ID: auction.ID}))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	s.afterAction(lokyn.L("Item bought, check your mail"))
+}
+
+// afterAction reloads from page 1: a sold listing is gone and every later page
+// shifts under it, so refetching the accumulated pages would show duplicates
+// or holes.
+func (s *Screen) afterAction(message string) {
+	s.updateCharacterInfo()
+	s.applyFilter()
+
+	s.statusMessage.SetMessage(message, statusmessage.SuccessMessage)
 }
