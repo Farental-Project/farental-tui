@@ -16,6 +16,7 @@ import (
 	"farental/screen"
 	"farental/screen/accountcreation"
 	"farental/screen/activity"
+	"farental/screen/auctionhouse/buy"
 	"farental/screen/auctionhouse/menu"
 	"farental/screen/auctionhouse/sell"
 	"farental/screen/bank"
@@ -178,6 +179,7 @@ func main() {
 	orvyn.RegisterScreen(screen.IDClientUpdate, clientupdate.New())
 	orvyn.RegisterScreen(screen.IDAuctionHouseMenu, menu.New())
 	orvyn.RegisterScreen(screen.IDAuctionHouseSell, sell.New())
+	orvyn.RegisterScreen(screen.IDAuctionHouseBuy, buy.New())
 
 	context.ResetTerminalTitle()
 
