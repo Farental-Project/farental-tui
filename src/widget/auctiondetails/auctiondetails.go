@@ -82,7 +82,7 @@ func (w *Widget) Render() string {
 
 	return w.GetStyle().
 		Width(contentSize.Width).
-		Height(contentSize.Height).
+		Height(max(contentSize.Height, w.contentHeight())).
 		Render(b.String())
 }
 
@@ -92,10 +92,12 @@ func headerStyle() lipgloss.Style {
 	return orvyn.GetTheme().Style(ftheme.DimUnderlinedTextStyleID)
 }
 
-// GetMinSize and GetPreferredSize report the same height, which makes the
-// layout treat the box as fixed height and hand it exactly its rows. Width
-// stays at 1 so the widget never drives the layout width, matching
-// iteminspect.GetMinSize.
+// GetMinSize reports the height the box actually needs: the header plus one
+// line per row, plus the frame. GetPreferredSize reports this same value
+// unless a caller has set an explicit preferred size to stretch the box - but
+// the minimum itself never moves, and Render enforces it as a floor regardless
+// of what height the layout hands the box. Width stays at 1 so the widget
+// never drives the layout width, matching iteminspect.GetMinSize.
 func (w *Widget) GetMinSize() orvyn.Size {
 	return orvyn.NewSize(1, w.height())
 }
@@ -113,11 +115,18 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 	return orvyn.NewSize(1, w.height())
 }
 
-// height is what the box needs: the underlined header, one line per row, and
-// the frame. The header height is measured rather than assumed so a theme that
-// drops the underline does not leave a dead line behind.
-func (w *Widget) height() int {
+// contentHeight is what the box's content needs: the underlined header plus
+// one line per row. The header height is measured rather than assumed so a
+// theme that drops the underline does not leave a dead line behind. Render
+// uses this as a floor so the box never shrinks below the height it actually
+// holds, even when the layout hands it less.
+func (w *Widget) contentHeight() int {
 	header := lipgloss.Height(headerStyle().Render("X"))
 
-	return header + len(w.rows) + w.GetStyle().GetVerticalFrameSize()
+	return header + len(w.rows)
+}
+
+// height is what the box needs including its frame.
+func (w *Widget) height() int {
+	return w.contentHeight() + w.GetStyle().GetVerticalFrameSize()
 }

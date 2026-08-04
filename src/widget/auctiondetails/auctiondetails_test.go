@@ -99,6 +99,27 @@ func TestPreferredSizeHonoursAnExplicitStretch(t *testing.T) {
 	}
 }
 
+// The layout can hand the box less height than it needs: orvyn gives a sole
+// flexible element whatever is left, with no minimum floor. iteminspect next to
+// it renders its natural height regardless, so if this box shrank to match a
+// starved allocation the two outlines would diverge. It must render at its own
+// height instead and overflow alongside its neighbour.
+func TestStarvedAllocationDoesNotShrinkTheBox(t *testing.T) {
+	w := New()
+
+	auction := testAuction(500)
+	w.UpdateData(&auction)
+
+	natural := w.GetMinSize().Height
+
+	w.Resize(orvyn.NewSize(41, natural-4))
+
+	if got := lipgloss.Height(w.Render()); got != natural {
+		t.Errorf("rendered height under a starved allocation = %d, want %d",
+			got, natural)
+	}
+}
+
 func TestRenderShowsLabelsAndValues(t *testing.T) {
 	w := New()
 
