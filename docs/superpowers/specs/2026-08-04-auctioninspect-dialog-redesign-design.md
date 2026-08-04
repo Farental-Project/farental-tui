@@ -24,9 +24,9 @@ as two unrelated blocks. The auction facts are a single `SimpleRenderable` fed a
 ┌──────────────────────────────┐ ┌───────────────────────────────────────────┐
 │ Auction                      │ │ Iron Sword                                │
 │ ───────                      │ │ ──────────                                │
-│ Current bid     120Ǥ (you)   │ │ 10 per stack                              │
+│ Current bid          120Ǥ    │ │ 10 per stack                              │
 │ Direct buy           500Ǥ    │ │                                           │
-│ Current bidder   John Doe    │ │ A sturdy blade forged in the northern     │
+│ Current bidder        you    │ │ A sturdy blade forged in the northern     │
 │ Seller           Jane Doe    │ │ forges.                                   │
 │ Ends in            2h 30m    │ │                                           │
 │                              │ │ Stats                                     │
@@ -89,11 +89,15 @@ Rows, in order:
 
 | Label            | Value                                        | Shown when          |
 |------------------|----------------------------------------------|---------------------|
-| `Current bid`    | `<n>Ǥ`, plus ` (you)` when the player leads   | always              |
+| `Current bid`    | `<n>Ǥ`                                        | always              |
 | `Direct buy`     | `<n>Ǥ`                                        | `DirectBuyPrice > 0`|
-| `Current bidder` | bidder name, or `nobody` when empty           | always              |
+| `Current bidder` | `you` when the player leads, `nobody` when empty, otherwise the bidder name | always |
 | `Seller`         | `SellerName`                                  | always              |
 | `Ends in`        | `auctionlistitem.EndsIn(EndTimestamp, now)`   | always              |
+
+The own-bid marker lives on the bidder row rather than as a ` (you)` suffix on
+the price: the question it answers is *who* holds the bid, so it belongs in the
+column that names the bidder, and the price column stays purely numeric.
 
 Styling: labels use `theme.DimTextStyleID`. `Current bid` and `Direct buy`
 values use `theme.HighlightTextStyleID` so money reads first; all other values
