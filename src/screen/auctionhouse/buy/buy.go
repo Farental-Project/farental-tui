@@ -91,7 +91,7 @@ func New() *Screen {
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(
 			orvyn.NewSize(10, 4),
-			3,
+			2,
 			s.title,
 			s.characterInfo,
 			layout.NewHBoxFixedRatioLayout(0, 1, 1, panels...),
