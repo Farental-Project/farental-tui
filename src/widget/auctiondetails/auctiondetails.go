@@ -80,10 +80,21 @@ func (w *Widget) Render() string {
 				Render(vs.Render(value))))
 	}
 
+	content := b.String()
+
+	// Height pads but never truncates, and the rows above are rendered at their
+	// natural count regardless of what the box was allocated - so without this
+	// the box draws past its own border whenever the content does not fit.
+	if contentSize.Height > 0 {
+		content = lipgloss.NewStyle().
+			MaxHeight(contentSize.Height).
+			Render(content)
+	}
+
 	return w.GetStyle().
 		Width(contentSize.Width).
-		Height(max(contentSize.Height, w.contentHeight())).
-		Render(b.String())
+		Height(contentSize.Height).
+		Render(content)
 }
 
 // headerStyle is the box title treatment: the same underlined style iteminspect
@@ -95,8 +106,8 @@ func headerStyle() lipgloss.Style {
 // GetMinSize reports the height the box actually needs: the header plus one
 // line per row, plus the frame. GetPreferredSize reports this same value
 // unless a caller has set an explicit preferred size to stretch the box - but
-// the minimum itself never moves, and Render enforces it as a floor regardless
-// of what height the layout hands the box. Width stays at 1 so the widget
+// the minimum itself never moves. Render draws into whatever height it is
+// given, clipping if that is less than this. Width stays at 1 so the widget
 // never drives the layout width, matching iteminspect.GetMinSize.
 func (w *Widget) GetMinSize() orvyn.Size {
 	return orvyn.NewSize(1, w.height())
@@ -117,9 +128,9 @@ func (w *Widget) GetPreferredSize() orvyn.Size {
 
 // contentHeight is what the box's content needs: the underlined header plus
 // one line per row. The header height is measured rather than assumed so a
-// theme that drops the underline does not leave a dead line behind. Render
-// uses this as a floor so the box never shrinks below the height it actually
-// holds, even when the layout hands it less.
+// theme that drops the underline does not leave a dead line behind. Used by
+// height() to report what GetMinSize / GetPreferredSize want - Render itself
+// draws into whatever height it is actually given.
 func (w *Widget) contentHeight() int {
 	header := lipgloss.Height(headerStyle().Render("X"))
 

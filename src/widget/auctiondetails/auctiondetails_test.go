@@ -99,12 +99,12 @@ func TestPreferredSizeHonoursAnExplicitStretch(t *testing.T) {
 	}
 }
 
-// The layout can hand the box less height than it needs: orvyn gives a sole
-// flexible element whatever is left, with no minimum floor. iteminspect next to
-// it renders its natural height regardless, so if this box shrank to match a
-// starved allocation the two outlines would diverge. It must render at its own
-// height instead and overflow alongside its neighbour.
-func TestStarvedAllocationDoesNotShrinkTheBox(t *testing.T) {
+// The layout gives both boxes in the dialog the same height, so each must render
+// at exactly that height for their outlines to align. iteminspect clips to its
+// allocation; this box must too. Rendering taller - which lipgloss Height would
+// happily allow, since it pads but never truncates - is what made the two
+// outlines diverge on short terminals.
+func TestRenderClipsToAStarvedAllocation(t *testing.T) {
 	w := New()
 
 	auction := testAuction(500)
@@ -112,11 +112,12 @@ func TestStarvedAllocationDoesNotShrinkTheBox(t *testing.T) {
 
 	natural := w.GetMinSize().Height
 
-	w.Resize(orvyn.NewSize(41, natural-4))
+	for _, allocated := range []int{natural, natural - 2, natural - 4} {
+		w.Resize(orvyn.NewSize(41, allocated))
 
-	if got := lipgloss.Height(w.Render()); got != natural {
-		t.Errorf("rendered height under a starved allocation = %d, want %d",
-			got, natural)
+		if got := lipgloss.Height(w.Render()); got != allocated {
+			t.Errorf("allocated %d, rendered %d", allocated, got)
+		}
 	}
 }
 
