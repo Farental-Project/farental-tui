@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
@@ -99,10 +100,23 @@ func New() *Widget {
 }
 
 func (w *Widget) Render() string {
+	contentSize := w.GetContentSize()
+
+	content := w.layout.Render()
+
+	// Height pads but never truncates, and the inner layout renders its children
+	// at their natural size regardless of what it was allocated - so without this
+	// the box draws past its own border whenever the content does not fit.
+	if contentSize.Height > 0 {
+		content = lipgloss.NewStyle().
+			MaxHeight(contentSize.Height).
+			Render(content)
+	}
+
 	return w.GetStyle().
-		Width(w.GetContentSize().Width).
-		Height(w.GetContentSize().Height).
-		Render(w.layout.Render())
+		Width(contentSize.Width).
+		Height(contentSize.Height).
+		Render(content)
 }
 
 func (w *Widget) Resize(size orvyn.Size) {
