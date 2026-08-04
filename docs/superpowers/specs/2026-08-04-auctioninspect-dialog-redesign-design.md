@@ -219,26 +219,50 @@ element receives the entire surplus whatever its weight — so it only has to
 exceed the box's own row count, and the layout clamps it to the height the
 terminal actually has.
 
-Verified headless at 120 columns: at heights 40, 20 and 16 the dialog renders
-exactly the requested number of lines with both outlines aligned.
+### 7. Both boxes clip to the height they are allocated
+
+Stretching the row exposed a contract both boxes were quietly breaking:
+`lipgloss` `Height(n)` pads but never truncates, and `VBoxLayout.Render`
+(`orvyn/layout/vbox.go:70-73`) renders its children at their natural size
+without consulting what it was allocated. So a box handed less height than its
+content needed simply drew past its own border.
+
+`HBoxFixedRatio` gives both children the *same* height, so alignment requires
+both to honour it. Each now clips its inner content before the bordered style
+wraps it:
+
+```go
+	if contentSize.Height > 0 {
+		content = lipgloss.NewStyle().
+			MaxHeight(contentSize.Height).
+			Render(content)
+	}
+```
+
+`MaxHeight` truncates where `Height` pads. The `> 0` guard is required:
+`MaxHeight(0)` is a pass-through in lipgloss (`style.go:461`), not a
+clip-to-empty, and a zero height is a legitimate transient during layout. The
+clip goes on the inner content, never the outer bordered style — clipping the
+outer style would cut the bottom border and leave the box unclosed.
+
+This is why `iteminspect` had to change despite being shared: `screen/inventory`
+and `screen/shop` both size it through an `HBoxFixedRatio` at ratio 0.40 with a
+real positive height, so they now clip long descriptions where they previously
+overflowed their panels.
+
+Verified headless at 120 columns: at heights 50, 40, 29, 24, 20, 16 and 13 the
+dialog renders exactly the requested number of lines with both outlines aligned.
 
 ## Known limitations
 
-- Neither box scrolls. An item with a very long description or many stats still
-  clips on a short terminal, exactly as today. Side-by-side halves the height
-  the dialog needs, which reduces how often this bites, but does not remove it.
-  Same for `screen/inventory` and `screen/shop`, which share `iteminspect`.
-- `iteminspect` reports its height from the *unwrapped* text
-  (`iteminspect.go:208` via `SimpleRenderable.GetMinSize`) while `Render` wraps
-  to the width it is given, so a description long enough to wrap renders more
-  lines than the widget claimed. Stretching the row (section 6) gives it enough
-  height that this stops happening at ordinary terminal sizes, but it is not
-  structurally fixed: the contract is still wrap-unaware. Fixing it means either
-  clipping `iteminspect` to its allocation or making its height reporting
-  wrap-aware, both of which change `screen/inventory` and `screen/shop` too.
-- Below roughly 15 rows the dialog's own minimum no longer fits and it overflows
-  the terminal — measured at 2 lines over at 120×13. The title and help line are
-  fixed height, so only the box row can absorb the shortfall.
+- Neither box scrolls. An item with a long description or many stats has its
+  tail cut off rather than being reachable. Same for `screen/inventory` and
+  `screen/shop`, which share `iteminspect`.
+- Below about 13 rows the dialog's own minimum no longer fits and it overflows
+  the terminal — at 120×10 it renders 26 lines. The title and help line are
+  fixed height, so only the box row can absorb a shortfall, and past a point
+  there is nothing left to give. This is below the size at which the rest of the
+  app is usable.
 - The box header (`Auction`) is not truncated before `Width()` is applied, so at
   content widths of 1-6 columns it wraps and the box draws taller than
   `GetMinSize` reports. Reachable only below about 30 terminal columns. Reviewed
@@ -246,6 +270,12 @@ exactly the requested number of lines with both outlines aligned.
 - `"Quantity"` is now an orphaned translation key in all three catalogues: the
   deleted `detailLines()` was its only caller. Left in place rather than removed
   as part of this change.
+- `orvyn`'s `resizeFlexibleElements` gives a sole flexible element `max(left, 0)`
+  with no minimum floor, contradicting its own doc comment. Commit `1b7e017` in
+  the orvyn repository adds the floor, but it is a no-op in the case that
+  motivated it: when the minimums do not fit, `guaranteed` is rebound to return
+  0 (`flexheight.go:117`), so the floor collapses back to zero. The fix is kept
+  because it closes a real latent bug for multi-element flexible rows.
 
 ## Out of scope
 
