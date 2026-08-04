@@ -14,40 +14,31 @@ as two unrelated blocks. The auction facts are a single `SimpleRenderable` fed a
   `iteminspect` already draws a border (`orvyn.NewBaseWidget()` sets
   `BlurredWidgetStyleID`, `orvyn/widget.go:43`) — the auction text sits outside
   it and reads as an afterthought;
-- a long item description, a long stat list, or a small terminal clips the
-  inspector with no way to reveal the hidden lines.
+- the dialog is one tall column, wasting the 120-column width it is given.
 
 ## Target layout
 
 ```
-                    Iron Sword x3
+                              Iron Sword x3
 
-┌──────────────────────────────────────────────┐
-│ Iron Sword                                   │
-│ ──────────                                   │
-│ 10 per stack                               ↑ │
-│                                              │
-│ A sturdy blade forged in the northern forges.│
-│                                              │
-│ Stats                                        │
-│ ─────                                        │
-│ • Attack : 12                              ↓ │
-└──────────────────────────────────────────────┘
-┌──────────────────────────────────────────────┐
-│ Auction                                      │
-│ ───────                                      │
-│ Current bid                       120Ǥ (you) │
-│ Direct buy                             500Ǥ  │
-│ Current bidder                      John Doe │
-│ Seller                              Jane Doe │
-│ Ends in                               2h 30m │
-└──────────────────────────────────────────────┘
+┌──────────────────────────────┐ ┌───────────────────────────────────────────┐
+│ Auction                      │ │ Iron Sword                                │
+│ ───────                      │ │ ──────────                                │
+│ Current bid     120Ǥ (you)   │ │ 10 per stack                              │
+│ Direct buy           500Ǥ    │ │                                           │
+│ Current bidder   John Doe    │ │ A sturdy blade forged in the northern     │
+│ Seller           Jane Doe    │ │ forges.                                   │
+│ Ends in            2h 30m    │ │                                           │
+│                              │ │ Stats                                     │
+│                              │ │ ─────                                     │
+│                              │ │ • Attack : 12                             │
+└──────────────────────────────┘ └───────────────────────────────────────────┘
 
-              ↑↓ scroll · esc back · q quit
+                          esc back · q quit
 ```
 
-Two stacked full-width boxes. The item box flexes to fill the dialog and
-scrolls; the auction box is fixed to exactly the height of its rows.
+Two side-by-side boxes: auction left, item right. Both stretch to the same
+height, so the outlines align regardless of how much content each holds.
 
 ## Components
 
@@ -79,19 +70,20 @@ type Widget struct {
   `ftheme.DimUnderlinedTextStyleID`, the same section-title treatment
   `iteminspect` uses for `Stats` / `Equip conditions` / `Effects`.
 - `UpdateData(auction *api.AuctionResponse)` — rebuilds `rows`.
-- `Render() string` — has `GetContentSize().Width` available, which is what
-  makes the right-flush column possible at all. Each row splits the content
-  width into a label column and a value column, renders the label left-aligned
-  and the value right-aligned, and `ansi.Truncate`s both to their column budget
-  first. Truncation is required, not cosmetic: `lipgloss` `Width(n)` wraps
-  rather than truncates, and a wrapped row would push the box past the height it
-  reported (the same reasoning as `widget/auctionlistitem/auctionlistitem.go:99`).
+- `Render() string` — has `GetContentSize()` available, which is what makes the
+  right-flush column possible at all. Each row splits the content width into a
+  label column and a value column, renders the label left-aligned and the value
+  right-aligned, and `ansi.Truncate`s both to their column budget first.
+  Truncation is required, not cosmetic: `lipgloss` `Width(n)` wraps rather than
+  truncates, and a wrapped row would push the box past its allotted height (the
+  same reasoning as `widget/auctionlistitem/auctionlistitem.go:99`). The final
+  render applies `Width` **and** `Height` from the content size, as
+  `iteminspect.Render` does, so the box fills its half of the row and the two
+  outlines line up.
 - `GetMinSize()` and `GetPreferredSize()` both return
   `orvyn.NewSize(1, headerHeight + len(rows) + GetStyle().GetVerticalFrameSize())`.
-  Equal min and preferred makes `isFixedHeight` true
-  (`orvyn/layout/flexheight.go:37`), so the layout hands the box exactly its own
-  height and leaves the rest to the item box. Width stays at 1 so the widget
-  never drives the layout width, matching `iteminspect.GetMinSize`.
+  Width stays at 1 so the widget never drives the layout width, matching
+  `iteminspect.GetMinSize`.
 
 Rows, in order:
 
@@ -135,62 +127,41 @@ The item name still appears twice — once in the dialog title, once as
 `iteminspect`'s `srName` header inside the box. That is pre-existing and stays;
 the `xN` suffix at least makes the two lines carry different information.
 
-### 4. `widget/iteminspect`: opt-in scrolling
+### 4. Dialog wiring
 
-Scrolling is added behind a flag so `screen/inventory` and `screen/shop`, which
-share this widget, keep today's behaviour byte-for-byte. Their identical
-clipping problem is real but out of scope here.
+`screen/dialog/auctioninspect` keeps its `CenterLayout` +
+`DefinedWidthVerticalLayout`, but the two inspectors move into a horizontal row:
 
-New state: `viewport viewport.Model`, `scrollable bool`.
+```go
+elements := []layout.FixedRatioRenderable{
+	layout.NewFixedRatioRenderable(0.35, s.details),
+	layout.NewFixedRatioRenderable(0.65, s.inspector),
+}
 
-- `SetScrollable(bool)` — off by default.
-- `Resize` — when scrollable, sizes the viewport to the content size.
-- `Render` — when not scrollable, the current code path is untouched. When
-  scrollable, the layout render goes through `helper.SetScrollableContent` and
-  the result through `helper.OverlayScrollArrows` (`internal/helper/scroll.go`),
-  the same pair `simplelogviewer` uses, so the up/down arrow affordance is
-  identical to every other scrollable box in the app.
-- `Update` — when scrollable, `up` / `down` scroll the viewport by one line.
-  When not scrollable it keeps returning nil.
-- `UpdateData` — when scrollable, `GotoTop()` after refreshing, so a new item
-  never opens mid-scroll.
-- `GetMinSize` — when scrollable, the height is
-  `min(3 + frame, currentBehaviour)` instead of the full inner-layout height:
-  three content lines is enough to be readable and to show both scroll arrows,
-  and the `min` keeps a short item from reserving more than it needs. Min then
-  differs from preferred, which is what makes `isFixedHeight` false and lets the
-  box absorb the dialog's leftover height. When not scrollable it returns
-  exactly what it returns today.
-- `GetPreferredSize` — unchanged in both modes.
-
-### 5. Dialog wiring
-
-`screen/dialog/auctioninspect`:
-
+inspectLayout := layout.NewHBoxFixedRatioLayout(0, 1, 1, elements...)
 ```
-title       SimpleRenderable, TitleStyleID   fixed
-inspector   iteminspect, SetScrollable(true) flexible
-details     auctiondetails.Widget            fixed
-help
-```
+
+Vertical children become `title`, `orvyn.VGap`, `inspectLayout`, `orvyn.VGap`,
+`help` — the same shape `screen/dialog/fightinspector/fightinspector.go:75`
+uses.
+
+Ratio rationale: the layout is 120 wide (`ftheme.LayoutWidthSizeID`,
+`internal/theme/farentaldark.go:128`) less a 10-wide margin and a 1-column gap,
+so 0.35/0.65 gives the auction box 38 columns (36 inner — `Current bidder` plus
+a full name fits without truncation) and the item box 71. The compensator index
+is 1, so any rounding remainder goes to the item box.
 
 `detailLines()` is deleted; its content is now the widget's concern.
 
-- `OnEnter` — `bubblehelp.SwitchContext(keybind.ContextAuctionInspect)`, set the
-  title, `inspector.UpdateData`, `details.UpdateData`.
-- `Update` — `Esc` closes the dialog; every other message forwards to
-  `inspector` so up/down scroll.
+- `OnEnter` — unchanged except that it sets the `xN` title and calls
+  `details.UpdateData` instead of `details.SetValue`. The keybind context stays
+  `keybind.ContextBackAndQuit`.
+- `Update` — unchanged. `Esc` closes the dialog; nothing else is interactive.
 
-### 6. Keybind context
+`iteminspect` is not modified at all, so `screen/inventory` and `screen/shop`
+are untouched.
 
-New `ContextAuctionInspect` registered in `internal/keybind/context.go` with
-`Up`, `Down`, `Esc`, `Quit`.
-
-`screen/auctionhouse/buy/buy.go:189` already calls
-`bubblehelp.SwitchToPreviousContext()` on `dialogIDInspect` exit, so restoring
-the buy-screen context needs no change.
-
-### 7. Translations
+### 5. Translations
 
 One new string, `"Auction"`, added to the en / fr / de catalogues. Every other
 label (`Current bid`, `Direct buy`, `Current bidder`, `Seller`, `Ends in`,
@@ -204,19 +175,24 @@ A table test for `auctiondetails` row building, next to the existing
 
 - `DirectBuyPrice == 0` omits the Direct buy row; `> 0` includes it;
 - an empty `CurrentBidderName` renders `nobody`;
-- the row count that `GetMinSize` reports matches the rows actually rendered,
-  in both the with- and without-direct-buy cases — this is the invariant that
-  keeps the box from overflowing its allocated height.
+- the row count that `GetMinSize` reports matches the rows actually built, in
+  both the with- and without-direct-buy cases — this is the invariant that keeps
+  the box from overflowing its allocated height.
 
 Row construction is split from `Render` into a pure function so the test needs
 no terminal.
 
 Then `go build ./... && go vet ./... && go test ./... && gofmt -l .`.
 
+## Known limitations
+
+- Neither box scrolls. An item with a very long description or many stats still
+  clips on a short terminal, exactly as today. Side-by-side halves the height
+  the dialog needs, which reduces how often this bites, but does not remove it.
+  Same for `screen/inventory` and `screen/shop`, which share `iteminspect`.
+
 ## Out of scope
 
-- Scrolling for `iteminspect` in `screen/inventory` and `screen/shop`. The
-  widget will support it; wiring the keys and focus there is a separate change.
 - Colouring `Ends in` when an auction is about to close. It needs a threshold
   decision and a re-render tick.
 - Removing the duplicated item name between the dialog title and `srName`.
