@@ -150,9 +150,17 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 				return nil
 			}
 
-		case key.Matches(k, keybind.RKey):
+		case key.Matches(k, keybind.RKeyCtrl):
 			s.statusMessage.Reset()
 			s.auctionFilter.Reset()
+			s.applyFilter(true)
+
+			return nil
+
+		case key.Matches(k, keybind.RKey):
+			// Re-runs whatever filter is currently applied, rather than
+			// clearing it like ctrl+r does.
+			s.statusMessage.Reset()
 			s.applyFilter(true)
 
 			return nil
