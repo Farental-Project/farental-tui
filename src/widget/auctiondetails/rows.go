@@ -26,14 +26,8 @@ type row struct {
 // Quantity is deliberately absent: the dialog carries it in its title as
 // "<item name> x<quantity>".
 func buildRows(auction *api.AuctionResponse, now time.Time) []row {
-	bid := fmt.Sprintf("%d%c", auction.CurrentBid, art.CharGrynars)
-
-	if auctionlistitem.IsOwnBid(auction.CurrentBidderName) {
-		bid = fmt.Sprintf("%s (%s)", bid, lokyn.L("you"))
-	}
-
 	rows := []row{
-		{label: lokyn.L("Current bid"), value: bid, highlight: true},
+		{label: lokyn.L("Current bid"), value: fmt.Sprintf("%d%c", auction.CurrentBid, art.CharGrynars), highlight: true},
 	}
 
 	if auction.DirectBuyPrice > 0 {
@@ -46,8 +40,12 @@ func buildRows(auction *api.AuctionResponse, now time.Time) []row {
 
 	bidder := auction.CurrentBidderName
 
-	if bidder == "" {
+	switch {
+	case bidder == "":
 		bidder = lokyn.L("nobody")
+
+	case auctionlistitem.IsOwnBid(bidder):
+		bidder = lokyn.L("you")
 	}
 
 	return append(rows,

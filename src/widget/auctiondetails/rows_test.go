@@ -113,7 +113,7 @@ func TestBuildRowsEmptyBidderReadsNobody(t *testing.T) {
 	}
 }
 
-func TestBuildRowsMarksOwnBid(t *testing.T) {
+func TestBuildRowsMarksOwnBidderAsYou(t *testing.T) {
 	now := time.Date(2026, 8, 4, 12, 0, 0, 0, time.UTC)
 
 	original := context.CharacterInfo
@@ -133,8 +133,12 @@ func TestBuildRowsMarksOwnBid(t *testing.T) {
 
 	rows := buildRows(&auction, now)
 
-	if got := find(t, rows, "Current bid").value; got != "120Ǥ (you)" {
-		t.Errorf("Current bid value = %q, want %q", got, "120Ǥ (you)")
+	if got := find(t, rows, "Current bid").value; got != "120Ǥ" {
+		t.Errorf("Current bid value = %q, want %q", got, "120Ǥ")
+	}
+
+	if got := find(t, rows, "Current bidder").value; got != "you" {
+		t.Errorf("Current bidder value = %q, want %q", got, "you")
 	}
 }
 
