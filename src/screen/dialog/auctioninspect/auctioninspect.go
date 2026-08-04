@@ -1,21 +1,17 @@
 package auctioninspect
 
 import (
-	"farental/art"
 	"farental/core/data/api"
 	"farental/internal/keybind"
 	ftheme "farental/internal/theme"
-	"farental/widget/auctionlistitem"
+	"farental/widget/auctiondetails"
 	"farental/widget/help"
 	"farental/widget/iteminspect"
 	"fmt"
-	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/halsten-dev/bubblehelp"
-	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
 	"github.com/halsten-dev/orvyn/theme"
@@ -24,9 +20,8 @@ import (
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
+	details   *auctiondetails.Widget
 	inspector *iteminspect.Widget
-
-	details *orvyn.SimpleRenderable
 
 	help *help.Widget
 
@@ -44,21 +39,32 @@ func New(auction api.AuctionResponse) *Screen {
 
 	t := orvyn.GetTheme()
 
-	s.title = orvyn.NewSimpleRenderable(auction.Item.Name)
+	s.title = orvyn.NewSimpleRenderable("")
 	s.title.Style = t.Style(theme.TitleStyleID)
 
+	s.details = auctiondetails.New()
 	s.inspector = iteminspect.New()
 
-	s.details = orvyn.NewSimpleRenderable("")
-
 	s.help = help.New()
+
+	// The auction box holds a label and a right-flushed value; 0.40 of the 109
+	// columns left after the layout margin and the gap gives it 43, which fits
+	// the longest translated label. The compensator index is 1, so the rounding
+	// remainder widens the item box rather than the auction one.
+	elements := []layout.FixedRatioRenderable{
+		layout.NewFixedRatioRenderable(0.40, s.details),
+		layout.NewFixedRatioRenderable(0.60, s.inspector),
+	}
+
+	inspectLayout := layout.NewHBoxFixedRatioLayout(0, 1, 1, elements...)
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewDefinedWidthVerticalLayout(10, t.Size(ftheme.LayoutWidthSizeID),
 			orvyn.NewSize(10, 4),
 			s.title,
-			s.inspector,
-			s.details,
+			orvyn.VGap,
+			inspectLayout,
+			orvyn.VGap,
 			s.help),
 	)
 
@@ -68,9 +74,11 @@ func New(auction api.AuctionResponse) *Screen {
 func (s *Screen) OnEnter(any) tea.Cmd {
 	bubblehelp.SwitchContext(keybind.ContextBackAndQuit)
 
-	s.title.SetValue(s.auction.Item.Name)
+	s.title.SetValue(fmt.Sprintf("%s x%d",
+		s.auction.Item.Name, s.auction.Quantity))
+
 	s.inspector.UpdateData(&s.auction.Item)
-	s.details.SetValue(s.detailLines())
+	s.details.UpdateData(&s.auction)
 
 	return nil
 }
@@ -91,27 +99,4 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	}
 
 	return nil
-}
-
-func (s *Screen) detailLines() string {
-	var b strings.Builder
-
-	fmt.Fprintf(&b, "%s: %d\n", lokyn.L("Quantity"), s.auction.Quantity)
-	fmt.Fprintf(&b, "%s: %d%c\n", lokyn.L("Current bid"), s.auction.CurrentBid, art.CharGrynars)
-
-	if s.auction.DirectBuyPrice > 0 {
-		fmt.Fprintf(&b, "%s: %d%c\n", lokyn.L("Direct buy"), s.auction.DirectBuyPrice, art.CharGrynars)
-	}
-
-	bidder := s.auction.CurrentBidderName
-
-	if bidder == "" {
-		bidder = lokyn.L("nobody")
-	}
-
-	fmt.Fprintf(&b, "%s: %s\n", lokyn.L("Current bidder"), bidder)
-	fmt.Fprintf(&b, "%s: %s\n", lokyn.L("Seller"), s.auction.SellerName)
-	fmt.Fprintf(&b, "%s: %s", lokyn.L("Ends in"), auctionlistitem.EndsIn(s.auction.EndTimestamp, time.Now()))
-
-	return b.String()
 }
