@@ -17,6 +17,14 @@ import (
 	"github.com/halsten-dev/orvyn/theme"
 )
 
+// stretchedHeight is the preferred height the auction box declares so the
+// layout treats the box row as flexible rather than fixed. Any value above the
+// box's own row count has the same effect - the row is the only flexible
+// element, so it receives all of the leftover height and the layout clamps it
+// to what the terminal actually has. It is deliberately larger than any
+// plausible terminal so the row always reads as "wants more".
+const stretchedHeight = 200
+
 type Screen struct {
 	title *orvyn.SimpleRenderable
 
@@ -44,6 +52,10 @@ func New(auction api.AuctionResponse) *Screen {
 
 	s.details = auctiondetails.New()
 	s.inspector = iteminspect.New()
+
+	// The box needs only its rows, but the dialog wants both outlines to fill
+	// the height it was given instead of sitting content-sized in the middle.
+	s.details.SetPreferredSize(orvyn.NewSize(1, stretchedHeight))
 
 	s.help = help.New()
 

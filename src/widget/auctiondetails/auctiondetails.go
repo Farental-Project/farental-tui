@@ -100,7 +100,16 @@ func (w *Widget) GetMinSize() orvyn.Size {
 	return orvyn.NewSize(1, w.height())
 }
 
+// GetPreferredSize reports the same height as GetMinSize, so the layout treats
+// the box as a fixed-height element and hands it exactly its rows - unless a
+// caller sets a preferred size explicitly, which is how the auction inspect
+// dialog asks the box to stretch and fill the height beside the item inspector.
+// Mirrors the override orvyn's SimpleRenderable uses for the same purpose.
 func (w *Widget) GetPreferredSize() orvyn.Size {
+	if size := w.BaseRenderable.GetPreferredSize(); size != orvyn.NewSize(1, 1) {
+		return size
+	}
+
 	return orvyn.NewSize(1, w.height())
 }
 

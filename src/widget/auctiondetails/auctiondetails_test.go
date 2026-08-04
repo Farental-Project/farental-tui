@@ -73,6 +73,32 @@ func TestLongValueDoesNotWrap(t *testing.T) {
 	}
 }
 
+// The dialog asks the box to stretch by setting a preferred size. Without that,
+// the box must keep reporting its own row height, which is what makes the
+// layout treat it as fixed.
+func TestPreferredSizeHonoursAnExplicitStretch(t *testing.T) {
+	w := New()
+
+	auction := testAuction(500)
+	w.UpdateData(&auction)
+
+	if got, want := w.GetPreferredSize().Height, w.GetMinSize().Height; got != want {
+		t.Errorf("unstretched preferred height = %d, want %d (the min height)",
+			got, want)
+	}
+
+	w.SetPreferredSize(orvyn.NewSize(1, 200))
+
+	if got := w.GetPreferredSize().Height; got != 200 {
+		t.Errorf("stretched preferred height = %d, want 200", got)
+	}
+
+	if got, want := w.GetMinSize().Height, 9; got != want {
+		t.Errorf("min height = %d, want %d; the stretch must not move the "+
+			"minimum, which is what the box actually needs", got, want)
+	}
+}
+
 func TestRenderShowsLabelsAndValues(t *testing.T) {
 	w := New()
 
