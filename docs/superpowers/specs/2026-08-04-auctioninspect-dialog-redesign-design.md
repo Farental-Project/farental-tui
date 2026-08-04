@@ -216,8 +216,12 @@ their outlines stay aligned.
 
 `stretchedHeight` is 200. Its magnitude does not matter — a sole flexible
 element receives the entire surplus whatever its weight — so it only has to
-exceed the box's own row count, and the layout clamps it to the height the
-terminal actually has.
+exceed `max(auctiondetails.GetMinSize().Height, iteminspect.GetMinSize().Height)`,
+the quantity `isFixedHeight` actually compares against (`HBoxFixedRatio` takes
+the max of its children's heights, so that max is the box row's own min
+height), and the layout clamps it to the height the terminal actually has. In
+practice the margin is enormous either way: `iteminspect`'s minimum measures
+the unwrapped description as a single line, so it stays far below 200.
 
 ### 7. Both boxes clip to the height they are allocated
 
@@ -239,11 +243,13 @@ wraps it:
 	}
 ```
 
-`MaxHeight` truncates where `Height` pads. The `> 0` guard is required:
-`MaxHeight(0)` is a pass-through in lipgloss (`style.go:461`), not a
-clip-to-empty, and a zero height is a legitimate transient during layout. The
-clip goes on the inner content, never the outer bordered style — clipping the
-outer style would cut the bottom border and leave the box unclosed.
+`MaxHeight` truncates where `Height` pads. The `> 0` guard is defensive, not
+required: `MaxHeight(0)` is already a pass-through in lipgloss
+(`style.go:461`), not a clip-to-empty, so skipping the call at zero height
+just makes that pass-through explicit at the call site instead of relying on
+a library detail, and a zero height is a legitimate transient during layout.
+The clip goes on the inner content, never the outer bordered style — clipping
+the outer style would cut the bottom border and leave the box unclosed.
 
 This is why `iteminspect` had to change despite being shared: `screen/inventory`
 and `screen/shop` both size it through an `HBoxFixedRatio` at ratio 0.40 with a
@@ -259,8 +265,12 @@ dialog renders exactly the requested number of lines with both outlines aligned.
   tail cut off rather than being reachable. Same for `screen/inventory` and
   `screen/shop`, which share `iteminspect`.
 - Below about 13 rows the dialog's own minimum no longer fits and it overflows
-  the terminal — at 120×10 it renders 26 lines. The title and help line are
-  fixed height, so only the box row can absorb a shortfall, and past a point
+  the terminal. This is also where the two box outlines diverge again: once the
+  row allocation collapses to the frame size, `contentSize.Height` clamps to 0,
+  the `> 0` guard skips the clip, and both boxes fall back to their natural
+  heights. Measured onset is h=12, and at 120×12 the dialog renders roughly 26
+  lines — content-dependent, a busier item measured 29. The title and help line
+  are fixed height, so only the box row can absorb a shortfall, and past a point
   there is nothing left to give. This is below the size at which the rest of the
   app is usable.
 - The box header (`Auction`) is not truncated before `Width()` is applied, so at

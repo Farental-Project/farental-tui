@@ -158,10 +158,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return nil
 
 		case key.Matches(k, keybind.RKey):
-			// Re-runs whatever filter is currently applied, rather than
-			// clearing it like ctrl+r does.
+			// Reloads using the applied filter (s.filter), not applyFilter: a
+			// player who edited the selectors without pressing Enter should
+			// not have that edit silently committed by a refresh.
 			s.statusMessage.Reset()
-			s.applyFilter(true)
+			s.reload(s.filter, true)
 
 			return nil
 
