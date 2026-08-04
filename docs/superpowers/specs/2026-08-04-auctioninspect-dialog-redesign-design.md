@@ -134,8 +134,8 @@ the `xN` suffix at least makes the two lines carry different information.
 
 ```go
 elements := []layout.FixedRatioRenderable{
-	layout.NewFixedRatioRenderable(0.35, s.details),
-	layout.NewFixedRatioRenderable(0.65, s.inspector),
+	layout.NewFixedRatioRenderable(0.40, s.details),
+	layout.NewFixedRatioRenderable(0.60, s.inspector),
 }
 
 inspectLayout := layout.NewHBoxFixedRatioLayout(0, 1, 1, elements...)
@@ -147,9 +147,15 @@ uses.
 
 Ratio rationale: the layout is 120 wide (`ftheme.LayoutWidthSizeID`,
 `internal/theme/farentaldark.go:128`) less a 10-wide margin and a 1-column gap,
-so 0.35/0.65 gives the auction box 38 columns (36 inner — `Current bidder` plus
-a full name fits without truncation) and the item box 71. The compensator index
-is 1, so any rounding remainder goes to the item box.
+leaving 109 to split. 0.40/0.60 gives the auction box 43 columns (41 inner) and
+the item box 65 plus the 1-column rounding remainder, so 66 (64 inner). The
+compensator index is 1, so the remainder goes to the item box.
+
+41 inner columns is sized off the longest translated label rather than the
+English one: `Current bidder` is 14 characters, but the French
+`Enchérisseur actuel` is 19 and the German `Aktueller Bieter` is 16. At a 0.55
+label / 0.45 value split that leaves 22 columns for the label and 19 for the
+value, which fits every label and a full character name untruncated.
 
 `detailLines()` is deleted; its content is now the widget's concern.
 
