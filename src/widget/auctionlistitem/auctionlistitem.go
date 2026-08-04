@@ -3,7 +3,6 @@ package auctionlistitem
 import (
 	"farental/art"
 	"farental/core/data/api"
-	"farental/internal/context"
 	"fmt"
 	"strings"
 	"time"
@@ -46,17 +45,7 @@ func (w *Widget) Resize(size orvyn.Size) {
 
 func (w *Widget) UpdateData(data api.AuctionResponse) {
 	w.data = data
-	w.ownBid = false
-
-	info := context.CharacterInfo
-
-	if info == nil || data.CurrentBidderName == "" {
-		return
-	}
-
-	// The server sends readable names, not IDs, so this is the only way to tell
-	// the player they already hold the bid.
-	w.ownBid = data.CurrentBidderName == fmt.Sprintf("%s %s", info.FirstName, info.LastName)
+	w.ownBid = IsOwnBid(data.CurrentBidderName)
 }
 
 func (w *Widget) GetData() api.AuctionResponse {
