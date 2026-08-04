@@ -194,12 +194,58 @@ no terminal.
 
 Then `go build ./... && go vet ./... && go test ./... && gofmt -l .`.
 
+### 6. Both boxes stretch to fill the dialog height
+
+Left to themselves the two boxes are only as tall as their content and sit
+centred, wasting vertical space. `resizeFlexibleElements`
+(`orvyn/layout/flexheight.go:37`) treats an element as fixed height when its
+preferred height equals its minimum, and both boxes report exactly that:
+`auctiondetails` by construction, `iteminspect` because `SimpleRenderable`
+returns the same measurement for min and preferred (`orvyn/simple.go:62-80`).
+`HBoxFixedRatio` takes the max over its children, so the whole row reads as
+fixed and the vertical layout hands it only its content height.
+
+So `auctiondetails.GetPreferredSize` honours an explicitly-set preferred size,
+falling back to the row-count height when none was set — the same override
+idiom `SimpleRenderable` uses. The dialog then calls
+`SetPreferredSize(orvyn.NewSize(1, stretchedHeight))` on it, which makes the box
+row the only flexible child of the vertical layout, so it receives all the
+leftover height. `HBoxFixedRatio.Render` already resizes both children to the
+full row height (`orvyn/hfixedratio.go:72`), so the two boxes grow together and
+their outlines stay aligned.
+
+`stretchedHeight` is 200. Its magnitude does not matter — a sole flexible
+element receives the entire surplus whatever its weight — so it only has to
+exceed the box's own row count, and the layout clamps it to the height the
+terminal actually has.
+
+Verified headless at 120 columns: at heights 40, 20 and 16 the dialog renders
+exactly the requested number of lines with both outlines aligned.
+
 ## Known limitations
 
 - Neither box scrolls. An item with a very long description or many stats still
   clips on a short terminal, exactly as today. Side-by-side halves the height
   the dialog needs, which reduces how often this bites, but does not remove it.
   Same for `screen/inventory` and `screen/shop`, which share `iteminspect`.
+- `iteminspect` reports its height from the *unwrapped* text
+  (`iteminspect.go:208` via `SimpleRenderable.GetMinSize`) while `Render` wraps
+  to the width it is given, so a description long enough to wrap renders more
+  lines than the widget claimed. Stretching the row (section 6) gives it enough
+  height that this stops happening at ordinary terminal sizes, but it is not
+  structurally fixed: the contract is still wrap-unaware. Fixing it means either
+  clipping `iteminspect` to its allocation or making its height reporting
+  wrap-aware, both of which change `screen/inventory` and `screen/shop` too.
+- Below roughly 15 rows the dialog's own minimum no longer fits and it overflows
+  the terminal — measured at 2 lines over at 120×13. The title and help line are
+  fixed height, so only the box row can absorb the shortfall.
+- The box header (`Auction`) is not truncated before `Width()` is applied, so at
+  content widths of 1-6 columns it wraps and the box draws taller than
+  `GetMinSize` reports. Reachable only below about 30 terminal columns. Reviewed
+  and accepted deliberately.
+- `"Quantity"` is now an orphaned translation key in all three catalogues: the
+  deleted `detailLines()` was its only caller. Left in place rather than removed
+  as part of this change.
 
 ## Out of scope
 
