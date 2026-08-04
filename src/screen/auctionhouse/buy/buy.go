@@ -94,7 +94,6 @@ func New() *Screen {
 			3,
 			s.title,
 			s.characterInfo,
-			orvyn.VGap,
 			layout.NewHBoxFixedRatioLayout(0, 1, 1, panels...),
 			s.statusMessage,
 			s.help),
@@ -137,6 +136,8 @@ func (s *Screen) Render() orvyn.Layout {
 
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 	if k, ok := orvyn.GetKeyMsg(msg); ok {
+		s.statusMessage.Reset()
+
 		switch {
 		case key.Matches(k, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
