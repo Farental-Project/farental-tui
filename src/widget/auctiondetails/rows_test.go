@@ -3,16 +3,20 @@ package auctiondetails
 import (
 	"farental/core/data/api"
 	"farental/internal/context"
+	ftheme "farental/internal/theme"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/halsten-dev/lokyn"
+	"github.com/halsten-dev/orvyn"
 )
 
 func TestMain(m *testing.M) {
 	lokyn.Init()
 	lokyn.SetLanguage("en")
+
+	orvyn.SetTheme(ftheme.NewFarentalDarkTheme())
 
 	os.Exit(m.Run())
 }
