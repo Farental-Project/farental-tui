@@ -1676,6 +1676,6 @@ git commit -m "feat: cancel a listing from the manage screen"
 ## Notes for the reviewer
 
 - Tasks 1–4 land in `farental-cli` on branch `auction-outbid-tracking`; Tasks 5–9 land in `farental-tui` on branch `auction-manage-screen`. Two branches, two pull requests.
-- Task 5 cannot be exercised end to end until Tasks 1–4 are merged and deployed to whatever backend the client points at. Its own test only asserts the query string.
+- Task 5 cannot be exercised end to end until Tasks 1–4 are merged and deployed to whatever backend the client points at. Its own test only asserts the query string. Deployment order matters: a server that predates this branch ignores the unknown `outbid` query parameter and answers with the entire unfiltered auction house, silently — no error, just "My outbid auctions" showing every auction in the game. Apply `s1.5.0__auctions.sql` and deploy the server before bumping the client version that ships the filter; server-first is harmless, client-first is silently wrong.
 - Tasks 7–9 depend on neither the server work nor Tasks 5–6: they consume `/auction/own` and `/auction/bids`, which already exist.
 - The bids pane is deliberately look-only. See the **Deferred** section of the spec before "improving" it.
