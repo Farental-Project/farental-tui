@@ -291,7 +291,7 @@ func (s *Screen) updateCharacterInfo() bool {
 // gone and the items come back by mail — so the prompt names what it will pull.
 //
 // The server refuses to cancel a listing that already has a bidder (a business
-// 401), so that case is caught here rather than let reach the confirmation:
+// 401), so that case is caught here rather than let it reach the confirmation:
 // on a live house most of a seller's listings have bids, and offering the
 // confirm only to refuse it afterwards would make the screen's one destructive
 // action misfire on the common case.
