@@ -259,7 +259,7 @@ func setOptions(selector *multivalueselector.Widget[Option], options []Option) {
 
 // Reset returns every control to "no filter". It does not move the cursor:
 // pressing r from the auction list calls this too, and jumping focus into the
-// panel from there would style the Kind selector as focused while the list
+// panel from there would style the Scope selector as focused while the list
 // still has real focus. Callers that need the cursor moved do it themselves
 // (see Init).
 func (w *Widget) Reset() {
