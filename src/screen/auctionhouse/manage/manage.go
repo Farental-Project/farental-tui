@@ -6,6 +6,7 @@ import (
 	"farental/internal/context"
 	"farental/internal/helper"
 	"farental/internal/keybind"
+	"farental/screen/dialog/auctioninspect"
 	"farental/widget/auctionlistitem"
 	"farental/widget/characterinfo"
 	"farental/widget/help"
@@ -26,6 +27,8 @@ import (
 // ownIndex is the own-listings list's position in the screen's focus manager.
 // Cancelling is offered only while it holds focus.
 const ownIndex = 0
+
+const dialogIDInspect orvyn.ScreenID = "auctionManageInspect"
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
@@ -111,6 +114,9 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 	s.updateCharacterInfo()
 	s.loadLists()
 
+	// SwitchContext above reset every binding back to visible.
+	s.updateFocusKeybinds()
+
 	return nil
 }
 
@@ -124,17 +130,59 @@ func (s *Screen) Render() orvyn.Layout {
 	return s.layout
 }
 
+// Update wraps the real handler so updateFocusKeybinds runs on every path. The
+// dialog exits in particular restore the previous context, which resets every
+// binding back to visible, and would otherwise leave the help line offering
+// keys the focused pane does not serve.
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	cmd := s.update(msg)
+
+	s.updateFocusKeybinds()
+
+	return cmd
+}
+
+func (s *Screen) update(msg tea.Msg) tea.Cmd {
 	if k, ok := orvyn.GetKeyMsg(msg); ok {
 		s.statusMessage.Reset()
 
 		switch {
 		case key.Matches(k, keybind.Esc):
 			return orvyn.SwitchToPreviousScreen()
+
+		case key.Matches(k, keybind.IKey):
+			list := s.focusedList()
+
+			if list.Length() > 0 {
+				return orvyn.OpenDialog(dialogIDInspect,
+					auctioninspect.New(list.GetSelectedItem()), nil)
+			}
+
+		case key.Matches(k, keybind.RKey):
+			s.loadLists()
+
+			return nil
+		}
+	}
+
+	switch msg := msg.(type) {
+	case orvyn.DialogExitMsg:
+		if msg.DialogID == dialogIDInspect {
+			// auctioninspect switches context on entry and never switches back.
+			bubblehelp.SwitchToPreviousContext()
+
+			return nil
 		}
 	}
 
 	return s.focusManager.Update(msg)
+}
+
+// updateFocusKeybinds hides cancelling unless the own-listings pane holds
+// focus: the bids pane lists other players' auctions, which this screen has no
+// power over.
+func (s *Screen) updateFocusKeybinds() {
+	bubblehelp.SetKeybindVisible(keybind.CKey, s.ownFocused())
 }
 
 // loadLists fetches both panes. They are independent, so one failing leaves the
@@ -185,6 +233,20 @@ func (s *Screen) updateLabels() {
 
 	s.lblBids.SetValue(fmt.Sprintf("%s (%d)",
 		lokyn.L("Your winning bids"), s.bidsList.Length()))
+}
+
+func (s *Screen) ownFocused() bool {
+	return s.focusManager.TabIndex() == ownIndex
+}
+
+// focusedList is the pane the keys act on. Both panes hold the same row type,
+// so everything read-only can serve either without knowing which is which.
+func (s *Screen) focusedList() *widgetlist.Widget[api.AuctionResponse] {
+	if s.ownFocused() {
+		return s.ownList
+	}
+
+	return s.bidsList
 }
 
 func (s *Screen) updateCharacterInfo() bool {
