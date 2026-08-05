@@ -167,7 +167,10 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			return nil
 
 		case key.Matches(k, keybind.IKey):
-			if s.listFocused() && s.auctionList.Length() > 0 {
+			// Inspecting is read-only, so it stays available while the filter
+			// panel holds focus. Nothing there can swallow the key: the only
+			// text input is numeric-validated.
+			if s.auctionList.Length() > 0 {
 				return orvyn.OpenDialog(dialogIDInspect,
 					auctioninspect.New(s.auctionList.GetSelectedItem()), nil)
 			}
