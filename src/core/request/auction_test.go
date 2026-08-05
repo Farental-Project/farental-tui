@@ -21,7 +21,7 @@ func TestAuctionGetAllOmitsUnsetFilters(t *testing.T) {
 	}
 
 	for _, name := range []string{"itemID", "kind", "slot", "weaponType",
-		"stat", "skill", "minStat"} {
+		"stat", "skill", "minStat", "outbid"} {
 		if _, ok := params[name]; ok {
 			t.Errorf("%s sent for an empty filter, want it omitted", name)
 		}
@@ -79,5 +79,24 @@ func TestAuctionGetAllMinStatNeedsAStat(t *testing.T) {
 
 	if got := withSkill.Get("minStat"); got != "0" {
 		t.Errorf("minStat = %q, want %q", got, "0")
+	}
+}
+
+// Being outbid is a property of the auction, so it rides the browse endpoint
+// as a filter rather than needing an endpoint of its own — but like every
+// other filter it must be absent, not empty, when it is not asked for.
+func TestAuctionGetAllSendsOutbidOnlyWhenSet(t *testing.T) {
+	Init(resty.New())
+
+	params := AuctionGetAll(1, api.AuctionFilter{OutbidOnly: true}).QueryParam
+
+	if got := params.Get("outbid"); got != "true" {
+		t.Errorf("outbid = %q, want %q", got, "true")
+	}
+
+	params = AuctionGetAll(1, api.AuctionFilter{}).QueryParam
+
+	if _, ok := params["outbid"]; ok {
+		t.Error("outbid sent for a filter that did not ask for it, want it omitted")
 	}
 }
