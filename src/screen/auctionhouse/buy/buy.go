@@ -110,6 +110,9 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 	s.focusManager.SetWidgets([]orvyn.Focusable{s.auctionFilter, s.auctionList})
 	s.focusManager.FocusFirst()
 
+	// SwitchContext above reset every binding back to visible.
+	s.updateFocusKeybinds()
+
 	s.statusMessage.Reset()
 
 	s.auctionFilter.Init()
@@ -134,7 +137,19 @@ func (s *Screen) Render() orvyn.Layout {
 	return s.layout
 }
 
+// Update wraps the real handler so updateFocusKeybinds runs on every path.
+// Several branches return early - the dialog exits in particular, which restore
+// the previous context and so reset every binding back to visible - and each of
+// them can leave the help line advertising keys the focused pane does not serve.
 func (s *Screen) Update(msg tea.Msg) tea.Cmd {
+	cmd := s.update(msg)
+
+	s.updateFocusKeybinds()
+
+	return cmd
+}
+
+func (s *Screen) update(msg tea.Msg) tea.Cmd {
 	if k, ok := orvyn.GetKeyMsg(msg); ok {
 		s.statusMessage.Reset()
 
@@ -231,6 +246,33 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 func (s *Screen) listFocused() bool {
 	return s.focusManager.TabIndex() == listIndex
+}
+
+// updateFocusKeybinds re-advertises the keys whose availability or meaning
+// depends on which pane holds focus, so the help line only ever offers what the
+// focused pane will actually do.
+//
+// bubblehelp clears visibility and custom descriptions whenever a context is
+// switched (Keymap.Reset), so this cannot be done once at setup - it has to run
+// after anything that may have changed focus or context.
+//
+// Space is deliberately absent: auctionfilter owns it, tying it to its own
+// stat/skill button's focus.
+func (s *Screen) updateFocusKeybinds() {
+	listFocused := s.listFocused()
+
+	// Both act on the selected auction and do nothing from the filter panel.
+	bubblehelp.SetKeybindVisible(keybind.MKey, listFocused)
+	bubblehelp.SetKeybindVisible(keybind.BKey, listFocused)
+
+	// Enter serves both panes, but not with the same meaning.
+	desc := lokyn.L("apply filter")
+
+	if listFocused {
+		desc = lokyn.L("place bid")
+	}
+
+	bubblehelp.UpdateKeybindHelpDesc(keybind.Enter, desc)
 }
 
 // loadFilterOptions fetches the vocabulary on every entry: the labels are
