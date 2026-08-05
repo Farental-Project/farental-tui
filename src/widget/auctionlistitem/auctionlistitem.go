@@ -15,6 +15,10 @@ import (
 	"github.com/halsten-dev/orvyn/widget/widgetlist"
 )
 
+// moneySeparator divides the prices from the listing metadata in a row's right
+// block.
+const moneySeparator = "│"
+
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
@@ -62,25 +66,35 @@ func (w *Widget) Render() string {
 	t := orvyn.GetTheme()
 	ns := lipgloss.NewStyle()
 
+	dim := t.Style(theme.DimTextStyleID)
+	price := t.Style(theme.HighlightTextStyleID)
+
 	left := fmt.Sprintf("%s x%d", w.data.Item.Name, w.data.Quantity)
 
-	bid := fmt.Sprintf("%s %d%c", lokyn.L("bid"), w.data.CurrentBid, art.CharGrynars)
+	// Only the amounts take the highlight; their labels stay dim, matching how
+	// the auction inspect box styles the same two figures.
+	bid := dim.Render(lokyn.L("bid")+" ") +
+		price.Render(fmt.Sprintf("%d%c", w.data.CurrentBid, art.CharGrynars))
 
 	if w.ownBid {
-		bid = fmt.Sprintf("%s (%s)", bid, lokyn.L("you"))
+		bid += dim.Render(fmt.Sprintf(" (%s)", lokyn.L("you")))
 	}
 
-	buy := fmt.Sprintf("%s —", lokyn.L("buy"))
+	buy := dim.Render(lokyn.L("buy") + " —")
 
 	if w.data.DirectBuyPrice > 0 {
-		buy = fmt.Sprintf("%s %d%c", lokyn.L("buy"), w.data.DirectBuyPrice, art.CharGrynars)
+		buy = dim.Render(lokyn.L("buy")+" ") +
+			price.Render(fmt.Sprintf("%d%c", w.data.DirectBuyPrice, art.CharGrynars))
 	}
 
+	// The two prices carry the only highlight in the row, so they need a break
+	// from the listing metadata or the whole right block reads as one run.
 	right := strings.Join([]string{
 		bid,
 		buy,
-		EndsIn(w.data.EndTimestamp, time.Now()),
-		w.data.SellerName,
+		dim.Render(moneySeparator),
+		dim.Render(EndsIn(w.data.EndTimestamp, time.Now())),
+		dim.Render(w.data.SellerName),
 	}, "  ")
 
 	width1, width2 := orvyn.DivideSizeFull(contentSize.Width)
@@ -88,7 +102,9 @@ func (w *Widget) Render() string {
 	// Width(n) wraps rather than truncates (MaxWidth would then cut the
 	// already-wrapped lines, not the text), so a long name or a full right
 	// block would push the row past its declared height of 3. Cut both blocks
-	// to their column budget before styling so neither can wrap.
+	// to their column budget so neither can wrap. ansi.Truncate measures
+	// printable width, so the styling already applied to the right block
+	// survives the cut.
 	left = ansi.Truncate(left, width1, "")
 	right = ansi.Truncate(right, width2, "")
 
@@ -100,5 +116,5 @@ func (w *Widget) Render() string {
 				Render(left),
 			ns.Width(width2).
 				AlignHorizontal(lipgloss.Right).
-				Render(t.Style(theme.DimTextStyleID).Render(right))))
+				Render(right)))
 }
