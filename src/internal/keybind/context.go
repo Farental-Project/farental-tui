@@ -49,6 +49,7 @@ const (
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
 	ContextNavEnterEsc                         bubblehelp.KeymapContext = "navEnterEsc"
+	ContextAuctionBuy                          bubblehelp.KeymapContext = "auctionBuy"
 )
 
 func InitContexts() {
@@ -672,4 +673,29 @@ func InitContexts() {
 	clientUpdateKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextClientUpdate, clientUpdateKeymap)
+
+	auctionBuyKeymap := bubblehelp.NewKeymap(3)
+	auctionBuyKeymap.Style = mainHelpStyle
+	auctionBuyKeymap.NewKeyBinding(Up, false)
+	auctionBuyKeymap.NewKeyBinding(Down, false)
+	auctionBuyKeymap.NewKeyBinding(Tab, true)
+	auctionBuyKeymap.SetHelpDesc(Tab, lokyn.L("filters / list"))
+	auctionBuyKeymap.NewKeyBinding(Enter, true)
+	auctionBuyKeymap.SetHelpDesc(Enter, lokyn.L("apply filter / bid"))
+	auctionBuyKeymap.NewKeyBinding(Space, false)
+	auctionBuyKeymap.NewKeyBinding(BKey, true)
+	auctionBuyKeymap.SetHelpDesc(BKey, lokyn.L("buy now"))
+	auctionBuyKeymap.NewKeyBinding(IKey, true)
+	auctionBuyKeymap.SetHelpDesc(IKey, lokyn.L("information"))
+	auctionBuyKeymap.NewKeyBinding(MKey, true)
+	auctionBuyKeymap.SetHelpDesc(MKey, lokyn.L("load more"))
+	auctionBuyKeymap.NewKeyBinding(RKey, true)
+	auctionBuyKeymap.SetHelpDesc(RKey, lokyn.L("refresh"))
+	auctionBuyKeymap.NewKeyBinding(RKeyCtrl, true)
+	auctionBuyKeymap.SetHelpDesc(RKeyCtrl, lokyn.L("reset filters"))
+	auctionBuyKeymap.NewKeyBinding(Esc, true)
+	auctionBuyKeymap.NewKeyBinding(Quit, true)
+	auctionBuyKeymap.NewKeyBinding(Help, true)
+
+	bubblehelp.RegisterContext(ContextAuctionBuy, auctionBuyKeymap)
 }
