@@ -205,13 +205,16 @@ func (s *Screen) updateFocusKeybinds() {
 // loadLists fetches both panes. They are independent, so one failing leaves the
 // other populated rather than blanking the screen.
 //
-// Nothing here reports success: the counts live in the headings, so there is no
-// status line to weigh against an error an earlier step may have set.
-func (s *Screen) loadLists() {
-	s.loadOwn()
-	s.loadBids()
+// Reports whether both succeeded, so a caller about to announce success can
+// tell it did not: a failed pane has already put an error on the status line,
+// and a success message written afterwards would replace it silently.
+func (s *Screen) loadLists() bool {
+	ownOK := s.loadOwn()
+	bidsOK := s.loadBids()
 
 	s.updateLabels()
+
+	return ownOK && bidsOK
 }
 
 func (s *Screen) loadOwn() bool {
@@ -308,10 +311,9 @@ func (s *Screen) cancelAuction() {
 	// the server is the authority on what is still live, and a bid placed on
 	// one of the player's other listings meanwhile would otherwise go unseen.
 	infoOK := s.updateCharacterInfo()
+	listsOK := s.loadLists()
 
-	s.loadLists()
-
-	if !infoOK {
+	if !infoOK || !listsOK {
 		return
 	}
 
