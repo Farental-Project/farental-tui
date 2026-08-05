@@ -31,7 +31,7 @@ Client, `farental-tui`:
 - `screen/auctionhouse/manage` — the screen (directory exists, empty).
 - `screen/auctionhouse/menu` — wire the Manage button, which returns nil today.
 - `internal/keybind` — help context for the screen.
-- `app.go` — register the screen.
+- `main.go` — register the screen.
 
 Out of scope: bid history with amounts, a notification of being outbid (mail
 already does that), acting on a winning bid from the manage screen.
@@ -166,7 +166,7 @@ auction, not on the item, so it does not belong in `itemScope`:
 
 ```go
 if f.OutbidFor != 0 {
-	bids := db.Model(&data.AuctionBid{}).
+	bids := r.DB.Model(&data.AuctionBid{}).
 		Select("auction_id").
 		Where("character_id = ?", f.OutbidFor)
 
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `auction_bids` (
   `auction_id`   bigint(20) unsigned NOT NULL,
   `character_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`auction_id`,`character_id`),
-  KEY `idx_auction_bids_character` (`character_id`),
+  KEY `idx_auction_bids_character_id` (`character_id`),
   CONSTRAINT `fk_auction_bids_auction` FOREIGN KEY (`auction_id`)
     REFERENCES `auctions` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_auction_bids_character` FOREIGN KEY (`character_id`)
@@ -349,7 +349,7 @@ immediate, and the confirmation names what is being cancelled.
 
 - `btManageOnClicked` returns `orvyn.SwitchScreen(screen.IDAuctionHouseManage)`.
 - `menu.Update` gains the missing `MKey` case beside `SKey` and `BKey`.
-- The screen is registered in `app.go` beside the other auction house screens.
+- The screen is registered in `main.go` beside the other auction house screens.
 - `keybind.ContextAuctionManage` is registered in `internal/keybind/context.go`.
 
 ## Errors
