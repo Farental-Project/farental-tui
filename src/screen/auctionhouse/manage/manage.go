@@ -7,6 +7,7 @@ import (
 	"farental/internal/helper"
 	"farental/internal/keybind"
 	"farental/screen/dialog/auctioninspect"
+	"farental/screen/dialog/popup"
 	"farental/widget/auctionlistitem"
 	"farental/widget/characterinfo"
 	"farental/widget/help"
@@ -29,6 +30,7 @@ import (
 const ownIndex = 0
 
 const dialogIDInspect orvyn.ScreenID = "auctionManageInspect"
+const dialogIDCancelConfirm orvyn.ScreenID = "auctionManageCancelConfirm"
 
 type Screen struct {
 	title *orvyn.SimpleRenderable
@@ -162,14 +164,29 @@ func (s *Screen) update(msg tea.Msg) tea.Cmd {
 			s.loadLists()
 
 			return nil
+
+		case key.Matches(k, keybind.CKey):
+			if s.ownFocused() && s.ownList.Length() > 0 {
+				return s.openCancelConfirm()
+			}
 		}
 	}
 
 	switch msg := msg.(type) {
 	case orvyn.DialogExitMsg:
-		if msg.DialogID == dialogIDInspect {
+		switch msg.DialogID {
+		case dialogIDInspect:
 			// auctioninspect switches context on entry and never switches back.
 			bubblehelp.SwitchToPreviousContext()
+
+			return nil
+
+		case dialogIDCancelConfirm:
+			answer, ok := msg.Param.(uint)
+
+			if ok && answer == 1 {
+				s.cancelAuction()
+			}
 
 			return nil
 		}
@@ -264,4 +281,40 @@ func (s *Screen) updateCharacterInfo() bool {
 	s.characterInfo.UpdateData(data)
 
 	return true
+}
+
+// openCancelConfirm asks before pulling a listing. Cancelling is the one
+// destructive action on this screen and it cannot be undone — the auction is
+// gone and the items come back by mail — so the prompt names what it will pull.
+func (s *Screen) openCancelConfirm() tea.Cmd {
+	auction := s.ownList.GetSelectedItem()
+
+	return orvyn.OpenDialog(dialogIDCancelConfirm, popup.NewYesNo(
+		fmt.Sprintf(lokyn.L("Cancel the auction for %s x%d ?"),
+			auction.Item.Name, auction.Quantity)), nil)
+}
+
+func (s *Screen) cancelAuction() {
+	auction := s.ownList.GetSelectedItem()
+
+	_, err := helper.SendRequest(request.AuctionCancel(api.IDBody{ID: auction.ID}))
+
+	if err != nil {
+		s.statusMessage.SetError(err)
+		return
+	}
+
+	// Both panes are refetched rather than the cancelled row removed locally:
+	// the server is the authority on what is still live, and a bid placed on
+	// one of the player's other listings meanwhile would otherwise go unseen.
+	infoOK := s.updateCharacterInfo()
+
+	s.loadLists()
+
+	if !infoOK {
+		return
+	}
+
+	s.statusMessage.SetMessage(lokyn.L("Auction cancelled, check your mail"),
+		statusmessage.SuccessMessage)
 }
