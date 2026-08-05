@@ -242,10 +242,16 @@ cd /home/halsten/Dev/Farental/farental-cli/src
 go test ./repository/ -run TestRecordBid   # ensures AutoMigrate has run
 ```
 
-Then compare against the migration by hand:
+Then dump the live DDL. The test database's credentials live in `farental-cli/src/.env`; it cannot be `source`d (line 11 contains an `&` that zsh rejects), so read the four values out of it:
 
 ```bash
-mysql -u <user> -p <test_db> -e 'SHOW CREATE TABLE auction_bids\G'
+cd /home/halsten/Dev/Farental/farental-cli/src
+DB_NAME=$(grep '^DB_NAME=' .env | cut -d= -f2-)
+DB_USERNAME=$(grep '^DB_USERNAME=' .env | cut -d= -f2-)
+DB_PASSWORD=$(grep '^DB_PASSWORD=' .env | cut -d= -f2-)
+DB_HOST=$(grep '^DB_URL=' .env | cut -d= -f2- | cut -d: -f1)
+mysql -u "$DB_USERNAME" -p"$DB_PASSWORD" -h "$DB_HOST" "$DB_NAME" \
+  -e 'SHOW CREATE TABLE auction_bids\G'
 ```
 
 Column order, types, key names and the two constraints must match the SQL above. The migration file's own header requires this: a database built from the models and one built from the migration have to be identical. Adjust the SQL to match the live output if they differ.
