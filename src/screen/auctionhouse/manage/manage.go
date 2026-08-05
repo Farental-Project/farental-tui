@@ -289,8 +289,22 @@ func (s *Screen) updateCharacterInfo() bool {
 // openCancelConfirm asks before pulling a listing. Cancelling is the one
 // destructive action on this screen and it cannot be undone — the auction is
 // gone and the items come back by mail — so the prompt names what it will pull.
+//
+// The server refuses to cancel a listing that already has a bidder (a business
+// 401), so that case is caught here rather than let reach the confirmation:
+// on a live house most of a seller's listings have bids, and offering the
+// confirm only to refuse it afterwards would make the screen's one destructive
+// action misfire on the common case.
 func (s *Screen) openCancelConfirm() tea.Cmd {
 	auction := s.ownList.GetSelectedItem()
+
+	if auction.CurrentBidderName != "" {
+		s.statusMessage.SetMessage(
+			lokyn.L("An auction that has received a bid can no longer be pulled"),
+			statusmessage.WarningMessage)
+
+		return nil
+	}
 
 	return orvyn.OpenDialog(dialogIDCancelConfirm, popup.NewYesNo(
 		fmt.Sprintf(lokyn.L("Cancel the auction for %s x%d ?"),
