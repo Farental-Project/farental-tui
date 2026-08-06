@@ -94,7 +94,6 @@ func (w *Widget) Render() string {
 		buy,
 		dim.Render(moneySeparator),
 		dim.Render(EndsIn(w.data.EndTimestamp, time.Now())),
-		dim.Render(w.data.SellerName),
 	}, "  ")
 
 	width1, width2 := orvyn.DivideSizeFull(contentSize.Width)
