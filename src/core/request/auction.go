@@ -48,6 +48,10 @@ func AuctionGetAll(page int, filter api.AuctionFilter) *resty.Request {
 		r.SetQueryParam("minStat", strconv.Itoa(filter.MinStat))
 	}
 
+	if filter.OutbidOnly {
+		r.SetQueryParam("outbid", "true")
+	}
+
 	return r
 }
 

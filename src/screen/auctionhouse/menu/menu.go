@@ -97,6 +97,9 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(k, keybind.BKey):
 			return orvyn.SwitchScreen(screen.IDAuctionHouseBuy)
+
+		case key.Matches(k, keybind.MKey):
+			return orvyn.SwitchScreen(screen.IDAuctionHouseManage)
 		}
 	}
 
@@ -114,5 +117,5 @@ func (s *Screen) btBuyOnClicked() tea.Cmd {
 }
 
 func (s *Screen) btManageOnClicked() tea.Cmd {
-	return nil
+	return orvyn.SwitchScreen(screen.IDAuctionHouseManage)
 }

@@ -186,6 +186,11 @@ type AuctionFilter struct {
 	// penalty.
 	MinStat    int
 	HasMinStat bool
+
+	// OutbidOnly narrows to the auctions this character has bid on and no
+	// longer leads. The server resolves whose auctions those are from the
+	// session, so the flag carries no character.
+	OutbidOnly bool
 }
 
 type AuctionBidBody struct {

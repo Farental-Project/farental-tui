@@ -33,6 +33,9 @@ type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
 
+	lblScope *label.Widget
+	mvsScope *multivalueselector.Widget[Option]
+
 	lblKind      *label.Widget
 	lblSlot      *label.Widget
 	lblWeapon    *label.Widget
@@ -67,6 +70,11 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
+	w.lblScope = label.New("")
+
+	w.mvsScope = multivalueselector.New[Option]()
+	w.mvsScope.OnBlur()
+
 	w.lblKind = label.New("")
 	w.lblSlot = label.New("")
 	w.lblWeapon = label.New("")
@@ -91,6 +99,7 @@ func New() *Widget {
 	w.tiMinStat.Validate = helper.SignedNumericalValidate
 
 	w.focusManager = orvyn.NewFocusManager()
+	w.focusManager.Add(w.mvsScope)
 	w.focusManager.Add(w.mvsKind)
 	w.focusManager.Add(w.mvsSlot)
 	w.focusManager.Add(w.mvsWeapon)
@@ -103,6 +112,8 @@ func New() *Widget {
 	w.focusManager.PreviousFocusKeybind = keybind.Up
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
+		w.lblScope,
+		w.mvsScope,
 		w.lblKind,
 		w.mvsKind,
 		w.lblSlot,
@@ -121,10 +132,19 @@ func New() *Widget {
 }
 
 func (w *Widget) Init() tea.Cmd {
+	// Filled before Reset: it selects index 0, and an empty selector has none.
+	// These two are client-side strings rather than server vocabulary, but
+	// they are localized just the same, so they are refreshed on every entry.
+	setOptions(w.mvsScope, []Option{
+		{Code: "", Label: lokyn.L("All auctions")},
+		{Code: scopeOutbid, Label: lokyn.L("My outbid auctions")},
+	})
+
 	// Reset here, not in SetOptions: a failed options fetch skips SetOptions
 	// entirely, and the screen still needs an empty filter to apply.
 	w.Reset()
 
+	w.lblScope.SetValue(lokyn.L("Show"))
 	w.lblKind.SetValue(lokyn.L("Kind"))
 	w.lblSlot.SetValue(lokyn.L("Equipment slot"))
 	w.lblWeapon.SetValue(lokyn.L("Weapon type"))
@@ -239,10 +259,11 @@ func setOptions(selector *multivalueselector.Widget[Option], options []Option) {
 
 // Reset returns every control to "no filter". It does not move the cursor:
 // pressing r from the auction list calls this too, and jumping focus into the
-// panel from there would style the Kind selector as focused while the list
+// panel from there would style the Scope selector as focused while the list
 // still has real focus. Callers that need the cursor moved do it themselves
 // (see Init).
 func (w *Widget) Reset() {
+	w.mvsScope.SetSelected(0)
 	w.mvsKind.SetSelected(0)
 	w.mvsSlot.SetSelected(0)
 	w.mvsWeapon.SetSelected(0)
@@ -257,6 +278,7 @@ func (w *Widget) Reset() {
 // GetFilter reads the controls into the query the request layer sends.
 func (w *Widget) GetFilter() api.AuctionFilter {
 	return buildFilter(
+		w.mvsScope.GetSelectedValue().Code,
 		w.mvsKind.GetSelectedValue().Code,
 		w.mvsSlot.GetSelectedValue().Code,
 		w.mvsWeapon.GetSelectedValue().Code,

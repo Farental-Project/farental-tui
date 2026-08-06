@@ -50,6 +50,7 @@ const (
 	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
 	ContextNavEnterEsc                         bubblehelp.KeymapContext = "navEnterEsc"
 	ContextAuctionBuy                          bubblehelp.KeymapContext = "auctionBuy"
+	ContextAuctionManage                       bubblehelp.KeymapContext = "auctionManage"
 )
 
 func InitContexts() {
@@ -698,4 +699,22 @@ func InitContexts() {
 	auctionBuyKeymap.NewKeyBinding(Help, true)
 
 	bubblehelp.RegisterContext(ContextAuctionBuy, auctionBuyKeymap)
+
+	auctionManageKeymap := bubblehelp.NewKeymap(3)
+	auctionManageKeymap.Style = mainHelpStyle
+	auctionManageKeymap.NewKeyBinding(Up, false)
+	auctionManageKeymap.NewKeyBinding(Down, false)
+	auctionManageKeymap.NewKeyBinding(Tab, true)
+	auctionManageKeymap.SetHelpDesc(Tab, lokyn.L("listings / bids"))
+	auctionManageKeymap.NewKeyBinding(IKey, true)
+	auctionManageKeymap.SetHelpDesc(IKey, lokyn.L("information"))
+	auctionManageKeymap.NewKeyBinding(CKey, true)
+	auctionManageKeymap.SetHelpDesc(CKey, lokyn.L("cancel auction"))
+	auctionManageKeymap.NewKeyBinding(RKey, true)
+	auctionManageKeymap.SetHelpDesc(RKey, lokyn.L("refresh"))
+	auctionManageKeymap.NewKeyBinding(Esc, true)
+	auctionManageKeymap.NewKeyBinding(Quit, true)
+	auctionManageKeymap.NewKeyBinding(Help, true)
+
+	bubblehelp.RegisterContext(ContextAuctionManage, auctionManageKeymap)
 }
