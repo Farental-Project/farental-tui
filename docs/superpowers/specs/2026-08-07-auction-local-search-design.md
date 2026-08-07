@@ -48,9 +48,10 @@ confirm and load more. So:
   `Ctrl+R` needs nothing either — it cannot be typed into a text field.
 - The stale comment is rewritten.
 
-The field is left with Up/Down, which the panel already binds to move between
-controls (Tab still leaves the panel entirely). Moving off the field restores
-the letter keys. Esc keeps its one meaning — leave the screen.
+Arrow keys always move between the panel's controls, field included; the panel
+gives its own focus manager arrow-only bindings and handles the vim aliases
+itself, standing them down only while the field holds the cursor (Tab still
+leaves the panel entirely). Esc keeps its one meaning — leave the screen.
 
 The rejected alternative was to give the field a real orvyn input mode. The
 panel is a single `Focusable` in the screen's focus manager, so its

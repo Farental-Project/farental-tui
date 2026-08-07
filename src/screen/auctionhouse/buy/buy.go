@@ -320,13 +320,8 @@ func (s *Screen) applyFilter(mayReport bool) bool {
 		mayReport)
 }
 
-// reload is applyFilter's fetch, parameterized on the filter to run so
-// afterAction can rerun the applied filter (s.filter) instead of whatever the
-// panel currently holds unconfirmed. Dropping whatever was accumulated, the
-// candidate filter is fetched before anything is committed: on error,
-// s.filter/s.page/s.total and the list must stay exactly as they were, so a
-// later load more keeps paging the query that is actually on screen rather
-// than the rejected one.
+// reload fetches with filter and search, committing both along with s.page,
+// s.total and the list only on success, so a failed fetch leaves them untouched.
 func (s *Screen) reload(filter api.AuctionFilter, search string, mayReport bool) bool {
 	resp, err := helper.Fetch[api.AuctionListResponse](
 		request.AuctionGetAll(1, filter))

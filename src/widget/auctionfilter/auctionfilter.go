@@ -119,10 +119,10 @@ func New() *Widget {
 	w.focusManager.Add(w.btStatSkill)
 	w.focusManager.Add(w.tiMinStat)
 
-	// ↑/↓ inside the panel leaves Tab to the screen, which uses it to move
-	// between the panel and the auction list.
-	w.focusManager.NextFocusKeybind = keybind.Down
-	w.focusManager.PreviousFocusKeybind = keybind.Up
+	// Arrow-only: j/k must reach the search box as text, so Update handles
+	// those aliases itself once the cursor is off it.
+	w.focusManager.NextFocusKeybind = key.NewBinding(key.WithKeys("down"))
+	w.focusManager.PreviousFocusKeybind = key.NewBinding(key.WithKeys("up"))
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
 		w.lblSearch,
@@ -203,6 +203,19 @@ func (w *Widget) Update(msg tea.Msg) tea.Cmd {
 	if k, ok := orvyn.GetKeyMsg(msg); ok {
 		if key.Matches(k, keybind.Enter) && w.IsFocused() {
 			return AppliedCmd
+		}
+
+		// j/k stand down over the search box, where they're text; arrows keep
+		// moving focus there through the manager's own arrow-only bindings.
+		if w.IsFocused() && !w.SearchFocused() {
+			switch {
+			case key.Matches(k, keybind.Down):
+				w.focusManager.NextFocus()
+				return nil
+			case key.Matches(k, keybind.Up):
+				w.focusManager.PrevFocus()
+				return nil
+			}
 		}
 	}
 
