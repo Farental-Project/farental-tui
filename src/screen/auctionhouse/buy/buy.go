@@ -54,6 +54,9 @@ type Screen struct {
 	// filter is the applied query, not the one being edited: load more has to
 	// page the query that produced the rows on screen.
 	filter api.AuctionFilter
+	// search is the applied local search, held for the same reason: a reload
+	// must use what was committed, not an unconfirmed edit.
+	search string
 	page   int
 	total  int64
 
@@ -173,30 +176,30 @@ func (s *Screen) update(msg tea.Msg) tea.Cmd {
 			return nil
 
 		case key.Matches(k, keybind.RKey):
-			// Reloads using the applied filter (s.filter), not applyFilter: a
-			// player who edited the selectors without pressing Enter should
-			// not have that edit silently committed by a refresh.
-			s.statusMessage.Reset()
-			s.reload(s.filter, true)
+			if !s.searchFocused() {
+				// Reloads with the applied filter/search (s.filter, s.search),
+				// not applyFilter: an unconfirmed panel edit must not be committed.
+				s.statusMessage.Reset()
+				s.reload(s.filter, s.search, true)
 
-			return nil
+				return nil
+			}
 
 		case key.Matches(k, keybind.IKey):
-			// Inspecting is read-only, so it stays available while the filter
-			// panel holds focus. Nothing there can swallow the key: the only
-			// text input is numeric-validated.
-			if s.auctionList.Length() > 0 {
+			// Inspecting is read-only, so it stays available with the panel
+			// focused - except over the search box, where it's typed text.
+			if !s.searchFocused() && s.auctionList.VisibleLength() > 0 {
 				return orvyn.OpenDialog(dialogIDInspect,
 					auctioninspect.New(s.auctionList.GetSelectedItem()), nil)
 			}
 
 		case key.Matches(k, keybind.BKey):
-			if s.listFocused() && s.auctionList.Length() > 0 {
+			if s.listFocused() && s.auctionList.VisibleLength() > 0 {
 				return s.openBuyConfirm()
 			}
 
 		case key.Matches(k, keybind.Enter):
-			if s.listFocused() && s.auctionList.Length() > 0 {
+			if s.listFocused() && s.auctionList.VisibleLength() > 0 {
 				return orvyn.OpenDialog(dialogIDBid,
 					auctionbid.New(s.auctionList.GetSelectedItem(), s.money), nil)
 			}
@@ -248,6 +251,12 @@ func (s *Screen) listFocused() bool {
 	return s.focusManager.TabIndex() == listIndex
 }
 
+// searchFocused reports whether the panel's search box has the cursor: the
+// screen claims several letters before delegating, and there they're text.
+func (s *Screen) searchFocused() bool {
+	return s.auctionFilter.SearchFocused()
+}
+
 // updateFocusKeybinds re-advertises the keys whose availability or meaning
 // depends on which pane holds focus, so the help line only ever offers what the
 // focused pane will actually do.
@@ -258,12 +267,22 @@ func (s *Screen) listFocused() bool {
 //
 // Space is deliberately absent: auctionfilter owns it, tying it to its own
 // stat/skill button's focus.
+//
+// m and b need no search-box handling of their own: both are already gated on
+// the auction list holding focus, so the panel never reaches them.
 func (s *Screen) updateFocusKeybinds() {
 	listFocused := s.listFocused()
 
 	// Both act on the selected auction and do nothing from the filter panel.
 	bubblehelp.SetKeybindVisible(keybind.MKey, listFocused)
 	bubblehelp.SetKeybindVisible(keybind.BKey, listFocused)
+
+	// The panel holds a free-text search box, and these two are single letters:
+	// over that box they are text, not commands.
+	searchFocused := s.searchFocused()
+
+	bubblehelp.SetKeybindVisible(keybind.RKey, !searchFocused)
+	bubblehelp.SetKeybindVisible(keybind.IKey, !searchFocused)
 
 	// Enter serves both panes, but not with the same meaning.
 	desc := lokyn.L("apply filter")
@@ -297,17 +316,13 @@ func (s *Screen) loadFilterOptions() bool {
 // (updateCharacterInfo or loadFilterOptions failing) passes false so the count
 // does not overwrite it.
 func (s *Screen) applyFilter(mayReport bool) bool {
-	return s.reload(s.auctionFilter.GetFilter(), mayReport)
+	return s.reload(s.auctionFilter.GetFilter(), s.auctionFilter.GetSearch(),
+		mayReport)
 }
 
-// reload is applyFilter's fetch, parameterized on the filter to run so
-// afterAction can rerun the applied filter (s.filter) instead of whatever the
-// panel currently holds unconfirmed. Dropping whatever was accumulated, the
-// candidate filter is fetched before anything is committed: on error,
-// s.filter/s.page/s.total and the list must stay exactly as they were, so a
-// later load more keeps paging the query that is actually on screen rather
-// than the rejected one.
-func (s *Screen) reload(filter api.AuctionFilter, mayReport bool) bool {
+// reload fetches with filter and search, committing both along with s.page,
+// s.total and the list only on success, so a failed fetch leaves them untouched.
+func (s *Screen) reload(filter api.AuctionFilter, search string, mayReport bool) bool {
 	resp, err := helper.Fetch[api.AuctionListResponse](
 		request.AuctionGetAll(1, filter))
 
@@ -317,10 +332,12 @@ func (s *Screen) reload(filter api.AuctionFilter, mayReport bool) bool {
 	}
 
 	s.filter = filter
+	s.search = search
 	s.page = 1
 	s.total = resp.Total
 
 	s.auctionList.SetItems(resp.Auctions)
+	s.auctionList.SetFilter(search)
 	s.auctionList.FocusFirst()
 
 	if mayReport {
@@ -356,8 +373,19 @@ func (s *Screen) loadMore() {
 }
 
 func (s *Screen) reportCount() {
-	if s.auctionList.Length() == 0 {
+	if s.auctionList.VisibleLength() == 0 {
 		s.statusMessage.SetMessage(lokyn.L("No auction matches these filters"),
+			statusmessage.InformationMessage)
+
+		return
+	}
+
+	// The loaded count stays in the line while a search narrows it: without it,
+	// a short list reads as if there were nothing left for load more to fetch.
+	if s.search != "" {
+		s.statusMessage.SetMessage(fmt.Sprintf("%d/%d/%d %s",
+			s.auctionList.VisibleLength(), s.auctionList.Length(), s.total,
+			lokyn.L("auction(s)")),
 			statusmessage.InformationMessage)
 
 		return
@@ -432,14 +460,11 @@ func (s *Screen) directBuy() {
 	s.afterAction(lokyn.L("Item bought, check your mail"))
 }
 
-// afterAction reloads from page 1 using the applied filter (s.filter), not the
-// panel: a player who edited the selectors without pressing Enter and then
-// bid or bought should not have that reload silently pick up the unconfirmed
-// edit. A sold listing is gone and every later page shifts under it, so
-// refetching the accumulated pages would show duplicates or holes.
+// afterAction reloads from page 1 with the applied filter and search, not
+// the panel, since a sold listing shifts every page after it.
 func (s *Screen) afterAction(message string) {
 	infoOK := s.updateCharacterInfo()
-	filterOK := s.reload(s.filter, infoOK)
+	filterOK := s.reload(s.filter, s.search, infoOK)
 
 	if !infoOK || !filterOK {
 		return
