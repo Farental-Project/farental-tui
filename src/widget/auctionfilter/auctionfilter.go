@@ -21,6 +21,10 @@ import (
 // dialogIDStatSkill is opened by the stat/skill button and read back in Update.
 const dialogIDStatSkill orvyn.ScreenID = "auctionStatSkill"
 
+// searchIndex is the search box's position in the panel's focus manager. The
+// screen asks whether the cursor sits there before it claims a letter key.
+const searchIndex = 0
+
 // AppliedMsg tells the screen the player asked for the current filter to be
 // run. The widget never queries anything itself.
 type AppliedMsg int
@@ -32,6 +36,9 @@ func AppliedCmd() tea.Msg {
 type Widget struct {
 	orvyn.BaseWidget
 	orvyn.BaseFocusable
+
+	lblSearch *label.Widget
+	tiSearch  *textinput.Widget
 
 	lblScope *label.Widget
 	mvsScope *multivalueselector.Widget[Option]
@@ -70,6 +77,11 @@ func New() *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
+	w.lblSearch = label.New("")
+
+	// No Validate: this one takes any text the player types.
+	w.tiSearch = textinput.New()
+
 	w.lblScope = label.New("")
 
 	w.mvsScope = multivalueselector.New[Option]()
@@ -99,6 +111,7 @@ func New() *Widget {
 	w.tiMinStat.Validate = helper.SignedNumericalValidate
 
 	w.focusManager = orvyn.NewFocusManager()
+	w.focusManager.Add(w.tiSearch)
 	w.focusManager.Add(w.mvsScope)
 	w.focusManager.Add(w.mvsKind)
 	w.focusManager.Add(w.mvsSlot)
@@ -112,6 +125,8 @@ func New() *Widget {
 	w.focusManager.PreviousFocusKeybind = keybind.Up
 
 	w.layout = layout.NewMaxWidthVBoxLayout(0,
+		w.lblSearch,
+		w.tiSearch,
 		w.lblScope,
 		w.mvsScope,
 		w.lblKind,
@@ -144,6 +159,7 @@ func (w *Widget) Init() tea.Cmd {
 	// entirely, and the screen still needs an empty filter to apply.
 	w.Reset()
 
+	w.lblSearch.SetValue(lokyn.L("Search"))
 	w.lblScope.SetValue(lokyn.L("Show"))
 	w.lblKind.SetValue(lokyn.L("Kind"))
 	w.lblSlot.SetValue(lokyn.L("Equipment slot"))
@@ -151,6 +167,7 @@ func (w *Widget) Init() tea.Cmd {
 	w.lblStatSkill.SetValue(lokyn.L("Stat or skill"))
 	w.lblMinStat.SetValue(lokyn.L("Minimum"))
 
+	w.tiSearch.Placeholder = lokyn.L("Filter loaded auctions")
 	w.tiMinStat.Placeholder = lokyn.L("Minimum value")
 
 	w.focusManager.FocusFirst()
@@ -271,6 +288,7 @@ func (w *Widget) Reset() {
 	w.statCode = ""
 	w.skillCode = ""
 
+	w.tiSearch.SetValue("")
 	w.btStatSkill.SetLabel(lokyn.L("Any stat or skill"))
 	w.tiMinStat.SetValue("")
 }
@@ -286,6 +304,18 @@ func (w *Widget) GetFilter() api.AuctionFilter {
 		w.skillCode,
 		w.tiMinStat.Value(),
 	)
+}
+
+// GetSearch reads the local search box. It stays out of GetFilter: the text
+// narrows rows already on screen instead of reaching the server.
+func (w *Widget) GetSearch() string {
+	return w.tiSearch.Value()
+}
+
+// SearchFocused is true only when the panel is focused and its cursor sits
+// on the search box; the screen uses it to stand down letter keybinds.
+func (w *Widget) SearchFocused() bool {
+	return w.IsFocused() && w.focusManager.TabIndex() == searchIndex
 }
 
 func (w *Widget) btOnFocus() {
