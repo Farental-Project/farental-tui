@@ -42,8 +42,10 @@ A free-text field makes that false — typing `sword` would fire reload, buy
 confirm and load more. So:
 
 - `auctionfilter` exposes `SearchFocused() bool`.
-- `buy.go` guards the four cases on it and hides the four bindings from the
-  help line through the existing `updateFocusKeybinds`.
+- `buy.go` guards `r` and `i` on it and hides both from the help line through
+  the existing `updateFocusKeybinds`. `m` and `b` need nothing: they are
+  already gated on the list holding focus, so the panel never reaches them.
+  `Ctrl+R` needs nothing either — it cannot be typed into a text field.
 - The stale comment is rewritten.
 
 The field is left with Up/Down, which the panel already binds to move between
@@ -69,7 +71,8 @@ change.
 
 | Change | Reason |
 | --- | --- |
-| `SetFilter(s string)` | Public entry point. Sets `tiFilter`'s value, then runs `filter(s)`, so the value stays in sync with the applied filter and the re-apply paths in `SetItem`/`AppendItem` keep working. |
+| `filterNeedle` field | The applied needle currently lives in `tiFilter`'s value, which the re-apply paths in `SetItem`/`AppendItem` read back. A filter driven from outside never touches that field, so the needle becomes state of its own and `tiFilter` goes back to being only UI. |
+| `SetFilter(s string)` | Public entry point. Mirrors `s` into `tiFilter` for the lists that still show the built-in field, then runs `filter(s)`. |
 | `VisibleLength() int` | `Length()` returns the unfiltered count. The `Length() > 0` guards and the count line would both lie while a filter is applied. |
 | `filter("")` returns after `clearFilter()` | Missing `return`: it clears, then immediately re-filters with `""` and sets `FilterApplied`. |
 | `SetItems` re-applies an applied filter | `SetItem` and `AppendItem` do; `SetItems` does not, leaving `filteredListItems` holding indices into the previous slice. Same class as the stale-index panics already fixed in the selection lists. |
@@ -98,7 +101,7 @@ change.
 - The `Length() > 0` guards before inspect, bid and buy become
   `VisibleLength() > 0`.
 - `reportCount` gains the three-part form.
-- The four single-letter cases gain the `SearchFocused()` guard and
+- The `r` and `i` cases gain the `SearchFocused()` guard, and
   `updateFocusKeybinds` gains their visibility.
 
 ### `translations/{en,de,fr}.json`
