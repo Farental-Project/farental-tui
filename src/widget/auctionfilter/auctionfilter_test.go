@@ -51,9 +51,8 @@ func TestResetClearsTheSearch(t *testing.T) {
 	}
 }
 
-// The screen stands its single-letter keybinds down on this, so it has to be
-// false whenever the panel does not hold the screen's focus - the panel keeps
-// its own cursor where it was while the auction list is being used.
+// The screen stands its letter keybinds down on this, so it must be false
+// whenever the panel itself lacks focus, not just when its cursor moves.
 func TestSearchFocusedNeedsThePanelToHoldFocus(t *testing.T) {
 	w := newTestWidget(t)
 
