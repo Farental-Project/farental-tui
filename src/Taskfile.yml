@@ -8,6 +8,7 @@ vars:
   WEB_URL: https://farental.ch
   CONFIG_FILE_NAME: farental
   DIST_DIR: dist
+  NAMED_DIST_DIR: dist/named_dist
   LDFLAGS: >-
     -X 'farental/internal/config.BaseURL={{.BASE_URL}}'
     -X 'farental/internal/config.WebURL={{.WEB_URL}}'
@@ -45,12 +46,28 @@ tasks:
       - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/darwin-amd64/{{.OUTPUT_NAME}} -ldflags "{{.STRIP}} {{.LDFLAGS}}"
       - GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o {{.DIST_DIR}}/darwin-arm64/{{.OUTPUT_NAME}} -ldflags "{{.STRIP}} {{.LDFLAGS}}"
 
+  # Flat copies of every built executable, platform suffixed into the file name,
+  # ready to upload to itch.io. Sources stay untouched in their per-platform folders.
+  dist:named:
+    desc: Copy the built executables into {{.NAMED_DIST_DIR}} with the platform in the file name
+    cmds:
+      - rm -rf {{.NAMED_DIST_DIR}}
+      - mkdir -p {{.NAMED_DIST_DIR}}
+      - cp {{.DIST_DIR}}/linux-amd64/{{.OUTPUT_NAME}} {{.NAMED_DIST_DIR}}/{{.OUTPUT_NAME}}-linux-amd64
+      - cp {{.DIST_DIR}}/linux-arm64/{{.OUTPUT_NAME}} {{.NAMED_DIST_DIR}}/{{.OUTPUT_NAME}}-linux-arm64
+      - cp {{.DIST_DIR}}/windows-amd64/{{.OUTPUT_NAME}}.exe {{.NAMED_DIST_DIR}}/{{.OUTPUT_NAME}}-windows-amd64.exe
+      - cp {{.DIST_DIR}}/darwin-amd64/{{.OUTPUT_NAME}} {{.NAMED_DIST_DIR}}/{{.OUTPUT_NAME}}-darwin-amd64
+      - cp {{.DIST_DIR}}/darwin-arm64/{{.OUTPUT_NAME}} {{.NAMED_DIST_DIR}}/{{.OUTPUT_NAME}}-darwin-arm64
+
   build:all:
-    desc: Build for Linux, Windows and macOS
+    desc: Build for Linux, Windows and macOS, then collect the executables in {{.NAMED_DIST_DIR}}
+    aliases: [build]
     deps:
       - build:linux
       - build:windows
       - build:macos
+    cmds:
+      - task: dist:named
 
   clean:
     desc: Remove build artifacts
