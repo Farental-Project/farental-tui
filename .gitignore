@@ -26,6 +26,7 @@ go.work.sum
 
 .idea/
 .lokyn/
+docs/superpowers
 src/farental
 src/debug.log
 lokyn-cli
