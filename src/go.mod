@@ -10,6 +10,7 @@ require (
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/halsten-dev/bubblehelp v1.0.3
 	github.com/halsten-dev/lokyn v1.0.1
+	github.com/halsten-dev/orvyn v0.0.0-20260807130751-2c487c9103cd
 	github.com/minio/selfupdate v0.6.0
 	github.com/muesli/termenv v0.16.0
 	github.com/spf13/viper v1.21.0
@@ -28,7 +29,6 @@ require (
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/halsten-dev/orvyn v0.0.0-20260807130751-2c487c9103cd // indirect
 	github.com/jeandeaual/go-locale v0.0.0-20250612000132-0ef82f21eade // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
@@ -51,5 +51,4 @@ require (
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
