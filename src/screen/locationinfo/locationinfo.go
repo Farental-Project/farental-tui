@@ -59,14 +59,25 @@ func New() *Screen {
 	s.title = orvyn.NewSimpleRenderable("")
 	s.title.Style = ts
 
+	// The viewers declare their own min and preferred heights. Without them they
+	// report the Renderable default of 1x1, which the vertical layout reads as a
+	// fixed one-row widget: the border alone eats the row and the viewer renders
+	// an empty box. Differing min and preferred heights also make them flexible,
+	// so they share the height the fixed elements leave over.
 	s.description = simplelogviewer.New("Description")
 	s.description.Style = logStyle
 	s.description.SetAutoScroll(false)
+	s.description.SetMinSize(orvyn.NewSize(10, 6))
+	s.description.SetPreferredSize(orvyn.NewSize(30, 12))
 	s.description.OnBlur()
 
+	// The features column sits next to the three cards, which need 12 rows, so it
+	// asks for no less than they do and grows past them when there is room.
 	s.featuresList = simplelogviewer.New("Features")
 	s.featuresList.Style = logStyle
 	s.featuresList.SetAutoScroll(false)
+	s.featuresList.SetMinSize(orvyn.NewSize(10, 12))
+	s.featuresList.SetPreferredSize(orvyn.NewSize(30, 20))
 	s.featuresList.OnBlur()
 
 	s.continentCard = card.New("", "")

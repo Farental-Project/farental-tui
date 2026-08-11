@@ -83,6 +83,12 @@ func New(title string) *Widget {
 
 	w.autoScroll = true
 
+	// Start blurred so the border, title and arrow styles are resolved from the
+	// very first frame. They used to stay zero-valued until a screen called
+	// OnFocus or OnBlur, which made the widget render bare and report a frame of
+	// no height.
+	w.OnBlur()
+
 	return w
 }
 
@@ -175,6 +181,53 @@ func (w *Widget) Resize(size orvyn.Size) {
 	}
 
 	w.BaseWidget.Resize(size)
+}
+
+// frameHeight returns the rows the widget spends on its border and its title,
+// which no content can ever use. It mirrors what Resize takes off the height it
+// is handed, so a widget sized at frameHeight+n shows exactly n content lines.
+func (w *Widget) frameHeight() int {
+	frame := w.widgetStyle.GetBorderTopSize() + w.widgetStyle.GetBorderBottomSize()
+
+	if w.title != "" {
+		frame += max(w.titleHeight, 1)
+	}
+
+	return frame
+}
+
+// GetMinSize reserves the frame plus a single content line, unless a size was set
+// explicitly with SetMinSize.
+//
+// The BaseRenderable default of 1x1 is not a neutral "no opinion": a vertical
+// layout reads a matching min and preferred height as a fixed-height widget and
+// hands it that single row, which the border alone consumes - leaving a titled
+// box with nothing in it. A scrollable viewer is never one row tall.
+//
+// Width stays at 1 so the widget never drives the layout width: Render draws into
+// the width it is given, so measuring it would be self-referential.
+func (w *Widget) GetMinSize() orvyn.Size {
+	if size := w.BaseRenderable.GetMinSize(); size != orvyn.NewSize(1, 1) {
+		return size
+	}
+
+	return orvyn.NewSize(1, w.frameHeight()+1)
+}
+
+// GetPreferredSize matches the minimum, unless a size was set explicitly with
+// SetPreferredSize, which marks the viewer fixed height.
+//
+// Deriving a taller preferred height from the content would make the viewer claim
+// leftover height on its own. It would also be a guess: content height tracks what
+// the viewer happens to hold, not the room the screen means to give it, so a
+// screen that wants the viewer to grow declares it - see SetPreferredSize on the
+// dashboard, npc and locationinfo screens.
+func (w *Widget) GetPreferredSize() orvyn.Size {
+	if size := w.BaseRenderable.GetPreferredSize(); size != orvyn.NewSize(1, 1) {
+		return size
+	}
+
+	return w.GetMinSize()
 }
 
 func (w *Widget) SetContent(content []string) {
