@@ -106,6 +106,7 @@ func New() *Widget {
 	w.btStatSkill.OnClickedCallback = w.btStatSkillOnClicked
 	w.btStatSkill.OnFocusCallback = w.btOnFocus
 	w.btStatSkill.OnBlurCallback = w.btOnBlur
+	w.btStatSkill.OnBlur()
 
 	w.tiMinStat = textinput.New()
 	w.tiMinStat.Validate = helper.SignedNumericalValidate
@@ -239,6 +240,7 @@ func (w *Widget) Render() string {
 func (w *Widget) OnFocus() {
 	w.BaseFocusable.OnFocus()
 	w.focusManager.FocusFirst()
+	w.btStatSkill.OnBlur()
 }
 
 func (w *Widget) OnBlur() {

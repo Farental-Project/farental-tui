@@ -48,10 +48,11 @@ const (
 	ContextManual                              bubblehelp.KeymapContext = "manual"
 	ContextFeedback                            bubblehelp.KeymapContext = "feedback"
 	ContextClientUpdate                        bubblehelp.KeymapContext = "clientUpdate"
-	ContextNavEnterEsc                         bubblehelp.KeymapContext = "navEnterEsc"
+	ContextAuctionSell                         bubblehelp.KeymapContext = "auctionSell"
 	ContextAuctionBuy                          bubblehelp.KeymapContext = "auctionBuy"
 	ContextAuctionManage                       bubblehelp.KeymapContext = "auctionManage"
 	ContextAuctionMenu                         bubblehelp.KeymapContext = "auctionMenu"
+	ContextAuctionBid                          bubblehelp.KeymapContext = "auctionBid"
 )
 
 func InitContexts() {
@@ -103,13 +104,8 @@ func InitContexts() {
 	characterCreationKeymap.NewKeyBinding(Quit, true)
 
 	bubblehelp.RegisterContext(ContextCharacterCreation, characterCreationKeymap)
+	bubblehelp.RegisterContext(ContextAuctionBid, characterCreationKeymap)
 
-	// User settings used to share characterCreationKeymap outright (same
-	// Enter/Esc/Quit shape), but it alone also offers ctrl+r to open the
-	// client-update screen for a user-initiated check (see
-	// clientupdate.OpenCheck); giving it its own context keeps that hint
-	// from leaking into character/account creation, where the key does
-	// nothing.
 	userSettingsKeymap := bubblehelp.NewKeymap(2)
 	userSettingsKeymap.Style = mainHelpStyle
 	userSettingsKeymap.NewKeyBinding(Enter, true)
@@ -568,17 +564,17 @@ func InitContexts() {
 
 	bubblehelp.RegisterContext(ContextBasicEditMode, BasicEditModeKeymap)
 
-	navEnterEscKeymap := bubblehelp.NewKeymap(2)
-	navEnterEscKeymap.Style = style.MainHelpStyle
-	navEnterEscKeymap.NewKeyBinding(Tab, true)
-	navEnterEscKeymap.NewKeyBinding(ShiftTab, true)
-	navEnterEscKeymap.NewKeyBinding(Space, true)
-	navEnterEscKeymap.SetHelpDesc(Space, lokyn.L("interact"))
-	navEnterEscKeymap.NewKeyBinding(Enter, true)
-	navEnterEscKeymap.NewKeyBinding(Esc, true)
-	navEnterEscKeymap.NewKeyBinding(Quit, false)
+	auctionSellKeymap := bubblehelp.NewKeymap(2)
+	auctionSellKeymap.Style = style.MainHelpStyle
+	auctionSellKeymap.NewKeyBinding(Tab, true)
+	auctionSellKeymap.NewKeyBinding(ShiftTab, true)
+	auctionSellKeymap.NewKeyBinding(Space, true)
+	auctionSellKeymap.SetHelpDesc(Space, lokyn.L("interact"))
+	auctionSellKeymap.NewKeyBinding(Enter, true)
+	auctionSellKeymap.NewKeyBinding(Esc, true)
+	auctionSellKeymap.NewKeyBinding(Quit, false)
 
-	bubblehelp.RegisterContext(ContextNavEnterEsc, navEnterEscKeymap)
+	bubblehelp.RegisterContext(ContextAuctionSell, auctionSellKeymap)
 
 	BankKeymap := bubblehelp.NewKeymap(2)
 	BankKeymap.Style = style.MainHelpStyle
@@ -668,14 +664,6 @@ func InitContexts() {
 
 	bubblehelp.RegisterContext(ContextManual, ManualKeymap)
 
-	// clientUpdateKeymap covers every state of the client-update screen,
-	// both the startup path and a user-initiated check (see
-	// clientupdate.OpenCheck): enter only does something in statePrompt, and
-	// esc's label swaps between "update now"'s natural counterpart "skip"
-	// and, for the two states unique to a user-initiated check (still
-	// checking, already up to date), "back" - see
-	// clientupdate.Screen.refreshHelpKeys, which keeps both honest per
-	// state rather than needing a second context.
 	clientUpdateKeymap := bubblehelp.NewKeymap(2)
 	clientUpdateKeymap.Style = mainHelpStyle
 	clientUpdateKeymap.NewKeyBinding(Enter, true)
@@ -688,13 +676,14 @@ func InitContexts() {
 
 	auctionBuyKeymap := bubblehelp.NewKeymap(3)
 	auctionBuyKeymap.Style = mainHelpStyle
-	auctionBuyKeymap.NewKeyBinding(Up, false)
-	auctionBuyKeymap.NewKeyBinding(Down, false)
+	auctionBuyKeymap.NewKeyBinding(Up, true)
+	auctionBuyKeymap.NewKeyBinding(Down, true)
 	auctionBuyKeymap.NewKeyBinding(Tab, true)
 	auctionBuyKeymap.SetHelpDesc(Tab, lokyn.L("filters / list"))
 	auctionBuyKeymap.NewKeyBinding(Enter, true)
 	auctionBuyKeymap.SetHelpDesc(Enter, lokyn.L("apply filter / bid"))
-	auctionBuyKeymap.NewKeyBinding(Space, false)
+	auctionBuyKeymap.NewKeyBinding(Space, true)
+	auctionBuyKeymap.SetHelpDesc(Space, lokyn.L("interact"))
 	auctionBuyKeymap.NewKeyBinding(BKey, true)
 	auctionBuyKeymap.SetHelpDesc(BKey, lokyn.L("buy now"))
 	auctionBuyKeymap.NewKeyBinding(IKey, true)
@@ -707,7 +696,6 @@ func InitContexts() {
 	auctionBuyKeymap.SetHelpDesc(RKeyCtrl, lokyn.L("reset filters"))
 	auctionBuyKeymap.NewKeyBinding(Esc, true)
 	auctionBuyKeymap.NewKeyBinding(Quit, true)
-	auctionBuyKeymap.NewKeyBinding(Help, true)
 
 	bubblehelp.RegisterContext(ContextAuctionBuy, auctionBuyKeymap)
 

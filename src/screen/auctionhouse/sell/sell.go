@@ -69,7 +69,7 @@ func New() *Screen {
 }
 
 func (s *Screen) OnEnter(any) tea.Cmd {
-	bubblehelp.SwitchContext(keybind.ContextNavEnterEsc)
+	bubblehelp.SwitchContext(keybind.ContextAuctionSell)
 
 	s.title.SetValue(lokyn.L("Create an auction"))
 

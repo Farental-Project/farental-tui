@@ -74,6 +74,7 @@ func New() *Widget {
 	w.btSelectItem.OnClickedCallback = w.btSelectItemOnClicked
 	w.btSelectItem.OnFocusCallback = w.btOnFocus
 	w.btSelectItem.OnBlurCallback = w.btOnBlur
+	w.btSelectItem.OnBlur()
 
 	w.tiTotalSellQty = textinput.New()
 	w.tiTotalSellQty.Validate = helper.NumericalValidate
