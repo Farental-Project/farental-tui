@@ -136,11 +136,7 @@ func (s *Screen) OnEnter(any) tea.Cmd {
 	return nil
 }
 
-// enterAccount focuses the lists and fills both sides. Shared by the
-// already-has-an-account path in OnEnter and the just-bought-one path after the
-// buyAccount dialog: the latter used to only flip existingAccount, leaving both
-// lists and the bank title empty, and nothing focused, until the screen was
-// left and re-entered.
+// enterAccount focuses the lists and fills both sides.
 func (s *Screen) enterAccount() {
 	s.focusManager.FocusFirst()
 	s.loadInventory()
@@ -318,7 +314,7 @@ func (s *Screen) transferItem() {
 		toBank = false
 	}
 
-	if item.ID == 0 {
+	if item.ID == 0 || item.Amount <= 0 {
 		return
 	}
 
