@@ -72,9 +72,8 @@ func New[T any](title string, constructor widgetlist.ItemConstructor[T],
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
-			2,
+			1,
 			s.title,
-			orvyn.VGap,
 			stack,
 			s.statusMessage,
 			s.help,

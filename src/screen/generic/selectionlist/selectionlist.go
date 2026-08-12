@@ -46,7 +46,7 @@ func new[T any](title string, constructor widgetlist.ItemConstructor[T],
 
 	s.list = widgetlist.New(constructor)
 
-	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 6))
+	s.list.SetPreferredSize(orvyn.NewSize(orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID), 2))
 	s.list.SetMinSize(orvyn.NewSize(6, 6))
 
 	s.list.Filter = widgetlist.BasicFilter
@@ -63,9 +63,8 @@ func New[T any](title string, constructor widgetlist.ItemConstructor[T],
 
 	s.layout = layout.NewCenterLayout(
 		layout.NewMaxWidthVBoxFullLayout(orvyn.NewSize(10, 4),
-			2,
+			1,
 			s.title,
-			orvyn.VGap,
 			s.list,
 			s.statusMessage,
 			s.help,

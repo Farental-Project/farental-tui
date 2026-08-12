@@ -81,7 +81,6 @@ func New() *Screen {
 			orvyn.GetTheme().Size(ftheme.LayoutWidthSizeID),
 			orvyn.NewSize(10, 4),
 			s.title,
-			orvyn.VGap,
 			s.runningTask,
 			s.characterInfo,
 			s.characterActiveScript,
