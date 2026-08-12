@@ -14,6 +14,9 @@ type Widget struct {
 
 	label string
 
+	ClickWithEnter bool
+	ClickWithSpace bool
+
 	OnFocusCallback   func()
 	OnBlurCallback    func()
 	OnClickedCallback func() tea.Cmd
@@ -25,6 +28,9 @@ func New(label string) *Widget {
 	w.BaseWidget = orvyn.NewBaseWidget()
 	w.BaseFocusable = orvyn.NewBaseFocusable(w)
 
+	w.ClickWithSpace = true
+	w.ClickWithEnter = false
+
 	w.label = label
 
 	w.OnBlur()
@@ -33,18 +39,37 @@ func New(label string) *Widget {
 }
 
 func (w *Widget) Update(msg tea.Msg) tea.Cmd {
+	clicked := false
+
 	if m, ok := orvyn.GetKeyMsg(msg); ok {
 		switch {
 		case key.Matches(m, keybind.Space):
+			if w.ClickWithSpace {
+				clicked = true
+			}
+
+		case key.Matches(m, keybind.Enter):
 			if w.IsFocused() {
-				if w.OnClickedCallback != nil {
-					return w.OnClickedCallback()
+				if w.ClickWithEnter {
+					clicked = true
 				}
 			}
 		}
 	}
 
-	return nil
+	if !clicked {
+		return nil
+	}
+
+	if !w.IsFocused() {
+		return nil
+	}
+
+	if w.OnClickedCallback == nil {
+		return nil
+	}
+
+	return w.OnClickedCallback()
 }
 
 func (w *Widget) Render() string {

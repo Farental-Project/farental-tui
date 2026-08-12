@@ -36,12 +36,15 @@ func New() *Screen {
 	s.title.Style = t.Style(theme.TitleStyleID)
 
 	s.btSell = button.New("sell")
+	s.btSell.ClickWithEnter = true
 	s.btSell.OnClickedCallback = s.btSellOnClicked
 
 	s.btBuy = button.New("buy")
+	s.btBuy.ClickWithEnter = true
 	s.btBuy.OnClickedCallback = s.btBuyOnClicked
 
 	s.btManage = button.New("manage")
+	s.btManage.ClickWithEnter = true
 	s.btManage.OnClickedCallback = s.btManageOnClicked
 
 	s.focusManager = orvyn.NewFocusManager()
