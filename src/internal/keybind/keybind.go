@@ -25,8 +25,8 @@ var (
 	Filter        key.Binding
 	Tab           key.Binding
 	ShiftTab      key.Binding
-	GotoListStart key.Binding
-	GotoListEnd   key.Binding
+	Home          key.Binding
+	End           key.Binding
 	PrevPage      key.Binding
 	NextPage      key.Binding
 	F1Key         key.Binding
@@ -114,12 +114,12 @@ func Init() {
 	ShiftTab = key.NewBinding(
 		key.WithKeys("shift+tab"),
 		key.WithHelp(lokyn.L("shift+tab"), lokyn.L("prev. focus")))
-	GotoListStart = key.NewBinding(
-		key.WithKeys("g", "home"),
-		key.WithHelp("g/home", lokyn.L("goto list start")))
-	GotoListEnd = key.NewBinding(
-		key.WithKeys("G", "end"),
-		key.WithHelp("G/end", lokyn.L("goto list end")))
+	Home = key.NewBinding(
+		key.WithKeys("home"),
+		key.WithHelp("home", lokyn.L("goto start")))
+	End = key.NewBinding(
+		key.WithKeys("end"),
+		key.WithHelp("end", lokyn.L("goto end")))
 	PrevPage = key.NewBinding(
 		key.WithKeys("pgup"),
 		key.WithHelp("page up", lokyn.L("previous page")))

@@ -133,11 +133,11 @@ func (s *Screen) Update(msg tea.Msg) tea.Cmd {
 			s.logViewer.ScrollDown(pageScrollLines)
 			return nil
 
-		case key.Matches(m, keybind.GotoListStart):
+		case key.Matches(m, keybind.Home):
 			s.logViewer.GotoTop()
 			return nil
 
-		case key.Matches(m, keybind.GotoListEnd):
+		case key.Matches(m, keybind.End):
 			s.logViewer.GotoBottom()
 			return nil
 		}
