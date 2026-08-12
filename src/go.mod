@@ -6,11 +6,11 @@ require (
 	github.com/charmbracelet/bubbles v1.0.0
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/charmbracelet/x/ansi v0.11.7
+	github.com/charmbracelet/x/ansi v0.11.8
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/halsten-dev/bubblehelp v1.0.3
 	github.com/halsten-dev/lokyn v1.0.1
-	github.com/halsten-dev/orvyn v0.0.0-20260807130751-2c487c9103cd
+	github.com/halsten-dev/orvyn v0.0.0-20260809145349-05761570ddc7
 	github.com/minio/selfupdate v0.6.0
 	github.com/muesli/termenv v0.16.0
 	github.com/spf13/viper v1.21.0
@@ -45,10 +45,10 @@ require (
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	github.com/xo/terminfo v1.0.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 )
