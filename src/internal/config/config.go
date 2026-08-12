@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	VERSION = "1.2.2"
+	VERSION = "1.2.3"
 )
 
 var BaseURL = "http://127.0.0.1:3000" // valeur par défaut (dev)
