@@ -1,6 +1,8 @@
 package keybind
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/halsten-dev/lokyn"
 )
@@ -18,6 +20,7 @@ var (
 	Quit          key.Binding
 	Enter         key.Binding
 	Space         key.Binding
+	EnterAndSpace key.Binding
 	Esc           key.Binding
 	Filter        key.Binding
 	Tab           key.Binding
@@ -95,6 +98,10 @@ func Init() {
 	Space = key.NewBinding(
 		key.WithKeys(" "),
 		key.WithHelp(lokyn.L("space"), lokyn.L("claim")))
+	EnterAndSpace = key.NewBinding(
+		key.WithKeys("enter", "space"),
+		key.WithHelp(fmt.Sprintf("%s/%s", lokyn.L("space"), "enter"),
+			lokyn.L("interact")))
 	Esc = key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", lokyn.L("back")))

@@ -51,6 +51,7 @@ const (
 	ContextNavEnterEsc                         bubblehelp.KeymapContext = "navEnterEsc"
 	ContextAuctionBuy                          bubblehelp.KeymapContext = "auctionBuy"
 	ContextAuctionManage                       bubblehelp.KeymapContext = "auctionManage"
+	ContextAuctionMenu                         bubblehelp.KeymapContext = "auctionMenu"
 )
 
 func InitContexts() {
@@ -639,6 +640,16 @@ func InitContexts() {
 	ShopKeymap.NewKeyBinding(Quit, false)
 
 	bubblehelp.RegisterContext(ContextShop, ShopKeymap)
+
+	auctionMenuKeymap := bubblehelp.NewKeymap(2)
+	auctionMenuKeymap.Style = style.MainHelpStyle
+	auctionMenuKeymap.NewKeyBinding(EnterAndSpace, true)
+	auctionMenuKeymap.NewKeyBinding(Up, true)
+	auctionMenuKeymap.NewKeyBinding(Down, true)
+	auctionMenuKeymap.NewKeyBinding(Esc, true)
+	auctionMenuKeymap.NewKeyBinding(Quit, true)
+
+	bubblehelp.RegisterContext(ContextAuctionMenu, auctionMenuKeymap)
 
 	ManualKeymap := bubblehelp.NewKeymap(2)
 	ManualKeymap.Style = style.MainHelpStyle

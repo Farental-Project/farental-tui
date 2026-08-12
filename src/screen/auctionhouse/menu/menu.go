@@ -4,9 +4,11 @@ import (
 	"farental/internal/keybind"
 	"farental/screen"
 	"farental/widget/button"
+	"farental/widget/help"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/halsten-dev/bubblehelp"
 	"github.com/halsten-dev/lokyn"
 	"github.com/halsten-dev/orvyn"
 	"github.com/halsten-dev/orvyn/layout"
@@ -19,6 +21,8 @@ type Screen struct {
 	btSell   *button.Widget
 	btBuy    *button.Widget
 	btManage *button.Widget
+
+	help *help.Widget
 
 	focusManager *orvyn.FocusManager
 
@@ -47,6 +51,8 @@ func New() *Screen {
 	s.btManage.ClickWithEnter = true
 	s.btManage.OnClickedCallback = s.btManageOnClicked
 
+	s.help = help.New()
+
 	s.focusManager = orvyn.NewFocusManager()
 	s.focusManager.Add(s.btSell)
 	s.focusManager.Add(s.btBuy)
@@ -55,19 +61,30 @@ func New() *Screen {
 	s.focusManager.NextFocusKeybind = keybind.Down
 	s.focusManager.PreviousFocusKeybind = keybind.Up
 
+	menuLayout := layout.NewDefinedWidthVerticalLayout(10, 30, orvyn.NewSize(10, 4),
+		s.title,
+		orvyn.VGap,
+		s.btSell,
+		s.btBuy,
+		s.btManage,
+	)
+
+	helpLayout := layout.NewDefinedWidthVerticalLayout(10, 100, orvyn.NewSize(10, 4),
+		s.help)
+
 	s.layout = layout.NewCenterLayout(
-		layout.NewDefinedWidthVerticalLayout(10, 30, orvyn.NewSize(10, 4),
-			s.title,
+		layout.NewMaxWidthVBoxLayout(0,
+			menuLayout,
 			orvyn.VGap,
-			s.btSell,
-			s.btBuy,
-			s.btManage),
+			helpLayout),
 	)
 
 	return s
 }
 
 func (s *Screen) OnEnter(any) tea.Cmd {
+	bubblehelp.SwitchContext(keybind.ContextAuctionMenu)
+
 	s.focusManager.FocusFirst()
 
 	s.title.SetValue(lokyn.L("Auction house"))
